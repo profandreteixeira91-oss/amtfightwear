@@ -1,5 +1,6 @@
 import { Clock, Wallet, Award, Smartphone, TrendingDown, LayoutGrid } from "lucide-react";
 import { Section, FadeIn } from "./Section";
+import { ShotFrame } from "./ShotFrame";
 import { CTABand } from "./CTABand";
 import { SHOT, type ShotKey } from "./shots";
 
@@ -70,18 +71,13 @@ export function Transformation() {
                   <p className="mt-2 text-sm leading-relaxed text-[#111111]/65">{it.desc}</p>
                 </div>
               </div>
-              <figure className="mt-auto border-t border-black/5 bg-neutral-100">
-                <img
-                  src={SHOT[it.shot]}
-                  alt={it.caption}
-                  loading="lazy"
-                  decoding="async"
-                  className="aspect-[16/9] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
-                />
-                <figcaption className="px-6 py-3 text-[11px] font-medium uppercase tracking-wider text-[#111111]/45">
-                  {it.caption}
-                </figcaption>
-              </figure>
+              <ShotFrame
+                className="mt-auto border-t border-black/5"
+                src={SHOT[it.shot]}
+                alt={it.caption}
+                caption={it.caption}
+              />
+
             </article>
           </FadeIn>
         ))}

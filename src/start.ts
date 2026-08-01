@@ -17,6 +17,14 @@ const domainRoutingMiddleware = createMiddleware().server(async ({ next, request
 
   if (!isPageRequest) return next();
 
+  // Ambientes de desenvolvimento/preview nunca são redirecionados para o domínio público.
+  const isInternalHost =
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".lovable.app") ||
+    hostname.endsWith(".lovableproject.com");
+  if (isInternalHost) return next();
+
   if (hostname !== DOJO_HOST && url.pathname.startsWith("/dojo")) {
     return Response.redirect(
       `https://${DOJO_HOST}${url.pathname}${url.search}${url.hash}`,

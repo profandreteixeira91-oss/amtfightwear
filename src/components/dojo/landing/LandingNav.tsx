@@ -35,8 +35,8 @@ export function LandingNav() {
             <a href="#cta">Teste Grátis</a>
           </Button>
         </div>
-        <button aria-label="Menu" className="md:hidden" onClick={() => setOpen((v) => !v)}>
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <button aria-label="Abrir menu" aria-expanded={open} className="-mr-2 grid h-11 w-11 place-items-center rounded-lg text-[#111111] md:hidden" onClick={() => setOpen((v) => !v)}>
+          {open ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
         </button>
       </div>
       {open && (

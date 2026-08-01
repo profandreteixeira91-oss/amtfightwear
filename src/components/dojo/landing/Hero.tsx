@@ -29,11 +29,11 @@ export function Hero() {
         </svg>
       </div>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <DojoLogo className="mb-6 h-24 w-auto md:h-32 drop-shadow-[0_10px_30px_rgba(193,18,31,0.15)]" />
+      <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+        <motion.div className="min-w-0" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <DojoLogo className="mb-6 h-20 w-auto max-w-full sm:h-24 md:h-32 drop-shadow-[0_10px_30px_rgba(193,18,31,0.15)]" />
 
-          <h1 className="text-[2rem] font-black uppercase leading-[1.03] tracking-tight text-[#111111] sm:text-4xl lg:text-[3.4rem]">
+          <h1 className="hyphens-auto break-words text-[1.6rem] font-black uppercase leading-[1.06] tracking-tight text-[#111111] sm:text-4xl lg:text-[3.4rem]">
             Pare de perder tempo <span className="text-[#C1121F]">administrando</span> sua academia.
           </h1>
 
@@ -53,26 +53,26 @@ export function Hero() {
             ))}
           </ul>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Button
               asChild
               size="lg"
-              className="group min-h-12 rounded-full bg-[#C1121F] px-7 text-base font-bold text-white shadow-lg shadow-[#C1121F]/25 hover:bg-[#a30f1a]"
+              className="group min-h-12 w-full rounded-full bg-[#C1121F] px-5 text-sm font-bold text-white shadow-lg shadow-[#C1121F]/25 hover:bg-[#a30f1a] sm:w-auto sm:px-7 sm:text-base"
             >
-              <a href="/dojo/auth">
-                COMEÇAR TESTE GRATUITO
-                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              <a href="/dojo/auth" className="min-w-0">
+                <span className="truncate">COMEÇAR TESTE GRATUITO</span>
+                <ArrowRight className="ml-1 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </a>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="min-h-12 rounded-full border-black/15 bg-white px-6 font-semibold text-[#111111] hover:bg-black/5"
+              className="min-h-12 w-full rounded-full border-black/15 bg-white px-5 text-sm font-semibold text-[#111111] hover:bg-black/5 sm:w-auto sm:px-6 sm:text-base"
             >
-              <a href="#prints">
-                <PlayCircle className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                ASSISTIR DEMONSTRAÇÃO
+              <a href="#prints" className="min-w-0">
+                <PlayCircle className="mr-1.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">ASSISTIR DEMONSTRAÇÃO</span>
               </a>
             </Button>
           </div>
@@ -89,14 +89,14 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="relative mx-auto w-full max-w-xl"
+          className="relative mx-auto min-w-0 w-full max-w-xl"
         >
           <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_40px_80px_-30px_rgba(0,0,0,0.35)]">
             <div className="flex items-center gap-1.5 border-b border-black/5 bg-neutral-50 px-3 py-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-              <span className="ml-3 truncate text-[10px] font-semibold uppercase tracking-wider text-[#111111]/50">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#ff5f57]" />
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#febc2e]" />
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#28c840]" />
+              <span className="ml-3 min-w-0 truncate text-[11px] font-semibold uppercase tracking-wider text-[#111111]/50">
                 AMT Dojo Manager · {current.label}
               </span>
             </div>
@@ -110,7 +110,7 @@ export function Hero() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="absolute inset-0 h-full w-full object-cover object-top"
+                  className="absolute top-0 left-[-26%] h-full w-[170%] max-w-none object-cover object-top md:left-0 md:w-full"
                   fetchPriority="high"
                   decoding="async"
                 />
@@ -133,7 +133,7 @@ export function Hero() {
             {HERO_ROTATION.map((r, idx) => (
               <span
                 key={r.key}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors ${
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                   idx === i ? "bg-[#C1121F] text-white" : "bg-black/5 text-[#111111]/50"
                 }`}
               >
