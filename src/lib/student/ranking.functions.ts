@@ -154,6 +154,8 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .eq("class_id", effectiveClassId)
       .in("student_id", studentIds);
     if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
+    if (untilIso) attQuery = attQuery.lt("checked_in_at", untilIso);
+
     const { data: attendance, error: attErr } = await attQuery;
     if (attErr) throw new Error(attErr.message);
 
