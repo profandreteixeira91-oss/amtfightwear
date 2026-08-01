@@ -88,12 +88,15 @@ function DojoLanding() {
 
       <main>
         <Hero />
-        <Benefits />
-        <Features />
-        <Differentiators />
-        <ModulesGrid />
+        <Problems />
+        <Transformation />
+        <HowItWorks />
+        <ModulesShowcase />
+        <StudentApp />
+        <Automations />
         <RealScreenshots />
         <FightWearIntegration />
+        <Differentiators />
         <Integrations />
         <Plans />
         <FAQ />
