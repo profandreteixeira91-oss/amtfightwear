@@ -9,6 +9,13 @@ const DOJO_HOST = "dojomanager.amtfightwear.com.br";
 
 const domainRoutingMiddleware = createMiddleware().server(async ({ next, request }) => {
   const url = new URL(request.url);
+
+  // Internal /lovable/* routes (auth emails, webhooks, cron) must never be
+  // redirected by domain or locale routing.
+  if (url.pathname.startsWith("/lovable/")) {
+    return next();
+  }
+
   const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
   const hostHeader = forwardedHost || request.headers.get("host") || url.host;
   const hostname = hostHeader.toLowerCase().replace(/:\d+$/, "").replace(/\.$/, "");
