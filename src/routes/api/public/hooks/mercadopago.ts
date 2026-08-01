@@ -13,7 +13,10 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
     handlers: {
       POST: async ({ request }) => {
         const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+        const storeSecret = process.env.STORE_MERCADOPAGO_WEBHOOK_SECRET;
         const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+        // Conta MP exclusiva da loja AMT Fight Wear.
+        const storeAccessToken = process.env.STORE_MERCADOPAGO_ACCESS_TOKEN;
 
         const url = new URL(request.url);
         const dataId = url.searchParams.get("data.id") ?? url.searchParams.get("id");
@@ -28,8 +31,10 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           return new Response("Bad Request", { status: 400 });
         }
 
-        // Verificação de assinatura (não falha se o webhook secret não estiver definido — útil no primeiro setup)
-        if (secret) {
+        // Verificação de assinatura (não falha se nenhum webhook secret estiver definido — útil no primeiro setup)
+        // Aceita a assinatura da conta AMT Pay OU da conta da loja.
+        const secrets = [secret, storeSecret].filter((s): s is string => Boolean(s));
+        if (secrets.length) {
           const parts = Object.fromEntries(
             rawSig.split(",").map((p) => {
               const [k, v] = p.trim().split("=");
@@ -40,16 +45,17 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           const v1 = parts.v1 ?? "";
           const effectiveId = dataId ?? payload?.data?.id ?? "";
           const manifest = `id:${effectiveId};request-id:${requestId};ts:${ts};`;
-          const expected = createHmac("sha256", secret).update(manifest).digest("hex");
-          try {
-            const a = Buffer.from(v1);
-            const b = Buffer.from(expected);
-            if (a.length !== b.length || !timingSafeEqual(a, b)) {
-              return new Response("Invalid signature", { status: 401 });
+          const ok = secrets.some((s) => {
+            try {
+              const expected = createHmac("sha256", s).update(manifest).digest("hex");
+              const a = Buffer.from(v1);
+              const b = Buffer.from(expected);
+              return a.length === b.length && timingSafeEqual(a, b);
+            } catch {
+              return false;
             }
-          } catch {
-            return new Response("Invalid signature", { status: 401 });
-          }
+          });
+          if (!ok) return new Response("Invalid signature", { status: 401 });
         }
 
         const type = payload?.type ?? payload?.topic ?? "";
@@ -94,15 +100,23 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
 
         // ============================================================
         // FLUXO B: Pagamentos avulsos (loja + Pix/mensalidades)
-        // AMT Pay v2 — todos os pagamentos passam pela conta MP central.
+        // A loja usa a conta MP própria; o AMT Pay/Dojo usa a conta central.
+        // Tentamos os tokens disponíveis até encontrar o pagamento.
         // ============================================================
-        if (!accessToken) return new Response("ok");
+        const tokens = [storeAccessToken, accessToken].filter((t): t is string => Boolean(t));
+        if (!tokens.length) return new Response("ok");
 
-        const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        if (!res.ok) return new Response("ok");
-        const payment = await res.json();
+        let payment: any = null;
+        for (const token of tokens) {
+          const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            payment = await res.json();
+            break;
+          }
+        }
+        if (!payment) return new Response("ok");
 
         const status = String(payment.status ?? "").toLowerCase();
         const orderId = payment.external_reference ?? null;

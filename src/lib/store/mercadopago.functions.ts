@@ -9,8 +9,10 @@ function onlyDigits(s: string | null | undefined): string {
 }
 
 async function mp<T = any>(path: string, init?: RequestInit): Promise<T> {
-  const key = process.env.MERCADOPAGO_ACCESS_TOKEN;
-  if (!key) throw new Error("MERCADOPAGO_ACCESS_TOKEN não configurada");
+  // Conta MP da LOJA AMT Fight Wear (independente da conta do AMT Pay/Dojo).
+  const key =
+    process.env.STORE_MERCADOPAGO_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN;
+  if (!key) throw new Error("STORE_MERCADOPAGO_ACCESS_TOKEN não configurada");
   const res = await fetch(`${MP_BASE}${path}`, {
     ...init,
     headers: {
@@ -57,8 +59,9 @@ async function createCardToken(card: {
   ccv: string;
   document: string;
 }): Promise<string> {
-  const publicKey = process.env.MERCADOPAGO_PUBLIC_KEY;
-  if (!publicKey) throw new Error("MERCADOPAGO_PUBLIC_KEY não configurada");
+  const publicKey =
+    process.env.STORE_MERCADOPAGO_PUBLIC_KEY || process.env.MERCADOPAGO_PUBLIC_KEY;
+  if (!publicKey) throw new Error("STORE_MERCADOPAGO_PUBLIC_KEY não configurada");
   const res = await fetch(`${MP_BASE}/v1/card_tokens?public_key=${publicKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
