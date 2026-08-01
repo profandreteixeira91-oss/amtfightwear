@@ -435,6 +435,17 @@ function OrderPage() {
           >
             Falar com o suporte
           </a>
+          {canCancel && (
+            <Button
+              onClick={handleCancel}
+              disabled={cancelling}
+              variant="outline"
+              className="w-full gap-2 border-destructive/40 text-destructive hover:bg-destructive/5 hover:text-destructive sm:w-auto"
+            >
+              <XCircle className="h-4 w-4" />
+              {cancelling ? "Cancelando…" : "Cancelar pedido"}
+            </Button>
+          )}
         </div>
       </div>
     </StoreShell>
