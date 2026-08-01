@@ -54,6 +54,8 @@ const STATUS: Record<string, { label: string; cls: string }> = {
   draft: { label: "Rascunho", cls: "bg-neutral-100 text-neutral-600" },
   sent: { label: "Enviado", cls: "bg-blue-100 text-blue-700" },
   approved: { label: "Aprovado", cls: "bg-emerald-100 text-emerald-700" },
+  paid_50: { label: "Pago (50%)", cls: "bg-teal-100 text-teal-700" },
+  paid_100: { label: "Pago (100%)", cls: "bg-green-600 text-white" },
   rejected: { label: "Recusado", cls: "bg-red-100 text-red-700" },
   expired: { label: "Expirado", cls: "bg-amber-100 text-amber-700" },
 };
@@ -131,7 +133,10 @@ function QuotesPage() {
       total: all.length,
       approved: all.filter((r: any) => r.status === "approved").length,
       open: all.filter((r: any) => r.status === "draft" || r.status === "sent").length,
-      value: all.filter((r: any) => r.status === "approved").reduce((a: number, r: any) => a + Number(r.total || 0), 0),
+      paid: all
+        .filter((r: any) => r.status === "paid_50" || r.status === "paid_100")
+        .reduce((a: number, r: any) => a + Number(r.total || 0) * (r.status === "paid_50" ? 0.5 : 1), 0),
+      value: all.filter((r: any) => r.status === "approved" || r.status === "paid_50" || r.status === "paid_100").reduce((a: number, r: any) => a + Number(r.total || 0), 0),
     };
   }, [quotes.data]);
 
@@ -331,7 +336,7 @@ function QuotesPage() {
           <Kpi icon={FileText} label="Orçamentos" value={kpis.total} />
           <Kpi icon={Clock} label="Em aberto" value={kpis.open} />
           <Kpi icon={CheckCircle2} label="Aprovados" value={kpis.approved} />
-          <Kpi icon={Users} label="Valor aprovado" value={BRL(kpis.value)} />
+          <Kpi icon={Users} label="Recebido" value={BRL(kpis.paid)} />
         </div>
 
         {/* Filtros */}
