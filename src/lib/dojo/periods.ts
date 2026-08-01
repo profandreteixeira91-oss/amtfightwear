@@ -75,3 +75,42 @@ export const PERIOD_LABELS: Record<RankingPeriod, string> = {
   month: "Mês vigente (dia 01 ao último dia)",
   week: "Semana vigente (domingo a sábado)",
 };
+
+/**
+ * Desloca a data de referência em N períodos (negativo = passado).
+ * Usado pelos filtros de navegação de período no ranking.
+ */
+export function shiftPeriodReference(
+  period: RankingPeriod,
+  reference: string,
+  delta: number,
+): string {
+  if (period === "all" || delta === 0) return reference;
+  if (period === "week") return addDaysISO(reference, delta * 7);
+  if (period === "month") {
+    const d = isoToDate(reference);
+    return ymd(d.getUTCFullYear(), d.getUTCMonth() + 1 + delta, 1);
+  }
+  const d = isoToDate(reference);
+  return ymd(d.getUTCFullYear() + delta, 1, 1);
+}
+
+const MONTHS_PT = [
+  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+];
+
+function brShort(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+/** Rótulo amigável da janela selecionada (ex.: "julho de 2026"). */
+export function formatPeriodRangeLabel(period: RankingPeriod, reference: string): string {
+  if (period === "all") return "Histórico completo";
+  const range = resolvePeriodRange(period, reference);
+  const d = isoToDate(reference);
+  if (period === "year") return `Ano ${d.getUTCFullYear()}`;
+  if (period === "month") return `${MONTHS_PT[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
+  return `${brShort(range.startDay!)} a ${brShort(range.endDay!)}`;
+}
