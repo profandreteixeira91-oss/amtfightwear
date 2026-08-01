@@ -483,7 +483,7 @@ function StoreDashboard() {
                         <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
                           <span className="truncate">{o.city || "—"}</span>
                           <span>·</span>
-                          <Badge variant="outline" className="h-4 text-[10px]">{o.status}</Badge>
+                          <Badge variant="outline" className="h-4 text-[10px]">{orderStatusLabel[o.status] ?? o.status}</Badge>
                         </div>
                       </div>
                       <div className="shrink-0 text-right font-black">{BRL(o.total)}</div>
