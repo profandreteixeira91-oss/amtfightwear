@@ -40,23 +40,9 @@ function StudentResetPasswordPage() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Isolamento de sessões: o link de recuperação chega na mesma origem do
-  // painel administrativo. Se o cliente principal (admin/dojo) capturou o
-  // token do aluno, derrubamos essa sessão para que a conta do aluno NUNCA
-  // ganhe acesso a /admin ou /dojo.
-  useEffect(() => {
-    (async () => {
-      const [{ data: studentData }, { data: mainData }] = await Promise.all([
-        studentSupabase.auth.getSession(),
-        supabase.auth.getSession(),
-      ]);
-      const studentUserId = studentData.session?.user?.id;
-      const mainUserId = mainData.session?.user?.id;
-      if (studentUserId && mainUserId && studentUserId === mainUserId) {
-        await supabase.auth.signOut({ scope: "local" });
-      }
-    })();
-  }, [ready]);
+  // Sessões independentes: o Portal do Aluno usa `studentSupabase` (storageKey
+  // próprio). Não lemos nem alteramos a sessão do painel administrativo aqui.
+
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
