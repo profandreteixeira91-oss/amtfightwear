@@ -1,5 +1,6 @@
 import { Clock, Wallet, Award, Smartphone, TrendingDown, LayoutGrid } from "lucide-react";
 import { Section, FadeIn } from "./Section";
+import { ShotFrame } from "./ShotFrame";
 import { CTABand } from "./CTABand";
 import { SHOT, type ShotKey } from "./shots";
 
