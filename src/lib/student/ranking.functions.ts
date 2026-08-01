@@ -75,6 +75,8 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .select("student_id")
       .eq("owner_id", me.owner_id);
     if (sinceIso) attOverallQuery = attOverallQuery.gte("checked_in_at", sinceIso);
+    if (untilIso) attOverallQuery = attOverallQuery.lt("checked_in_at", untilIso);
+
     const { data: attOverall } = await attOverallQuery;
     const overallCounts: Record<string, number> = {};
     for (const id of academyIds) overallCounts[id] = 0;
