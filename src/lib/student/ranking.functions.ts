@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
+import { resolvePeriodRange } from "@/lib/dojo/periods";
+
 import { fetchActiveStudent } from "./_me";
 
 /**
@@ -55,16 +57,9 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .select("id", { count: "exact", head: true })
       .eq("student_id", me.id);
 
-    // 4) Janela temporal
-    let sinceIso: string | null = null;
-    const now = new Date();
-    if (data.period === "week") {
-      const d = new Date(now); d.setDate(d.getDate() - 7); sinceIso = d.toISOString();
-    } else if (data.period === "month") {
-      const d = new Date(now); d.setMonth(d.getMonth() - 1); sinceIso = d.toISOString();
-    } else if (data.period === "year") {
-      const d = new Date(now); d.setFullYear(d.getFullYear() - 1); sinceIso = d.toISOString();
-    }
+    // 4) Janela temporal (calendário civil no fuso do Brasil)
+    const { since: sinceIso, until: untilIso } = resolvePeriodRange(data.period);
+
 
     // 4b) Ranking geral da academia (todos os alunos ativos), sempre calculado
     //     para o resumo geral da tela — independente da turma selecionada.
@@ -80,6 +75,8 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .select("student_id")
       .eq("owner_id", me.owner_id);
     if (sinceIso) attOverallQuery = attOverallQuery.gte("checked_in_at", sinceIso);
+    if (untilIso) attOverallQuery = attOverallQuery.lt("checked_in_at", untilIso);
+
     const { data: attOverall } = await attOverallQuery;
     const overallCounts: Record<string, number> = {};
     for (const id of academyIds) overallCounts[id] = 0;
@@ -157,6 +154,8 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .eq("class_id", effectiveClassId)
       .in("student_id", studentIds);
     if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
+    if (untilIso) attQuery = attQuery.lt("checked_in_at", untilIso);
+
     const { data: attendance, error: attErr } = await attQuery;
     if (attErr) throw new Error(attErr.message);
 

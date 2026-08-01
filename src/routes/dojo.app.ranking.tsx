@@ -73,10 +73,11 @@ function RankingPage() {
 
   const periodLabel: Record<Period, string> = {
     all: "Histórico completo",
-    year: "Últimos 12 meses",
-    month: "Últimos 30 dias",
-    week: "Últimos 7 dias",
+    year: "Ano vigente (01/01 a 31/12)",
+    month: "Mês vigente (dia 01 ao último dia)",
+    week: "Semana vigente (domingo a sábado)",
   };
+
 
   return (
     <div className="space-y-4 p-3 sm:space-y-6 sm:p-4 md:p-6">
