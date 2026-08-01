@@ -27,7 +27,8 @@ async function graphFetch<T>(path: string): Promise<T> {
 
 export const getDirectMetaAccount = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-.handler(async () => {
+  .handler(async ({ context }) => {
+  await assertSaasOwner(context);
   const account = await graphFetch<{
     id: string;
     name: string;
@@ -53,7 +54,8 @@ export const getDirectMetaAccount = createServerFn({ method: "GET" })
 
 export const getDirectMetaCampaigns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-.handler(async () => {
+  .handler(async ({ context }) => {
+  await assertSaasOwner(context);
   const data = await graphFetch<{
     data: Array<{
       id: string;
