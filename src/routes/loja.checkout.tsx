@@ -373,9 +373,27 @@ function CheckoutPage() {
 
           </div>
 
-          <aside className="h-fit rounded-lg border bg-card p-5">
+          <aside className="h-fit rounded-lg border bg-card p-5 lg:sticky lg:top-24">
             <h2 className="mb-3 font-bold">Resumo do pedido</h2>
+
+            {/* Barra de progresso do frete grátis */}
+            <div className="mb-4">
+              <div className="mb-1.5 flex items-center justify-between text-[11px] font-semibold">
+                <span className={freeShipping ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}>
+                  {freeShipping ? "Frete grátis conquistado!" : `Faltam ${formatBRL(FREE_SHIPPING_THRESHOLD - subtotal)} para frete grátis`}
+                </span>
+                <span className="text-muted-foreground">{Math.round(freeShippingPct)}%</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${freeShipping ? "bg-emerald-500" : "bg-primary"}`}
+                  style={{ width: `${freeShippingPct}%` }}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2 text-sm">
+
               {items.map((i) => (
                 <div key={`${i.product_id}-${i.variant_id ?? ""}`} className="flex justify-between gap-2">
                   <span className="line-clamp-2 flex-1">{i.name} <span className="text-muted-foreground">×{i.quantity}</span></span>
