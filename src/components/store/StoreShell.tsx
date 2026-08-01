@@ -564,7 +564,7 @@ export function ProductCard({ product }: { product: { id: string; name: string; 
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.25)]">
       {/* Favorito fica fora do Link para não navegar ao salvar */}
       <div className="absolute right-3 top-3 z-10">
-        <FavoriteButton productId={product.id} productName={product.name} price={price} />
+        <FavoriteButton product={{ id: product.id, name: product.name, slug: product.slug ?? product.id, image_url: product.image_url ?? null, price }} />
       </div>
 
       <Link
