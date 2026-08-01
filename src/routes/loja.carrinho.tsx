@@ -5,6 +5,7 @@ import { ProductImage } from "@/components/store/ProductImage";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import { KimonoGuideCallout, isKimonoContext } from "@/components/store/KimonoGuideLink";
 import { CartUpsell } from "@/components/store/CartUpsell";
 import { RecentlyViewed } from "@/components/store/RecentlyViewed";
 import { TrustBadges } from "@/components/store/TrustBadges";
@@ -303,6 +304,8 @@ function CartPage() {
                 </ul>
               </CardContent>
             </Card>
+
+            {items.some((i) => isKimonoContext(i.name)) && <KimonoGuideCallout />}
 
             <CartUpsell subtotal={subtotalAfterDiscount} />
             <RecentlyViewed />

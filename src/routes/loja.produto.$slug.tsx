@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { KimonoGuideCallout, KimonoSizeGuideLink, isKimonoContext } from "@/components/store/KimonoGuideLink";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { getProductBySlug, listStoreCategories } from "@/lib/store/store.functions";
 import { useEffect, useState } from "react";
@@ -193,6 +194,13 @@ function ProductPage() {
   };
 
 
+  const showKimonoGuide = isKimonoContext(
+    product.name,
+    product.short_description,
+    data.category?.name,
+    data.category?.slug,
+  );
+
   return (
     <StoreShell categories={categories}>
       <div className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 sm:pb-12 sm:pt-8 lg:px-8">
@@ -247,7 +255,7 @@ function ProductPage() {
               <div>
                 <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
                   <span>Tamanho / Variação</span>
-                  <span className="text-primary normal-case tracking-normal font-medium">Guia de medidas</span>
+                  {showKimonoGuide ? <KimonoSizeGuideLink /> : <span className="text-primary normal-case tracking-normal font-medium">Guia de medidas</span>}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {data.variants.map((v) => {
@@ -307,6 +315,8 @@ function ProductPage() {
               <p className="text-sm leading-relaxed text-muted-foreground">{product.short_description}</p>
             )}
 
+            {showKimonoGuide && <KimonoGuideCallout variant="card" />}
+
             <ShippingCalculator
               items={[{ product_id: product.id, variant_id: variant?.id ?? null, quantity: qty, unit_price: Number(price) }]}
               onSelect={handleSelectShipping}
@@ -348,6 +358,8 @@ function ProductPage() {
             </div>
           </section>
         )}
+
+        {showKimonoGuide && <KimonoGuideCallout className="mt-14" />}
 
         <RecentlyViewed excludeId={product.id} />
       </div>

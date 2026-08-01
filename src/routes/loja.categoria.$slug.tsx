@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { SlidersHorizontal, X, ChevronDown, ArrowUpDown } from "lucide-react";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
+import { KimonoGuideCallout, isKimonoContext } from "@/components/store/KimonoGuideLink";
 import { getCategoryWithProducts, listStoreCategories } from "@/lib/store/store.functions";
 
 export const Route = createFileRoute("/loja/categoria/$slug")({
@@ -189,6 +190,12 @@ function CategoryPage() {
     return list;
   }, [products, selectedSubIds, descendantIds, minPrice, maxPrice, onlyPromo, sort]);
 
+  const showKimonoGuide = isKimonoContext(
+    category?.name,
+    category?.slug,
+    ...subCategories.map((c) => c.name),
+  );
+
   const currency = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
@@ -320,6 +327,7 @@ function CategoryPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+        {showKimonoGuide && <KimonoGuideCallout className="mb-6 sm:mb-8" />}
         <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
           {/* Sidebar (desktop) */}
           <aside className="hidden lg:block">
