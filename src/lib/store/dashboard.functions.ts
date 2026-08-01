@@ -80,6 +80,41 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
 
     const revenueToday = sum(paid(ordersToday ?? []));
     const revenueYesterday = sum(paid(ordersYesterday ?? []));
+
+    /* ---------- Panorama: TODOS os pedidos (todos os setores, inclusive pendentes) ---------- */
+    const allRange = ordersRange ?? [];
+    const dojoLinkedIds = new Set<string>();
+    if (allRange.length > 0) {
+      const { data: dojoLinks } = await supabaseAdmin
+        .from("dojo_store_orders")
+        .select("store_order_id")
+        .in("store_order_id", allRange.map((o) => o.id));
+      for (const l of dojoLinks ?? []) if (l.store_order_id) dojoLinkedIds.add(l.store_order_id);
+    }
+    const sectorOf = (o: (typeof allRange)[number]) => {
+      if (dojoLinkedIds.has(o.id)) return "Dojo Manager";
+      const meta = (o.metadata as { wholesale?: boolean } | null) ?? null;
+      return meta?.wholesale ? "Atacado" : "Varejo";
+    };
+    const sectorMap = new Map<string, { count: number; value: number; pending: number; pending_value: number }>();
+    for (const o of allRange) {
+      const s = sectorOf(o);
+      const cur = sectorMap.get(s) ?? { count: 0, value: 0, pending: 0, pending_value: 0 };
+      cur.count += 1;
+      cur.value += Number(o.total || 0);
+      const isPaid = o.payment_status === "paid" || o.payment_status === "approved";
+      if (!isPaid) {
+        cur.pending += 1;
+        cur.pending_value += Number(o.total || 0);
+      }
+      sectorMap.set(s, cur);
+    }
+    const sectorBreakdown = Array.from(sectorMap.entries())
+      .map(([sector, v]) => ({ sector, ...v }))
+      .sort((a, b) => b.value - a.value);
+    const pendingRange = allRange.filter(
+      (o) => o.payment_status !== "paid" && o.payment_status !== "approved",
+    );
     const growth = revenueYesterday > 0 ? ((revenueToday - revenueYesterday) / revenueYesterday) * 100 : revenueToday > 0 ? 100 : 0;
 
     const ordersTodayCount = (ordersToday ?? []).length;
