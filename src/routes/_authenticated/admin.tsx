@@ -1,6 +1,8 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { OwnerOnly } from "@/lib/auth/owner-only";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
@@ -36,9 +38,12 @@ function AdminLayout() {
   }, []);
 
   return (
-    <AdminShell>
-      <Outlet />
-    </AdminShell>
+    <OwnerOnly description="O painel administrativo da AMT Fight Wear é independente do Portal do Aluno e do Dojo Manager. Sua conta não tem permissão para acessar esta área.">
+      <AdminShell>
+        <Outlet />
+      </AdminShell>
+    </OwnerOnly>
   );
 }
+
 

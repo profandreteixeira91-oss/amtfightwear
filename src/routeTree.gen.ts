@@ -35,6 +35,7 @@ import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
 import { Route as DojoAppRouteImport } from './routes/dojo.app'
 import { Route as CertificateHashRouteImport } from './routes/certificate.$hash'
+import { Route as AppResetPasswordRouteImport } from './routes/app.reset-password'
 import { Route as AppLoginRouteImport } from './routes/app.login'
 import { Route as AppInstallRouteImport } from './routes/app.install'
 import { Route as AppStudentRouteImport } from './routes/app._student'
@@ -436,6 +437,11 @@ const CertificateHashRoute = CertificateHashRouteImport.update({
   id: '/certificate/$hash',
   path: '/certificate/$hash',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppResetPasswordRoute = AppResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppLoginRoute = AppLoginRouteImport.update({
   id: '/login',
@@ -1967,6 +1973,7 @@ export interface FileRoutesByFullPath {
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
+  '/app/reset-password': typeof AppResetPasswordRoute
   '/certificate/$hash': typeof CertificateHashRoute
   '/dojo/app': typeof DojoAppRouteWithChildren
   '/dojo/auth': typeof DojoAuthRoute
@@ -2261,6 +2268,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
+  '/app/reset-password': typeof AppResetPasswordRoute
   '/certificate/$hash': typeof CertificateHashRoute
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
@@ -2547,6 +2555,7 @@ export interface FileRoutesById {
   '/app/_student': typeof AppStudentRouteWithChildren
   '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
+  '/app/reset-password': typeof AppResetPasswordRoute
   '/certificate/$hash': typeof CertificateHashRoute
   '/dojo/app': typeof DojoAppRouteWithChildren
   '/dojo/auth': typeof DojoAuthRoute
@@ -2847,6 +2856,7 @@ export interface FileRouteTypes {
     | '/api/generate-ad-image'
     | '/app/install'
     | '/app/login'
+    | '/app/reset-password'
     | '/certificate/$hash'
     | '/dojo/app'
     | '/dojo/auth'
@@ -3141,6 +3151,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/install'
     | '/app/login'
+    | '/app/reset-password'
     | '/certificate/$hash'
     | '/dojo/auth'
     | '/dojo/checkout'
@@ -3426,6 +3437,7 @@ export interface FileRouteTypes {
     | '/app/_student'
     | '/app/install'
     | '/app/login'
+    | '/app/reset-password'
     | '/certificate/$hash'
     | '/dojo/app'
     | '/dojo/auth'
@@ -3944,6 +3956,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/certificate/$hash'
       preLoaderRoute: typeof CertificateHashRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/reset-password': {
+      id: '/app/reset-password'
+      path: '/reset-password'
+      fullPath: '/app/reset-password'
+      preLoaderRoute: typeof AppResetPasswordRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/login': {
       id: '/app/login'
@@ -6366,6 +6385,7 @@ interface AppRouteChildren {
   AppStudentRoute: typeof AppStudentRouteWithChildren
   AppInstallRoute: typeof AppInstallRouteWithChildren
   AppLoginRoute: typeof AppLoginRoute
+  AppResetPasswordRoute: typeof AppResetPasswordRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -6373,6 +6393,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppStudentRoute: AppStudentRouteWithChildren,
   AppInstallRoute: AppInstallRouteWithChildren,
   AppLoginRoute: AppLoginRoute,
+  AppResetPasswordRoute: AppResetPasswordRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

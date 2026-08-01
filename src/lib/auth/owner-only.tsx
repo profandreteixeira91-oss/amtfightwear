@@ -25,7 +25,13 @@ export function useIsOwner() {
   return state;
 }
 
-export function OwnerOnly({ children }: { children: React.ReactNode }) {
+export function OwnerOnly({
+  children,
+  description,
+}: {
+  children: React.ReactNode;
+  description?: string;
+}) {
   const { loading, isOwner, email } = useIsOwner();
 
   if (loading) {
@@ -45,9 +51,10 @@ export function OwnerOnly({ children }: { children: React.ReactNode }) {
           </div>
           <h1 className="mb-2 text-xl font-bold text-neutral-900">Acesso restrito</h1>
           <p className="text-sm leading-relaxed text-neutral-600">
-            O Growth Engine é uma área exclusiva da administração da AMT Fight Wear.
-            Sua conta não possui permissão para acessar este módulo.
+            {description ??
+              "O Growth Engine é uma área exclusiva da administração da AMT Fight Wear. Sua conta não possui permissão para acessar este módulo."}
           </p>
+
           {email && (
             <p className="mt-4 text-xs text-neutral-400">
               Conectado como <span className="font-medium text-neutral-500">{email}</span>
