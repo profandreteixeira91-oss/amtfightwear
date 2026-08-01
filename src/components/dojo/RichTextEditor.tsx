@@ -273,8 +273,8 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         }}
       >
 
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("undo")} title="Desfazer"><Undo className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("redo")} title="Refazer"><Redo className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("undo")} title="Desfazer" aria-label="Desfazer"><Undo className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("redo")} title="Refazer" aria-label="Refazer"><Redo className="h-4 w-4" /></button>
         <span className={tbDivider} />
 
         {/* Bloco / Parágrafo */}
@@ -326,12 +326,12 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
 
         <span className={tbDivider} />
 
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("bold")} title="Negrito"><Bold className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("italic")} title="Itálico"><Italic className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("underline")} title="Sublinhado"><UnderlineIcon className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("strikeThrough")} title="Tachado"><Strikethrough className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("bold")} title="Negrito" aria-label="Negrito"><Bold className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("italic")} title="Itálico" aria-label="Itálico"><Italic className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("underline")} title="Sublinhado" aria-label="Sublinhado"><UnderlineIcon className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("strikeThrough")} title="Tachado" aria-label="Tachado"><Strikethrough className="h-4 w-4" /></button>
 
-        <label className="ml-1 inline-flex h-8 shrink-0 items-center gap-1 rounded-md px-2 text-xs cursor-pointer hover:bg-accent" title="Cor do texto">
+        <label className="ml-1 inline-flex h-8 shrink-0 items-center gap-1 rounded-md px-2 text-xs cursor-pointer hover:bg-accent" title="Cor do texto" aria-label="Cor do texto">
           <Type className="h-4 w-4" />
           <input
             type="color"
@@ -343,16 +343,16 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
 
         <span className={tbDivider} />
 
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyLeft")} title="Esquerda"><AlignLeft className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyCenter")} title="Centro"><AlignCenter className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyRight")} title="Direita"><AlignRight className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyFull")} title="Justificado"><AlignJustify className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyLeft")} title="Esquerda" aria-label="Esquerda"><AlignLeft className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyCenter")} title="Centro" aria-label="Centro"><AlignCenter className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyRight")} title="Direita" aria-label="Direita"><AlignRight className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyFull")} title="Justificado" aria-label="Justificado"><AlignJustify className="h-4 w-4" /></button>
 
         <span className={tbDivider} />
 
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertUnorderedList")} title="Lista"><List className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertOrderedList")} title="Lista numerada"><ListOrdered className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertHorizontalRule")} title="Linha"><Minus className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertUnorderedList")} title="Lista" aria-label="Lista"><List className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertOrderedList")} title="Lista numerada" aria-label="Lista numerada"><ListOrdered className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertHorizontalRule")} title="Linha" aria-label="Linha"><Minus className="h-4 w-4" /></button>
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={insertTable} title="Tabela" aria-label="Tabela"><TableIcon className="h-4 w-4" /></button>
 
         <span className={tbDivider} />
@@ -363,7 +363,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
           className={tbBtn}
           onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
           onClick={() => setImgOpen(true)}
-          title="Imagem"
+          title="Imagem" aria-label="Imagem"
         >
           <ImageIcon className="h-4 w-4" />
         </button>
@@ -420,13 +420,13 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             <Button type="button" size="sm" variant="outline" className="h-8 shrink-0 gap-1 text-xs"
               onMouseDown={preventBlur}
               onClick={() => insertHtml("{{pagina_atual}}")}
-              title="Inserir número da página atual">
+              title="Inserir número da página atual" aria-label="Inserir número da página atual">
               Página nº
             </Button>
             <Button type="button" size="sm" variant="outline" className="h-8 shrink-0 gap-1 text-xs"
               onMouseDown={preventBlur}
               onClick={() => insertHtml("Página {{pagina_atual}} de {{total_paginas}}")}
-              title="Inserir 'Página X de Y'">
+              title="Inserir 'Página X de Y'" aria-label="Inserir 'Página X de Y'">
               X de Y
             </Button>
           </>
@@ -495,8 +495,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             {/* Botão para excluir a imagem selecionada */}
             <button
               type="button"
-              title="Excluir imagem"
-              aria-label="Excluir imagem"
+              title="Excluir imagem" aria-label="Excluir imagem"
               className="pointer-events-auto absolute -top-3 -right-3 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onClick={(e) => {
