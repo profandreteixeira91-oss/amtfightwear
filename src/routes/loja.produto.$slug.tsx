@@ -7,6 +7,7 @@ import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { ShoppingBag, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { TrustBadges } from "@/components/store/TrustBadges";
 import { FavoriteButton } from "@/components/store/FavoriteButton";
@@ -179,6 +180,18 @@ function ProductPage() {
     navigate({ to: "/loja/carrinho" });
   };
 
+  /** Ao escolher o frete já na página do produto, adiciona o item e segue direto
+   *  para o checkout com o CEP e a opção de envio pré-selecionados. */
+  const handleSelectShipping = (option: ShippingOption, zip: string) => {
+    handleAddToCart();
+    try {
+      sessionStorage.setItem("amt-checkout-shipping", JSON.stringify({ zip, option }));
+    } catch { /* ignore */ }
+    trackStoreEvent("begin_checkout", { value: price * qty, source: "product_shipping_select" });
+    toast.success("Frete selecionado — indo para o checkout");
+    navigate({ to: "/loja/checkout" });
+  };
+
 
   return (
     <StoreShell categories={categories}>
@@ -296,6 +309,7 @@ function ProductPage() {
 
             <ShippingCalculator
               items={[{ product_id: product.id, variant_id: variant?.id ?? null, quantity: qty, unit_price: Number(price) }]}
+              onSelect={handleSelectShipping}
             />
 
             {/* Trust strip */}

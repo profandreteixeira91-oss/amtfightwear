@@ -48,7 +48,11 @@ export function ShippingCalculator({ items, initialZip, onSelect, selectedId, co
     setLoading(true);
     try {
       const r = await calc({ data: { to_zip: clean, items } });
-      setOptions(r.options);
+      // Oculta opções indisponíveis (com erro/sem preço) e ordena do mais barato ao mais caro.
+      const available = (r.options ?? [])
+        .filter((o) => !o.error && Number(o.price) > 0)
+        .sort((a, b) => Number(a.price) - Number(b.price));
+      setOptions(available);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao calcular frete");
     } finally {
