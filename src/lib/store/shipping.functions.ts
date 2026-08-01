@@ -258,10 +258,17 @@ export const adminMelhorEnvioQuoteOrder = createServerFn({ method: "POST" })
     if (!items || items.length === 0) throw new Error("Pedido sem itens");
 
     const productIds = Array.from(new Set(items.map((i) => i.product_id).filter((x): x is string => !!x)));
-    const productMap = new Map<string, { price: number | null; weight_grams: number | null }>();
+    const productMap = new Map<string, { price: number | null; weight_grams: number | null; length_cm: number | null; width_cm: number | null; height_cm: number | null }>();
     if (productIds.length > 0) {
-      const { data: products } = await supabaseAdmin.from("products").select("id, price, weight_grams").in("id", productIds);
-      for (const p of products ?? []) productMap.set(p.id, { price: p.price ? Number(p.price) : null, weight_grams: p.weight_grams ?? null });
+      const { data: products } = await supabaseAdmin.from("products").select("id, price, weight_grams, length_cm, width_cm, height_cm").in("id", productIds);
+      for (const p of products ?? [])
+        productMap.set(p.id, {
+          price: p.price ? Number(p.price) : null,
+          weight_grams: p.weight_grams ?? null,
+          length_cm: p.length_cm != null ? Number(p.length_cm) : null,
+          width_cm: p.width_cm != null ? Number(p.width_cm) : null,
+          height_cm: p.height_cm != null ? Number(p.height_cm) : null,
+        });
     }
 
     const shipping = order.shipping_address as Record<string, unknown>;
@@ -271,11 +278,12 @@ export const adminMelhorEnvioQuoteOrder = createServerFn({ method: "POST" })
     const meProducts = items.map((it, idx) => {
       const prod = it.product_id ? productMap.get(it.product_id) : null;
       const weightKg = prod?.weight_grams ? Number(prod.weight_grams) / 1000 : Number(settings.default_weight_kg);
+      const dim = (v: number | null | undefined, fallback: unknown) => (v != null && v > 0 ? v : Number(fallback));
       return {
         id: `${idx}`,
-        width: Number(settings.default_width_cm),
-        height: Number(settings.default_height_cm),
-        length: Number(settings.default_length_cm),
+        width: dim(prod?.width_cm, settings.default_width_cm),
+        height: dim(prod?.height_cm, settings.default_height_cm),
+        length: dim(prod?.length_cm, settings.default_length_cm),
         weight: weightKg > 0 ? weightKg : Number(settings.default_weight_kg),
         insurance_value: Number(it.unit_price) * it.quantity,
         quantity: it.quantity,
