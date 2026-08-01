@@ -6,6 +6,7 @@ import { listStoreCategories } from "@/lib/store/store.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { listMyOrders } from "@/lib/store/customer-profile.functions";
 import { formatBRL } from "@/lib/store/cart-store";
+import { orderStatusLabel, paymentStatusLabel, orderStatusBadgeClass, paymentStatusBadgeClass } from "@/lib/store/order-status";
 import { Loader2, User, Package, ChevronRight } from "lucide-react";
 
 type Order = Awaited<ReturnType<typeof listMyOrders>>[number];
