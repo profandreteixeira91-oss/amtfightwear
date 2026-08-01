@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
@@ -23,7 +25,9 @@ async function graphFetch<T>(path: string): Promise<T> {
   return json;
 }
 
-export const getDirectMetaAccount = createServerFn({ method: "GET" }).handler(async () => {
+export const getDirectMetaAccount = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+.handler(async () => {
   const account = await graphFetch<{
     id: string;
     name: string;
@@ -47,7 +51,9 @@ export const getDirectMetaAccount = createServerFn({ method: "GET" }).handler(as
   };
 });
 
-export const getDirectMetaCampaigns = createServerFn({ method: "GET" }).handler(async () => {
+export const getDirectMetaCampaigns = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+.handler(async () => {
   const data = await graphFetch<{
     data: Array<{
       id: string;
@@ -87,8 +93,10 @@ const dateRangeSchema = z.object({
 });
 
 export const getDirectMetaInsights = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { since: string; until: string }) => dateRangeSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const dataRes = await graphFetch<{
       data: Array<{
         campaign_id: string;
@@ -129,10 +137,12 @@ export const getDirectMetaInsights = createServerFn({ method: "GET" })
   });
 
 export const toggleDirectMetaCampaign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { campaignId: string; active: boolean }) =>
     z.object({ campaignId: z.string(), active: z.boolean() }).parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const token = getAccessToken();
     const status = data.active ? "ACTIVE" : "PAUSED";
 
@@ -147,6 +157,7 @@ export const toggleDirectMetaCampaign = createServerFn({ method: "POST" })
   });
 
 export const updateDirectMetaCampaignBudget = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { campaignId: string; dailyBudget?: number; lifetimeBudget?: number }) =>
     z
       .object({
@@ -159,7 +170,8 @@ export const updateDirectMetaCampaignBudget = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const token = getAccessToken();
     const params = new URLSearchParams({ access_token: token });
     if (data.dailyBudget !== undefined) params.set("daily_budget", String(Math.round(data.dailyBudget * 100)));
