@@ -70,7 +70,7 @@ export function Hero() {
               variant="outline"
               className="min-h-12 rounded-full border-black/15 bg-white px-6 font-semibold text-[#111111] hover:bg-black/5"
             >
-              <a href="#demonstracao">
+              <a href="#prints">
                 <PlayCircle className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 ASSISTIR DEMONSTRAÇÃO
               </a>
