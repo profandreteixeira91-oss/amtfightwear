@@ -23,7 +23,7 @@ import {
   adminListQuotes, adminSaveQuote, adminDeleteQuote,
   adminGetQuoteSettings, adminSaveQuoteSettings,
 } from "@/lib/store/quotes.functions";
-import { adminListStoreProducts } from "@/lib/store/store.functions";
+import { adminListStoreProducts, adminListStoreCategories } from "@/lib/store/store.functions";
 import { buildQuotePdf } from "@/lib/store/quote-pdf";
 import { dayISO } from "@/lib/dates";
 
@@ -96,6 +96,7 @@ function QuotesPage() {
   const saveFn = useServerFn(adminSaveQuote);
   const delFn = useServerFn(adminDeleteQuote);
   const productsFn = useServerFn(adminListStoreProducts);
+  const categoriesFn = useServerFn(adminListStoreCategories);
   const getSettingsFn = useServerFn(adminGetQuoteSettings);
   const saveSettingsFn = useServerFn(adminSaveQuoteSettings);
 
@@ -107,10 +108,12 @@ function QuotesPage() {
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState(emptyForm());
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const quotes = useQuery({ queryKey: ["store", "quotes"], queryFn: () => listFn() });
   const products = useQuery({ queryKey: ["store", "products-min"], queryFn: () => productsFn() });
   const settings = useQuery({ queryKey: ["store", "quote-settings"], queryFn: () => getSettingsFn() });
+  const categories = useQuery({ queryKey: ["store", "categories-min"], queryFn: () => categoriesFn() });
 
   const rows = useMemo(() => {
     const term = q.trim().toLowerCase();
