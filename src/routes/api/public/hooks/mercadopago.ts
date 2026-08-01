@@ -31,8 +31,10 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           return new Response("Bad Request", { status: 400 });
         }
 
-        // Verificação de assinatura (não falha se o webhook secret não estiver definido — útil no primeiro setup)
-        if (secret) {
+        // Verificação de assinatura (não falha se nenhum webhook secret estiver definido — útil no primeiro setup)
+        // Aceita a assinatura da conta AMT Pay OU da conta da loja.
+        const secrets = [secret, storeSecret].filter((s): s is string => Boolean(s));
+        if (secrets.length) {
           const parts = Object.fromEntries(
             rawSig.split(",").map((p) => {
               const [k, v] = p.trim().split("=");
@@ -43,16 +45,17 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           const v1 = parts.v1 ?? "";
           const effectiveId = dataId ?? payload?.data?.id ?? "";
           const manifest = `id:${effectiveId};request-id:${requestId};ts:${ts};`;
-          const expected = createHmac("sha256", secret).update(manifest).digest("hex");
-          try {
-            const a = Buffer.from(v1);
-            const b = Buffer.from(expected);
-            if (a.length !== b.length || !timingSafeEqual(a, b)) {
-              return new Response("Invalid signature", { status: 401 });
+          const ok = secrets.some((s) => {
+            try {
+              const expected = createHmac("sha256", s).update(manifest).digest("hex");
+              const a = Buffer.from(v1);
+              const b = Buffer.from(expected);
+              return a.length === b.length && timingSafeEqual(a, b);
+            } catch {
+              return false;
             }
-          } catch {
-            return new Response("Invalid signature", { status: 401 });
-          }
+          });
+          if (!ok) return new Response("Invalid signature", { status: 401 });
         }
 
         const type = payload?.type ?? payload?.topic ?? "";
