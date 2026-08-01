@@ -141,9 +141,28 @@ function CartPage() {
     }
   };
 
+  // Analytics de e-commerce: visualização do carrinho (uma vez por composição).
+  useEffect(() => {
+    if (!mounted || items.length === 0) return;
+    trackStoreEvent("view_cart", {
+      value: subtotal,
+      items: items.map((i) =>
+        toAnalyticsItem({ id: i.product_id, name: i.name, price: i.unit_price, quantity: i.quantity, variant: i.variant_label }),
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, items.length]);
+
   const openIdentify = () => {
+    trackStoreEvent("begin_checkout", {
+      value: total,
+      items: items.map((i) =>
+        toAnalyticsItem({ id: i.product_id, name: i.name, price: i.unit_price, quantity: i.quantity, variant: i.variant_label }),
+      ),
+    });
     setIdentifyOpen(true);
   };
+
 
   const proceedAsGuest = () => {
     const email = guestEmail.trim();
