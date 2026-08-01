@@ -33,7 +33,7 @@ function DojoCheckout() {
             </p>
             <div className="pt-2 flex flex-col gap-2">
               <Button asChild>
-                <a href="https://wa.me/5511999999999?text=Quero%20testar%20o%20AMT%20Dojo%20Manager" target="_blank" rel="noreferrer">
+                <a href="https://wa.me/5582920016732?text=Quero%20testar%20o%20AMT%20Dojo%20Manager" target="_blank" rel="noreferrer">
                   Falar no WhatsApp
                 </a>
               </Button>

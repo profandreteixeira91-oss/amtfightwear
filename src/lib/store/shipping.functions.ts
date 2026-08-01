@@ -366,7 +366,7 @@ export const adminMelhorEnvioAddToCart = createServerFn({ method: "POST" })
       agency: data.agency_id,
       from: {
         name: "AMT Fight Wear",
-        phone: "82999999999",
+        phone: "82920016732",
         email: "contato@amtfightwear.com.br",
         document: "00000000000",
         address: shipping.origin_address ?? "Rua Principal",
