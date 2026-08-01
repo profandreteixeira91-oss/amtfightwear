@@ -32,6 +32,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Isolamento entre superfícies: o Portal do Aluno (/app/*) tem sessão própria.
+  // Se o cliente principal (admin/dojo) capturar por acidente o mesmo usuário
+  // logado no portal do aluno (ex.: token de recuperação na mesma origem),
+  // derrubamos a sessão principal para que a conta do aluno nunca ganhe acesso
+  // a /admin nem a /dojo.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mainUserId = user?.id;
+    if (!mainUserId) return;
+    (async () => {
+      const { studentSupabase } = await import("@/lib/student-auth/student-client");
+      const { data } = await studentSupabase.auth.getSession();
+      if (data.session?.user?.id === mainUserId) {
+        await supabase.auth.signOut({ scope: "local" });
+      }
+    })();
+  }, [user?.id]);
+
+
   const value: AuthContextValue = {
     user,
     session,
