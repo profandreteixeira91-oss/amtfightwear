@@ -2,12 +2,18 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { getProductBySlug, listStoreCategories } from "@/lib/store/store.functions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { ShoppingBag, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
-import { ProductImage } from "@/components/store/ProductImage";
+import { ProductGallery } from "@/components/store/ProductGallery";
+import { TrustBadges } from "@/components/store/TrustBadges";
+import { FavoriteButton } from "@/components/store/FavoriteButton";
+import { RecentlyViewed } from "@/components/store/RecentlyViewed";
+import { pushRecentProduct } from "@/lib/store/recent";
+import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
+import { installmentValueFor, maxInstallmentsFor, pixPriceFor } from "@/lib/store/pricing";
 
 export const Route = createFileRoute("/loja/produto/$slug")({
   loader: async ({ context, params }) => {
@@ -109,7 +115,24 @@ function ProductPage() {
   })();
   const [selectedVariant, setSelectedVariant] = useState<string | null>(defaultVariantId);
   const [qty, setQty] = useState(1);
-  const [activeImage, setActiveImage] = useState(0);
+
+  // Histórico local + evento de visualização (analytics de e-commerce).
+  const p = data.product;
+  useEffect(() => {
+    if (!p) return;
+    pushRecentProduct({
+      id: p.id,
+      name: p.name,
+      slug: p.slug ?? p.id,
+      image_url: p.image_url,
+      price: Number(p.price),
+    });
+    trackStoreEvent("view_item", {
+      value: Number(p.price),
+      items: [toAnalyticsItem({ id: p.id, name: p.name, price: p.price, category: data.category?.name ?? null })],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p?.id]);
 
   if (!data.product) {
     return (
@@ -127,28 +150,35 @@ function ProductPage() {
   const compareAt = product.compare_at_price;
   const compareAtNum = compareAt ? Number(compareAt) : null;
   const images = data.images.length > 0 ? data.images : product.image_url ? [{ url: product.image_url, alt: product.name }] : [];
-  const maxInstallments = price >= 1000 ? 10 : price >= 600 ? 5 : price >= 200 ? 3 : 1;
-  const installmentValue = (price / maxInstallments).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  const pixPrice = (price * 0.95).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const maxInstallments = maxInstallmentsFor(price);
+  const installmentValue = formatBRL(installmentValueFor(price));
+  const pixPrice = formatBRL(pixPriceFor(price));
 
   const handleAddToCart = () => {
+    const variantLabel = variant ? [variant.size, variant.color].filter(Boolean).join(" / ") : null;
     add({
       product_id: product.id,
       variant_id: variant?.id ?? null,
       name: product.name,
-      variant_label: variant ? [variant.size, variant.color].filter(Boolean).join(" / ") : null,
+      variant_label: variantLabel,
       slug: product.slug ?? product.id,
       image_url: product.image_url,
       unit_price: price,
       quantity: qty,
+    });
+    trackStoreEvent("add_to_cart", {
+      value: price * qty,
+      items: [toAnalyticsItem({ id: product.id, name: product.name, price, quantity: qty, variant: variantLabel })],
     });
     toast.success("Adicionado ao carrinho");
   };
 
   const handleBuyNow = () => {
     handleAddToCart();
+    trackStoreEvent("begin_checkout", { value: price * qty, source: "product_buy_now" });
     navigate({ to: "/loja/carrinho" });
   };
+
 
   return (
     <StoreShell categories={categories}>
@@ -167,31 +197,8 @@ function ProductPage() {
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-12">
           {/* Galeria */}
-          <div className="space-y-3">
-            <div className="overflow-hidden rounded-2xl bg-neutral-50 shadow-[var(--store-shadow-sm)] ring-1 ring-black/5">
-              <ProductImage
-                src={images[activeImage]?.url}
-                alt={images[activeImage]?.alt ?? product.name}
-                aspect="square"
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            </div>
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImage(i)}
-                    aria-label={`Foto ${i + 1}`}
-                    className={`h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition ${i === activeImage ? "border-primary shadow-[var(--store-ring-ruby)]" : "border-transparent hover:border-neutral-300"}`}
-                  >
-                    <ProductImage src={img.url} alt="" aspect="square" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <ProductGallery media={images} name={product.name} />
+
 
           {/* Buy box */}
           <div className="flex flex-col gap-5">
@@ -276,7 +283,12 @@ function ProductPage() {
               >
                 <ShoppingBag className="h-4 w-4" /> Adicionar
               </button>
+              <FavoriteButton
+                product={{ id: product.id, name: product.name, slug: product.slug ?? product.id, image_url: product.image_url, price }}
+                className="h-auto self-stretch rounded-xl"
+              />
             </div>
+
 
             {product.short_description && (
               <p className="text-sm leading-relaxed text-muted-foreground">{product.short_description}</p>
@@ -292,6 +304,8 @@ function ProductPage() {
               <div>Direto da<br /><span className="text-foreground">fábrica</span></div>
               <div>Troca fácil<br /><span className="text-foreground">7 dias</span></div>
             </div>
+            <TrustBadges />
+
           </div>
         </div>
 
@@ -320,7 +334,10 @@ function ProductPage() {
             </div>
           </section>
         )}
+
+        <RecentlyViewed excludeId={product.id} />
       </div>
+
 
       {/* Barra de compra sticky — mobile only */}
       <div

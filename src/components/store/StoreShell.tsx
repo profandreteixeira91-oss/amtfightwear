@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 import { CartSheet } from "@/components/store/CartSheet";
+import { FavoriteButton } from "@/components/store/FavoriteButton";
+import { pixPriceFor, installmentLabel, formatMoney, FREE_SHIPPING_THRESHOLD } from "@/lib/store/pricing";
 import { SearchBar } from "@/components/store/SearchBar";
 import { recordStoreVisit } from "@/lib/store/customers.functions";
 import { ChatWidget } from "@/components/store/ChatWidget";
@@ -554,50 +556,71 @@ export function ProductCard({ product }: { product: { id: string; name: string; 
   const price = Number(product.price);
   const compareAt = product.compare_at_price ? Number(product.compare_at_price) : null;
   const hasDiscount = compareAt && compareAt > price;
-  const installments = (price / 10).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const pixPrice = pixPriceFor(price);
+  const installments = installmentLabel(price);
+  const freeShipping = price >= FREE_SHIPPING_THRESHOLD;
 
   return (
-    <Link
-      to="/loja/produto/$slug"
-      params={{ slug: product.slug ?? product.id }}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.25)]"
-    >
-      <div className="relative overflow-hidden bg-neutral-50">
-        <ProductImage
-          src={product.image_url}
-          alt={product.name}
-          aspect="square"
-          imgClassName="transition-transform duration-[600ms] ease-out group-hover:scale-[1.06]"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        />
-        {hasDiscount && (
-          <div className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-[0_4px_12px_-4px_rgba(220,38,38,0.6)]">
-            −{Math.round(((compareAt! - price) / compareAt!) * 100)}%
-          </div>
-        )}
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.25)]">
+      {/* Favorito fica fora do Link para não navegar ao salvar */}
+      <div className="absolute right-3 top-3 z-10">
+        <FavoriteButton product={{ id: product.id, name: product.name, slug: product.slug ?? product.id, image_url: product.image_url ?? null, price }} />
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-5">
-        <h3 className="line-clamp-2 min-h-[2.6rem] text-sm font-semibold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
-          {product.name}
-        </h3>
-        <div className="mt-auto pt-3">
-          {hasDiscount && (
-            <div className="text-xs text-muted-foreground line-through">
-              {compareAt!.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+
+      <Link
+        to="/loja/produto/$slug"
+        params={{ slug: product.slug ?? product.id }}
+        className="flex flex-1 flex-col"
+        aria-label={product.name}
+      >
+        <div className="relative overflow-hidden bg-neutral-50">
+          <ProductImage
+            src={product.image_url}
+            alt={product.name}
+            aspect="square"
+            imgClassName="transition-transform duration-[600ms] ease-out group-hover:scale-[1.06]"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+          <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+            {hasDiscount && (
+              <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-[0_4px_12px_-4px_rgba(220,38,38,0.6)]">
+                −{Math.round(((compareAt! - price) / compareAt!) * 100)}%
+              </span>
+            )}
+            {freeShipping && (
+              <span className="rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                Frete grátis
+              </span>
+            )}
+          </div>
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        </div>
+        <div className="flex flex-1 flex-col gap-2 p-5">
+          <h3 className="line-clamp-2 min-h-[2.6rem] text-sm font-semibold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
+            {product.name}
+          </h3>
+          <div className="mt-auto pt-3">
+            {hasDiscount && (
+              <div className="text-xs text-muted-foreground line-through">
+                {formatMoney(compareAt!)}
+              </div>
+            )}
+            <div className="text-xl font-black tracking-tight text-foreground">
+              {formatMoney(price)}
             </div>
-          )}
-          <div className="text-xl font-black tracking-tight text-foreground">
-            {price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-          </div>
-          <div className="mt-0.5 text-[11px] text-muted-foreground">
-            ou 10x de <span className="font-semibold text-foreground">{installments}</span>
-          </div>
-          <div className="mt-4 flex w-full items-center justify-center rounded-full bg-foreground px-3 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-background transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-            Comprar
+            <div className="mt-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              {formatMoney(pixPrice)} no PIX (5% off)
+            </div>
+            <div className="mt-0.5 text-[11px] text-muted-foreground">
+              ou <span className="font-semibold text-foreground">{installments}</span>
+            </div>
+            <div className="mt-4 flex w-full items-center justify-center rounded-full bg-foreground px-3 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-background transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+              Comprar
+            </div>
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
+

@@ -11,6 +11,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/store/pricing";
+import { TrustBadges } from "@/components/store/TrustBadges";
+
+/** Rascunho local dos dados de entrega (evita retrabalho do cliente). */
+const CHECKOUT_DRAFT_KEY = "amt-checkout-draft-v1";
+
 
 
 export const Route = createFileRoute("/loja/checkout")({
@@ -82,16 +89,48 @@ function CheckoutPage() {
     });
   }, [loadProfile, navigate]);
 
+  // Autosave dos dados de entrega — se o cliente sair e voltar, nada é perdido.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(CHECKOUT_DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Partial<typeof form>;
+      setForm((f) => {
+        const merged = { ...f };
+        for (const [k, v] of Object.entries(draft)) {
+          if (typeof v === "string" && v && !merged[k as keyof typeof merged]) {
+            merged[k as keyof typeof merged] = v;
+          }
+        }
+        return merged;
+      });
+    } catch { /* ignore */ }
+  }, []);
 
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
+    try { window.localStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(form)); } catch { /* ignore */ }
+  }, [form, mounted]);
 
+  useEffect(() => {
+    if (!mounted || items.length === 0) return;
+    trackStoreEvent("begin_checkout", {
+      value: items.reduce((a, i) => a + i.quantity * i.unit_price, 0),
+      items: items.map((i) =>
+        toAnalyticsItem({ id: i.product_id, name: i.name, price: i.unit_price, quantity: i.quantity, variant: i.variant_label }),
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, items.length]);
 
-
-  const FREE_SHIPPING_THRESHOLD = 399;
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
   const shippingCost = shipping?.price ?? 0;
   const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
   const shippingDiscount = freeShipping ? shippingCost : 0;
   const total = subtotal + shippingCost - shippingDiscount;
+  const freeShippingPct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+
 
   const handleZip = async (zip: string) => {
     setForm((f) => ({ ...f, zip }));
@@ -181,9 +220,22 @@ function CheckoutPage() {
         return;
       }
 
+      // Evento de conversão (purchase) antes de limpar o carrinho.
+      trackStoreEvent("purchase", {
+        transaction_id: res.order_number,
+        value: total,
+        shipping: shippingCost - shippingDiscount,
+        payment_type: paymentMethod,
+        items: items.map((i) =>
+          toAnalyticsItem({ id: i.product_id, name: i.name, price: i.unit_price, quantity: i.quantity, variant: i.variant_label }),
+        ),
+      });
+      try { localStorage.removeItem(CHECKOUT_DRAFT_KEY); } catch { /* ignore */ }
+
       clear();
       toast.success(`Pedido ${res.order_number} criado!`);
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao criar pedido");
     } finally {
@@ -334,9 +386,27 @@ function CheckoutPage() {
 
           </div>
 
-          <aside className="h-fit rounded-lg border bg-card p-5">
+          <aside className="h-fit rounded-lg border bg-card p-5 lg:sticky lg:top-24">
             <h2 className="mb-3 font-bold">Resumo do pedido</h2>
+
+            {/* Barra de progresso do frete grátis */}
+            <div className="mb-4">
+              <div className="mb-1.5 flex items-center justify-between text-[11px] font-semibold">
+                <span className={freeShipping ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}>
+                  {freeShipping ? "Frete grátis conquistado!" : `Faltam ${formatBRL(FREE_SHIPPING_THRESHOLD - subtotal)} para frete grátis`}
+                </span>
+                <span className="text-muted-foreground">{Math.round(freeShippingPct)}%</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${freeShipping ? "bg-emerald-500" : "bg-primary"}`}
+                  style={{ width: `${freeShippingPct}%` }}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2 text-sm">
+
               {items.map((i) => (
                 <div key={`${i.product_id}-${i.variant_id ?? ""}`} className="flex justify-between gap-2">
                   <span className="line-clamp-2 flex-1">{i.name} <span className="text-muted-foreground">×{i.quantity}</span></span>
@@ -374,6 +444,10 @@ function CheckoutPage() {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               Compra 100% segura · processada pelo Mercado Pago
             </p>
+            <div className="mt-4">
+              <TrustBadges />
+            </div>
+
           </aside>
 
         </div>

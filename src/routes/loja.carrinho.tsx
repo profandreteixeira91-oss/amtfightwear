@@ -5,6 +5,10 @@ import { ProductImage } from "@/components/store/ProductImage";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import { CartUpsell } from "@/components/store/CartUpsell";
+import { RecentlyViewed } from "@/components/store/RecentlyViewed";
+import { TrustBadges } from "@/components/store/TrustBadges";
+import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Trash2, ArrowRight, Minus, Plus, ShieldCheck, Lock, Tag, Truck, ShoppingBag, Mail, User as UserIcon } from "lucide-react";
@@ -44,6 +48,7 @@ function CartPage() {
   const [shipping, setShipping] = useState<ShippingOption | null>(null);
   const [zip, setZip] = useState<string>("");
   const [coupon, setCoupon] = useState("");
+  const [couponOpen, setCouponOpen] = useState(false);
   const [couponApplied, setCouponApplied] = useState<string | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [identifyOpen, setIdentifyOpen] = useState(false);
@@ -136,9 +141,28 @@ function CartPage() {
     }
   };
 
+  // Analytics de e-commerce: visualização do carrinho (uma vez por composição).
+  useEffect(() => {
+    if (!mounted || items.length === 0) return;
+    trackStoreEvent("view_cart", {
+      value: subtotal,
+      items: items.map((i) =>
+        toAnalyticsItem({ id: i.product_id, name: i.name, price: i.unit_price, quantity: i.quantity, variant: i.variant_label }),
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, items.length]);
+
   const openIdentify = () => {
+    trackStoreEvent("begin_checkout", {
+      value: total,
+      items: items.map((i) =>
+        toAnalyticsItem({ id: i.product_id, name: i.name, price: i.unit_price, quantity: i.quantity, variant: i.variant_label }),
+      ),
+    });
     setIdentifyOpen(true);
   };
+
 
   const proceedAsGuest = () => {
     const email = guestEmail.trim();
@@ -191,6 +215,7 @@ function CartPage() {
         ) : (
           <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
             {/* ============ ESQUERDA — Lista de produtos ============ */}
+            <div className="space-y-6">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold">Produtos</CardTitle>
@@ -279,6 +304,12 @@ function CartPage() {
               </CardContent>
             </Card>
 
+            <CartUpsell subtotal={subtotalAfterDiscount} />
+            <RecentlyViewed />
+            </div>
+
+
+
             {/* ============ DIREITA — Resumo ============ */}
             <div className="space-y-5 lg:sticky lg:top-24 lg:h-fit">
               {/* Frete */}
@@ -321,24 +352,36 @@ function CartPage() {
                     <Progress value={progressPct} className="h-2" />
                   </div>
 
-                  {/* Cupom */}
+                  {/* Cupom — oculto por padrão para não induzir abandono */}
                   <div className="space-y-2">
-                    <Label htmlFor="coupon" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                      <Tag className="h-3.5 w-3.5" /> Cupom de desconto
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="coupon"
-                        value={coupon}
-                        onChange={(e) => setCoupon(e.target.value)}
-                        placeholder="Ex.: AMT10"
-                        className="rounded-lg uppercase"
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
-                      />
-                      <Button type="button" variant="outline" onClick={applyCoupon} className="rounded-lg">
-                        Aplicar
-                      </Button>
-                    </div>
+                    {!couponOpen && !couponApplied ? (
+                      <button
+                        type="button"
+                        onClick={() => setCouponOpen(true)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground underline-offset-4 transition hover:text-primary hover:underline"
+                      >
+                        <Tag className="h-3.5 w-3.5" /> Tenho um cupom de desconto
+                      </button>
+                    ) : (
+                      <>
+                        <Label htmlFor="coupon" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                          <Tag className="h-3.5 w-3.5" /> Cupom de desconto
+                        </Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="coupon"
+                            value={coupon}
+                            onChange={(e) => setCoupon(e.target.value)}
+                            placeholder="Ex.: AMT10"
+                            className="rounded-lg uppercase"
+                            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
+                          />
+                          <Button type="button" variant="outline" onClick={applyCoupon} className="rounded-lg">
+                            Aplicar
+                          </Button>
+                        </div>
+                      </>
+                    )}
                     {couponApplied && (
                       <p className="text-xs text-emerald-600">Cupom <strong>{couponApplied}</strong> aplicado (−10%).</p>
                     )}
@@ -346,6 +389,7 @@ function CartPage() {
                       <p className="text-xs text-destructive">{couponError}</p>
                     )}
                   </div>
+
 
                   <Separator />
 
@@ -414,6 +458,9 @@ function CartPage() {
                       <span>Criptografia de ponta a ponta</span>
                     </div>
                   </div>
+
+                  <TrustBadges />
+
 
                   {/* Métodos de pagamento */}
                   <div className="flex flex-wrap items-center justify-center gap-1.5 border-t pt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">

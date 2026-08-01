@@ -14,7 +14,10 @@ import {
   Shirt,
   Palette,
   PackageCheck,
+  Star,
 } from "lucide-react";
+import { ProductImage } from "@/components/store/ProductImage";
+import { RecentlyViewed } from "@/components/store/RecentlyViewed";
 import heroBanner from "@/assets/loja-hero-banner.jpg";
 import amtLogo from "@/assets/amt-logo.jpg";
 
@@ -148,6 +151,37 @@ function StoreHomePage() {
           </div>
         </div>
       </section>
+
+      {/* ============================================================
+          CATEGORIAS — atalhos de navegação (menos cliques até o produto)
+         ============================================================ */}
+      {categories.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 pt-16 sm:px-8">
+          <SectionHeader eyebrow="Navegue rápido" title="Escolha sua categoria" />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {categories.slice(0, 8).map((c) => (
+              <Link
+                key={c.id}
+                to="/loja/categoria/$slug"
+                params={{ slug: c.slug }}
+                className="group relative overflow-hidden rounded-2xl border bg-background shadow-[var(--store-shadow-sm)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
+              >
+                <ProductImage
+                  src={c.image_url ?? c.preview_image}
+                  alt={c.name}
+                  aspect="square"
+                  imgClassName="transition-transform duration-500 group-hover:scale-105"
+                />
+                <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-3">
+                  <span className="text-sm font-black leading-tight text-white drop-shadow">{c.name}</span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-white transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ============================================================
           VITRINE 1 — Lançamentos & Destaques
@@ -304,8 +338,40 @@ function StoreHomePage() {
       </section>
 
       {/* ============================================================
+          AVALIAÇÕES — prova social
+         ============================================================ */}
+      <section className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
+        <SectionHeader eyebrow="Prova social" title="Quem treina, aprova" />
+        <div className="grid gap-5 sm:grid-cols-3 sm:gap-6">
+          {[
+            { name: "Rafael M.", role: "Faixa preta de Jiu-Jitsu", text: "Kimono impecável, costura reforçada e o caimento é perfeito. Chegou antes do prazo." },
+            { name: "Juliana P.", role: "Competidora de Muay Thai", text: "Já é minha terceira compra. Qualidade de fábrica com preço justo e atendimento rápido." },
+            { name: "Professor André", role: "Dono de academia", text: "Fizemos as faixas personalizadas do dojo. Acabamento premium e entrega dentro do combinado." },
+          ].map((r) => (
+            <figure key={r.name} className="card-elevated flex h-full flex-col gap-4 p-6">
+              <div className="flex gap-0.5 text-primary" aria-label="Avaliação 5 de 5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-current" aria-hidden />
+                ))}
+              </div>
+              <blockquote className="flex-1 text-sm leading-relaxed text-muted-foreground">“{r.text}”</blockquote>
+              <figcaption className="text-xs">
+                <span className="font-bold text-foreground">{r.name}</span>
+                <span className="block text-muted-foreground">{r.role}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-7xl px-6 sm:px-8">
+        <RecentlyViewed title="Continue de onde parou" />
+      </div>
+
+      {/* ============================================================
           DOJO MANAGER — banner institucional pré-footer
          ============================================================ */}
+
       <section id="dojo-manager" className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-neutral-50 via-white to-neutral-100 p-10 sm:p-14">
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_100%_0%,rgba(220,38,38,0.08),transparent_70%)]" />
