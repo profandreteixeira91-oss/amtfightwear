@@ -75,11 +75,16 @@ export const adminBulkApplyPackageDimensions = createServerFn({ method: "POST" }
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, number | null> = {};
-    for (const [k, v] of Object.entries(data.values)) {
-      if (v !== undefined) patch[k] = v as number | null;
-    }
-    if (Object.keys(patch).length === 0) return { ok: true, updated: 0 };
+    const patch: {
+      weight_grams?: number | null;
+      length_cm?: number | null;
+      width_cm?: number | null;
+      height_cm?: number | null;
+    } = {};
+    if (data.values.weight_grams !== undefined) patch.weight_grams = data.values.weight_grams;
+    if (data.values.length_cm !== undefined) patch.length_cm = data.values.length_cm;
+    if (data.values.width_cm !== undefined) patch.width_cm = data.values.width_cm;
+    if (data.values.height_cm !== undefined) patch.height_cm = data.values.height_cm;
 
     let ids = data.ids;
     if (data.onlyEmpty) {
