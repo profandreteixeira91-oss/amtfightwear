@@ -276,7 +276,12 @@ function ProductPage() {
               >
                 <ShoppingBag className="h-4 w-4" /> Adicionar
               </button>
+              <FavoriteButton
+                product={{ id: product.id, name: product.name, slug: product.slug ?? product.id, image_url: product.image_url, price }}
+                className="h-auto self-stretch rounded-xl"
+              />
             </div>
+
 
             {product.short_description && (
               <p className="text-sm leading-relaxed text-muted-foreground">{product.short_description}</p>
