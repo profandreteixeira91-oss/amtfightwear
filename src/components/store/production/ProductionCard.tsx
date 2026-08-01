@@ -1,5 +1,5 @@
 import { useDraggable } from "@dnd-kit/core";
-import { AlertTriangle, Clock, Package, Sparkles, Timer, User } from "lucide-react";
+import { AlertTriangle, Clock, CreditCard, Package, Sparkles, Timer, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatBR, todayISO, diffDaysISO } from "@/lib/dates";
