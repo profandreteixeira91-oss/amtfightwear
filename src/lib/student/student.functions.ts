@@ -401,7 +401,6 @@ export const getMyAgenda = createServerFn({ method: "GET" })
             },
           });
         }
-        cur.setDate(cur.getDate() + 1);
       }
     }
 

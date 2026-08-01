@@ -1,4 +1,4 @@
-import { addDaysISO, todayISO as brToday } from "@/lib/dates";
+import { addDaysISO, diffDaysISO, todayISO as brToday } from "@/lib/dates";
 // Cron diário — dispara lembretes de mensalidade conforme as regras do dono.
 // Prioridade das regras (por owner):
 //   1) dojo_student_notification_prefs.extras (nova UI unificada em
@@ -151,16 +151,7 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
             skipped++;
             continue;
           }
-          const due = new Date(`${inv.due_date}T00:00:00Z`);
-          const diff = Math.round(
-            (Date.UTC(
-              today.getUTCFullYear(),
-              today.getUTCMonth(),
-              today.getUTCDate(),
-            ) -
-              due.getTime()) /
-              (1000 * 60 * 60 * 24),
-          );
+          const diff = diffDaysISO(String(inv.due_date).slice(0, 10), todayISO);
 
           const amtSettings =
             settingsByOwner.get(inv.owner_id) ?? DEFAULT_REMINDER_SETTINGS;
