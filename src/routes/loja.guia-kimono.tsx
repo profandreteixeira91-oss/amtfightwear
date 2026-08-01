@@ -313,7 +313,8 @@ function GuiaKimonoPage() {
         </section>
 
         {/* Cuidados */}
-        <section className="mb-14">
+        <section id="cuidados" className="mb-14">
+
           <SectionTitle eyebrow="Durabilidade" title="Como cuidar do seu kimono" />
           <ul className="grid gap-3 sm:grid-cols-2">
             {[

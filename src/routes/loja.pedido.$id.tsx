@@ -29,6 +29,7 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { brDate } from "@/lib/dates";
+import { KimonoGuideCallout, isKimonoContext } from "@/components/store/KimonoGuideLink";
 
 export const Route = createFileRoute("/loja/pedido/$id")({
   loader: async ({ context, params }) => {
@@ -335,6 +336,11 @@ function OrderPage() {
                 );
               })}
             </ul>
+            {items.some((it: any) => isKimonoContext(it.name, it.product_name)) && (
+              <div className="border-t p-5 sm:p-6">
+                <KimonoGuideCallout variant="care" />
+              </div>
+            )}
           </div>
 
           {/* Resumo lateral */}
