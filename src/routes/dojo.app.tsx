@@ -51,7 +51,7 @@ import {
 
 
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -367,7 +367,8 @@ function DojoLayoutInner({
   }, [allBelts]);
 
   // Fecha automaticamente o menu mobile ao navegar entre rotas
-  const { isMobile, setOpenMobile, setOpen } = useSidebar();
+  const { isMobile, setOpenMobile, setOpen, state } = useSidebar();
+  const hoverExpanded = useRef(false);
   const { track, stepIndex } = useTutorial();
   const step = track?.steps?.[stepIndex];
 
@@ -401,12 +402,27 @@ function DojoLayoutInner({
     if (isMobile && !(track && stepTargetsSidebar)) setOpenMobile(false);
   }, [pathname, isMobile, setOpenMobile, track, stepTargetsSidebar]);
 
-
+  // Colapso inteligente: quando recolhida, reaparece ao passar o mouse
+  const onSidebarEnter = () => {
+    if (isMobile || track || state !== "collapsed") return;
+    hoverExpanded.current = true;
+    setOpen(true);
+  };
+  const onSidebarLeave = () => {
+    if (isMobile || !hoverExpanded.current) return;
+    hoverExpanded.current = false;
+    setOpen(false);
+  };
 
   return (
     <>
       <EmailVerificationBanner />
-      <Sidebar collapsible="icon" className="border-r border-[color:var(--dojo-border)]">
+      <Sidebar
+        collapsible="icon"
+        className="border-r border-[color:var(--dojo-border)]"
+        onMouseEnter={onSidebarEnter}
+        onMouseLeave={onSidebarLeave}
+      >
         <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60 bg-white">
           <Link to="/dojo" className="flex items-center justify-center px-2 py-2">
             <DojoLogo className="h-12 w-auto shrink-0 group-data-[collapsible=icon]:h-8" />
