@@ -18,6 +18,7 @@ import {
   Radar,
   Wand2,
   Mail,
+  Megaphone,
   BarChart4,
   Rocket,
   Plug,
