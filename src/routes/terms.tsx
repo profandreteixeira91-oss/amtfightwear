@@ -18,13 +18,13 @@ export const Route = createFileRoute("/terms")({
       { property: "og:type", content: "article" },
       {
         property: "og:url",
-        content: "https://marketing.amtfightwear.com.br/terms",
+        content: "https://amtfightwear.com.br/terms",
       },
     ],
     links: [
       {
         rel: "canonical",
-        href: "https://marketing.amtfightwear.com.br/terms",
+        href: "https://amtfightwear.com.br/terms",
       },
     ],
   }),

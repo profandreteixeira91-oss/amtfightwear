@@ -215,13 +215,13 @@ export function StudentContracts({ studentId, student }: Props) {
                   <td className="p-2 text-muted-foreground">{row.signed_at ? new Date(row.signed_at).toLocaleDateString("pt-BR") : "—"}</td>
                   <td className="p-2 text-right">
                     <div className="inline-flex gap-1">
-                      <Button size="icon" variant="outline" onClick={() => openPreview(row)} title="Visualizar"><Eye className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="outline" onClick={() => printContract(row)} title="Imprimir"><Printer className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => openEdit(row)} title="Editar"><Pencil className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="outline" onClick={() => openPreview(row)} title="Visualizar" aria-label="Visualizar"><Eye className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="outline" onClick={() => printContract(row)} title="Imprimir" aria-label="Imprimir"><Printer className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => openEdit(row)} title="Editar" aria-label="Editar"><Pencil className="h-4 w-4" /></Button>
                       {row.status !== "signed" && (
-                        <Button size="icon" variant="ghost" onClick={() => markSigned(row)} title="Marcar como assinado"><CheckCircle2 className="h-4 w-4" /></Button>
+                        <Button size="icon" variant="ghost" onClick={() => markSigned(row)} title="Marcar como assinado" aria-label="Marcar como assinado"><CheckCircle2 className="h-4 w-4" /></Button>
                       )}
-                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(row)} title="Excluir"><Trash2 className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(row)} title="Excluir" aria-label="Excluir"><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </td>
                 </tr>

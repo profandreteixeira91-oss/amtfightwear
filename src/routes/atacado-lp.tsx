@@ -41,7 +41,7 @@ const META_PIXEL_ID = "2149647638877087";
 export const Route = createFileRoute("/atacado-lp")({
   head: () => ({
     meta: [
-      { title: "Atacado AMT Fight Wear — Faixas, Kimonos e Patches Personalizados" },
+      { title: "Atacado de Faixas e Kimonos | AMT Fight Wear" },
       {
         name: "description",
         content:
@@ -83,6 +83,18 @@ export const Route = createFileRoute("/atacado-lp")({
               description: "Patches bordados personalizados para uniformes de artes marciais.",
             },
           ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
         }),
       },
     ],
