@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 import { CartSheet } from "@/components/store/CartSheet";
+import { FavoriteButton } from "@/components/store/FavoriteButton";
+import { pixPriceFor, installmentLabel, formatMoney, FREE_SHIPPING_THRESHOLD } from "@/lib/store/pricing";
 import { SearchBar } from "@/components/store/SearchBar";
 import { recordStoreVisit } from "@/lib/store/customers.functions";
 import { ChatWidget } from "@/components/store/ChatWidget";
