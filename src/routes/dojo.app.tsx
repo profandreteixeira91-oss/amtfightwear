@@ -367,7 +367,8 @@ function DojoLayoutInner({
   }, [allBelts]);
 
   // Fecha automaticamente o menu mobile ao navegar entre rotas
-  const { isMobile, setOpenMobile, setOpen } = useSidebar();
+  const { isMobile, setOpenMobile, setOpen, state } = useSidebar();
+  const hoverExpanded = useRef(false);
   const { track, stepIndex } = useTutorial();
   const step = track?.steps?.[stepIndex];
 
