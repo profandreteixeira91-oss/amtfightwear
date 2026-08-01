@@ -122,6 +122,7 @@ const storeItems = [
   { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
   { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
   { title: "Envio (Melhor Envio)", url: "/admin/envio", icon: Truck },
+  { title: "Pacotes (dimensões)", url: "/admin/produtos/pacotes", icon: Box },
   { title: "Imagens dos produtos", url: "/admin/produtos/imagens", icon: ImageIcon },
   { title: "Importar catálogo", url: "/admin/produtos/importar", icon: DownloadIcon },
 ] as const;
