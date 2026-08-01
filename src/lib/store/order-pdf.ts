@@ -260,8 +260,8 @@ export async function exportOrderPdf(order: OrderInfo, items: OrderItem[]) {
   y += 4;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  if (order.status) doc.text(`Status pedido: ${order.status}`, M, y), (y += 12);
-  if (order.payment_status) doc.text(`Status pagamento: ${order.payment_status}`, M, y), (y += 12);
+  if (order.status) doc.text(`Status pedido: ${orderStatusLabel[order.status] ?? order.status}`, M, y), (y += 12);
+  if (order.payment_status) doc.text(`Status pagamento: ${paymentStatusLabel[order.payment_status] ?? order.payment_status}`, M, y), (y += 12);
   if (order.notes) {
     y += 6;
     doc.setFont("helvetica", "bold");
