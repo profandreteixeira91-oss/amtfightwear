@@ -41,16 +41,9 @@ export const getClassRanking = createServerFn({ method: "GET" })
       if (!isAdmin) throw new Error("Sem permissão para esta turma");
     }
 
-    // Janela temporal
-    let sinceIso: string | null = null;
-    const now = new Date();
-    if (data.period === "week") {
-      const d = new Date(now); d.setDate(d.getDate() - 7); sinceIso = d.toISOString();
-    } else if (data.period === "month") {
-      const d = new Date(now); d.setMonth(d.getMonth() - 1); sinceIso = d.toISOString();
-    } else if (data.period === "year") {
-      const d = new Date(now); d.setFullYear(d.getFullYear() - 1); sinceIso = d.toISOString();
-    }
+    // Janela temporal (calendário civil no fuso do Brasil)
+    const { since: sinceIso, until: untilIso } = resolvePeriodRange(data.period);
+
 
     // Busca matrículas da turma (sem RLS bloqueando: o owner sempre vê seus alunos).
     // Usamos service-role para garantir que alunos com owner_id divergente por bug
