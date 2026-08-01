@@ -1,16 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const QUOTE_STATUSES = [
-  "draft",
-  "sent",
-  "approved",
-  "paid_50",
-  "paid_100",
-  "rejected",
-  "expired",
-] as const;
-
-export type QuoteStatus = (typeof QUOTE_STATUSES)[number];
 
 const PAID_RATIO: Record<string, number> = { paid_50: 0.5, paid_100: 1 };
 

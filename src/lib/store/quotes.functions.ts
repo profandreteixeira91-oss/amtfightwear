@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { QUOTE_STATUSES, syncQuoteFinanceEntry } from "./quote-finance.server";
+import { QUOTE_STATUSES } from "./quote-status";
 
 const itemSchema = z.object({
   product_id: z.string().nullable().optional(),
@@ -124,7 +124,7 @@ export const adminSaveQuote = createServerFn({ method: "POST" })
         .select("*")
         .maybeSingle();
       if (error) throw new Error(error.message);
-      if (row) await syncQuoteFinanceEntry(context.supabase, row as any);
+      if (row) await (await import("./quote-finance.server")).syncQuoteFinanceEntry(context.supabase, row as any);
       return row;
     }
 
@@ -134,7 +134,7 @@ export const adminSaveQuote = createServerFn({ method: "POST" })
       .select("*")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (row) await syncQuoteFinanceEntry(context.supabase, row as any);
+    if (row) await (await import("./quote-finance.server")).syncQuoteFinanceEntry(context.supabase, row as any);
     return row;
   });
 
@@ -142,7 +142,7 @@ export const adminDeleteQuote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    await syncQuoteFinanceEntry(context.supabase, { id: data.id, status: "draft", total: 0 });
+    await (await import("./quote-finance.server")).syncQuoteFinanceEntry(context.supabase, { id: data.id, status: "draft", total: 0 });
     const { error } = await context.supabase
       .from("store_quotes")
       .delete()
@@ -169,7 +169,7 @@ export const adminUpdateQuoteStatus = createServerFn({ method: "POST" })
       .select("*")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (row) await syncQuoteFinanceEntry(context.supabase, row as any);
+    if (row) await (await import("./quote-finance.server")).syncQuoteFinanceEntry(context.supabase, row as any);
     return { ok: true };
   });
 
