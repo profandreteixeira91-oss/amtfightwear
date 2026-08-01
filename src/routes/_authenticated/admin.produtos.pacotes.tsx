@@ -301,8 +301,11 @@ function PackagesPage() {
                 <SelectContent>
                   <SelectItem value={ALL}>Todas as subcategorias</SelectItem>
                   {subs.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.depth > 0 ? `${"— ".repeat(c.depth)}${c.name}` : c.name}
+                    </SelectItem>
                   ))}
+
                 </SelectContent>
               </Select>
             </div>
