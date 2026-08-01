@@ -482,7 +482,7 @@ export const getAdsDashboard = createServerFn({ method: "GET" })
 
     if (useReal) {
       try {
-        return await getRealMetaDashboard(token, accountId);
+        return await getRealMetaDashboard(token!, accountId!);
       } catch {
         // fallback silencioso para dados locais
       }
