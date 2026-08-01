@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { StoreShell } from "@/components/store/StoreShell";
-import { listStoreCategories, getStoreOrder } from "@/lib/store/store.functions";
+import { listStoreCategories, getStoreOrder, cancelStoreOrder } from "@/lib/store/store.functions";
 import { formatBRL } from "@/lib/store/cart-store";
 import { exportOrderPdf } from "@/lib/store/order-pdf";
 import {
@@ -23,6 +24,7 @@ import {
   FileText,
   ShoppingBag,
   Clock,
+  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -73,10 +75,14 @@ function paymentMethodLabel(order: any) {
 
 function OrderPage() {
   const { id } = Route.useParams();
+  const queryClient = useQueryClient();
   const { data: categories } = useSuspenseQuery(queryOptions({ queryKey: ["store", "categories"], queryFn: () => listStoreCategories() }));
   const { data } = useSuspenseQuery(queryOptions({ queryKey: ["store", "order", id], queryFn: () => getStoreOrder({ data: { id } }) }));
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const cancelOrderFn = useServerFn(cancelStoreOrder);
 
   if (!data) {
     return <StoreShell categories={categories}><div className="p-16 text-center">Pedido não encontrado.</div></StoreShell>;
@@ -86,6 +92,7 @@ function OrderPage() {
   const o = order as any;
   const current = stepIndex(o.status);
   const isCancelled = ["cancelled", "canceled", "refunded"].includes(String(o.status || "").toLowerCase());
+  const canCancel = ["pending_payment", "pending", "failed"].includes(String(o.status || "").toLowerCase()) && !isCancelled;
   const addr = o.shipping_address as Record<string, any> | null | undefined;
 
   async function handleDownload() {
@@ -101,6 +108,20 @@ function OrderPage() {
     navigator.clipboard.writeText(String(o.asaas_pix_copy_paste));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function handleCancel() {
+    if (!window.confirm("Tem certeza que deseja cancelar este pedido? Essa ação não pode ser desfeita.")) return;
+    setCancelling(true);
+    setCancelError(null);
+    try {
+      await cancelOrderFn({ data: { id } });
+      queryClient.invalidateQueries({ queryKey: ["store", "order", id] });
+    } catch (err: any) {
+      setCancelError(err?.message ?? "Não foi possível cancelar o pedido.");
+    } finally {
+      setCancelling(false);
+    }
   }
 
   return (
@@ -137,10 +158,19 @@ function OrderPage() {
             <div className="flex flex-col gap-2 sm:items-end">
               <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total</div>
               <div className="text-3xl font-black tracking-tight">{formatBRL(Number(o.total))}</div>
-              <Button onClick={handleDownload} disabled={downloading} variant="secondary" className="mt-1 gap-2">
-                <Download className="h-4 w-4" />
-                {downloading ? "Gerando PDF…" : "Baixar comprovante"}
-              </Button>
+              <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Button onClick={handleDownload} disabled={downloading} variant="secondary" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  {downloading ? "Gerando PDF…" : "Baixar comprovante"}
+                </Button>
+                {canCancel && (
+                  <Button onClick={handleCancel} disabled={cancelling} variant="outline" className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/5 hover:text-destructive">
+                    <XCircle className="h-4 w-4" />
+                    {cancelling ? "Cancelando…" : "Cancelar pedido"}
+                  </Button>
+                )}
+              </div>
+              {cancelError && <p className="max-w-xs text-right text-xs text-destructive">{cancelError}</p>}
             </div>
           </div>
         </div>
@@ -405,6 +435,17 @@ function OrderPage() {
           >
             Falar com o suporte
           </a>
+          {canCancel && (
+            <Button
+              onClick={handleCancel}
+              disabled={cancelling}
+              variant="outline"
+              className="w-full gap-2 border-destructive/40 text-destructive hover:bg-destructive/5 hover:text-destructive sm:w-auto"
+            >
+              <XCircle className="h-4 w-4" />
+              {cancelling ? "Cancelando…" : "Cancelar pedido"}
+            </Button>
+          )}
         </div>
       </div>
     </StoreShell>
