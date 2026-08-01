@@ -122,15 +122,17 @@ export const Route = createFileRoute("/api/public/meta/webhook")({
                 const phone = fields.get("phone_number") ?? fields.get("phone") ?? "";
                 const city = fields.get("city") ?? "";
 
-                const { error: insertErr } = await supabaseAdmin.from("leads").insert({
-                  name: fullName,
-                  email: email || null,
-                  phone: phone || null,
-                  city: city || null,
-                  source: `Meta Lead Ads${formId ? ` (form: ${formId})` : ""}${adId ? ` | ad: ${adId}` : ""}`,
-                  status: "Novo",
-                  lead_type: "Meta Lead Ads",
-                });
+                const { error: insertErr } = await supabaseAdmin
+                  .from("leads" as any)
+                  .insert({
+                    name: fullName,
+                    email: email || null,
+                    phone: phone || null,
+                    city: city || null,
+                    source: `Meta Lead Ads${formId ? ` (form: ${formId})` : ""}${adId ? ` | ad: ${adId}` : ""}`,
+                    status: "Novo",
+                    lead_type: "Meta Lead Ads",
+                  } as any);
 
                 if (insertErr) {
                   results.push(`lead ${leadId}: insert error ${insertErr.message}`);
