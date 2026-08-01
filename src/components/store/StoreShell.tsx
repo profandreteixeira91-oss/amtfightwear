@@ -407,7 +407,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
             <div className="text-xs font-bold uppercase tracking-widest">Institucional</div>
             <ul className="mt-3 space-y-2 text-sm text-background/80">
               <li><Link to="/">Sobre a AMT</Link></li>
-              <li><a href="#">Blog</a></li>
+              <li><Link to="/loja/guia-kimono">Guia do kimono</Link></li>
               <li><Link to="/privacy">Privacidade</Link></li>
               <li><Link to="/terms">Termos</Link></li>
             </ul>
