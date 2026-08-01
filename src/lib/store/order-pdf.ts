@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { orderStatusLabel, paymentStatusLabel } from "./order-status";
 
 type OrderInfo = {
   order_number: string | number | null;
