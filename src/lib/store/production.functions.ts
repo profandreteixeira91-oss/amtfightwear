@@ -28,7 +28,7 @@ export type ProductionJob = {
   material_alert: string | null;
   rework_count: number;
   notes: string | null;
-  custom_config: unknown | null;
+  custom_config: Record<string, unknown> | null;
   queued_at: string;
   stage_started_at: string;
   started_at: string | null;

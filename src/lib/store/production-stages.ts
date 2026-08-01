@@ -122,3 +122,6 @@ export function parseScannedCode(raw: string): string {
   if (prefixed?.[1]) return prefixed[1];
   return value;
 }
+
+/** Status de pedido que NÃO devem entrar na fila de produção. */
+export const CANCELLED_ORDER_STATUS = ["cancelled", "canceled", "refunded"];
