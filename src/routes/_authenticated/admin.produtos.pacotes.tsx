@@ -192,29 +192,31 @@ function PackagesPage() {
   const pendingCount = Object.keys(drafts).length;
 
   return (
-    <PageShell>
-      <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <Link to="/admin/produtos" className="mb-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              <ChevronLeft className="h-3.5 w-3.5" /> Produtos
-            </Link>
-            <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-              <Box className="h-6 w-6 text-primary" /> Pacotes
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Dimensões de embalagem usadas como base para o cálculo de frete.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => products.refetch()} disabled={products.isFetching}>
-              <RefreshCw className={`mr-2 h-4 w-4 ${products.isFetching ? "animate-spin" : ""}`} /> Atualizar
-            </Button>
-            <Button size="sm" onClick={saveAllEdited} disabled={saving || pendingCount === 0}>
-              <Save className="mr-2 h-4 w-4" /> Salvar {pendingCount > 0 ? `(${pendingCount})` : ""}
-            </Button>
-          </div>
+    <PageShell
+      eyebrow={
+        <Link to="/admin/produtos" className="inline-flex items-center gap-1 hover:text-foreground">
+          <ChevronLeft className="h-3.5 w-3.5" /> Produtos
+        </Link>
+      }
+      title={
+        <span className="flex items-center gap-2">
+          <Box className="h-6 w-6 text-primary" /> Pacotes
+        </span>
+      }
+      description="Dimensões de embalagem (peso, comprimento, largura e altura) usadas como base para o cálculo de frete."
+      actions={
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => products.refetch()} disabled={products.isFetching}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${products.isFetching ? "animate-spin" : ""}`} /> Atualizar
+          </Button>
+          <Button size="sm" onClick={saveAllEdited} disabled={saving || pendingCount === 0}>
+            <Save className="mr-2 h-4 w-4" /> Salvar {pendingCount > 0 ? `(${pendingCount})` : ""}
+          </Button>
         </div>
+      }
+    >
+      <div className="w-full space-y-6">
+
 
         {/* Filtros */}
         <Card>
