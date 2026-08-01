@@ -12190,6 +12190,81 @@ export type Database = {
           },
         ]
       }
+      store_production_jobs: {
+        Row: {
+          assignee: string | null
+          completed_at: string | null
+          created_at: string
+          custom_config: Json | null
+          customer_name: string | null
+          deadline: string | null
+          id: string
+          image_url: string | null
+          notes: string | null
+          priority: number
+          product_name: string
+          quantity: number
+          queued_at: string
+          reference: string | null
+          sku: string | null
+          source: string
+          source_id: string | null
+          source_item_key: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          variant_label: string | null
+        }
+        Insert: {
+          assignee?: string | null
+          completed_at?: string | null
+          created_at?: string
+          custom_config?: Json | null
+          customer_name?: string | null
+          deadline?: string | null
+          id?: string
+          image_url?: string | null
+          notes?: string | null
+          priority?: number
+          product_name: string
+          quantity?: number
+          queued_at?: string
+          reference?: string | null
+          sku?: string | null
+          source: string
+          source_id?: string | null
+          source_item_key?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          variant_label?: string | null
+        }
+        Update: {
+          assignee?: string | null
+          completed_at?: string | null
+          created_at?: string
+          custom_config?: Json | null
+          customer_name?: string | null
+          deadline?: string | null
+          id?: string
+          image_url?: string | null
+          notes?: string | null
+          priority?: number
+          product_name?: string
+          quantity?: number
+          queued_at?: string
+          reference?: string | null
+          sku?: string | null
+          source?: string
+          source_id?: string | null
+          source_item_key?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          variant_label?: string | null
+        }
+        Relationships: []
+      }
       store_quotes: {
         Row: {
           created_at: string

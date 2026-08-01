@@ -52,6 +52,7 @@ import {
   Building2,
   BellRing,
   FileText,
+  Factory,
 } from "lucide-react";
 
 
@@ -184,6 +185,7 @@ const groups: { label: string; items: Item[] }[] = [
 
       { title: "Envio (Melhor Envio)", url: "/admin/envio", icon: Truck },
       { title: "Pacotes (dimensões)", url: "/admin/produtos/pacotes", icon: Box },
+      { title: "Fila de produção", url: "/admin/producao", icon: Factory },
       { title: "Imagens dos produtos", url: "/admin/produtos/imagens", icon: ImageIcon },
       { title: "Importar catálogo", url: "/admin/produtos/importar", icon: DownloadIcon },
     ],
