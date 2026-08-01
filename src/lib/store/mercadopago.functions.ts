@@ -59,8 +59,9 @@ async function createCardToken(card: {
   ccv: string;
   document: string;
 }): Promise<string> {
-  const publicKey = process.env.MERCADOPAGO_PUBLIC_KEY;
-  if (!publicKey) throw new Error("MERCADOPAGO_PUBLIC_KEY não configurada");
+  const publicKey =
+    process.env.STORE_MERCADOPAGO_PUBLIC_KEY || process.env.MERCADOPAGO_PUBLIC_KEY;
+  if (!publicKey) throw new Error("STORE_MERCADOPAGO_PUBLIC_KEY não configurada");
   const res = await fetch(`${MP_BASE}/v1/card_tokens?public_key=${publicKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
