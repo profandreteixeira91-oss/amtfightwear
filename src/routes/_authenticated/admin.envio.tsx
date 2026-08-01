@@ -41,6 +41,8 @@ function ShippingSettingsPage() {
     default_insurance_value: Number(data?.default_insurance_value ?? 0),
   });
   const [saving, setSaving] = useState(false);
+  const [productId, setProductId] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (data) {
