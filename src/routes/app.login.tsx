@@ -92,8 +92,9 @@ function LoginPage() {
       return toast.error("Informe seu e-mail", { description: "Digite o e-mail no campo acima." });
     }
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/app/reset-password`,
     });
+
     if (error) toast.error("Falha", { description: error.message });
     else toast.success("Verifique seu e-mail para redefinir a senha.");
   }
