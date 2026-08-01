@@ -8,32 +8,33 @@ import path from "path";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { loadEnv } from "vite";
 
-export default defineConfig(({ mode }) => {
-  // Existing VITE_* env injection for client code.
-  const env = loadEnv(mode, process.cwd(), "VITE_");
+const mode = process.env.NODE_ENV ?? "development";
 
-  // Load all env vars into process.env for server-side code (server routes,
-  // server functions). Required for SUPABASE_SERVICE_ROLE_KEY and LOVABLE_API_KEY.
-  const serverEnv = loadEnv(mode, process.cwd(), "");
-  Object.assign(process.env, serverEnv);
+// Existing VITE_* env injection for client code.
+const env = loadEnv(mode, process.cwd(), "VITE_");
 
-  return {
-    tanstackStart: {
-      // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-      // nitro/vite builds from this
-      server: { entry: "server" },
-    },
-    vite: {
-      define: env,
-      resolve: {
-        alias: {
-          // React Email's htmlparser2 needs entities v4.5.0; v7+ removed ./lib/decode.js.
-          // Force every entities import to the hoisted v4.5.0 copy.
-          "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
-          "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
-          entities: path.resolve(__dirname, "node_modules/entities"),
-        },
+// Load all env vars into process.env for server-side code (server routes,
+// server functions). Required for SUPABASE_SERVICE_ROLE_KEY and LOVABLE_API_KEY.
+const serverEnv = loadEnv(mode, process.cwd(), "");
+Object.assign(process.env, serverEnv);
+
+export default defineConfig({
+  tanstackStart: {
+    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+    // nitro/vite builds from this
+    server: { entry: "server" },
+  },
+  vite: {
+    define: env,
+    resolve: {
+      alias: {
+        // React Email's htmlparser2 needs entities v4.5.0; v7+ removed ./lib/decode.js.
+        // Force every entities import to the hoisted v4.5.0 copy.
+        "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
+        "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
+        entities: path.resolve(__dirname, "node_modules/entities"),
       },
     },
-  };
+  },
 });
+
