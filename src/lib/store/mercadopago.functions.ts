@@ -246,11 +246,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
     };
     if (data.remote_ip) headers["X-Forwarded-For"] = data.remote_ip;
 
-    const payment = await mp<any>(`/v1/payments`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(paymentPayload),
-    });
+    const payment = await createPayment(paymentPayload, headers);
 
     // Reaproveitamos as colunas asaas_* como buckets genéricos p/ manter compatibilidade da UI.
     const poi = payment?.point_of_interaction?.transaction_data ?? {};
@@ -326,10 +322,8 @@ export const adminRegenerateStorePixQrCodes = createServerFn({ method: "POST" })
       const cpf = onlyDigits(order.customer_document);
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
       try {
-        const payment = await mp<any>(`/v1/payments`, {
-          method: "POST",
-          headers: { "X-Idempotency-Key": `${order.id}-regen-${Date.now()}` },
-          body: JSON.stringify({
+        const payment = await createPayment(
+          {
             transaction_amount: Math.round(total * 100) / 100,
             description: `Pedido ${order.order_number}`,
             external_reference: order.id,
