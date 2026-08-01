@@ -55,16 +55,9 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .select("id", { count: "exact", head: true })
       .eq("student_id", me.id);
 
-    // 4) Janela temporal
-    let sinceIso: string | null = null;
-    const now = new Date();
-    if (data.period === "week") {
-      const d = new Date(now); d.setDate(d.getDate() - 7); sinceIso = d.toISOString();
-    } else if (data.period === "month") {
-      const d = new Date(now); d.setMonth(d.getMonth() - 1); sinceIso = d.toISOString();
-    } else if (data.period === "year") {
-      const d = new Date(now); d.setFullYear(d.getFullYear() - 1); sinceIso = d.toISOString();
-    }
+    // 4) Janela temporal (calendário civil no fuso do Brasil)
+    const { since: sinceIso, until: untilIso } = resolvePeriodRange(data.period);
+
 
     // 4b) Ranking geral da academia (todos os alunos ativos), sempre calculado
     //     para o resumo geral da tela — independente da turma selecionada.
