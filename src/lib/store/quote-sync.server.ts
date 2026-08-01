@@ -48,16 +48,19 @@ export async function syncQuoteProductionJobs(supabase: AnyClient, quote: QuoteR
     .eq("source_id", quote.id);
 
   const seen = new Set((existing ?? []).map((r: { source_item_key: string | null }) => String(r.source_item_key ?? "")));
+  const validKeys = new Set(items.map((_, idx) => String(idx)));
 
-  // remove jobs de itens que não existem mais no orçamento
-  const stale = (existing ?? []).filter(
-    (r: { source_item_key: string | null }) => Number(r.source_item_key) >= items.length,
-  );
-  if (stale.length) {
-    await supabase
-      .from("store_production_jobs")
-      .delete()
-      .in("id", stale.map((r: { id: string }) => r.id));
+  // remove jobs de itens que não existem mais no orçamento (só quando há itens)
+  if (items.length) {
+    const stale = (existing ?? []).filter(
+      (r: { source_item_key: string | null }) => !validKeys.has(String(r.source_item_key ?? "")),
+    );
+    if (stale.length) {
+      await supabase
+        .from("store_production_jobs")
+        .delete()
+        .in("id", stale.map((r: { id: string }) => r.id));
+    }
   }
 
   const queuedAt = quote.created_at ?? new Date().toISOString();
@@ -101,10 +104,20 @@ export async function syncQuoteProductionJobs(supabase: AnyClient, quote: QuoteR
   }
 
   if (rows.length === 0) return { inserted: 0, removed: false };
-  const { error } = await supabase.from("store_production_jobs").insert(rows as never);
-  if (error) throw new Error(error.message);
-  return { inserted: rows.length, removed: false };
+
+  // insere item por item: uma colisão de chave única não pode abortar os demais
+  let inserted = 0;
+  for (const row of rows) {
+    const { error } = await supabase.from("store_production_jobs").insert(row as never);
+    if (error) {
+      if (!/duplicate key|unique/i.test(error.message)) throw new Error(error.message);
+      continue;
+    }
+    inserted += 1;
+  }
+  return { inserted, removed: false };
 }
+
 
 /**
  * Orçamento pago (50% ou 100%) é registrado como pedido da loja com o valor pago.
