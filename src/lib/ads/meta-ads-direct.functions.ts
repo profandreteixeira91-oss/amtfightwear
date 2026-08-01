@@ -188,3 +188,57 @@ export const updateDirectMetaCampaignBudget = createServerFn({ method: "POST" })
     if (json.error) throw new Error(json.error.message);
     return { ok: true };
   });
+
+/**
+ * Conclui a configuração da conta Ads Manager sem depender do OAuth do
+ * Instagram Hub: usa o token de sistema (META_ADS_ACCESS_TOKEN) para listar
+ * as contas de anúncio acessíveis e gravá-las em `ads_accounts`.
+ */
+export const syncDirectMetaAdAccounts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSaasOwner(context);
+
+    const configured = getAccountId();
+    let accounts: Array<{
+      id: string;
+      name?: string;
+      currency?: string;
+      timezone_name?: string;
+      account_status?: number;
+      business?: { id?: string };
+    }> = [];
+
+    try {
+      const res = await graphFetch<{ data?: typeof accounts }>(
+        `/me/adaccounts?fields=id,name,currency,timezone_name,account_status,business&limit=200`,
+      );
+      accounts = res.data ?? [];
+    } catch {
+      accounts = [];
+    }
+
+    if (!accounts.some((a) => a.id === configured)) {
+      const one = await graphFetch<(typeof accounts)[number]>(
+        `/${configured}?fields=id,name,currency,timezone_name,account_status,business`,
+      );
+      accounts.push(one);
+    }
+
+    for (const a of accounts) {
+      await context.supabase.from("ads_accounts").upsert(
+        {
+          user_id: context.userId,
+          act_id: a.id,
+          name: a.name ?? a.id,
+          currency: a.currency ?? null,
+          timezone: a.timezone_name ?? null,
+          business_id: a.business?.id ?? null,
+          status: a.account_status === 1 ? "active" : "inactive",
+        },
+        { onConflict: "user_id,act_id" },
+      );
+    }
+
+    return { synced: accounts.length, configured };
+  });
