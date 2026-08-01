@@ -7,6 +7,7 @@ import {
   dsAttachToStudents,
 } from "@/lib/dojo/store/store.functions";
 import { listDojoStudents } from "@/lib/dojo/dojo.functions";
+import { orderStatusLabel, paymentStatusLabel } from "@/lib/store/order-status";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Repeat, Users } from "lucide-react";
 import { useState } from "react";
