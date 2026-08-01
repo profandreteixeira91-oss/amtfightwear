@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { StoreShell } from "@/components/store/StoreShell";
-import { listStoreCategories, getStoreOrder } from "@/lib/store/store.functions";
+import { listStoreCategories, getStoreOrder, cancelStoreOrder } from "@/lib/store/store.functions";
 import { formatBRL } from "@/lib/store/cart-store";
 import { exportOrderPdf } from "@/lib/store/order-pdf";
 import {
@@ -23,6 +24,7 @@ import {
   FileText,
   ShoppingBag,
   Clock,
+  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
