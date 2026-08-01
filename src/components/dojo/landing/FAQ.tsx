@@ -33,13 +33,15 @@ export function FAQ() {
               <AccordionTrigger className="text-left text-base font-semibold text-[#111111] hover:no-underline">
                 {f.q}
               </AccordionTrigger>
-              <AccordionContent className="text-sm text-[#111111]/60">
+              <AccordionContent className="text-sm leading-relaxed text-[#111111]/65">
                 {f.a}
               </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
       </div>
+
+      <CTABand title="Ainda com dúvida? Teste 14 dias sem pagar nada." />
     </Section>
   );
 }
