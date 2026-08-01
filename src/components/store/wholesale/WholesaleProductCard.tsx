@@ -221,7 +221,11 @@ export function WholesaleProductCard({
             </div>
           </div>
         ) : (
-          <div className="mt-auto flex items-center gap-1.5">
+          <div className="mt-auto space-y-1">
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-foreground/70">
+              Quantidade
+            </span>
+            <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => setQty(null, qtyOf(null) - 1)}
