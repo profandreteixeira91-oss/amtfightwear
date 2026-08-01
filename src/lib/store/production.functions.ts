@@ -104,7 +104,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
 
     const { data: existing, error: exErr } = await supabase
       .from("store_production_jobs")
-      .select("source, source_id, source_item_key")
+      .select("id, source, source_id, source_item_key, payment_status")
       .limit(10000);
     if (exErr) throw new Error(exErr.message);
     const seen = new Set(
@@ -116,13 +116,28 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
     // ---- Pedidos da loja ----
     const { data: orders, error: oErr } = await supabase
       .from("store_orders")
-      .select("id, order_number, customer_name, status, metadata, max_production_days, created_at")
+      .select("id, order_number, customer_name, status, payment_status, metadata, max_production_days, created_at")
       .order("created_at", { ascending: true })
       .limit(1000);
     if (oErr) throw new Error(oErr.message);
     const validOrders = (orders ?? []).filter(
       (o) => !CANCELLED_ORDER_STATUS.includes(String(o.status ?? "").toLowerCase()),
     );
+
+    // Mantém a situação de pagamento dos jobs já existentes sincronizada.
+    const payByOrder = new Map(
+      validOrders.map((o) => [o.id, String(o.payment_status ?? "pending")]),
+    );
+    for (const job of existing ?? []) {
+      if (job.source !== "order" || !job.source_id) continue;
+      const current = payByOrder.get(job.source_id);
+      if (!current || current === job.payment_status) continue;
+      await supabase
+        .from("store_production_jobs")
+        .update({ payment_status: current } as never)
+        .eq("id", job.id);
+    }
+
 
     if (validOrders.length > 0) {
       const { data: items, error: iErr } = await supabase
