@@ -111,6 +111,22 @@ function ShippingSettingsPage() {
             </div>
           </div>
 
+          {/* Seleção de produto por categoria/subcategoria: aplica as medidas reais */}
+          <ProductDimensionPicker
+            selectedId={productId}
+            onSelect={(p) => {
+              setProductId(p.id);
+              setForm((f) => ({
+                ...f,
+                default_weight_kg: p.weight_grams != null ? Number((p.weight_grams / 1000).toFixed(3)) : f.default_weight_kg,
+                default_length_cm: p.length_cm ?? f.default_length_cm,
+                default_width_cm: p.width_cm ?? f.default_width_cm,
+                default_height_cm: p.height_cm ?? f.default_height_cm,
+              }));
+              toast.success(`Dimensões de "${p.name}" aplicadas`);
+            }}
+          />
+
           <div>
             <div className="mb-1 text-sm font-bold">Dimensões e peso padrão</div>
             <p className="mb-3 text-xs text-muted-foreground">
@@ -137,13 +153,15 @@ function ShippingSettingsPage() {
         <CardHeader>
           <CardTitle>Teste de cotação</CardTitle>
           <CardDescription>
-            Simule um envio para conferir se o token e as configurações estão funcionando. Usa um pacote fictício (1 item).
+            Simule um envio para conferir se o token e as configurações estão funcionando.
+            {productId ? " Usa o produto selecionado acima." : " Usa um pacote fictício (1 item)."}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TestQuoteBlock />
+          <TestQuoteBlock productId={productId} />
         </CardContent>
       </Card>
+
     </PageShell>
   );
 }
