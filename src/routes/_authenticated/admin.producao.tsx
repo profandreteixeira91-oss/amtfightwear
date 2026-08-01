@@ -120,7 +120,15 @@ function ProductionQueuePage() {
   });
 
   const patch = useMutation({
-    mutationFn: (v: Parameters<typeof adminUpdateProductionJob>[0]["data"]) => updateFn({ data: v }),
+    mutationFn: (v: {
+      id: string;
+      status?: Status;
+      deadline?: string | null;
+      assignee?: string | null;
+      notes?: string | null;
+      priority?: number;
+      quantity?: number;
+    }) => updateFn({ data: v }),
     onSuccess: () => invalidate(),
     onError: (e: Error) => toast.error(e.message),
   });
@@ -173,7 +181,7 @@ function ProductionQueuePage() {
     <PageShell
       title="Fila de produção"
       description="Pedidos da loja e itens de orçamentos aprovados, na ordem de entrada."
-      icon={Factory}
+      eyebrow="AMT Fight Wear"
       actions={
         <Button onClick={() => sync.mutate()} disabled={sync.isPending} className="gap-2">
           <RefreshCw className={`h-4 w-4 ${sync.isPending ? "animate-spin" : ""}`} />
