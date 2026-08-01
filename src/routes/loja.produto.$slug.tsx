@@ -179,6 +179,18 @@ function ProductPage() {
     navigate({ to: "/loja/carrinho" });
   };
 
+  /** Ao escolher o frete já na página do produto, adiciona o item e segue direto
+   *  para o checkout com o CEP e a opção de envio pré-selecionados. */
+  const handleSelectShipping = (option: ShippingOption, zip: string) => {
+    handleAddToCart();
+    try {
+      sessionStorage.setItem("amt-checkout-shipping", JSON.stringify({ zip, option }));
+    } catch { /* ignore */ }
+    trackStoreEvent("begin_checkout", { value: price * qty, source: "product_shipping_select" });
+    toast.success("Frete selecionado — indo para o checkout");
+    navigate({ to: "/loja/checkout" });
+  };
+
 
   return (
     <StoreShell categories={categories}>
