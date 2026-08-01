@@ -350,7 +350,12 @@ function CheckoutPage() {
 
 
               {paymentMethod === "PIX" && (
-                <p className="mt-3 text-xs text-muted-foreground">Após confirmar, você verá o QR Code e o código Copia e Cola. O pedido é liberado automaticamente após a confirmação do pagamento.</p>
+                <p className="mt-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  5% de desconto aplicado: você economiza {formatBRL(pixDiscount)}.
+                </p>
+              )}
+              {paymentMethod === "PIX" && (
+                <p className="mt-1 text-xs text-muted-foreground">Após confirmar, você verá o QR Code e o código Copia e Cola. O pedido é liberado automaticamente após a confirmação do pagamento.</p>
               )}
               {paymentMethod === "BOLETO" && (
                 <p className="mt-3 text-xs text-muted-foreground">O boleto será gerado com vencimento em 3 dias úteis. O pedido é liberado após a compensação bancária.</p>
