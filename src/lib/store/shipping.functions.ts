@@ -125,11 +125,12 @@ export const calculateShipping = createServerFn({ method: "POST" })
       // exatamente esse valor; caso contrário, caímos no preço de catálogo.
       const unitPrice = item.unit_price != null ? Number(item.unit_price) : catalogPrice;
       const weightKg = prod?.weight_grams ? Number(prod.weight_grams) / 1000 : Number(settings.default_weight_kg);
+      const dim = (v: unknown, fallback: unknown) => (v != null && Number(v) > 0 ? Number(v) : Number(fallback));
       return {
         id: `${idx}`,
-        width: Number(settings.default_width_cm),
-        height: Number(settings.default_height_cm),
-        length: Number(settings.default_length_cm),
+        width: dim(prod?.width_cm, settings.default_width_cm),
+        height: dim(prod?.height_cm, settings.default_height_cm),
+        length: dim(prod?.length_cm, settings.default_length_cm),
         weight: weightKg > 0 ? weightKg : Number(settings.default_weight_kg),
         insurance_value: Number((unitPrice * item.quantity).toFixed(2)),
         quantity: item.quantity,
