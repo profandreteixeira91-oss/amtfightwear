@@ -106,13 +106,24 @@ function AdminOrdersPage() {
       title="Pedidos"
       description={`${data?.length ?? 0} pedidos recebidos`}
       actions={
-        <div className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm">
-          <Wallet className="h-4 w-4 text-primary" />
-          <div>
-            <div className="text-xs text-muted-foreground">Saldo Melhor Envio</div>
-            <div className="font-bold">
-              {meInfo ? formatBRL(Number(meInfo.balance)) : "—"}
-              {meInfo?.name ? <span className="ml-2 text-xs font-normal text-muted-foreground">({meInfo.name})</span> : null}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={regenPix}
+            disabled={regenBusy}
+            className="gap-2"
+          >
+            <QrCode className="h-4 w-4" />
+            {regenBusy ? "Atualizando QR Codes…" : "Atualizar QR Codes Pix"}
+          </Button>
+          <div className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm">
+            <Wallet className="h-4 w-4 text-primary" />
+            <div>
+              <div className="text-xs text-muted-foreground">Saldo Melhor Envio</div>
+              <div className="font-bold">
+                {meInfo ? formatBRL(Number(meInfo.balance)) : "—"}
+                {meInfo?.name ? <span className="ml-2 text-xs font-normal text-muted-foreground">({meInfo.name})</span> : null}
+              </div>
             </div>
           </div>
         </div>
