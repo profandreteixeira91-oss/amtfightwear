@@ -167,31 +167,8 @@ function ProductPage() {
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-12">
           {/* Galeria */}
-          <div className="space-y-3">
-            <div className="overflow-hidden rounded-2xl bg-neutral-50 shadow-[var(--store-shadow-sm)] ring-1 ring-black/5">
-              <ProductImage
-                src={images[activeImage]?.url}
-                alt={images[activeImage]?.alt ?? product.name}
-                aspect="square"
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            </div>
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImage(i)}
-                    aria-label={`Foto ${i + 1}`}
-                    className={`h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition ${i === activeImage ? "border-primary shadow-[var(--store-ring-ruby)]" : "border-transparent hover:border-neutral-300"}`}
-                  >
-                    <ProductImage src={img.url} alt="" aspect="square" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <ProductGallery media={images} name={product.name} />
+
 
           {/* Buy box */}
           <div className="flex flex-col gap-5">
