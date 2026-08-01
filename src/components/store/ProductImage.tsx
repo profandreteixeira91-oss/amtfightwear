@@ -24,6 +24,7 @@ export function ProductImage({
   alt,
   className,
   imgClassName,
+  imgStyle,
   priority = false,
   aspect = "square",
   sizes,
@@ -37,6 +38,7 @@ export function ProductImage({
           src={src}
           alt={alt}
           sizes={sizes}
+          style={imgStyle}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
           // @ts-expect-error — fetchpriority is a valid attribute
