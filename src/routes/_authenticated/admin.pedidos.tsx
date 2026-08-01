@@ -24,10 +24,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { adminRegenerateStorePixQrCodes } from "@/lib/store/mercadopago.functions";
 import { formatBRL } from "@/lib/store/cart-store";
 import { orderStatusLabel, paymentStatusLabel, orderStatusOptions } from "@/lib/store/order-status";
 import { useState } from "react";
-import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2 } from "lucide-react";
+import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2, QrCode } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
