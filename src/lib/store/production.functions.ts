@@ -222,6 +222,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
           queued_at: queuedAt,
           deadline: new Date(new Date(queuedAt).getTime() + 15 * 86400000).toISOString().slice(0, 10),
           order_type: "quote",
+          payment_status: "approved",
           custom_config: null,
         });
       });
