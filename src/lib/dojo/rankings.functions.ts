@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { PRESENT_STATUSES } from "@/lib/dojo/attendance-status";
+import { resolvePeriodRange } from "@/lib/dojo/periods";
+
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // ---------- Lista turmas do dojo ----------
