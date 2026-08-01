@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BellRing } from "lucide-react";
 import { AdminPushCard } from "@/components/store/AdminPushCard";
+import { AdminNotificationPrefsCard } from "@/components/store/AdminNotificationPrefsCard";
+
 
 export const Route = createFileRoute("/_authenticated/admin/notificacoes")({
   head: () => ({
@@ -32,6 +34,8 @@ function StoreNotificationsPage() {
         </div>
       </header>
       <AdminPushCard />
+      <AdminNotificationPrefsCard />
     </div>
+
   );
 }

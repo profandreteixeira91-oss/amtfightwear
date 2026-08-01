@@ -51,8 +51,14 @@ async function sendToRows(
   return { sent, failed };
 }
 
-/** Envia notificação a todos admins AMT (papel amt_admin) inscritos. */
-export async function sendPushToAmtAdmins(payload: AdminPushPayload): Promise<{ sent: number; failed: number }> {
+/**
+ * Envia notificação a todos admins AMT (papel amt_admin) inscritos, respeitando
+ * as preferências por tipo de evento de cada administrador.
+ */
+export async function sendPushToAmtAdmins(
+  payload: AdminPushPayload,
+  event?: string,
+): Promise<{ sent: number; failed: number }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: admins } = await supabaseAdmin
     .from("user_roles")
@@ -61,13 +67,29 @@ export async function sendPushToAmtAdmins(payload: AdminPushPayload): Promise<{ 
   const adminIds = (admins ?? []).map((r: any) => r.user_id).filter(Boolean);
   if (adminIds.length === 0) return { sent: 0, failed: 0 };
 
+  // Preferências: ausência de linha = habilitado (padrão).
+  let allowed = new Set<string>(adminIds);
+  if (event) {
+    const { data: prefs } = await supabaseAdmin
+      .from("store_admin_notification_prefs")
+      .select("user_id, enabled")
+      .eq("event", event)
+      .in("user_id", adminIds);
+    const disabled = new Set(
+      (prefs ?? []).filter((p: any) => p.enabled === false).map((p: any) => p.user_id),
+    );
+    allowed = new Set(adminIds.filter((id: string) => !disabled.has(id)));
+  }
+  if (allowed.size === 0) return { sent: 0, failed: 0 };
+
   const { data: subs } = await supabaseAdmin
     .from("store_admin_push_subscriptions")
-    .select("id, endpoint, p256dh, auth")
-    .in("user_id", adminIds);
+    .select("id, endpoint, p256dh, auth, user_id")
+    .in("user_id", Array.from(allowed));
   if (!subs || subs.length === 0) return { sent: 0, failed: 0 };
   return sendToRows(subs as any, payload, true);
 }
+
 
 /** Envia notificação apenas a inscrições de um usuário específico (usado no teste). */
 export async function sendPushToUser(userId: string, payload: AdminPushPayload): Promise<{ sent: number; failed: number }> {

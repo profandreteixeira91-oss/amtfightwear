@@ -20,13 +20,17 @@ export const Route = createFileRoute("/api/public/hooks/admin-push")({
           };
           if (!body?.title) return Response.json({ ok: false, reason: "missing title" }, { status: 400 });
           const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
-          const result = await sendPushToAmtAdmins({
-            title: body.title,
-            body: body.body,
-            url: body.url ?? "/store",
-            tag: body.event ?? "amt-admin",
-            data: { event: body.event },
-          });
+          const result = await sendPushToAmtAdmins(
+            {
+              title: body.title,
+              body: body.body,
+              url: body.url ?? "/admin",
+              tag: body.event ?? "amt-admin",
+              data: { event: body.event },
+            },
+            body.event,
+          );
+
           return Response.json({ ok: true, ...result });
         } catch (err: any) {
           return Response.json({ ok: false, error: String(err?.message ?? err) }, { status: 500 });
