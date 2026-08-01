@@ -220,9 +220,22 @@ function CheckoutPage() {
         return;
       }
 
+      // Evento de conversão (purchase) antes de limpar o carrinho.
+      trackStoreEvent("purchase", {
+        transaction_id: res.order_number,
+        value: total,
+        shipping: shippingCost - shippingDiscount,
+        payment_type: paymentMethod,
+        items: items.map((i) =>
+          toAnalyticsItem({ id: i.product_id, name: i.name, price: i.unit_price, quantity: i.quantity, variant: i.variant_label }),
+        ),
+      });
+      try { localStorage.removeItem(CHECKOUT_DRAFT_KEY); } catch { /* ignore */ }
+
       clear();
       toast.success(`Pedido ${res.order_number} criado!`);
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao criar pedido");
     } finally {
