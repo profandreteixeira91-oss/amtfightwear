@@ -40,6 +40,7 @@ import {
   ShoppingCart,
   Download as DownloadIcon,
   Truck,
+  Box,
   Image as ImageIcon,
   ChevronDown,
   Menu as MenuIcon,
