@@ -22,7 +22,8 @@ export const HERO_ROTATION: { key: ShotKey; label: string }[] = [
   { key: "schedule", label: "Agenda" },
   { key: "checkin", label: "Check-in" },
   { key: "graduations", label: "Graduações" },
-  { key: "announcements", label: "Marketing" },
-  { key: "students", label: "AMT Pay" },
-  { key: "store", label: "Área Administrativa" },
+  { key: "announcements", label: "Comunicação" },
+  { key: "students", label: "Alunos" },
+  { key: "store", label: "Loja integrada" },
 ];
+
