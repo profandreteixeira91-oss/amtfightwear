@@ -1,6 +1,8 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { OwnerOnly } from "@/lib/auth/owner-only";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
