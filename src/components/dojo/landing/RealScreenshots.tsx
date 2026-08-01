@@ -1,4 +1,5 @@
 import { Section, FadeIn } from "./Section";
+import { ShotFrame } from "./ShotFrame";
 
 const SHOTS: { title: string; desc: string; src: string }[] = [
   { title: "Painel principal", desc: "Visão geral do dojo com KPIs, alunos recentes e resumo financeiro.", src: "/dojo-shots/dashboard.png" },
