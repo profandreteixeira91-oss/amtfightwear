@@ -166,6 +166,7 @@ const NAV: NavGroup[] = [
       { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
       { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
       { title: "Catálogo", url: "/admin/produtos", icon: Package },
+      { title: "Pacotes (dimensões)", url: "/admin/produtos/pacotes", icon: Box },
       { title: "Calc. de Faixas", url: "/admin/produtos/faixa-calc", icon: Calculator },
       { title: "Atacado", url: "/admin/atacado", icon: Boxes },
       { title: "Logística / Envio", url: "/admin/envio", icon: Truck },
