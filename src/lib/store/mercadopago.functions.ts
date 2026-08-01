@@ -8,11 +8,37 @@ function onlyDigits(s: string | null | undefined): string {
   return (s ?? "").replace(/\D/g, "");
 }
 
-async function mp<T = any>(path: string, init?: RequestInit): Promise<T> {
-  // Conta MP da LOJA AMT Fight Wear (independente da conta do AMT Pay/Dojo).
+/** Mensagem amigável para erros conhecidos do Mercado Pago. */
+export function friendlyMpError(raw: string): string {
+  const m = raw.toLowerCase();
+  if (m.includes("without key enabled for qr")) {
+    return "A conta Mercado Pago da loja ainda não possui chave Pix habilitada para receber. Cadastre uma chave Pix na conta da loja (Mercado Pago > Seu negócio > Pix) ou use Cartão/Boleto.";
+  }
+  if (m.includes("financial identity")) {
+    return "A conta Mercado Pago da loja está com cadastro pendente e não pode gerar cobranças Pix. Conclua os dados da conta ou use Cartão/Boleto.";
+  }
+  return raw;
+}
+
+/** Token da conta MP da LOJA (independente da conta do AMT Pay/Dojo). */
+function storeToken(): string {
   const key =
     process.env.STORE_MERCADOPAGO_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN;
   if (!key) throw new Error("STORE_MERCADOPAGO_ACCESS_TOKEN não configurada");
+  return key;
+}
+
+/** Token de fallback (conta global) usado só quando a conta da loja não tem Pix. */
+function fallbackToken(): string | null {
+  const store = process.env.STORE_MERCADOPAGO_ACCESS_TOKEN;
+  const global = process.env.MERCADOPAGO_ACCESS_TOKEN;
+  if (process.env.STORE_PIX_FALLBACK_GLOBAL === "false") return null;
+  if (!global || !store || global === store) return null;
+  return global;
+}
+
+async function mp<T = any>(path: string, init?: RequestInit, tokenOverride?: string): Promise<T> {
+  const key = tokenOverride || storeToken();
   const res = await fetch(`${MP_BASE}${path}`, {
     ...init,
     headers: {
@@ -37,6 +63,33 @@ async function mp<T = any>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(String(msg));
   }
   return body as T;
+}
+
+/** Cria um pagamento; se a conta da loja não tiver chave Pix, tenta a conta global. */
+async function createPayment(
+  payload: Record<string, any>,
+  headers: Record<string, string>,
+): Promise<any> {
+  const body = JSON.stringify(payload);
+  try {
+    return await mp<any>(`/v1/payments`, { method: "POST", headers, body });
+  } catch (e) {
+    const raw = (e as Error).message ?? "";
+    const isPixKeyIssue =
+      /without key enabled for qr|financial identity/i.test(raw) &&
+      payload.payment_method_id === "pix";
+    const fb = isPixKeyIssue ? fallbackToken() : null;
+    if (!fb) throw new Error(friendlyMpError(raw));
+    try {
+      return await mp<any>(
+        `/v1/payments`,
+        { method: "POST", headers: { ...headers, "X-Idempotency-Key": `${headers["X-Idempotency-Key"]}-fb` }, body },
+        fb,
+      );
+    } catch (e2) {
+      throw new Error(friendlyMpError((e2 as Error).message ?? raw));
+    }
+  }
 }
 
 /** Detecta payment_method_id do Mercado Pago por IIN (Brasil). */
