@@ -132,78 +132,100 @@ export function WholesaleProductCard({
         </div>
 
         {hasVariants ? (
-          <div className="mt-1 space-y-1.5">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Tamanhos ({vs.length} disponíveis)
+          <div className="mt-1 space-y-2">
+            <div className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+              Escolha o tamanho ({vs.length} disponíveis)
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {rows.map((vid, idx) => {
                 const v = vid ? vs.find((vv) => vv.id === vid) ?? null : null;
                 const vq = v ? qtyOf(v.id) : 0;
+                const selectId = `size-${p.id}-${vid ?? `new-${idx}`}`;
                 return (
                   <div
                     key={vid ?? `add-${idx}`}
-                    className={`flex items-center gap-1.5 rounded-lg border px-1.5 py-1 ${
+                    className={`space-y-2 rounded-lg border p-2 ${
                       vq > 0 ? "border-primary/50 bg-primary/5" : "border-dashed"
                     }`}
                   >
-                    <select
-                      value={vid ?? ""}
-                      aria-label={`Tamanho de ${p.name}`}
-                      onChange={(e) => {
-                        const newId = e.target.value || null;
-                        if (newId === vid) return;
-                        if (v) setQty(v.id, 0);
-                        if (newId) setQty(newId, vq > 0 ? vq : 1);
-                      }}
-                      className="min-w-0 flex-1 rounded-md border bg-background px-2 py-1.5 text-sm font-semibold text-foreground outline-none focus:border-primary"
-                    >
-                      <option value="">Tamanho</option>
-                      {vs.map((opt) => {
-                        const { full } = variantLabel(opt);
-                        const taken = qtyOf(opt.id) > 0 && opt.id !== vid;
-                        return (
-                          <option key={opt.id} value={opt.id} disabled={taken}>
-                            {full}
-                            {taken ? " (já adicionado)" : ""}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => v && setQty(v.id, vq - 1)}
-                      className="grid h-8 w-8 shrink-0 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
-                      disabled={!v || vq === 0}
-                      aria-label="Diminuir quantidade"
-                    >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <input
-                      type="number"
-                      min={0}
-                      value={vq}
-                      disabled={!v}
-                      aria-label="Quantidade"
-                      onChange={(e) => v && setQty(v.id, Number(e.target.value) || 0)}
-                      className="h-8 w-12 shrink-0 rounded-md border bg-background text-center text-sm outline-none focus:border-primary disabled:opacity-50"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => v && setQty(v.id, vq + 1)}
-                      className="grid h-8 w-8 shrink-0 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
-                      disabled={!v}
-                      aria-label="Aumentar quantidade"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="min-w-0 space-y-1">
+                      <label
+                        htmlFor={selectId}
+                        className="block text-[11px] font-bold uppercase tracking-wider text-foreground/70"
+                      >
+                        Tamanho
+                      </label>
+                      <select
+                        id={selectId}
+                        value={vid ?? ""}
+                        aria-label={`Tamanho de ${p.name}`}
+                        onChange={(e) => {
+                          const newId = e.target.value || null;
+                          if (newId === vid) return;
+                          if (v) setQty(v.id, 0);
+                          if (newId) setQty(newId, vq > 0 ? vq : 1);
+                        }}
+                        className="h-10 w-full min-w-0 rounded-md border bg-background px-2 text-sm font-semibold text-foreground outline-none focus:border-primary"
+                      >
+                        <option value="">Selecione o tamanho</option>
+                        {vs.map((opt) => {
+                          const { full } = variantLabel(opt);
+                          const taken = qtyOf(opt.id) > 0 && opt.id !== vid;
+                          return (
+                            <option key={opt.id} value={opt.id} disabled={taken}>
+                              {full}
+                              {taken ? " (já adicionado)" : ""}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+
+                    <div className="min-w-0 space-y-1">
+                      <span className="block text-[11px] font-bold uppercase tracking-wider text-foreground/70">
+                        Quantidade
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => v && setQty(v.id, vq - 1)}
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
+                          disabled={!v || vq === 0}
+                          aria-label="Diminuir quantidade"
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <input
+                          type="number"
+                          min={0}
+                          value={vq}
+                          disabled={!v}
+                          aria-label="Quantidade"
+                          onChange={(e) => v && setQty(v.id, Number(e.target.value) || 0)}
+                          className="h-9 min-w-0 flex-1 rounded-md border bg-background text-center text-sm font-semibold outline-none focus:border-primary disabled:opacity-50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => v && setQty(v.id, vq + 1)}
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
+                          disabled={!v}
+                          aria-label="Aumentar quantidade"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
             </div>
           </div>
         ) : (
-          <div className="mt-auto flex items-center gap-1.5">
+          <div className="mt-auto space-y-1">
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-foreground/70">
+              Quantidade
+            </span>
+            <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => setQty(null, qtyOf(null) - 1)}
@@ -227,8 +249,9 @@ export function WholesaleProductCard({
               className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border hover:bg-accent"
               aria-label="Aumentar quantidade"
             >
-              <Plus className="h-4 w-4" />
-            </button>
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         )}
 
