@@ -33,7 +33,7 @@ export function Hero() {
         <motion.div className="min-w-0" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <DojoLogo className="mb-6 h-20 w-auto max-w-full sm:h-24 md:h-32 drop-shadow-[0_10px_30px_rgba(193,18,31,0.15)]" />
 
-          <h1 className="hyphens-auto break-words text-[1.6rem] font-black uppercase leading-[1.06] tracking-tight text-[#111111] xs:text-[1.8rem] sm:text-4xl lg:text-[3.4rem]">
+          <h1 className="hyphens-auto break-words text-[1.6rem] font-black uppercase leading-[1.06] tracking-tight text-[#111111] sm:text-4xl lg:text-[3.4rem]">
             Pare de perder tempo <span className="text-[#C1121F]">administrando</span> sua academia.
           </h1>
 
