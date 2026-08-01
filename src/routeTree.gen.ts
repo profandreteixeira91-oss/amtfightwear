@@ -27,6 +27,7 @@ import { Route as DojoIndexRouteImport } from './routes/dojo.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as PayInvoiceIdRouteImport } from './routes/pay.$invoiceId'
 import { Route as MatriculaSlugRouteImport } from './routes/matricula.$slug'
+import { Route as LojaGuiaKimonoRouteImport } from './routes/loja.guia-kimono'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
@@ -401,6 +402,11 @@ const PayInvoiceIdRoute = PayInvoiceIdRouteImport.update({
 const MatriculaSlugRoute = MatriculaSlugRouteImport.update({
   id: '/matricula/$slug',
   path: '/matricula/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaGuiaKimonoRoute = LojaGuiaKimonoRouteImport.update({
+  id: '/loja/guia-kimono',
+  path: '/loja/guia-kimono',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
@@ -2016,6 +2022,7 @@ export interface FileRoutesByFullPath {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
   '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
   '/app/': typeof AppIndexRoute
@@ -2315,6 +2322,7 @@ export interface FileRoutesByTo {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
   '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
   '/dojo': typeof DojoIndexRoute
@@ -2608,6 +2616,7 @@ export interface FileRoutesById {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
   '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
   '/app/': typeof AppIndexRoute
@@ -2914,6 +2923,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/loja/guia-kimono'
     | '/matricula/$slug'
     | '/pay/$invoiceId'
     | '/app/'
@@ -3213,6 +3223,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/loja/guia-kimono'
     | '/matricula/$slug'
     | '/pay/$invoiceId'
     | '/dojo'
@@ -3505,6 +3516,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/loja/guia-kimono'
     | '/matricula/$slug'
     | '/pay/$invoiceId'
     | '/app/'
@@ -3792,6 +3804,7 @@ export interface RootRouteChildren {
   LojaAtacadoRoute: typeof LojaAtacadoRoute
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
+  LojaGuiaKimonoRoute: typeof LojaGuiaKimonoRoute
   MatriculaSlugRoute: typeof MatriculaSlugRoute
   PayInvoiceIdRoute: typeof PayInvoiceIdRoute
   LojaIndexRoute: typeof LojaIndexRoute
@@ -3964,6 +3977,13 @@ declare module '@tanstack/react-router' {
       path: '/matricula/$slug'
       fullPath: '/matricula/$slug'
       preLoaderRoute: typeof MatriculaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/guia-kimono': {
+      id: '/loja/guia-kimono'
+      path: '/loja/guia-kimono'
+      fullPath: '/loja/guia-kimono'
+      preLoaderRoute: typeof LojaGuiaKimonoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/checkout': {
@@ -6839,6 +6859,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaAtacadoRoute: LojaAtacadoRoute,
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
+  LojaGuiaKimonoRoute: LojaGuiaKimonoRoute,
   MatriculaSlugRoute: MatriculaSlugRoute,
   PayInvoiceIdRoute: PayInvoiceIdRoute,
   LojaIndexRoute: LojaIndexRoute,
@@ -6895,3 +6916,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
