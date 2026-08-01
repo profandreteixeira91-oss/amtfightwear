@@ -513,7 +513,7 @@ function StoreDashboard() {
                             <PaymentBadge status={o.payment_status} />
                           </td>
                           <td className="p-3">
-                            <Badge variant="outline" className="text-xs">{o.status}</Badge>
+                            <Badge variant="outline" className="text-xs">{orderStatusLabel[o.status] ?? o.status}</Badge>
                           </td>
                           <td className="p-3 text-right font-bold">{BRL(o.total)}</td>
                         </tr>
