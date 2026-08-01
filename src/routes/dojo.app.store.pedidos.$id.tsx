@@ -96,10 +96,10 @@ function OrderDetail() {
           </h1>
           <div className="flex flex-wrap gap-1.5 pt-1">
             <span className="rounded-full border border-[color:var(--dojo-border)] bg-white px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground">
-              {data.status}
+              {orderStatusLabel[data.status ?? ""] ?? data.status}
             </span>
             <span className="rounded-full border border-[color:var(--dojo-border)] bg-white px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              {data.payment_status}
+              {paymentStatusLabel[data.payment_status ?? ""] ?? data.payment_status}
             </span>
             {data.is_wholesale && (
               <span className="rounded-full bg-foreground px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-background">
