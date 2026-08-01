@@ -3,6 +3,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductImage } from "@/components/store/ProductImage";
+import { expandSearchTerms } from "@/lib/store/search-terms";
+import { trackStoreEvent } from "@/lib/store/analytics";
 
 type Suggestion = {
   id: string;
