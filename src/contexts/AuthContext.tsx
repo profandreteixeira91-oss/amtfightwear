@@ -12,12 +12,27 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+// Superfície do Portal do Aluno (/app/*). Nela o cliente principal
+// (admin/dojo) NUNCA é usado, para que o link/token do aluno não seja
+// capturado por ele — e, principalmente, para que um login não derrube o outro.
+function isStudentSurface() {
+  if (typeof window === "undefined") return false;
+  return window.location.pathname.startsWith("/app");
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // No Portal do Aluno não tocamos no cliente principal: sessões totalmente
+    // independentes (storageKey próprio em `student-client.ts`).
+    if (isStudentSurface()) {
+      setLoading(false);
+      return;
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
       setUser(next?.user ?? null);
@@ -32,23 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Isolamento entre superfícies: o Portal do Aluno (/app/*) tem sessão própria.
-  // Se o cliente principal (admin/dojo) capturar por acidente o mesmo usuário
-  // logado no portal do aluno (ex.: token de recuperação na mesma origem),
-  // derrubamos a sessão principal para que a conta do aluno nunca ganhe acesso
-  // a /admin nem a /dojo.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mainUserId = user?.id;
-    if (!mainUserId) return;
-    (async () => {
-      const { studentSupabase } = await import("@/lib/student-auth/student-client");
-      const { data } = await studentSupabase.auth.getSession();
-      if (data.session?.user?.id === mainUserId) {
-        await supabase.auth.signOut({ scope: "local" });
-      }
-    })();
-  }, [user?.id]);
+
 
 
   const value: AuthContextValue = {
