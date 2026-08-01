@@ -150,6 +150,37 @@ function StoreHomePage() {
       </section>
 
       {/* ============================================================
+          CATEGORIAS — atalhos de navegação (menos cliques até o produto)
+         ============================================================ */}
+      {categories.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 pt-16 sm:px-8">
+          <SectionHeader eyebrow="Navegue rápido" title="Escolha sua categoria" />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {categories.slice(0, 8).map((c) => (
+              <Link
+                key={c.id}
+                to="/loja/categoria/$slug"
+                params={{ slug: c.slug }}
+                className="group relative overflow-hidden rounded-2xl border bg-background shadow-[var(--store-shadow-sm)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
+              >
+                <ProductImage
+                  src={c.image_url ?? c.preview_image}
+                  alt={c.name}
+                  aspect="square"
+                  imgClassName="transition-transform duration-500 group-hover:scale-105"
+                />
+                <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-3">
+                  <span className="text-sm font-black leading-tight text-white drop-shadow">{c.name}</span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-white transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================
           VITRINE 1 — Lançamentos & Destaques
          ============================================================ */}
       {lancamentos.length > 0 && (
