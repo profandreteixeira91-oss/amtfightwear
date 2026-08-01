@@ -304,8 +304,40 @@ function StoreHomePage() {
       </section>
 
       {/* ============================================================
+          AVALIAÇÕES — prova social
+         ============================================================ */}
+      <section className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
+        <SectionHeader eyebrow="Prova social" title="Quem treina, aprova" />
+        <div className="grid gap-5 sm:grid-cols-3 sm:gap-6">
+          {[
+            { name: "Rafael M.", role: "Faixa preta de Jiu-Jitsu", text: "Kimono impecável, costura reforçada e o caimento é perfeito. Chegou antes do prazo." },
+            { name: "Juliana P.", role: "Competidora de Muay Thai", text: "Já é minha terceira compra. Qualidade de fábrica com preço justo e atendimento rápido." },
+            { name: "Professor André", role: "Dono de academia", text: "Fizemos as faixas personalizadas do dojo. Acabamento premium e entrega dentro do combinado." },
+          ].map((r) => (
+            <figure key={r.name} className="card-elevated flex h-full flex-col gap-4 p-6">
+              <div className="flex gap-0.5 text-primary" aria-label="Avaliação 5 de 5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-current" aria-hidden />
+                ))}
+              </div>
+              <blockquote className="flex-1 text-sm leading-relaxed text-muted-foreground">“{r.text}”</blockquote>
+              <figcaption className="text-xs">
+                <span className="font-bold text-foreground">{r.name}</span>
+                <span className="block text-muted-foreground">{r.role}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-7xl px-6 sm:px-8">
+        <RecentlyViewed title="Continue de onde parou" />
+      </div>
+
+      {/* ============================================================
           DOJO MANAGER — banner institucional pré-footer
          ============================================================ */}
+
       <section id="dojo-manager" className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-neutral-50 via-white to-neutral-100 p-10 sm:p-14">
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_100%_0%,rgba(220,38,38,0.08),transparent_70%)]" />
