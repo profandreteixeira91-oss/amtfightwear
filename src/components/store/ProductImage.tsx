@@ -6,6 +6,7 @@ interface ProductImageProps {
   alt: string;
   className?: string;
   imgClassName?: string;
+  imgStyle?: React.CSSProperties;
   priority?: boolean;
   aspect?: "square" | "video" | "auto";
   sizes?: string;
