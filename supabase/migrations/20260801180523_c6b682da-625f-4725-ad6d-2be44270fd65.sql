@@ -1,0 +1,1 @@
+ALTER TABLE public.store_production_jobs ADD COLUMN IF NOT EXISTS payment_status text;

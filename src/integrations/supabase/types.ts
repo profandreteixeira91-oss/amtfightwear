@@ -12292,6 +12292,7 @@ export type Database = {
           material_alert: string | null
           notes: string | null
           order_type: string
+          payment_status: string | null
           priority: number
           product_name: string
           quantity: number
@@ -12326,6 +12327,7 @@ export type Database = {
           material_alert?: string | null
           notes?: string | null
           order_type?: string
+          payment_status?: string | null
           priority?: number
           product_name: string
           quantity?: number
@@ -12360,6 +12362,7 @@ export type Database = {
           material_alert?: string | null
           notes?: string | null
           order_type?: string
+          payment_status?: string | null
           priority?: number
           product_name?: string
           quantity?: number

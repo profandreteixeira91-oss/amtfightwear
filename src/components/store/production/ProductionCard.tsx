@@ -1,5 +1,5 @@
 import { useDraggable } from "@dnd-kit/core";
-import { AlertTriangle, Clock, Package, Sparkles, Timer, User } from "lucide-react";
+import { AlertTriangle, Clock, CreditCard, Package, Sparkles, Timer, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatBR, todayISO, diffDaysISO } from "@/lib/dates";
@@ -10,6 +10,8 @@ import {
   URGENCY_LABEL,
   formatDuration,
   jobCode,
+  paymentBadgeCls,
+  paymentBadgeLabel,
 } from "@/lib/store/production-stages";
 import type { OrderType, Urgency } from "@/lib/store/production-stages";
 import type { ProductionJob } from "@/lib/store/production.functions";
@@ -124,7 +126,13 @@ export function ProductionCard({
         <Badge variant="outline" className={ORDER_TYPE_CLS[job.order_type as OrderType]}>
           {ORDER_TYPE_LABEL[job.order_type as OrderType] ?? job.order_type}
         </Badge>
+        {job.source === "order" ? (
+          <Badge variant="outline" className={paymentBadgeCls(job.payment_status)}>
+            <CreditCard className="mr-1 h-3 w-3" /> {paymentBadgeLabel(job.payment_status)}
+          </Badge>
+        ) : null}
         <Badge variant="outline" className="border-border text-muted-foreground">
+
           {big ? "Pedido grande" : "Pedido pequeno"}
         </Badge>
         {job.custom_config ? (

@@ -21,6 +21,8 @@ import {
   formatDuration,
   jobCode,
   nextStage,
+  paymentBadgeCls,
+  paymentBadgeLabel,
 } from "@/lib/store/production-stages";
 import type { Stage, Urgency } from "@/lib/store/production-stages";
 import {
@@ -108,6 +110,11 @@ export function ProductionDetailSheet({
             {STAGE_LABEL[job.stage as Stage] ?? job.stage}
           </Badge>
           <Badge variant="outline">{jobCode(job.id)}</Badge>
+          {job.source === "order" ? (
+            <Badge variant="outline" className={paymentBadgeCls(job.payment_status)}>
+              {paymentBadgeLabel(job.payment_status)}
+            </Badge>
+          ) : null}
           {job.rework_count > 0 ? (
             <Badge variant="outline" className="border-destructive/30 text-destructive">
               {job.rework_count}× retrabalho
