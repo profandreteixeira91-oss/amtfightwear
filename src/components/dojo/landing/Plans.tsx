@@ -98,7 +98,7 @@ export function Plans() {
 
               <Button
                 asChild
-                className="mt-6 w-full rounded-full bg-[#C1121F] text-white hover:bg-[#a30f1a]"
+                className="mt-6 min-h-12 w-full rounded-full bg-[#C1121F] text-white hover:bg-[#a30f1a]"
               >
                 <a href="#cta">Testar 14 dias grátis</a>
               </Button>
