@@ -19,19 +19,19 @@ export function Footer() {
             </p>
             <div className="mt-5 flex gap-3">
               {[Instagram, Facebook, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className="grid h-9 w-9 place-items-center rounded-full border border-black/10 text-[#111111]/70 transition-colors hover:border-[#C1121F] hover:text-[#C1121F]">
-                  <Icon className="h-4 w-4" />
+                <a key={i} href="#" aria-label="Redes sociais AMT Dojo Manager" className="grid h-11 w-11 place-items-center rounded-full border border-black/10 text-[#111111]/70 transition-colors hover:border-[#C1121F] hover:text-[#C1121F]">
+                  <Icon className="h-4 w-4" aria-hidden="true" />
                 </a>
               ))}
             </div>
           </div>
           {groups.map((g) => (
-            <div key={g.title}>
+            <div key={g.title} className="min-w-0">
               <p className="text-sm font-semibold text-[#111111]">{g.title}</p>
-              <ul className="mt-4 space-y-2 text-sm">
+              <ul className="mt-2 text-sm">
                 {g.links.map((l) => (
                   <li key={l.label}>
-                    <a href={l.href} className="text-[#111111]/60 transition-colors hover:text-[#C1121F]">{l.label}</a>
+                    <a href={l.href} className="inline-flex min-h-11 items-center break-words text-[#111111]/60 transition-colors hover:text-[#C1121F]">{l.label}</a>
                   </li>
                 ))}
               </ul>
