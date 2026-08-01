@@ -36,9 +36,12 @@ function AdminLayout() {
   }, []);
 
   return (
-    <AdminShell>
-      <Outlet />
-    </AdminShell>
+    <OwnerOnly description="O painel administrativo da AMT Fight Wear é independente do Portal do Aluno e do Dojo Manager. Sua conta não tem permissão para acessar esta área.">
+      <AdminShell>
+        <Outlet />
+      </AdminShell>
+    </OwnerOnly>
   );
 }
+
 
