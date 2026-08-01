@@ -30,7 +30,7 @@ const DEMO = {
   payment_link_url: "https://pag.ae/rocha-jiujitsu-mensalidade",
   payment_link_label: "Pagar via PagSeguro",
   instructions:
-    "Após o pagamento, envie o comprovante pelo WhatsApp (73) 99999-0000 para confirmarmos a sua matrícula.",
+    "Após o pagamento, envie o comprovante pelo WhatsApp (82) 92001-6732 para confirmarmos a sua matrícula.",
 };
 
 function DemoPage() {

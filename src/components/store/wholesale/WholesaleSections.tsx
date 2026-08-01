@@ -243,7 +243,7 @@ export function WholesaleCta({ onStart }: { onStart: () => void }) {
             Monte seu pedido <ArrowRight className="h-4 w-4" aria-hidden />
           </button>
           <a
-            href="https://wa.me/5551999999999"
+            href="https://wa.me/5582920016732"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-background/40 px-6 py-3.5 text-sm font-black uppercase tracking-widest transition hover:border-background hover:bg-background hover:text-foreground"
@@ -278,7 +278,7 @@ export function WholesaleFooterLinks() {
           </li>
           <li>
             <a
-              href="https://wa.me/5551999999999"
+              href="https://wa.me/5582920016732"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-muted-foreground transition hover:text-primary"
