@@ -78,3 +78,60 @@ export const sendAdminPushTest = createServerFn({ method: "POST" })
     });
     return result;
   });
+
+/** Lista as preferências de notificação por evento do admin logado. */
+export const getAdminNotificationPrefs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await ensureAmtAdmin(context);
+    const { data, error } = await context.supabase
+      .from("store_admin_notification_prefs")
+      .select("event, enabled")
+      .eq("user_id", context.userId);
+    if (error) throw new Error(error.message);
+    const prefs: Record<string, boolean> = {};
+    for (const row of data ?? []) prefs[String((row as any).event)] = (row as any).enabled !== false;
+    return { prefs };
+  });
+
+/** Ativa/desativa um tipo de notificação para o admin logado. */
+export const setAdminNotificationPref = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { event: string; enabled: boolean }) => data)
+  .handler(async ({ data, context }) => {
+    await ensureAmtAdmin(context);
+    const { isAdminNotificationEvent } = await import("@/lib/push/admin-events");
+    if (!isAdminNotificationEvent(data.event)) throw new Error("Evento de notificação inválido.");
+    const { error } = await context.supabase.from("store_admin_notification_prefs").upsert(
+      {
+        user_id: context.userId,
+        event: data.event,
+        enabled: data.enabled,
+        updated_at: new Date().toISOString(),
+      } as never,
+      { onConflict: "user_id,event" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Envia uma notificação de teste de um evento específico para o admin logado. */
+export const sendAdminPushEventTest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { event: string }) => data)
+  .handler(async ({ data, context }) => {
+    await ensureAmtAdmin(context);
+    const { ADMIN_NOTIFICATION_CATALOG, isAdminNotificationEvent } = await import(
+      "@/lib/push/admin-events"
+    );
+    if (!isAdminNotificationEvent(data.event)) throw new Error("Evento de notificação inválido.");
+    const def = ADMIN_NOTIFICATION_CATALOG.find((d) => d.event === data.event)!;
+    const { sendPushToUser } = await import("@/lib/push/admin-push.server");
+    return sendPushToUser(context.userId, {
+      title: `Teste — ${def.label}`,
+      body: def.description,
+      url: "/admin/notificacoes",
+      tag: `test-${def.event}`,
+      data: { event: def.event },
+    });
+  });
