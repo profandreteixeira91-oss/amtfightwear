@@ -9,8 +9,10 @@ function onlyDigits(s: string | null | undefined): string {
 }
 
 async function mp<T = any>(path: string, init?: RequestInit): Promise<T> {
-  const key = process.env.MERCADOPAGO_ACCESS_TOKEN;
-  if (!key) throw new Error("MERCADOPAGO_ACCESS_TOKEN não configurada");
+  // Conta MP da LOJA AMT Fight Wear (independente da conta do AMT Pay/Dojo).
+  const key =
+    process.env.STORE_MERCADOPAGO_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN;
+  if (!key) throw new Error("STORE_MERCADOPAGO_ACCESS_TOKEN não configurada");
   const res = await fetch(`${MP_BASE}${path}`, {
     ...init,
     headers: {
