@@ -267,6 +267,7 @@ import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as AuthenticatedAdminSaasSuporteRouteImport } from './routes/_authenticated/admin.saas.suporte'
 import { Route as AuthenticatedAdminProdutosTamanhosRouteImport } from './routes/_authenticated/admin.produtos.tamanhos'
+import { Route as AuthenticatedAdminProdutosPacotesRouteImport } from './routes/_authenticated/admin.produtos.pacotes'
 import { Route as AuthenticatedAdminProdutosImportarRouteImport } from './routes/_authenticated/admin.produtos.importar'
 import { Route as AuthenticatedAdminProdutosImagensRouteImport } from './routes/_authenticated/admin.produtos.imagens'
 import { Route as AuthenticatedAdminProdutosFaixaCalcRouteImport } from './routes/_authenticated/admin.produtos.faixa-calc'
@@ -1700,6 +1701,12 @@ const AuthenticatedAdminProdutosTamanhosRoute =
     path: '/produtos/tamanhos',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminProdutosPacotesRoute =
+  AuthenticatedAdminProdutosPacotesRouteImport.update({
+    id: '/produtos/pacotes',
+    path: '/produtos/pacotes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminProdutosImportarRoute =
   AuthenticatedAdminProdutosImportarRouteImport.update({
     id: '/produtos/importar',
@@ -2156,6 +2163,7 @@ export interface FileRoutesByFullPath {
   '/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
+  '/admin/produtos/pacotes': typeof AuthenticatedAdminProdutosPacotesRoute
   '/admin/produtos/tamanhos': typeof AuthenticatedAdminProdutosTamanhosRoute
   '/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
@@ -2438,6 +2446,7 @@ export interface FileRoutesByTo {
   '/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
+  '/admin/produtos/pacotes': typeof AuthenticatedAdminProdutosPacotesRoute
   '/admin/produtos/tamanhos': typeof AuthenticatedAdminProdutosTamanhosRoute
   '/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
@@ -2738,6 +2747,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/_authenticated/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/_authenticated/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
+  '/_authenticated/admin/produtos/pacotes': typeof AuthenticatedAdminProdutosPacotesRoute
   '/_authenticated/admin/produtos/tamanhos': typeof AuthenticatedAdminProdutosTamanhosRoute
   '/_authenticated/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
@@ -3039,6 +3049,7 @@ export interface FileRouteTypes {
     | '/admin/produtos/faixa-calc'
     | '/admin/produtos/imagens'
     | '/admin/produtos/importar'
+    | '/admin/produtos/pacotes'
     | '/admin/produtos/tamanhos'
     | '/admin/saas/suporte'
     | '/ads/campaigns/$id'
@@ -3321,6 +3332,7 @@ export interface FileRouteTypes {
     | '/admin/produtos/faixa-calc'
     | '/admin/produtos/imagens'
     | '/admin/produtos/importar'
+    | '/admin/produtos/pacotes'
     | '/admin/produtos/tamanhos'
     | '/admin/saas/suporte'
     | '/ads/campaigns/$id'
@@ -3620,6 +3632,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/produtos/faixa-calc'
     | '/_authenticated/admin/produtos/imagens'
     | '/_authenticated/admin/produtos/importar'
+    | '/_authenticated/admin/produtos/pacotes'
     | '/_authenticated/admin/produtos/tamanhos'
     | '/_authenticated/admin/saas/suporte'
     | '/_authenticated/ads/campaigns/$id'
@@ -5581,6 +5594,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProdutosTamanhosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/produtos/pacotes': {
+      id: '/_authenticated/admin/produtos/pacotes'
+      path: '/produtos/pacotes'
+      fullPath: '/admin/produtos/pacotes'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosPacotesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/produtos/importar': {
       id: '/_authenticated/admin/produtos/importar'
       path: '/produtos/importar'
@@ -6026,6 +6046,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminProdutosFaixaCalcRoute: typeof AuthenticatedAdminProdutosFaixaCalcRoute
   AuthenticatedAdminProdutosImagensRoute: typeof AuthenticatedAdminProdutosImagensRoute
   AuthenticatedAdminProdutosImportarRoute: typeof AuthenticatedAdminProdutosImportarRoute
+  AuthenticatedAdminProdutosPacotesRoute: typeof AuthenticatedAdminProdutosPacotesRoute
   AuthenticatedAdminProdutosTamanhosRoute: typeof AuthenticatedAdminProdutosTamanhosRoute
   AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
   AuthenticatedAdminProdutosIndexRoute: typeof AuthenticatedAdminProdutosIndexRoute
@@ -6072,6 +6093,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminProdutosImagensRoute,
   AuthenticatedAdminProdutosImportarRoute:
     AuthenticatedAdminProdutosImportarRoute,
+  AuthenticatedAdminProdutosPacotesRoute:
+    AuthenticatedAdminProdutosPacotesRoute,
   AuthenticatedAdminProdutosTamanhosRoute:
     AuthenticatedAdminProdutosTamanhosRoute,
   AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,

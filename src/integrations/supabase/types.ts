@@ -10552,8 +10552,10 @@ export type Database = {
           description_html: string | null
           featured: boolean
           gtin: string | null
+          height_cm: number | null
           id: string
           image_url: string | null
+          length_cm: number | null
           meta_description: string | null
           meta_title: string | null
           name: string
@@ -10572,6 +10574,7 @@ export type Database = {
           weight_grams: number | null
           wholesale_discount_percent: number | null
           wholesale_enabled: boolean
+          width_cm: number | null
         }
         Insert: {
           category?: string | null
@@ -10585,8 +10588,10 @@ export type Database = {
           description_html?: string | null
           featured?: boolean
           gtin?: string | null
+          height_cm?: number | null
           id?: string
           image_url?: string | null
+          length_cm?: number | null
           meta_description?: string | null
           meta_title?: string | null
           name: string
@@ -10605,6 +10610,7 @@ export type Database = {
           weight_grams?: number | null
           wholesale_discount_percent?: number | null
           wholesale_enabled?: boolean
+          width_cm?: number | null
         }
         Update: {
           category?: string | null
@@ -10618,8 +10624,10 @@ export type Database = {
           description_html?: string | null
           featured?: boolean
           gtin?: string | null
+          height_cm?: number | null
           id?: string
           image_url?: string | null
+          length_cm?: number | null
           meta_description?: string | null
           meta_title?: string | null
           name?: string
@@ -10638,6 +10646,7 @@ export type Database = {
           weight_grams?: number | null
           wholesale_discount_percent?: number | null
           wholesale_enabled?: boolean
+          width_cm?: number | null
         }
         Relationships: [
           {

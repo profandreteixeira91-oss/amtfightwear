@@ -40,6 +40,7 @@ import {
   ShoppingCart,
   Download as DownloadIcon,
   Truck,
+  Box,
   Image as ImageIcon,
   ChevronDown,
   Menu as MenuIcon,
@@ -182,6 +183,7 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Notificações", url: "/admin/notificacoes", icon: BellRing },
 
       { title: "Envio (Melhor Envio)", url: "/admin/envio", icon: Truck },
+      { title: "Pacotes (dimensões)", url: "/admin/produtos/pacotes", icon: Box },
       { title: "Imagens dos produtos", url: "/admin/produtos/imagens", icon: ImageIcon },
       { title: "Importar catálogo", url: "/admin/produtos/importar", icon: DownloadIcon },
     ],
