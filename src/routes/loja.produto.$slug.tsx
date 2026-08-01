@@ -320,7 +320,10 @@ function ProductPage() {
             </div>
           </section>
         )}
+
+        <RecentlyViewed excludeId={product.id} />
       </div>
+
 
       {/* Barra de compra sticky — mobile only */}
       <div
