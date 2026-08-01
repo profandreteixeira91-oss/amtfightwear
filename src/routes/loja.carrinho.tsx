@@ -459,6 +459,9 @@ function CartPage() {
                     </div>
                   </div>
 
+                  <TrustBadges />
+
+
                   {/* Métodos de pagamento */}
                   <div className="flex flex-wrap items-center justify-center gap-1.5 border-t pt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     {["Pix", "Visa", "Master", "Elo", "Amex", "Boleto"].map((m) => (
