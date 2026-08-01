@@ -18,6 +18,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import { adminGetDashboard } from "@/lib/store/dashboard.functions";
+import { orderStatusLabel } from "@/lib/store/order-status";
 import { VisitorsPanel } from "@/components/store/VisitorsPanel";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "90d" | "year";
