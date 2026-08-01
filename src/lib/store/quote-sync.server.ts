@@ -154,7 +154,9 @@ export async function syncQuoteOrder(supabase: AnyClient, quote: QuoteRow) {
     discount: 0,
     total: amount,
     status: ratio === 1 ? "paid" : "processing",
-    payment_status: ratio === 1 ? "paid" : "partial",
+    // o total do pedido já é o valor efetivamente pago (50% ou 100%),
+    // então ele entra integralmente no faturamento da loja
+    payment_status: "paid",
     payment_method: "quote",
     payment_provider: "manual",
     payment_reference: quote.quote_number ?? null,
