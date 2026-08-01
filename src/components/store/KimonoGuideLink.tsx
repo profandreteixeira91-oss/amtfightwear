@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Ruler } from "lucide-react";
+import { ArrowRight, Ruler, Sparkles } from "lucide-react";
 
 /**
  * Detecta se um produto/categoria pertence ao universo "kimono / gi",
@@ -35,9 +35,32 @@ export function KimonoGuideCallout({
   variant = "banner",
   className = "",
 }: {
-  variant?: "banner" | "card";
+  variant?: "banner" | "card" | "care";
   className?: string;
 }) {
+  if (variant === "care") {
+    return (
+      <Link
+        to="/loja/guia-kimono"
+        hash="cuidados"
+        className={`group flex items-center gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-4 transition hover:border-primary/50 hover:bg-primary/10 sm:p-5 ${className}`}
+      >
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+          <Sparkles className="h-5 w-5" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-bold text-foreground">
+            Cuide do seu kimono para durar anos
+          </span>
+          <span className="block text-xs leading-relaxed text-muted-foreground">
+            Lavagem, secagem e conservação da trama — veja no Guia do Kimono.
+          </span>
+        </span>
+        <ArrowRight className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" aria-hidden />
+      </Link>
+    );
+  }
+
   if (variant === "card") {
     return (
       <Link
