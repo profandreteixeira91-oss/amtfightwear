@@ -12190,9 +12190,42 @@ export type Database = {
           },
         ]
       }
+      store_production_comments: {
+        Row: {
+          author: string | null
+          body: string
+          created_at: string
+          id: string
+          job_id: string
+        }
+        Insert: {
+          author?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          job_id: string
+        }
+        Update: {
+          author?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_production_comments_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "store_production_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_production_jobs: {
         Row: {
           assignee: string | null
+          blocked_reason: string | null
           completed_at: string | null
           created_at: string
           custom_config: Json | null
@@ -12200,23 +12233,31 @@ export type Database = {
           deadline: string | null
           id: string
           image_url: string | null
+          material_alert: string | null
           notes: string | null
+          order_type: string
           priority: number
           product_name: string
           quantity: number
           queued_at: string
           reference: string | null
+          rework_count: number
           sku: string | null
           source: string
           source_id: string | null
           source_item_key: string | null
+          stage: string
+          stage_assignees: Json
+          stage_started_at: string
           started_at: string | null
           status: string
           updated_at: string
+          urgency: string
           variant_label: string | null
         }
         Insert: {
           assignee?: string | null
+          blocked_reason?: string | null
           completed_at?: string | null
           created_at?: string
           custom_config?: Json | null
@@ -12224,23 +12265,31 @@ export type Database = {
           deadline?: string | null
           id?: string
           image_url?: string | null
+          material_alert?: string | null
           notes?: string | null
+          order_type?: string
           priority?: number
           product_name: string
           quantity?: number
           queued_at?: string
           reference?: string | null
+          rework_count?: number
           sku?: string | null
           source: string
           source_id?: string | null
           source_item_key?: string | null
+          stage?: string
+          stage_assignees?: Json
+          stage_started_at?: string
           started_at?: string | null
           status?: string
           updated_at?: string
+          urgency?: string
           variant_label?: string | null
         }
         Update: {
           assignee?: string | null
+          blocked_reason?: string | null
           completed_at?: string | null
           created_at?: string
           custom_config?: Json | null
@@ -12248,22 +12297,76 @@ export type Database = {
           deadline?: string | null
           id?: string
           image_url?: string | null
+          material_alert?: string | null
           notes?: string | null
+          order_type?: string
           priority?: number
           product_name?: string
           quantity?: number
           queued_at?: string
           reference?: string | null
+          rework_count?: number
           sku?: string | null
           source?: string
           source_id?: string | null
           source_item_key?: string | null
+          stage?: string
+          stage_assignees?: Json
+          stage_started_at?: string
           started_at?: string | null
           status?: string
           updated_at?: string
+          urgency?: string
           variant_label?: string | null
         }
         Relationships: []
+      }
+      store_production_stage_events: {
+        Row: {
+          assignee: string | null
+          created_at: string
+          duration_seconds: number | null
+          entered_at: string
+          exited_at: string | null
+          from_stage: string | null
+          id: string
+          job_id: string
+          note: string | null
+          to_stage: string
+        }
+        Insert: {
+          assignee?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          entered_at?: string
+          exited_at?: string | null
+          from_stage?: string | null
+          id?: string
+          job_id: string
+          note?: string | null
+          to_stage: string
+        }
+        Update: {
+          assignee?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          entered_at?: string
+          exited_at?: string | null
+          from_stage?: string | null
+          id?: string
+          job_id?: string
+          note?: string | null
+          to_stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_production_stage_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "store_production_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_quotes: {
         Row: {
