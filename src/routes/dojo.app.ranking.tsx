@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Trophy, Medal, Award, Users, Loader2, Flame, Crown, TrendingUp } from "lucide-react";
+import { Trophy, Medal, Award, Users, Loader2, Flame, Crown, TrendingUp, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { formatPeriodRangeLabel, shiftPeriodReference, resolvePeriodRange } from "@/lib/dojo/periods";
+import { todayISO } from "@/lib/dates";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +30,20 @@ function RankingPage() {
   const getRanking = useServerFn(getClassRanking);
   const [classId, setClassId] = useState<string>("");
   const [period, setPeriod] = useState<Period>("all");
+  // Data de referência do período exibido (permite navegar por períodos anteriores)
+  const [reference, setReference] = useState<string>(todayISO());
+
+  const isCurrentPeriod = useMemo(() => {
+    if (period === "all") return true;
+    const cur = resolvePeriodRange(period, todayISO());
+    const sel = resolvePeriodRange(period, reference);
+    return cur.startDay === sel.startDay;
+  }, [period, reference]);
+
+  const changePeriod = (v: Period) => {
+    setPeriod(v);
+    setReference(todayISO());
+  };
 
   const classesQ = useQuery({
     queryKey: ["ranking", "classes"],
@@ -42,8 +59,11 @@ function RankingPage() {
   const effectiveClassId = activeClass?.id ?? "";
 
   const rankingQ = useQuery({
-    queryKey: ["ranking", "class", effectiveClassId, period],
-    queryFn: () => getRanking({ data: { classId: effectiveClassId, period } }),
+    queryKey: ["ranking", "class", effectiveClassId, period, period === "all" ? "all" : reference],
+    queryFn: () =>
+      getRanking({
+        data: { classId: effectiveClassId, period, ...(period === "all" ? {} : { reference }) },
+      }),
     enabled: !!effectiveClassId,
     staleTime: 30_000,
   });
@@ -111,6 +131,9 @@ function RankingPage() {
                   </HeroChip>
                   {activeClass.modality && <HeroChip>{activeClass.modality}</HeroChip>}
                   <HeroChip icon={TrendingUp}>{periodLabel[period]}</HeroChip>
+                  {period !== "all" && (
+                    <HeroChip icon={CalendarDays}>{formatPeriodRangeLabel(period, reference)}</HeroChip>
+                  )}
                 </div>
               )}
             </div>
@@ -138,7 +161,7 @@ function RankingPage() {
               </SelectContent>
             </Select>
 
-            <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} className="w-full md:w-auto">
+            <Tabs value={period} onValueChange={(v) => changePeriod(v as Period)} className="w-full md:w-auto">
               <TabsList className="grid h-11 w-full grid-cols-4 border border-white/15 bg-white/5 p-1 text-white backdrop-blur md:flex md:h-10 md:w-auto">
                 <TabsTrigger value="all" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Total</TabsTrigger>
                 <TabsTrigger value="year" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Ano</TabsTrigger>
@@ -146,6 +169,46 @@ function RankingPage() {
                 <TabsTrigger value="week" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Semana</TabsTrigger>
               </TabsList>
             </Tabs>
+
+            {period !== "all" && (
+              <div className="flex w-full items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 p-1 text-white backdrop-blur md:w-auto">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Período anterior"
+                  className="h-8 w-8 shrink-0 text-white hover:bg-white/10"
+                  onClick={() => setReference((r) => shiftPeriodReference(period, r, -1))}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="min-w-0 flex-1 truncate px-1 text-center text-xs font-semibold sm:text-sm md:min-w-[150px]">
+                  {formatPeriodRangeLabel(period, reference)}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Próximo período"
+                  disabled={isCurrentPeriod}
+                  className="h-8 w-8 shrink-0 text-white hover:bg-white/10 disabled:opacity-40"
+                  onClick={() => setReference((r) => shiftPeriodReference(period, r, 1))}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                {!isCurrentPeriod && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 shrink-0 px-2 text-[11px] font-semibold text-white hover:bg-white/10"
+                    onClick={() => setReference(todayISO())}
+                  >
+                    Atual
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>
