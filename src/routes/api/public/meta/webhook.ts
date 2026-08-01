@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "crypto";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
-const VERIFY_TOKEN = "amt_meta_webhook_2026";
+const DEFAULT_VERIFY_TOKEN = "amt_meta_webhook_2026";
 
 function cors(origin = "*") {
   return {
@@ -27,8 +27,9 @@ export const Route = createFileRoute("/api/public/meta/webhook")({
         const mode = url.searchParams.get("hub.mode");
         const token = url.searchParams.get("hub.verify_token");
         const challenge = url.searchParams.get("hub.challenge");
+        const verifyToken = process.env["META_VERIFY_TOKEN"] ?? DEFAULT_VERIFY_TOKEN;
 
-        if (mode === "subscribe" && token === VERIFY_TOKEN && challenge) {
+        if (mode === "subscribe" && token === verifyToken && challenge) {
           return new Response(challenge, {
             status: 200,
             headers: { "Content-Type": "text/plain", ...cors() },
