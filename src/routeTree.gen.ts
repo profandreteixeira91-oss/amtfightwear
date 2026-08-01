@@ -307,6 +307,7 @@ import { Route as AuthenticatedAdminAdsRelatoriosRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminAdsPublicosRouteImport } from './routes/_authenticated/admin.ads.publicos'
 import { Route as AuthenticatedAdminAdsPixelRouteImport } from './routes/_authenticated/admin.ads.pixel'
 import { Route as AuthenticatedAdminAdsMidiasRouteImport } from './routes/_authenticated/admin.ads.midias'
+import { Route as AuthenticatedAdminAdsHistoricoRouteImport } from './routes/_authenticated/admin.ads.historico'
 import { Route as AuthenticatedAdminAdsCriativosRouteImport } from './routes/_authenticated/admin.ads.criativos'
 import { Route as AuthenticatedAdminAdsConjuntosRouteImport } from './routes/_authenticated/admin.ads.conjuntos'
 import { Route as AuthenticatedAdminAdsCampanhasRouteImport } from './routes/_authenticated/admin.ads.campanhas'
@@ -1951,6 +1952,12 @@ const AuthenticatedAdminAdsMidiasRoute =
     path: '/midias',
     getParentRoute: () => AuthenticatedAdminAdsRoute,
   } as any)
+const AuthenticatedAdminAdsHistoricoRoute =
+  AuthenticatedAdminAdsHistoricoRouteImport.update({
+    id: '/historico',
+    path: '/historico',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
 const AuthenticatedAdminAdsCriativosRoute =
   AuthenticatedAdminAdsCriativosRouteImport.update({
     id: '/criativos',
@@ -2250,6 +2257,7 @@ export interface FileRoutesByFullPath {
   '/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
+  '/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
   '/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
   '/admin/ads/publicos': typeof AuthenticatedAdminAdsPublicosRoute
@@ -2548,6 +2556,7 @@ export interface FileRoutesByTo {
   '/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
+  '/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
   '/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
   '/admin/ads/publicos': typeof AuthenticatedAdminAdsPublicosRoute
@@ -2865,6 +2874,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/_authenticated/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/_authenticated/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
+  '/_authenticated/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
   '/_authenticated/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/_authenticated/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
   '/_authenticated/admin/ads/publicos': typeof AuthenticatedAdminAdsPublicosRoute
@@ -3183,6 +3193,7 @@ export interface FileRouteTypes {
     | '/admin/ads/campanhas'
     | '/admin/ads/conjuntos'
     | '/admin/ads/criativos'
+    | '/admin/ads/historico'
     | '/admin/ads/midias'
     | '/admin/ads/pixel'
     | '/admin/ads/publicos'
@@ -3481,6 +3492,7 @@ export interface FileRouteTypes {
     | '/admin/ads/campanhas'
     | '/admin/ads/conjuntos'
     | '/admin/ads/criativos'
+    | '/admin/ads/historico'
     | '/admin/ads/midias'
     | '/admin/ads/pixel'
     | '/admin/ads/publicos'
@@ -3797,6 +3809,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/ads/campanhas'
     | '/_authenticated/admin/ads/conjuntos'
     | '/_authenticated/admin/ads/criativos'
+    | '/_authenticated/admin/ads/historico'
     | '/_authenticated/admin/ads/midias'
     | '/_authenticated/admin/ads/pixel'
     | '/_authenticated/admin/ads/publicos'
@@ -6079,6 +6092,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdsMidiasRouteImport
       parentRoute: typeof AuthenticatedAdminAdsRoute
     }
+    '/_authenticated/admin/ads/historico': {
+      id: '/_authenticated/admin/ads/historico'
+      path: '/historico'
+      fullPath: '/admin/ads/historico'
+      preLoaderRoute: typeof AuthenticatedAdminAdsHistoricoRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
     '/_authenticated/admin/ads/criativos': {
       id: '/_authenticated/admin/ads/criativos'
       path: '/criativos'
@@ -6213,6 +6233,7 @@ interface AuthenticatedAdminAdsRouteChildren {
   AuthenticatedAdminAdsCampanhasRoute: typeof AuthenticatedAdminAdsCampanhasRoute
   AuthenticatedAdminAdsConjuntosRoute: typeof AuthenticatedAdminAdsConjuntosRoute
   AuthenticatedAdminAdsCriativosRoute: typeof AuthenticatedAdminAdsCriativosRoute
+  AuthenticatedAdminAdsHistoricoRoute: typeof AuthenticatedAdminAdsHistoricoRoute
   AuthenticatedAdminAdsMidiasRoute: typeof AuthenticatedAdminAdsMidiasRoute
   AuthenticatedAdminAdsPixelRoute: typeof AuthenticatedAdminAdsPixelRoute
   AuthenticatedAdminAdsPublicosRoute: typeof AuthenticatedAdminAdsPublicosRoute
@@ -6225,6 +6246,7 @@ const AuthenticatedAdminAdsRouteChildren: AuthenticatedAdminAdsRouteChildren = {
   AuthenticatedAdminAdsCampanhasRoute: AuthenticatedAdminAdsCampanhasRoute,
   AuthenticatedAdminAdsConjuntosRoute: AuthenticatedAdminAdsConjuntosRoute,
   AuthenticatedAdminAdsCriativosRoute: AuthenticatedAdminAdsCriativosRoute,
+  AuthenticatedAdminAdsHistoricoRoute: AuthenticatedAdminAdsHistoricoRoute,
   AuthenticatedAdminAdsMidiasRoute: AuthenticatedAdminAdsMidiasRoute,
   AuthenticatedAdminAdsPixelRoute: AuthenticatedAdminAdsPixelRoute,
   AuthenticatedAdminAdsPublicosRoute: AuthenticatedAdminAdsPublicosRoute,
