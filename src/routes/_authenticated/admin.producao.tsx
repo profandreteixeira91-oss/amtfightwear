@@ -1,37 +1,62 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  CalendarClock,
+  AlertTriangle,
   CheckCircle2,
   Clock,
   Factory,
-  Hammer,
-  Pause,
+  Gauge,
+  Layers,
+  Printer,
+  QrCode,
   RefreshCw,
+  Rocket,
   Search,
+  Tag,
+  Timer,
   Trash2,
-  X,
+  Users,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageShell } from "@/components/common/PageShell";
-import { formatBR, todayISO } from "@/lib/dates";
+import { supabase } from "@/integrations/supabase/client";
+import { formatBR, todayISO, diffDaysISO, dayISO } from "@/lib/dates";
+import {
+  ORDER_TYPES,
+  ORDER_TYPE_LABEL,
+  STAGES,
+  STAGE_LABEL,
+  URGENCIES,
+  URGENCY_LABEL,
+  URGENCY_WEIGHT,
+  formatDuration,
+  jobCode,
+  parseScannedCode,
+} from "@/lib/store/production-stages";
+import type { OrderType, Stage, Urgency } from "@/lib/store/production-stages";
 import {
   adminBulkUpdateProductionJobs,
   adminDeleteProductionJob,
   adminListProductionJobs,
+  adminMoveProductionStage,
+  adminProductionAnalytics,
   adminSyncProductionQueue,
-  adminUpdateProductionJob,
-  type ProductionJob,
 } from "@/lib/store/production.functions";
+import type { ProductionJob } from "@/lib/store/production.functions";
+import { ProductionKanban } from "@/components/store/production/ProductionKanban";
+import { ProductionDetailSheet } from "@/components/store/production/ProductionDetailSheet";
+import { ProductionPerformance } from "@/components/store/production/ProductionPerformance";
+import { ProductionScanner } from "@/components/store/production/ProductionScanner";
+import { printProductionLabels, printProductionSheet } from "@/lib/store/production-print";
 
 export const Route = createFileRoute("/_authenticated/admin/producao")({
   component: ProductionQueuePage,
@@ -41,12 +66,12 @@ export const Route = createFileRoute("/_authenticated/admin/producao")({
       {
         name: "description",
         content:
-          "Fila de produção da confecção AMT Fight Wear: pedidos da loja e itens de orçamentos aprovados na ordem de entrada, com prazos editáveis.",
+          "Centro operacional da confecção AMT Fight Wear: Kanban por etapa, cronômetro automático, responsáveis, etiquetas com QR Code e indicadores de desempenho.",
       },
       { property: "og:title", content: "Fila de produção | AMT Fight Wear" },
       {
         property: "og:description",
-        content: "Acompanhe e priorize a produção de pedidos e orçamentos aprovados.",
+        content: "Kanban da produção com prioridades, prazos, responsáveis e indicadores em tempo real.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -54,364 +79,639 @@ export const Route = createFileRoute("/_authenticated/admin/producao")({
   }),
 });
 
-type Status = ProductionJob["status"];
-
-const STATUS: Record<Status, { label: string; cls: string; icon: typeof Clock }> = {
-  queued: { label: "Na fila", cls: "bg-muted text-muted-foreground border-border", icon: Clock },
-  in_production: {
-    label: "Em produção",
-    cls: "bg-primary/15 text-primary border-primary/30",
-    icon: Hammer,
-  },
-  paused: { label: "Pausado", cls: "bg-amber-500/15 text-amber-500 border-amber-500/30", icon: Pause },
-  done: {
-    label: "Concluído",
-    cls: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
-    icon: CheckCircle2,
-  },
-  cancelled: { label: "Cancelado", cls: "bg-destructive/15 text-destructive border-destructive/30", icon: X },
-};
-
 const ALL = "__all__";
 
-function deadlineInfo(deadline: string | null, status: Status) {
-  if (!deadline) return { label: "Sem prazo", cls: "text-muted-foreground" };
+function priorityScore(j: ProductionJob) {
   const today = todayISO();
-  const done = status === "done" || status === "cancelled";
-  const late = !done && deadline < today;
-  const todayIs = !done && deadline === today;
-  return {
-    label: formatBR(deadline),
-    cls: late ? "text-destructive font-semibold" : todayIs ? "text-amber-500 font-semibold" : "text-foreground",
-  };
+  const days = j.deadline ? diffDaysISO(today, j.deadline) : 99;
+  const stuckHours = (Date.now() - new Date(j.stage_started_at).getTime()) / 3600000;
+  const typeBoost = j.order_type === "wholesale" ? 6 : j.order_type === "custom" ? 4 : 0;
+  return (
+    j.priority * 20 +
+    URGENCY_WEIGHT[j.urgency as Urgency] * 25 +
+    Math.max(0, 30 - days) * 3 +
+    Math.min(stuckHours, 72) +
+    typeBoost
+  );
 }
 
 function ProductionQueuePage() {
   const qc = useQueryClient();
   const listFn = useServerFn(adminListProductionJobs);
   const syncFn = useServerFn(adminSyncProductionQueue);
-  const updateFn = useServerFn(adminUpdateProductionJob);
+  const moveFn = useServerFn(adminMoveProductionStage);
   const bulkFn = useServerFn(adminBulkUpdateProductionJobs);
   const deleteFn = useServerFn(adminDeleteProductionJob);
+  const analyticsFn = useServerFn(adminProductionAnalytics);
 
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ["admin-production-jobs"],
     queryFn: () => listFn(),
   });
+  const { data: analytics } = useQuery({
+    queryKey: ["admin-production-analytics"],
+    queryFn: () => analyticsFn(),
+  });
 
   const [term, setTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("open");
-  const [sourceFilter, setSourceFilter] = useState<string>(ALL);
+  const [stageFilter, setStageFilter] = useState<string>(ALL);
+  const [typeFilter, setTypeFilter] = useState<string>(ALL);
+  const [urgencyFilter, setUrgencyFilter] = useState<string>(ALL);
+  const [assigneeFilter, setAssigneeFilter] = useState<string>(ALL);
+  const [hideDone, setHideDone] = useState(true);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [openJob, setOpenJob] = useState<ProductionJob | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [groupBy, setGroupBy] = useState<"product" | "customer" | "stage" | "deadline" | "assignee">(
+    "product",
+  );
+  const [bulkStage, setBulkStage] = useState<string>(ALL);
+  const [bulkAssignee, setBulkAssignee] = useState("");
   const [bulkDeadline, setBulkDeadline] = useState("");
-  const [bulkStatus, setBulkStatus] = useState<string>(ALL);
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["admin-production-jobs"] });
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["admin-production-jobs"] });
+    qc.invalidateQueries({ queryKey: ["admin-production-analytics"] });
+  };
+
+  // Tempo real: qualquer mudança na fila reflete sem recarregar a página.
+  useEffect(() => {
+    const channel = supabase
+      .channel("production-queue")
+      .on("postgres_changes", { event: "*", schema: "public", table: "store_production_jobs" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin-production-jobs"] }),
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [qc]);
 
   const sync = useMutation({
     mutationFn: () => syncFn(),
     onSuccess: (r: { inserted: number }) => {
-      toast.success(
-        r.inserted > 0 ? `${r.inserted} item(ns) adicionado(s) à fila` : "Fila já está atualizada",
-      );
+      toast.success(r.inserted > 0 ? `${r.inserted} item(ns) na fila` : "Fila já está atualizada");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const patch = useMutation({
-    mutationFn: (v: {
-      id: string;
-      status?: Status;
-      deadline?: string | null;
-      assignee?: string | null;
-      notes?: string | null;
-      priority?: number;
-      quantity?: number;
-    }) => updateFn({ data: v }),
+  const move = useMutation({
+    mutationFn: (v: { id: string; stage: Stage }) => moveFn({ data: v }),
     onSuccess: () => invalidate(),
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const remove = useMutation({
-    mutationFn: (id: string) => deleteFn({ data: { id } }),
+  const bulk = useMutation({
+    mutationFn: (v: {
+      ids: string[];
+      stage?: Stage;
+      status?: "paused" | "in_production";
+      assignee?: string | null;
+      deadline?: string | null;
+      urgency?: Urgency;
+    }) => bulkFn({ data: v }),
     onSuccess: () => {
-      toast.success("Item removido da fila");
+      toast.success("Produção atualizada em massa");
+      setSelected({});
+      setBulkStage(ALL);
+      setBulkAssignee("");
+      setBulkDeadline("");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const bulk = useMutation({
-    mutationFn: (v: { ids: string[]; status?: Status; deadline?: string | null }) => bulkFn({ data: v }),
+  const remove = useMutation({
+    mutationFn: (ids: string[]) => deleteFn({ data: { ids } }),
     onSuccess: () => {
-      toast.success("Fila atualizada em massa");
+      toast.success("Itens removidos da fila (pedidos preservados)");
       setSelected({});
-      setBulkDeadline("");
-      setBulkStatus(ALL);
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const assignees = useMemo(
+    () => [...new Set(jobs.map((j) => j.assignee).filter(Boolean))] as string[],
+    [jobs],
+  );
 
   const filtered = useMemo(() => {
     const t = term.trim().toLowerCase();
-    return jobs.filter((j) => {
-      if (statusFilter === "open" && (j.status === "done" || j.status === "cancelled")) return false;
-      if (statusFilter !== "open" && statusFilter !== ALL && j.status !== statusFilter) return false;
-      if (sourceFilter !== ALL && j.source !== sourceFilter) return false;
-      if (!t) return true;
-      return [j.product_name, j.customer_name, j.reference, j.sku, j.variant_label, j.assignee]
-        .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(t));
-    });
-  }, [jobs, term, statusFilter, sourceFilter]);
+    const words = t.split(/\s+/).filter(Boolean);
+    return jobs
+      .filter((j) => {
+        if (hideDone && j.stage === "finalizado") return false;
+        if (stageFilter !== ALL && j.stage !== stageFilter) return false;
+        if (typeFilter !== ALL && j.order_type !== typeFilter) return false;
+        if (urgencyFilter !== ALL && j.urgency !== urgencyFilter) return false;
+        if (assigneeFilter !== ALL && (j.assignee ?? "") !== assigneeFilter) return false;
+        if (!words.length) return true;
+        const hay = [
+          j.product_name,
+          j.customer_name,
+          j.reference,
+          j.sku,
+          j.variant_label,
+          j.assignee,
+          jobCode(j.id),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return words.some((w) => hay.includes(w));
+      })
+      .sort((a, b) => priorityScore(b) - priorityScore(a));
+  }, [jobs, term, stageFilter, typeFilter, urgencyFilter, assigneeFilter, hideDone]);
 
   const selectedIds = Object.keys(selected).filter((k) => selected[k]);
-  const openJobs = jobs.filter((j) => j.status !== "done" && j.status !== "cancelled");
+  const selectedJobs = jobs.filter((j) => selected[j.id]);
   const today = todayISO();
+  const open = jobs.filter((j) => j.stage !== "finalizado");
+
   const stats = {
-    fila: jobs.filter((j) => j.status === "queued").length,
-    producao: jobs.filter((j) => j.status === "in_production").length,
-    atrasados: openJobs.filter((j) => j.deadline && j.deadline < today).length,
-    pecas: openJobs.reduce((a, j) => a + Number(j.quantity || 0), 0),
+    hoje: open.filter((j) => j.deadline === today).length,
+    emProducao: open.filter((j) => j.stage !== "recebido").length,
+    novos: open.filter((j) => j.stage === "recebido").length,
+    finalizadosHoje: jobs.filter((j) => j.completed_at && dayISO(j.completed_at) === today).length,
+    atrasados: open.filter((j) => j.deadline && j.deadline < today).length,
+    urgentes: open.filter((j) => j.urgency === "urgent").length,
+    pecas: open.reduce((a, j) => a + Number(j.quantity || 0), 0),
+    semResponsavel: open.filter((j) => !j.assignee).length,
   };
+  const stageCounts = Object.fromEntries(
+    STAGES.map((s) => [s, open.filter((j) => j.stage === s).length]),
+  ) as Record<Stage, number>;
+  const capacityUsed = Math.min(100, Math.round((stats.pecas / 300) * 100));
+  const efficiency = analytics
+    ? Math.round(
+        (analytics.onTime / Math.max(1, analytics.onTime + analytics.late)) * 100 -
+          analytics.reworkRate / 2,
+      )
+    : 0;
+
+  const orderMeta = useMemo(() => {
+    const map = new Map<string, { siblings: number; totalPieces: number }>();
+    for (const j of jobs) {
+      const key = `${j.source}:${j.source_id ?? j.id}`;
+      const cur = map.get(key) ?? { siblings: 0, totalPieces: 0 };
+      cur.siblings += 1;
+      cur.totalPieces += Number(j.quantity || 0);
+      map.set(key, cur);
+    }
+    return map;
+  }, [jobs]);
+
+  const metaOf = (j: ProductionJob) =>
+    orderMeta.get(`${j.source}:${j.source_id ?? j.id}`) ?? { siblings: 1, totalPieces: Number(j.quantity) };
+
+  const groups = useMemo(() => {
+    const key = (j: ProductionJob) => {
+      if (groupBy === "product") return j.product_name;
+      if (groupBy === "customer") return j.customer_name ?? "Sem cliente";
+      if (groupBy === "stage") return STAGE_LABEL[j.stage as Stage] ?? j.stage;
+      if (groupBy === "assignee") return j.assignee ?? "Sem responsável";
+      return j.deadline ? formatBR(j.deadline) : "Sem prazo";
+    };
+    const map = new Map<string, { pieces: number; items: ProductionJob[] }>();
+    for (const j of filtered) {
+      const k = key(j);
+      const cur = map.get(k) ?? { pieces: 0, items: [] };
+      cur.pieces += Number(j.quantity || 0);
+      cur.items.push(j);
+      map.set(k, cur);
+    }
+    return [...map.entries()].sort((a, b) => b[1].pieces - a[1].pieces);
+  }, [filtered, groupBy]);
+
+  const alerts = useMemo(() => {
+    const out: { tone: "danger" | "warn"; text: string }[] = [];
+    if (stats.atrasados) out.push({ tone: "danger", text: `${stats.atrasados} item(ns) com prazo vencido` });
+    if (stats.urgentes) out.push({ tone: "warn", text: `${stats.urgentes} item(ns) marcados como urgentes` });
+    const stuck = open.filter(
+      (j) => (Date.now() - new Date(j.stage_started_at).getTime()) / 3600000 > 24,
+    ).length;
+    if (stuck) out.push({ tone: "warn", text: `${stuck} item(ns) parados há mais de 24h na mesma etapa` });
+    if (stats.semResponsavel)
+      out.push({ tone: "warn", text: `${stats.semResponsavel} item(ns) aguardando responsável` });
+    const material = open.filter((j) => j.material_alert).length;
+    if (material) out.push({ tone: "danger", text: `${material} item(ns) com alerta de matéria-prima` });
+    return out;
+  }, [open, stats]);
+
+  function toggle(id: string) {
+    setSelected((s) => ({ ...s, [id]: !s[id] }));
+  }
+
+  function handleScan(raw: string) {
+    setScanning(false);
+    const code = parseScannedCode(raw).toLowerCase();
+    const found = jobs.find(
+      (j) => j.id.toLowerCase() === code || jobCode(j.id).toLowerCase() === `pj-${code}`,
+    );
+    if (found) setOpenJob(found);
+    else toast.error("Etiqueta não encontrada na fila.");
+  }
 
   return (
     <PageShell
       title="Fila de produção"
-      description="Pedidos da loja e itens de orçamentos aprovados, na ordem de entrada."
+      description="Centro operacional da confecção: Kanban por etapa, cronômetro automático, responsáveis e indicadores em tempo real."
       eyebrow="AMT Fight Wear"
       actions={
-        <Button onClick={() => sync.mutate()} disabled={sync.isPending} className="gap-2">
-          <RefreshCw className={`h-4 w-4 ${sync.isPending ? "animate-spin" : ""}`} />
-          Atualizar fila
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => setScanning(true)}>
+            <QrCode className="h-4 w-4" /> Escanear
+          </Button>
+          <Button onClick={() => sync.mutate()} disabled={sync.isPending} className="gap-2">
+            <RefreshCw className={`h-4 w-4 ${sync.isPending ? "animate-spin" : ""}`} />
+            Sincronizar
+          </Button>
+        </div>
       }
     >
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[
-          { label: "Na fila", value: stats.fila, icon: Clock },
-          { label: "Em produção", value: stats.producao, icon: Hammer },
-          { label: "Atrasados", value: stats.atrasados, icon: CalendarClock },
-          { label: "Peças pendentes", value: stats.pecas, icon: Factory },
-        ].map((s) => (
-          <Card key={s.label} className="min-w-0">
-            <CardContent className="flex min-w-0 items-center gap-3 p-4">
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <s.icon className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-xs text-muted-foreground">{s.label}</p>
-                <p className="text-xl font-bold">{s.value}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* KPIs */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
+        <Kpi label="Produção hoje" value={stats.hoje} icon={Rocket} />
+        <Kpi label="Em produção" value={stats.emProducao} icon={Factory} />
+        <Kpi label="Pedidos novos" value={stats.novos} icon={Clock} />
+        <Kpi label="Finalizados hoje" value={stats.finalizadosHoje} icon={CheckCircle2} />
+        <Kpi label="Atrasados" value={stats.atrasados} icon={AlertTriangle} tone="danger" />
+        <Kpi label="Peças pendentes" value={stats.pecas} icon={Layers} />
       </div>
 
-      <Card className="mt-4">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Filtros</CardTitle>
+      <div className="grid gap-3 md:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Tempo médio de produção</p>
+            <p className="text-2xl font-bold">{formatDuration(analytics?.avgLeadSeconds ?? 0)}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Retrabalho: {(analytics?.reworkRate ?? 0).toFixed(1)}%
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Capacidade utilizada</p>
+            <p className="text-2xl font-bold">{capacityUsed}%</p>
+            <div className="mt-2 h-2 rounded-full bg-muted">
+              <div className="h-2 rounded-full bg-primary" style={{ width: `${capacityUsed}%` }} />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Eficiência da produção</p>
+            <p className="text-2xl font-bold">{Math.max(0, efficiency)}%</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              No prazo: {analytics?.onTime ?? 0} · Atrasados: {analytics?.late ?? 0}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Pendências por etapa */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Pendências por etapa</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-3">
-          <div className="relative">
+        <CardContent className="flex flex-wrap gap-2">
+          {STAGES.filter((s) => s !== "finalizado").map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStageFilter(stageFilter === s ? ALL : s)}
+              className={`rounded-lg border px-3 py-2 text-left text-xs transition hover:border-primary/50 ${
+                stageFilter === s ? "border-primary bg-primary/5" : "border-border bg-muted/30"
+              }`}
+            >
+              <span className="block text-muted-foreground">Aguardando {STAGE_LABEL[s]}</span>
+              <span className="text-base font-bold">{stageCounts[s]}</span>
+            </button>
+          ))}
+        </CardContent>
+      </Card>
+
+      {alerts.length > 0 ? (
+        <Card className="border-amber-500/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertTriangle className="h-4 w-4 text-amber-500" /> Alertas da produção
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {alerts.map((a) => (
+              <Badge
+                key={a.text}
+                variant="outline"
+                className={
+                  a.tone === "danger"
+                    ? "border-destructive/30 bg-destructive/10 text-destructive"
+                    : "border-amber-500/30 bg-amber-500/10 text-amber-500"
+                }
+              >
+                {a.text}
+              </Badge>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {/* Filtros */}
+      <Card>
+        <CardContent className="grid gap-3 p-4 md:grid-cols-3 xl:grid-cols-6">
+          <div className="relative md:col-span-2">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={term}
               onChange={(e) => setTerm(e.target.value)}
-              placeholder="Buscar produto, cliente, pedido..."
+              placeholder="Pedido, cliente, SKU, produto, código…"
               className="pl-9"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={stageFilter} onValueChange={setStageFilter}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Etapa" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="open">Em aberto</SelectItem>
-              <SelectItem value={ALL}>Todos os status</SelectItem>
-              {(Object.keys(STATUS) as Status[]).map((s) => (
+              <SelectItem value={ALL}>Todas as etapas</SelectItem>
+              {STAGES.map((s) => (
                 <SelectItem key={s} value={s}>
-                  {STATUS[s].label}
+                  {STAGE_LABEL[s]}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Origem" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL}>Todas as origens</SelectItem>
-              <SelectItem value="order">Pedidos da loja</SelectItem>
-              <SelectItem value="quote">Orçamentos aprovados</SelectItem>
-              <SelectItem value="manual">Manual</SelectItem>
+              {ORDER_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {ORDER_TYPE_LABEL[t as OrderType]}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Urgência" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Todas as urgências</SelectItem>
+              {URGENCIES.map((u) => (
+                <SelectItem key={u} value={u}>
+                  {URGENCY_LABEL[u as Urgency]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Responsável" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Todos os responsáveis</SelectItem>
+              {assignees.map((a) => (
+                <SelectItem key={a} value={a}>
+                  {a}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="flex items-center gap-2 md:col-span-3">
+            <Button
+              type="button"
+              size="sm"
+              variant={hideDone ? "default" : "outline"}
+              onClick={() => setHideDone((v) => !v)}
+            >
+              {hideDone ? "Ocultando finalizados" : "Mostrando finalizados"}
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {filtered.length} item(ns) · {filtered.reduce((a, j) => a + Number(j.quantity || 0), 0)} peças
+            </span>
+          </div>
         </CardContent>
       </Card>
 
-      {selectedIds.length > 0 && (
-        <Card className="mt-4 border-primary/40">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Edição em massa ({selectedIds.length})</CardTitle>
+      {/* Ações em massa */}
+      {selectedIds.length > 0 ? (
+        <Card className="border-primary/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Produção em massa ({selectedIds.length})</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-4">
             <div>
-              <Label className="text-xs">Novo prazo</Label>
-              <Input type="date" value={bulkDeadline} onChange={(e) => setBulkDeadline(e.target.value)} />
-            </div>
-            <div>
-              <Label className="text-xs">Novo status</Label>
-              <Select value={bulkStatus} onValueChange={setBulkStatus}>
+              <Label className="text-xs">Mover para etapa</Label>
+              <Select
+                value={bulkStage}
+                onValueChange={(v) => {
+                  setBulkStage(v);
+                  if (v !== ALL) bulk.mutate({ ids: selectedIds, stage: v as Stage });
+                }}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Manter" />
+                  <SelectValue placeholder="Selecionar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL}>Manter</SelectItem>
-                  {(Object.keys(STATUS) as Status[]).map((s) => (
+                  {STAGES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {STATUS[s].label}
+                      {STAGE_LABEL[s]}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-end gap-2 md:col-span-2">
+            <div>
+              <Label className="text-xs">Responsável</Label>
+              <div className="flex gap-2">
+                <Input value={bulkAssignee} onChange={(e) => setBulkAssignee(e.target.value)} placeholder="Nome" />
+                <Button
+                  variant="outline"
+                  onClick={() => bulk.mutate({ ids: selectedIds, assignee: bulkAssignee || null })}
+                >
+                  <Users className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs">Novo prazo</Label>
+              <div className="flex gap-2">
+                <Input type="date" value={bulkDeadline} onChange={(e) => setBulkDeadline(e.target.value)} />
+                <Button
+                  variant="outline"
+                  onClick={() => bulk.mutate({ ids: selectedIds, deadline: bulkDeadline || null })}
+                >
+                  OK
+                </Button>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-end gap-2">
               <Button
-                disabled={bulk.isPending || (!bulkDeadline && bulkStatus === ALL)}
-                onClick={() =>
-                  bulk.mutate({
-                    ids: selectedIds,
-                    ...(bulkDeadline ? { deadline: bulkDeadline } : {}),
-                    ...(bulkStatus !== ALL ? { status: bulkStatus as Status } : {}),
-                  })
-                }
+                size="sm"
+                variant="outline"
+                onClick={() => bulk.mutate({ ids: selectedIds, stage: "finalizado" })}
               >
-                Aplicar
+                Finalizar
               </Button>
-              <Button variant="ghost" onClick={() => setSelected({})}>
-                Limpar seleção
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => bulk.mutate({ ids: selectedIds, status: "paused" })}
+              >
+                Pausar
+              </Button>
+              <Button size="sm" variant="outline" className="gap-1" onClick={() => printProductionSheet(selectedJobs)}>
+                <Printer className="h-4 w-4" /> Folha
+              </Button>
+              <Button size="sm" variant="outline" className="gap-1" onClick={() => printProductionLabels(selectedJobs)}>
+                <Tag className="h-4 w-4" /> Etiquetas
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1 text-destructive"
+                onClick={() => remove.mutate(selectedIds)}
+              >
+                <Trash2 className="h-4 w-4" /> Remover
               </Button>
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      <Card className="mt-4">
-        <CardHeader className="flex flex-row items-center justify-between gap-3 pb-3">
-          <CardTitle className="text-base">Fila ({filtered.length})</CardTitle>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Checkbox
-              checked={filtered.length > 0 && filtered.every((j) => selected[j.id])}
-              onCheckedChange={(v) => {
-                const next: Record<string, boolean> = { ...selected };
-                filtered.forEach((j) => {
-                  next[j.id] = Boolean(v);
-                });
-                setSelected(next);
-              }}
+      <Tabs defaultValue="kanban">
+        <TabsList>
+          <TabsTrigger value="kanban" className="gap-2">
+            <Factory className="h-4 w-4" /> Kanban
+          </TabsTrigger>
+          <TabsTrigger value="grupos" className="gap-2">
+            <Layers className="h-4 w-4" /> Agrupado
+          </TabsTrigger>
+          <TabsTrigger value="desempenho" className="gap-2">
+            <Gauge className="h-4 w-4" /> Desempenho
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="kanban" className="mt-4">
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Carregando fila…</p>
+          ) : (
+            <ProductionKanban
+              jobs={filtered}
+              metaOf={metaOf}
+              selected={selected}
+              onToggle={toggle}
+              onOpen={setOpenJob}
+              onMove={(id, stage) => move.mutate({ id, stage })}
             />
-            Selecionar todos
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {isLoading && <p className="text-sm text-muted-foreground">Carregando fila...</p>}
-          {!isLoading && filtered.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Nenhum item na fila. Clique em “Atualizar fila” para importar pedidos e orçamentos aprovados.
-            </p>
           )}
-          {filtered.map((j, idx) => {
-            const st = STATUS[j.status];
-            const dl = deadlineInfo(j.deadline, j.status);
-            return (
-              <div
-                key={j.id}
-                className="flex min-w-0 flex-col gap-3 rounded-xl border border-border bg-card/60 p-3 md:flex-row md:items-center"
-              >
-                <div className="flex min-w-0 flex-1 items-start gap-3">
-                  <Checkbox
-                    checked={Boolean(selected[j.id])}
-                    onCheckedChange={(v) => setSelected((p) => ({ ...p, [j.id]: Boolean(v) }))}
-                    className="mt-1"
-                  />
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
-                    {idx + 1}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{j.product_name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {j.variant_label ? `${j.variant_label} • ` : ""}
-                      {j.quantity} un{j.sku ? ` • SKU ${j.sku}` : ""}
-                    </p>
-                    <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <Badge variant="outline" className="text-[10px]">
-                        {j.source === "order" ? "Pedido" : j.source === "quote" ? "Orçamento" : "Manual"}
-                        {j.reference ? ` ${j.reference}` : ""}
-                      </Badge>
-                      <span className="truncate">{j.customer_name ?? "—"}</span>
-                      <span className="truncate">Entrada {formatBR(j.queued_at)}</span>
-                    </p>
-                  </div>
-                </div>
+        </TabsContent>
 
-                <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                  <div className="min-w-0">
-                    <Label className="text-[10px] text-muted-foreground">Prazo</Label>
-                    <Input
-                      type="date"
-                      value={j.deadline ?? ""}
-                      onChange={(e) => patch.mutate({ id: j.id, deadline: e.target.value || null })}
-                      className={`h-9 w-[150px] ${dl.cls}`}
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <Label className="text-[10px] text-muted-foreground">Responsável</Label>
-                    <Input
-                      defaultValue={j.assignee ?? ""}
-                      placeholder="Produtor"
-                      onBlur={(e) => {
-                        if ((j.assignee ?? "") !== e.target.value)
-                          patch.mutate({ id: j.id, assignee: e.target.value || null });
-                      }}
-                      className="h-9 w-[140px]"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <Label className="text-[10px] text-muted-foreground">Status</Label>
-                    <Select
-                      value={j.status}
-                      onValueChange={(v) => patch.mutate({ id: j.id, status: v as Status })}
-                    >
-                      <SelectTrigger className={`h-9 w-[150px] border ${st.cls}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(Object.keys(STATUS) as Status[]).map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {STATUS[s].label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+        <TabsContent value="grupos" className="mt-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Label className="text-xs">Agrupar por</Label>
+            <Select value={groupBy} onValueChange={(v) => setGroupBy(v as typeof groupBy)}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="product">Produto</SelectItem>
+                <SelectItem value="customer">Cliente</SelectItem>
+                <SelectItem value="stage">Etapa</SelectItem>
+                <SelectItem value="deadline">Prazo</SelectItem>
+                <SelectItem value="assignee">Responsável</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {groups.map(([name, g]) => (
+            <Card key={name}>
+              <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                <CardTitle className="truncate text-base">{name}</CardTitle>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Badge variant="outline">{g.pieces} peças</Badge>
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className="mt-4 text-destructive"
-                    onClick={() => remove.mutate(j.id)}
-                    aria-label="Remover da fila"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setSelected((s) => {
+                        const next = { ...s };
+                        g.items.forEach((j) => (next[j.id] = true));
+                        return next;
+                      })
+                    }
                   >
-                    <Trash2 className="h-4 w-4" />
+                    Selecionar
                   </Button>
                 </div>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+              </CardHeader>
+              <CardContent className="space-y-1.5">
+                {g.items.slice(0, 12).map((j) => (
+                  <button
+                    key={j.id}
+                    type="button"
+                    onClick={() => setOpenJob(j)}
+                    className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2 text-left text-xs hover:border-primary/40"
+                  >
+                    <span className="min-w-0 truncate">
+                      {Number(j.quantity)}× {j.product_name}
+                      <span className="text-muted-foreground"> · {j.reference ?? jobCode(j.id)}</span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2 text-muted-foreground">
+                      <Timer className="h-3 w-3" />
+                      {STAGE_LABEL[j.stage as Stage]}
+                    </span>
+                  </button>
+                ))}
+                {g.items.length > 12 ? (
+                  <p className="text-[11px] text-muted-foreground">+ {g.items.length - 12} item(ns)</p>
+                ) : null}
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+
+        <TabsContent value="desempenho" className="mt-4">
+          <ProductionPerformance data={analytics} />
+        </TabsContent>
+      </Tabs>
+
+      <ProductionDetailSheet job={openJob} onClose={() => setOpenJob(null)} onChanged={invalidate} />
+      <ProductionScanner open={scanning} onClose={() => setScanning(false)} onDecoded={handleScan} />
     </PageShell>
+  );
+}
+
+function Kpi({
+  label,
+  value,
+  icon: Icon,
+  tone,
+}: {
+  label: string;
+  value: number;
+  icon: typeof Clock;
+  tone?: "danger";
+}) {
+  return (
+    <Card className="min-w-0">
+      <CardContent className="flex min-w-0 items-center gap-3 p-4">
+        <div
+          className={`rounded-lg p-2 ${
+            tone === "danger" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+          }`}
+        >
+          <Icon className="h-4 w-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-xs text-muted-foreground">{label}</p>
+          <p className="text-xl font-bold">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
