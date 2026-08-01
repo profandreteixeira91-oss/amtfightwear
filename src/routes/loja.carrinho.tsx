@@ -321,24 +321,36 @@ function CartPage() {
                     <Progress value={progressPct} className="h-2" />
                   </div>
 
-                  {/* Cupom */}
+                  {/* Cupom — oculto por padrão para não induzir abandono */}
                   <div className="space-y-2">
-                    <Label htmlFor="coupon" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                      <Tag className="h-3.5 w-3.5" /> Cupom de desconto
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="coupon"
-                        value={coupon}
-                        onChange={(e) => setCoupon(e.target.value)}
-                        placeholder="Ex.: AMT10"
-                        className="rounded-lg uppercase"
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
-                      />
-                      <Button type="button" variant="outline" onClick={applyCoupon} className="rounded-lg">
-                        Aplicar
-                      </Button>
-                    </div>
+                    {!couponOpen && !couponApplied ? (
+                      <button
+                        type="button"
+                        onClick={() => setCouponOpen(true)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground underline-offset-4 transition hover:text-primary hover:underline"
+                      >
+                        <Tag className="h-3.5 w-3.5" /> Tenho um cupom de desconto
+                      </button>
+                    ) : (
+                      <>
+                        <Label htmlFor="coupon" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                          <Tag className="h-3.5 w-3.5" /> Cupom de desconto
+                        </Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="coupon"
+                            value={coupon}
+                            onChange={(e) => setCoupon(e.target.value)}
+                            placeholder="Ex.: AMT10"
+                            className="rounded-lg uppercase"
+                            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
+                          />
+                          <Button type="button" variant="outline" onClick={applyCoupon} className="rounded-lg">
+                            Aplicar
+                          </Button>
+                        </div>
+                      </>
+                    )}
                     {couponApplied && (
                       <p className="text-xs text-emerald-600">Cupom <strong>{couponApplied}</strong> aplicado (−10%).</p>
                     )}
@@ -346,6 +358,7 @@ function CartPage() {
                       <p className="text-xs text-destructive">{couponError}</p>
                     )}
                   </div>
+
 
                   <Separator />
 
