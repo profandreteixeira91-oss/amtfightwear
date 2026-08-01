@@ -14,7 +14,10 @@ import {
   Shirt,
   Palette,
   PackageCheck,
+  Star,
 } from "lucide-react";
+import { ProductImage } from "@/components/store/ProductImage";
+import { RecentlyViewed } from "@/components/store/RecentlyViewed";
 import heroBanner from "@/assets/loja-hero-banner.jpg";
 import amtLogo from "@/assets/amt-logo.jpg";
 
