@@ -25,6 +25,7 @@ export const getClassRanking = createServerFn({ method: "GET" })
     z.object({
       classId: z.string().uuid(),
       period: z.enum(["all", "year", "month", "week"]).optional(),
+      reference: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -44,7 +45,7 @@ export const getClassRanking = createServerFn({ method: "GET" })
     }
 
     // Janela temporal (calendário civil no fuso do Brasil)
-    const { since: sinceIso, until: untilIso } = resolvePeriodRange(data.period);
+    const { since: sinceIso, until: untilIso } = resolvePeriodRange(data.period, data.reference);
 
 
     // Busca matrículas da turma (sem RLS bloqueando: o owner sempre vê seus alunos).
