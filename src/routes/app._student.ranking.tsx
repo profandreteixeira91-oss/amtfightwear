@@ -90,10 +90,11 @@ function StudentRankingPage() {
 
   const periodLabel: Record<Period, string> = {
     all: "Histórico completo",
-    year: "Últimos 12 meses",
-    month: "Últimos 30 dias",
-    week: "Últimos 7 dias",
+    year: "Ano vigente (01/01 a 31/12)",
+    month: "Mês vigente (dia 01 ao último dia)",
+    week: "Semana vigente (domingo a sábado)",
   };
+
 
   return (
     <div className="mx-auto grid w-full max-w-3xl gap-4">
