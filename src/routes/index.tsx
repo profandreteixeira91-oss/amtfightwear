@@ -55,7 +55,22 @@ export const Route = createFileRoute("/")({
         "@type": "OnlineStore",
         name: "AMT Fight Wear",
         url: "https://amtfightwear.com.br/",
-        description: "E-commerce oficial da AMT Fight Wear.",
+        logo: "https://amtfightwear.com.br/icon-512.png",
+        image: "https://amtfightwear.com.br/icon-512.png",
+        description:
+          "E-commerce oficial da AMT Fight Wear: kimonos, faixas, rash guards e acessórios para artes marciais, com fabricação própria.",
+        areaServed: "BR",
+        currenciesAccepted: "BRL",
+        sameAs: ["https://www.instagram.com/amtfightwear"],
+        contactPoint: [
+          {
+            "@type": "ContactPoint",
+            contactType: "customer service",
+            telephone: "+55-82-92001-6732",
+            availableLanguage: ["Portuguese"],
+            areaServed: "BR",
+          },
+        ],
       }),
     }],
   }),

@@ -14,7 +14,17 @@ import * as Icons from "lucide-react";
 import { ChevronRight, Megaphone, Pin, Star, AlertTriangle, Trophy, Crown, Flame } from "lucide-react";
 
 export const Route = createFileRoute("/app/_student/home")({
-  head: () => ({ meta: [{ title: "Início — Portal do Aluno" }] }),
+  head: () => ({
+    meta: [
+      { title: "Início — Portal do Aluno" },
+      {
+        name: "description",
+        content:
+          "Portal do aluno da sua academia: check-in, agenda de aulas, graduações, vídeos, avisos e financeiro em um só lugar.",
+      },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: HomePage,
 });
 
