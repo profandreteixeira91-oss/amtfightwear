@@ -76,8 +76,8 @@ const growthItems = [
 ] as const;
 
 const marketItems = [
-  { title: "Painel MarketEngine", url: "/admin/marketing", icon: Rocket },
   { title: "Gerenciador de Anúncios", url: "/admin/ads", icon: Megaphone },
+  { title: "Painel MarketEngine", url: "/admin/marketing", icon: Rocket },
   { title: "IA Content Hub", url: "/admin/marketing/inteligencia", icon: Wand2 },
   { title: "CRM & E-mail", url: "/admin/crm", icon: Mail },
   { title: "Analytics Catálogo", url: "/admin/marketing/kpis", icon: BarChart4 },
