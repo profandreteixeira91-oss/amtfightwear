@@ -107,7 +107,7 @@ export function AdminShell({
           <AdminSidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <AdminTopbar title={title} />
-            <main className="min-w-0 flex-1">{children}</main>
+            <main className="admin-main min-w-0 flex-1">{children}</main>
           </div>
         </div>
       </SidebarProvider>
