@@ -298,11 +298,11 @@ function AdminOverview() {
         </div>
         {/* Pedidos por setor — inclui pagamentos pendentes */}
         <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+            <div className="min-w-0 text-xs font-semibold uppercase tracking-widest text-neutral-500">
               Pedidos por setor
             </div>
-            <div className="text-[11px] font-medium text-amber-700">
+            <div className="min-w-0 text-[11px] font-medium text-amber-700">
               {loading ? "—" : `${num(pendingCount)} pendentes · ${brl(pendingValue)}`}
             </div>
           </div>
@@ -329,7 +329,7 @@ function AdminOverview() {
             </div>
           )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <MiniStat label="Receita paga (Loja)" value={brl(netRevenue)} hint={`${num(paidOrders)} pedidos pagos`} />
           <MiniStat label="Clientes (Loja)" value={num(customersTotal)} hint={`+${num(newCustomers)} novos`} />
           <MiniStat label="Dojos totais" value={num(dojosTotal)} hint={`${dojosActive} ativos`} />
@@ -486,24 +486,24 @@ function KpiCard({
         ? "bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-emerald-200/60"
         : "bg-neutral-900 text-white shadow-neutral-300/60";
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
-      <div className="flex items-start justify-between">
-        <div className={`grid h-9 w-9 place-items-center rounded-xl shadow-md ${toneClass}`}>
+    <div className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
+        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl shadow-md ${toneClass}`}>
           <Icon className="h-4 w-4" />
         </div>
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+        <span className="min-w-0 text-right text-[10px] font-semibold uppercase leading-tight tracking-widest text-neutral-400">
           {hint}
         </span>
       </div>
       <div className="mt-4 text-2xl font-bold tracking-tight text-neutral-900">{value}</div>
-      <div className="mt-1 text-xs text-neutral-500">{label}</div>
+      <div className="mt-1 text-xs leading-relaxed text-neutral-500">{label}</div>
     </div>
   );
 }
 
 function MiniStat({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white/70 p-4 backdrop-blur">
+    <div className="flex h-full min-w-0 flex-col rounded-xl border border-neutral-200 bg-white/70 p-4 backdrop-blur">
       <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
         {label}
       </div>
