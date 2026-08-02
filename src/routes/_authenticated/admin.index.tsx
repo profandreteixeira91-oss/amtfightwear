@@ -329,7 +329,7 @@ function AdminOverview() {
             </div>
           )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <MiniStat label="Receita paga (Loja)" value={brl(netRevenue)} hint={`${num(paidOrders)} pedidos pagos`} />
           <MiniStat label="Clientes (Loja)" value={num(customersTotal)} hint={`+${num(newCustomers)} novos`} />
           <MiniStat label="Dojos totais" value={num(dojosTotal)} hint={`${dojosActive} ativos`} />
