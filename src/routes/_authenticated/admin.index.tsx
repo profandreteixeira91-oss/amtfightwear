@@ -298,11 +298,11 @@ function AdminOverview() {
         </div>
         {/* Pedidos por setor — inclui pagamentos pendentes */}
         <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+            <div className="min-w-0 text-xs font-semibold uppercase tracking-widest text-neutral-500">
               Pedidos por setor
             </div>
-            <div className="text-[11px] font-medium text-amber-700">
+            <div className="min-w-0 text-[11px] font-medium text-amber-700">
               {loading ? "—" : `${num(pendingCount)} pendentes · ${brl(pendingValue)}`}
             </div>
           </div>
