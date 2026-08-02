@@ -503,7 +503,7 @@ function KpiCard({
 
 function MiniStat({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white/70 p-4 backdrop-blur">
+    <div className="flex h-full min-w-0 flex-col rounded-xl border border-neutral-200 bg-white/70 p-4 backdrop-blur">
       <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
         {label}
       </div>
