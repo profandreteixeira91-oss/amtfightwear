@@ -486,17 +486,17 @@ function KpiCard({
         ? "bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-emerald-200/60"
         : "bg-neutral-900 text-white shadow-neutral-300/60";
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
-      <div className="flex items-start justify-between">
-        <div className={`grid h-9 w-9 place-items-center rounded-xl shadow-md ${toneClass}`}>
+    <div className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
+        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl shadow-md ${toneClass}`}>
           <Icon className="h-4 w-4" />
         </div>
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+        <span className="min-w-0 text-right text-[10px] font-semibold uppercase leading-tight tracking-widest text-neutral-400">
           {hint}
         </span>
       </div>
       <div className="mt-4 text-2xl font-bold tracking-tight text-neutral-900">{value}</div>
-      <div className="mt-1 text-xs text-neutral-500">{label}</div>
+      <div className="mt-1 text-xs leading-relaxed text-neutral-500">{label}</div>
     </div>
   );
 }
