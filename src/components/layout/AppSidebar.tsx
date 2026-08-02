@@ -107,15 +107,16 @@ const instagramItems = [
 ] as const;
 
 const adsItems = [
- { title: "Dashboard", url: "/admin/anuncios", icon: LayoutDashboard },
- { title: "Nova Campanha IA", url: "/admin/anuncios/nova", icon: Sparkles },
- { title: "Campanhas", url: "/admin/anuncios/campanhas", icon: Rocket },
+  { title: "Ads Dashboard", url: "/admin/anuncios", icon: LayoutDashboard },
+  { title: "Gerenciador de Anúncios", url: "/admin/ads", icon: Megaphone },
+  { title: "Nova Campanha IA", url: "/admin/anuncios/nova", icon: Sparkles },
+  { title: "Campanhas", url: "/admin/anuncios/campanhas", icon: Rocket },
   { title: "Otimização IA", url: "/admin/anuncios/otimizacao", icon: Zap },
   { title: "Escala IA", url: "/admin/anuncios/escala", icon: TrendingUp },
   { title: "Alertas", url: "/admin/anuncios/alertas", icon: Radar },
- { title: "Criativos", url: "/admin/anuncios/criativos", icon: Wand2 },
- { title: "Copies", url: "/admin/anuncios/copies", icon: MessageSquare },
- { title: "Conexão Meta Ads", url: "/admin/anuncios/conexoes", icon: Plug },
+  { title: "Criativos", url: "/admin/anuncios/criativos", icon: Wand2 },
+  { title: "Copies", url: "/admin/anuncios/copies", icon: MessageSquare },
+  { title: "Conexão Meta Ads", url: "/admin/anuncios/conexoes", icon: Plug },
 ] as const;
 
 const storeItems = [
