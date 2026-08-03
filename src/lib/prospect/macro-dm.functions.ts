@@ -27,7 +27,7 @@ export const listMacroQueues = createServerFn({ method: "GET" })
 const createQueueInput = z.object({
   name: z.string(),
   campaignId: z.string().uuid().optional(),
-  filters: z.record(z.any()),
+  filters: z.record(z.string(), z.any()),
 });
 
 export const createMacroQueue = createServerFn({ method: "POST" })
