@@ -47,6 +47,8 @@ import {
   Inbox,
   Factory,
   Bot,
+  Menu,
+  X,
 } from "lucide-react";
 import { OwnerOnly } from "@/lib/auth/owner-only";
 import {
@@ -265,7 +267,16 @@ function AdminTopbar({ title }: { title?: string }) {
   return (
     <>
       <header className="admin-topbar sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md transition-all duration-300 sm:px-8">
-        <SidebarTrigger className="h-10 w-10 text-muted-foreground transition-colors hover:text-primary" />
+        <SidebarTrigger className="h-10 w-10 text-muted-foreground transition-colors hover:text-primary lg:hidden" />
+        <button
+          onClick={() => {
+            const { state, setOpen } = (window as any)._amtSidebar;
+            setOpen(state === "collapsed" ? "expanded" : "collapsed");
+          }}
+          className="hidden h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-primary lg:flex"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
         <div className="mx-1 hidden h-6 w-px bg-border/60 md:block" />
 
         <nav
@@ -600,7 +611,14 @@ function AdminGlobalSearch({
 /* --------------------------------- Sidebar -------------------------------- */
 
 function AdminSidebar() {
-  const { state, setOpen, isMobile, setOpenMobile } = useSidebar();
+  const sidebar = useSidebar();
+  const { state, setOpen, isMobile, setOpenMobile } = sidebar;
+  
+  // Expõe o estado da sidebar globalmente para o botão da Topbar
+  React.useEffect(() => {
+    (window as any)._amtSidebar = sidebar;
+  }, [sidebar]);
+
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const [favorites, setFavorites] = useLocalList(FAV_KEY, 6);
@@ -699,11 +717,22 @@ function AdminSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="admin-sidebar border-r border-border"
+      className={cn(
+        "admin-sidebar border-r border-border bg-white transition-all duration-300",
+        collapsed && !hoverExpanded.current ? "w-[80px]" : "w-[280px]"
+      )}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <SidebarHeader className="border-b border-border/70 px-3 py-3">
+      <SidebarHeader className="relative border-b border-border/70 bg-white px-3 py-3">
+        {isMobile && (
+          <button
+            onClick={() => setOpenMobile(false)}
+            className="absolute right-4 top-4 z-50 rounded-lg p-2 text-neutral-500 hover:bg-neutral-100"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
         <Link to="/admin" className="flex items-center gap-2.5 rounded-xl px-1 py-1">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-sm">
             <Sparkles className="h-4 w-4" />
