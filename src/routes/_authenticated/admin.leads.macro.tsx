@@ -24,6 +24,7 @@ import {
   getTopLeadsForMacro,
   buildAutoQueues,
   startMacroQueue,
+  updateMacroQueueStatus,
   deleteMacroQueue,
   listMacroLogs
 } from "@/lib/prospect/macro-dm.functions";
@@ -48,6 +49,7 @@ function MacroRefactorPage() {
   const startQueue = useServerFn(startMacroQueue);
   const deleteQueue = useServerFn(deleteMacroQueue);
   const getLogs = useServerFn(listMacroLogs);
+  const updateStatus = useServerFn(updateMacroQueueStatus);
 
   const statsQ = useQuery({
     queryKey: ["macro-dm", "stats"],
@@ -79,7 +81,7 @@ function MacroRefactorPage() {
   const queues = queuesQ.data || [];
   const topLeads = leadsQ.data || [];
   const logs = logsQ.data || [];
-  const executingQueue = queues.find((q: any) => q.status === 'executing');
+  const executingQueue = queues.find((q: any) => q.status === 'executing' || q.status === 'paused');
 
   return (
     <PageShell
@@ -333,17 +335,49 @@ function MacroRefactorPage() {
                       <>
                         <div className="p-6 rounded-2xl border bg-primary/5 border-primary/20 flex items-center justify-between animate-pulse-subtle">
                            <div className="flex items-center gap-4">
-                              <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                                 <RotateCcw className="h-6 w-6 animate-spin" />
-                              </div>
+                               <div className={cn(
+                                 "h-12 w-12 rounded-full flex items-center justify-center shadow-lg",
+                                 executingQueue.status === 'paused' ? "bg-amber-500/20 text-amber-500" : "bg-emerald-500/20 text-emerald-500"
+                               )}>
+                                  <RotateCcw className={cn("h-6 w-6", executingQueue.status !== 'paused' && "animate-spin")} />
+                               </div>
                               <div>
-                                 <div className="text-xs font-semibold text-emerald-600 uppercase">Executando Agora</div>
+                                 <div className={cn("text-xs font-semibold uppercase", executingQueue.status === 'paused' ? "text-amber-600" : "text-emerald-600")}>
+                                    {executingQueue.status === 'paused' ? 'Pausado' : 'Executando Agora'}
+                                 </div>
                                  <div className="text-xl font-bold">{executingQueue.name}</div>
                               </div>
                            </div>
                            <div className="flex gap-2">
-                              <Button variant="outline" className="gap-2"><Pause className="h-4 w-4" /> Pausar</Button>
-                              <Button variant="destructive" className="gap-2"><Trash2 className="h-4 w-4" /> Parar</Button>
+                              <Button 
+                                variant="outline" 
+                                className="gap-2"
+                                onClick={async () => {
+                                  const nextStatus = executingQueue.status === 'paused' ? 'executing' : 'paused';
+                                  await updateStatus({ data: { id: executingQueue.id, status: nextStatus } });
+                                  toast.success(`Fila ${nextStatus === 'paused' ? 'pausada' : 'retomada'}.`);
+                                  queuesQ.refetch();
+                                }}
+                              >
+                                {executingQueue.status === 'paused' ? (
+                                  <><Play className="h-4 w-4" /> Retomar</>
+                                ) : (
+                                  <><Pause className="h-4 w-4" /> Pausar</>
+                                )}
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                className="gap-2"
+                                onClick={async () => {
+                                  if (confirm("Parar a execução desta fila?")) {
+                                    await updateStatus({ data: { id: executingQueue.id, status: 'waiting' } });
+                                    toast.info("Execução parada.");
+                                    queuesQ.refetch();
+                                  }
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" /> Parar
+                              </Button>
                            </div>
                         </div>
                         

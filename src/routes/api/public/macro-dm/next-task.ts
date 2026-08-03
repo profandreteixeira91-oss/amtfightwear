@@ -37,8 +37,8 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
           // 1. Encontrar uma fila em execução (ou a específica solicitada)
           let query = supabase
             .from('macro_dm_queues')
-            .select('id, name, owner_id')
-            .eq('status', 'executing')
+            .select('id, name, owner_id, status')
+            .in('status', ['executing', 'paused'])
           
           if (queue_id) {
             query = query.eq('id', queue_id)
@@ -53,7 +53,15 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             })
           }
 
-          // 2. Pegar o próximo item pendente da fila
+          // 2. Verificar se a fila está pausada
+          if (queue.status === 'paused') {
+            return new Response(JSON.stringify({ status: 'paused', message: 'Fila pausada pelo administrador' }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders },
+            })
+          }
+
+          // 3. Pegar o próximo item pendente da fila
           const { data: item, error: iError } = await supabase
             .from('macro_dm_queue_items')
             .select(`
@@ -79,7 +87,7 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             })
           }
 
-          // 3. Buscar o Instagram separadamente
+          // 4. Buscar o Instagram separadamente
           const leadId = (item.lead as any).id;
           const { data: contact } = await supabase
             .from('prospect_contacts')
