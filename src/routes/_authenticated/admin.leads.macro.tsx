@@ -93,9 +93,9 @@ function MacroRefactorPage() {
                 <Download className="h-8 w-8" />
               </div>
               <div>
-                <h3 className="text-2xl font-black tracking-tight">MACRO DM v2.1.2</h3>
+                <h3 className="text-2xl font-black tracking-tight">MACRO DM v2.1.5</h3>
                 <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium max-w-md">
-                  Versão Corrigida: Download direto agora aponta para o repositório estável de produção.
+                  Arquivo ZIP disponível diretamente no servidor. Download garantido sem links externos.
                 </p>
               </div>
             </div>
