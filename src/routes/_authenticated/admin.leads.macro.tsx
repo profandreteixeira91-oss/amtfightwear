@@ -106,9 +106,9 @@ function MacroRefactorPage() {
                 <Download className="h-8 w-8" />
               </div>
               <div>
-                <h3 className="text-2xl font-black tracking-tight">MACRO DM v2.1.6</h3>
+                <h3 className="text-2xl font-black tracking-tight">MACRO DM v2.1.7</h3>
                 <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium max-w-md">
-                  Extensão atualizada! Corrigido fluxo de execução e botão parar.
+                  Extensão 100% configurada! Correções aplicadas nos botões de controle, sincronização de tarefas e UX/UI.
                 </p>
               </div>
             </div>

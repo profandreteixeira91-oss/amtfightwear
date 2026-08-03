@@ -274,22 +274,32 @@ export const updateMacroQueueStatus = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const supa = supabase as any;
 
-    const { error } = await supa.from("macro_dm_queues")
-      .update({ 
-        status,
-        ...(status === 'canceled' ? { processed_leads: 0 } : {})
-      })
-      .eq("id", id)
-      .eq("owner_id", userId);
-    
+    // Se estiver cancelando, vamos resetar TUDO relacionado à fila para garantir que ela pare IMEDIATAMENTE
     if (status === 'canceled') {
-      // Limpa itens que ficaram presos em execução
+      // 1. Atualizar status dos itens presos para pending (ou failed se quiser que não rodem mais)
       await supa.from("macro_dm_queue_items")
         .update({ status: 'pending' })
         .eq("queue_id", id)
         .eq("status", 'executing');
+      
+      // 2. Zerar o progresso visual se for cancelamento total
+      const { error } = await supa.from("macro_dm_queues")
+        .update({ 
+          status,
+          processed_leads: 0 
+        })
+        .eq("id", id)
+        .eq("owner_id", userId);
+      
+      if (error) throw error;
+      return { success: true };
     }
 
+    const { error } = await supa.from("macro_dm_queues")
+      .update({ status })
+      .eq("id", id)
+      .eq("owner_id", userId);
+    
     if (error) throw error;
     return { success: true };
   });
