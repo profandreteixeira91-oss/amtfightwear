@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: o erro persiste */}
+{/* Execute esta instrucao no projeto: Disponibilize aqui em arquivos o download da extensão macro dm sem passar por link, disponibilize o arquivo zip */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
