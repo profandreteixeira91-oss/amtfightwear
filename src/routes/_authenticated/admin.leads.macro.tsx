@@ -263,15 +263,14 @@ function MacroRefactorPage() {
                         disabled={q.status === 'executing'}
                         onClick={async () => {
                           try {
-                            // TanStack Start functions expect the input as an object if a validator is used, 
-                            // but here the validator is (id: string) => ... which might be direct.
-                            // However, we wrap it properly based on the server function signature.
-                            await startQueue({ data: q.id });
+                            // No TanStack Start v1, se o validador espera uma string, 
+                            // passamos a string diretamente.
+                            await startQueue(q.id);
                             toast.success("Fila iniciada!");
                             queuesQ.refetch();
                           } catch (err) {
                             console.error("Erro ao iniciar fila:", err);
-                            toast.error("Erro ao iniciar fila.");
+                            toast.error("Erro ao iniciar fila. Verifique os logs.");
                           }
                         }}
                       >
