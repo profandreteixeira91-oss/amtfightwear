@@ -100,7 +100,31 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             .maybeSingle();
 
           const leadData = item.lead as any
-          const instagram = contact?.value || 'pendente';
+          let instagram = contact?.value || '';
+
+          // Limpeza do handle do Instagram para garantir que a extensão consiga abrir o link
+          if (instagram) {
+            instagram = instagram.replace(/^(https?:\/\/)?(www\.)?instagram\.com\//, '')
+                                .replace(/\/$/, '')
+                                .replace(/^@/, '');
+          }
+
+          if (!instagram || instagram === 'pendente') {
+            // Se não tem Instagram válido, marca como falha e tenta o próximo na próxima chamada
+            await supabase.from('macro_dm_queue_items').update({ status: 'failed' }).eq('id', item.id);
+            await supabase.from('macro_dm_logs').insert({
+              owner_id: queue.owner_id,
+              queue_id: queue.id,
+              queue_name: queue.name,
+              level: 'warning',
+              message: `Lead ${leadData.name} pulado: Instagram não encontrado ou inválido.`
+            });
+            
+            return new Response(JSON.stringify({ error: 'invalid_instagram', lead_name: leadData.name }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders },
+            });
+          }
 
           return new Response(JSON.stringify({
             task_id: item.id,
@@ -108,7 +132,8 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             lead_id: leadData.id,
             lead_name: leadData.name,
             instagram: instagram,
-            action: 'send_dm'
+            action: 'send_dm',
+            instagram_url: `https://www.instagram.com/${instagram}/`
           }), {
             status: 200,
             headers: { 'Content-Type': 'application/json', ...corsHeaders },
