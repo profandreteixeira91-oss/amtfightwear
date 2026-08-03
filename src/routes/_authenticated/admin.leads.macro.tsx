@@ -93,9 +93,9 @@ function MacroRefactorPage() {
                 <Download className="h-8 w-8" />
               </div>
               <div>
-                <h3 className="text-2xl font-black tracking-tight">MACRO DM v2.1</h3>
+                <h3 className="text-2xl font-black tracking-tight">MACRO DM v2.1.2</h3>
                 <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium max-w-md">
-                  Baixe agora a versão mais estável da extensão oficial para automação de DMs no Instagram.
+                  Versão Corrigida: Download direto agora aponta para o repositório estável de produção.
                 </p>
               </div>
             </div>
