@@ -28,11 +28,22 @@ export function AdsAiAgent() {
     }
   }, [accountId, setAccountId, listAccounts]);
 
-  const { data, refetch, isFetching } = useQuery({
+  const { data, refetch, isFetching, error } = useQuery({
     queryKey: ["ads-ai-analysis", accountId, range.since, range.until],
-    queryFn: () => analyze({ data: { accountId: accountId!, since: range.since, until: range.until } }),
+    queryFn: async () => {
+      try {
+        console.log("[AdsAiAgent] Starting analysis for account:", accountId);
+        const result = await analyze({ data: { accountId: accountId!, since: range.since, until: range.until } });
+        console.log("[AdsAiAgent] Analysis complete:", result);
+        return result;
+      } catch (err) {
+        console.error("[AdsAiAgent] Error in analyze function:", err);
+        throw err;
+      }
+    },
     enabled: !!accountId,
     staleTime: 30 * 60_000, // 30 min
+    retry: false, // Don't retry automatically to avoid looping errors
   });
 
   const loading = isFetching || isAnalyzing;
