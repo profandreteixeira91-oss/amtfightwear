@@ -6,15 +6,14 @@ export const getMacroDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data: totalLeads } = await supabase.from("prospect_companies").select("id", { count: "exact", head: true }).eq("owner_id", userId);
+    const { data: totalLeads } = await supabase.from("prospect_companies").select("id").eq("owner_id", userId);
     const { data: igContacts } = await supabase.from("prospect_contacts").select("company_id").eq("owner_id", userId).eq("channel", "instagram");
-    const igLeadIds = new Set((igContacts || []).map(c => c.company_id));
+    const igLeadIds = new Set((igContacts || []).map(c => (c as any).company_id));
     const { data: queues } = await supabase.from("macro_dm_queues").select("*").eq("owner_id", userId);
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     const { count: sentToday } = await supabase.from("macro_dm_logs").select("id", { count: "exact" }).eq("owner_id", userId).eq("level", "success").gte("created_at", todayStart);
-
-    return { totalLeads: totalLeads?.length || 0, igLeads: igLeadIds.size, queues: queues || [], sentToday: sentToday || 0 };
+    return { totalLeads: totalLeads?.length || 0, igLeads: igLeadIds.size, queues: (queues || []) as any[], sentToday: sentToday || 0 };
   });
 
 export const listMacroQueues = createServerFn({ method: "GET" })
@@ -22,7 +21,7 @@ export const listMacroQueues = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase.from("macro_dm_queues").select("*, campaign:macro_dm_campaigns(name)").eq("owner_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
-    return data;
+    return data as any[];
   });
 
 const createQueueInput = z.object({
@@ -43,9 +42,9 @@ export const createMacroQueue = createServerFn({ method: "POST" })
     if (data.filters.category) query = query.eq("category", String(data.filters.category));
     const { data: leadsResult } = await (query as any);
     if (leadsResult && leadsResult.length > 0) {
-      const items = leadsResult.map((l: { id: string }) => ({ owner_id: userId, queue_id: queue.id, lead_id: l.id, status: "pending" }));
+      const items = leadsResult.map((l: { id: string }) => ({ owner_id: userId, queue_id: (queue as any).id, lead_id: l.id, status: "pending" }));
       await supabase.from("macro_dm_queue_items").insert(items);
-      await supabase.from("macro_dm_queues").update({ total_leads: items.length }).eq("id", queue.id);
+      await supabase.from("macro_dm_queues").update({ total_leads: items.length }).eq("id", (queue as any).id);
     }
     return queue;
   });
@@ -55,5 +54,5 @@ export const listMacroCampaigns = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase.from("macro_dm_campaigns").select("*").eq("owner_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
-    return data;
+    return data as any[];
   });
