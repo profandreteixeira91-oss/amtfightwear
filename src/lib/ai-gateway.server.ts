@@ -56,7 +56,7 @@ export async function aiChat(opts: {
   temperature?: number;
 }): Promise<string> {
   try {
-    return await openrouterChat(opts);
+    return await _openrouterChat(opts);
   } catch (error: any) {
     // Se for erro de créditos (402) ou limite (429), ou se a chave não existir, usamos Gemini.
     const errorMsg = error.message?.toLowerCase() || "";
@@ -78,7 +78,7 @@ export async function aiChat(opts: {
 /**
  * Helper direto para chamadas fetch OpenAI-compat ao OpenRouter.
  */
-async function openrouterChat(opts: {
+async function _openrouterChat(opts: {
   messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
   model?: string;
   json?: boolean;
@@ -133,8 +133,9 @@ async function openrouterChat(opts: {
   throw new Error(`OpenRouter error ${lastStatus}: ${lastErr.slice(0, 100)}`);
 }
 
-// Mantendo compatibilidade com nomes antigos para evitar quebras em outros arquivos
+// Mantendo compatibilidade com o nome antigo exportado para evitar quebras em outros arquivos
 export const openrouterChat = aiChat;
+
 
 export const LOVABLE_GATEWAY_URL = OPENROUTER_BASE_URL;
 export const DEFAULT_TEXT_MODEL_ID = DEFAULT_TEXT_MODEL;
