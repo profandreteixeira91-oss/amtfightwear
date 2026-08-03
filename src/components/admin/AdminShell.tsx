@@ -103,12 +103,12 @@ export function AdminShell({
 }) {
   return (
     <OwnerOnly>
-      <SidebarProvider defaultOpen>
+      <SidebarProvider defaultOpen={!window.matchMedia("(max-width: 768px)").matches}>
         <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background">
           <AdminSidebar />
           <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
             <AdminTopbar title={title} />
-            <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6 transition-all duration-500 ease-in-out sm:p-8 lg:p-10">
+            <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 transition-all duration-500 ease-in-out sm:p-8 lg:p-10">
               <div className="mx-auto w-full max-w-[1600px] animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {children}
               </div>
@@ -600,7 +600,7 @@ function AdminGlobalSearch({
 /* --------------------------------- Sidebar -------------------------------- */
 
 function AdminSidebar() {
-  const { state, setOpen, isMobile } = useSidebar();
+  const { state, setOpen, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const [favorites, setFavorites] = useLocalList(FAV_KEY, 6);
@@ -639,6 +639,12 @@ function AdminSidebar() {
     setOpen(false);
   };
 
+  const onItemClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
   const renderItem = (item: NavItem & { group?: string }, keyPrefix = "") => {
     const active = isActive(item.url);
     const fav = favorites.includes(item.url);
@@ -649,6 +655,7 @@ function AdminSidebar() {
           isActive={active}
           tooltip={collapsed ? item.title : undefined}
           className="h-9 rounded-xl"
+          onClick={onItemClick}
         >
           <Link
             to={item.url}
@@ -717,7 +724,7 @@ function AdminSidebar() {
       <SidebarContent className="gap-0 px-2 py-2">
         {favorites.length && !collapsed ? (
           <SidebarGroup className="px-0">
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground whitespace-nowrap overflow-hidden">
               Favoritos
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -733,7 +740,7 @@ function AdminSidebar() {
 
         {recents.length > 1 && !collapsed ? (
           <SidebarGroup className="px-0">
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground whitespace-nowrap overflow-hidden">
               Recentes
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -752,7 +759,7 @@ function AdminSidebar() {
           <SidebarGroup key={group.label} className="px-0">
             {gi > 0 ? <div className="mx-2 my-1.5 h-px bg-border/70" /> : null}
             {!collapsed && (
-              <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground whitespace-nowrap overflow-hidden">
                 {group.label}
               </SidebarGroupLabel>
             )}
