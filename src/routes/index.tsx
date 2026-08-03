@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Macro DM - Fila iniciada mas nada acontece - implementado endpoints de comunicação com a extensão v2.1.5 e corrigido fluxo de próxima tarefa */}
+{/* Execute esta instrucao no projeto: Termine de configurar todo o novo macro dm, verifique botões não funcionando, todo o fluxo de funcionamento e ux ui */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
