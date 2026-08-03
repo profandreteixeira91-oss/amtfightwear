@@ -1,4 +1,4 @@
-import { MessageCircle, X, Send, User, Bot, Headset } from "lucide-react";
+import { MessageCircle, X, Send, User, Bot, Headset, CheckCircle2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Msg = { id: string; role: "user" | "assistant" | "system"; text: string; source?: "human" | "bot"; created_at: string };
@@ -48,7 +48,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
   const headerTitle = props.headerTitle ?? "Atendimento AMT";
   const greeting =
     props.greeting ??
-    "Olá! Sou o assistente da AMT Fight Wear. Como posso ajudar? Posso indicar produtos, tirar dúvidas sobre tamanhos, frete e pagamento. 🥋\n\n💡 **Dica de mestre:** Já conhece nosso Guia do Kimono? Ele ajuda a escolher o tamanho perfeito e cuidar da sua peça para durar anos!";
+    "Olá! Boas-vindas à AMT Fight Wear. 🥋\n\nPara iniciarmos seu atendimento, por favor, preencha os dados abaixo:";
   const externalId = useMemo(() => getExternalId(storageKey, externalIdPrefix), [storageKey, externalIdPrefix]);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -56,12 +56,20 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<"active" | "human" | "closed">("active");
   const [hasUnread, setHasUnread] = useState(false);
+  const [leadData, setLeadData] = useState<{ name: string; email: string; phone: string }>({ name: "", email: "", phone: "" });
+  const [leadStep, setLeadStep] = useState<"name" | "email" | "phone" | "completed">("name");
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const lastSeenRef = useRef<string | null>(null);
 
   // Hidrata cache local
   useEffect(() => {
     const cached = loadCached(storageMsgs);
+    const cachedLead = window.localStorage.getItem(`${storageKey}_lead_data`);
+    if (cachedLead) {
+      setLeadData(JSON.parse(cachedLead));
+      setLeadStep("completed");
+    }
+
     if (cached.length) {
       setMessages(cached);
       lastSeenRef.current = cached[cached.length - 1]?.created_at ?? null;
@@ -75,7 +83,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
       };
       setMessages([greet]);
     }
-  }, [storageMsgs, greeting]);
+  }, [storageMsgs, greeting, storageKey]);
 
   useEffect(() => {
     saveCached(storageMsgs, messages);
@@ -132,6 +140,47 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
   useEffect(() => {
     if (open) setHasUnread(false);
   }, [open]);
+
+  async function handleLeadSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const val = input.trim();
+    if (!val) return;
+
+    if (leadStep === "name") {
+      setLeadData(prev => ({ ...prev, name: val }));
+      setMessages(prev => [...prev, { id: `u-${Date.now()}`, role: "user", text: val, created_at: new Date().toISOString() }]);
+      setMessages(prev => [...prev, { id: `a-${Date.now()}`, role: "assistant", text: `Prazer, ${val}! Agora, qual o seu melhor e-mail?`, created_at: new Date().toISOString() }]);
+      setLeadStep("email");
+      setInput("");
+    } else if (leadStep === "email") {
+      if (!val.includes("@")) return;
+      setLeadData(prev => ({ ...prev, email: val }));
+      setMessages(prev => [...prev, { id: `u-${Date.now()}`, role: "user", text: val, created_at: new Date().toISOString() }]);
+      setMessages(prev => [...prev, { id: `a-${Date.now()}`, role: "assistant", text: "Perfeito. E para finalizar, qual seu celular com DDD?", created_at: new Date().toISOString() }]);
+      setLeadStep("phone");
+      setInput("");
+    } else if (leadStep === "phone") {
+      const finalData = { ...leadData, phone: val };
+      setLeadData(finalData);
+      setMessages(prev => [...prev, { id: `u-${Date.now()}`, role: "user", text: val, created_at: new Date().toISOString() }]);
+      setMessages(prev => [...prev, { id: `a-${Date.now()}`, role: "assistant", text: "Obrigado! Seus dados foram salvos. Como posso te ajudar hoje?", created_at: new Date().toISOString() }]);
+      setLeadStep("completed");
+      setInput("");
+      window.localStorage.setItem(`${storageKey}_lead_data`, JSON.stringify(finalData));
+      
+      // Envia os dados para o backend (CRM/Leads)
+      void fetch("/api/public/sales/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          channel: "web", 
+          external_id: externalId, 
+          message: `[DADOS DO CLIENTE] Nome: ${finalData.name}, Email: ${finalData.email}, Celular: ${finalData.phone}`,
+          metadata: { lead: finalData }
+        }),
+      });
+    }
+  }
 
   async function send() {
     const text = input.trim();
@@ -315,7 +364,11 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                void send();
+                if (leadStep !== "completed") {
+                  void handleLeadSubmit(e);
+                } else {
+                  void send();
+                }
               }}
               className="flex items-end gap-2"
             >
@@ -325,11 +378,25 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    void send();
+                    if (leadStep !== "completed") {
+                      const formEvent = {
+                        preventDefault: () => {},
+                        currentTarget: e.currentTarget.form,
+                        target: e.currentTarget.form,
+                      } as unknown as React.FormEvent;
+                      void handleLeadSubmit(formEvent);
+                    } else {
+                      void send();
+                    }
                   }
                 }}
                 rows={1}
-                placeholder={status === "human" ? "Escreva para o atendente…" : "Escreva sua mensagem…"}
+                placeholder={
+                  leadStep === "name" ? "Qual o seu nome?" :
+                  leadStep === "email" ? "Qual seu e-mail?" :
+                  leadStep === "phone" ? "Qual seu celular (DDD)?" :
+                  status === "human" ? "Escreva para o atendente…" : "Escreva sua mensagem…"
+                }
                 className="max-h-32 min-h-[38px] flex-1 resize-none rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
               />
               <button
@@ -338,7 +405,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
                 className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground shadow disabled:opacity-50"
                 aria-label="Enviar mensagem"
               >
-                <Send className="h-4 w-4" />
+                {leadStep === "completed" ? <Send className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
               </button>
             </form>
           </div>
