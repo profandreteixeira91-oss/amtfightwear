@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: É possível criar um agente de tráfego pago inteligente dentro do sistema? */}
+{/* Execute esta instrucao no projeto: Ao baixar a nova ezxtensão do macro dm not found, corrija */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
