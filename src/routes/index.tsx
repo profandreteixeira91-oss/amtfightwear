@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Proxima etapa */}
+{/* Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/notificacoes melhore o UX UI desta página, deixando-a clara e habilite notificações para mensagens recebidas em atendimento */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
