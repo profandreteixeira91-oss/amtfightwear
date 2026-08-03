@@ -248,8 +248,9 @@ export const deleteMacroQueue = createServerFn({ method: "POST" })
 
 export const startMacroQueue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((id: string) => z.string().uuid().parse(id))
-  .handler(async ({ data: id, context }) => {
+  .validator((data: { id: string }) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { id } = data;
     const { supabase, userId } = context;
     const supa = supabase as any;
 
