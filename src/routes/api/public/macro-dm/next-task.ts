@@ -82,9 +82,24 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             .maybeSingle()
 
           if (iError || !item) {
-            // Se não há mais itens, marca a fila como finalizada
-            await supabase.from('macro_dm_queues').update({ status: 'completed' }).eq('id', queue.id)
-            return new Response(JSON.stringify({ status: 'completed' }), {
+            // Se não há mais itens pendentes, verifica se há itens em 'executing' que ficaram órfãos
+            const { data: executingItems } = await supabase
+              .from('macro_dm_queue_items')
+              .select('id')
+              .eq('queue_id', queue.id)
+              .eq('status', 'executing')
+              .limit(1)
+
+            if (!executingItems || executingItems.length === 0) {
+              await supabase.from('macro_dm_queues').update({ status: 'completed' }).eq('id', queue.id)
+              return new Response(JSON.stringify({ status: 'completed' }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders },
+              })
+            }
+
+            // Se ainda tem itens 'executing', apenas diz que está aguardando eles terminarem
+            return new Response(JSON.stringify({ status: 'waiting_for_finish', should_retry: true }), {
               status: 200,
               headers: { 'Content-Type': 'application/json', ...corsHeaders },
             })
