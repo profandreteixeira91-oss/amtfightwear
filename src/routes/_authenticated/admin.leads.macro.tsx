@@ -335,9 +335,12 @@ function MacroRefactorPage() {
                       <>
                         <div className="p-6 rounded-2xl border bg-primary/5 border-primary/20 flex items-center justify-between animate-pulse-subtle">
                            <div className="flex items-center gap-4">
-                              <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                                 <RotateCcw className="h-6 w-6 animate-spin" />
-                              </div>
+                               <div className={cn(
+                                 "h-12 w-12 rounded-full flex items-center justify-center shadow-lg",
+                                 executingQueue.status === 'paused' ? "bg-amber-500/20 text-amber-500" : "bg-emerald-500/20 text-emerald-500"
+                               )}>
+                                  <RotateCcw className={cn("h-6 w-6", executingQueue.status !== 'paused' && "animate-spin")} />
+                               </div>
                               <div>
                                  <div className="text-xs font-semibold text-emerald-600 uppercase">Executando Agora</div>
                                  <div className="text-xl font-bold">{executingQueue.name}</div>
