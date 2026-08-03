@@ -59,7 +59,7 @@ export const Route = createFileRoute('/api/public/macro-dm/report')({
           // 3. Se for sucesso, atualizar contador na fila e status do item
           if (data.level === 'success' && data.task_id) {
             await supabase.from('macro_dm_queue_items')
-              .update({ status: 'completed', processed_at: new Date().toISOString() })
+              .update({ status: 'completed', last_attempt_at: new Date().toISOString() })
               .eq('id', data.task_id)
 
             // Incrementa processed_leads na fila

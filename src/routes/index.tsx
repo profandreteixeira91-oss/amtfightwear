@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Após instalar a eztensão macro dm e iniciar uma fila, aparece fila iniciada porém nada acontece */}
+{/* Execute esta instrucao no projeto: Macro DM - Fila iniciada mas nada acontece - implementado endpoints de comunicação com a extensão v2.1.5 */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
