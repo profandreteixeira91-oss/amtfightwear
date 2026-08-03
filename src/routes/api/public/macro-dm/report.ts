@@ -62,15 +62,23 @@ export const Route = createFileRoute('/api/public/macro-dm/report')({
               .update({ status: 'completed', last_attempt_at: new Date().toISOString() })
               .eq('id', data.task_id)
 
-            // Incrementa processed_leads na fila
+            // Incrementa processed_leads na fila e busca total
             const { data: qNow } = await supabase
               .from('macro_dm_queues')
-              .select('processed_leads')
+              .select('processed_leads, total_leads')
               .eq('id', data.queue_id)
               .single()
             
+            const newProcessed = (qNow?.processed_leads || 0) + 1;
+            const updateData: any = { processed_leads: newProcessed };
+            
+            // Se atingiu o total, marca como concluído
+            if (qNow?.total_leads && newProcessed >= qNow.total_leads) {
+              updateData.status = 'completed';
+            }
+
             await supabase.from('macro_dm_queues')
-              .update({ processed_leads: (qNow?.processed_leads || 0) + 1 })
+              .update(updateData)
               .eq('id', data.queue_id)
           } else if (data.level === 'error' && data.task_id) {
             await supabase.from('macro_dm_queue_items')
