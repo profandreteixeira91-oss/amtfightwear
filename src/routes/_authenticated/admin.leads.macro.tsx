@@ -263,8 +263,7 @@ function MacroRefactorPage() {
                         disabled={q.status === 'executing'}
                         onClick={async () => {
                           try {
-                            // No TanStack Start v1, chamamos a função diretamente com o dado validado.
-                            await startQueue({ data: q.id });
+                            await startQueue({ data: { id: q.id } });
                             toast.success("Fila iniciada!");
                             queuesQ.refetch();
                           } catch (err) {
