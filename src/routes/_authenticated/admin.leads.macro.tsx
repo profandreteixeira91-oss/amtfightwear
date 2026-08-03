@@ -24,6 +24,7 @@ import {
   getTopLeadsForMacro,
   buildAutoQueues,
   startMacroQueue,
+  updateMacroQueueStatus,
   deleteMacroQueue,
   listMacroLogs
 } from "@/lib/prospect/macro-dm.functions";
