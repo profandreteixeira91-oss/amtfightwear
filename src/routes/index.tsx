@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Coloque as filas automáticas para funcionar dentro do macro DM e habilite o download da nova extensão */}
+{/* Execute esta instrucao no projeto: É possível criar um agente de tráfego pago inteligente dentro do sistema? */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
