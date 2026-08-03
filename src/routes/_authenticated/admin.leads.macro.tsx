@@ -344,8 +344,35 @@ function MacroRefactorPage() {
                               </div>
                            </div>
                            <div className="flex gap-2">
-                              <Button variant="outline" className="gap-2"><Pause className="h-4 w-4" /> Pausar</Button>
-                              <Button variant="destructive" className="gap-2"><Trash2 className="h-4 w-4" /> Parar</Button>
+                              <Button 
+                                variant="outline" 
+                                className="gap-2"
+                                onClick={async () => {
+                                  const nextStatus = executingQueue.status === 'paused' ? 'executing' : 'paused';
+                                  await updateStatus({ data: { id: executingQueue.id, status: nextStatus } });
+                                  toast.success(`Fila ${nextStatus === 'paused' ? 'pausada' : 'retomada'}.`);
+                                  queuesQ.refetch();
+                                }}
+                              >
+                                {executingQueue.status === 'paused' ? (
+                                  <><Play className="h-4 w-4" /> Retomar</>
+                                ) : (
+                                  <><Pause className="h-4 w-4" /> Pausar</>
+                                )}
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                className="gap-2"
+                                onClick={async () => {
+                                  if (confirm("Parar a execução desta fila?")) {
+                                    await updateStatus({ data: { id: executingQueue.id, status: 'waiting' } });
+                                    toast.info("Execução parada.");
+                                    queuesQ.refetch();
+                                  }
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" /> Parar
+                              </Button>
                            </div>
                         </div>
                         
