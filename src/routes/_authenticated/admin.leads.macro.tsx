@@ -19,7 +19,11 @@ import {
   getMacroDashboardStats,
   listMacroQueues,
   listMacroCampaigns,
-  createMacroQueue
+  createMacroQueue,
+  getTopLeadsForMacro,
+  buildAutoQueues,
+  startMacroQueue,
+  deleteMacroQueue
 } from "@/lib/prospect/macro-dm.functions";
 import { toast } from "sonner";
 
@@ -37,10 +41,19 @@ function MacroRefactorPage() {
   const getStats = useServerFn(getMacroDashboardStats);
   const getQueues = useServerFn(listMacroQueues);
   const getCampaigns = useServerFn(listMacroCampaigns);
+  const getTopLeads = useServerFn(getTopLeadsForMacro);
+  const autoBuild = useServerFn(buildAutoQueues);
+  const startQueue = useServerFn(startMacroQueue);
+  const deleteQueue = useServerFn(deleteMacroQueue);
 
   const statsQ = useQuery({
     queryKey: ["macro-dm", "stats"],
     queryFn: () => getStats(),
+  });
+
+  const leadsQ = useQuery({
+    queryKey: ["macro-dm", "top-leads"],
+    queryFn: () => getTopLeads(),
   });
 
   const queuesQ = useQuery({
@@ -55,6 +68,7 @@ function MacroRefactorPage() {
 
   const stats = statsQ.data || { totalLeads: 0, igLeads: 0, queues: [], sentToday: 0 };
   const queues = queuesQ.data || [];
+  const topLeads = leadsQ.data || [];
 
   return (
     <PageShell
@@ -116,14 +130,43 @@ function MacroRefactorPage() {
             <div className="flex items-center gap-4 mb-6">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input className="w-full bg-background border rounded-lg pl-10 pr-4 h-10 text-sm" placeholder="Pesquisar leads..." />
+                <input className="w-full bg-background border rounded-lg pl-10 pr-4 h-10 text-sm" placeholder="Pesquisar melhores leads..." />
               </div>
               <Button variant="outline" className="gap-2"><Filter className="h-4 w-4" /> Filtros</Button>
-              <Button variant="outline" className="gap-2"><Download className="h-4 w-4" /> Importar CSV</Button>
             </div>
             <div className="rounded-xl border overflow-hidden">
-               <div className="p-8 text-center text-muted-foreground">
-                 Módulo de lista de leads em desenvolvimento.
+               <div className="divide-y">
+                 {topLeads.length === 0 ? (
+                    <div className="p-12 text-center text-muted-foreground italic">
+                      Nenhum lead com Instagram encontrado para automação.
+                    </div>
+                 ) : (
+                   topLeads.map((lead: any) => (
+                     <div key={lead.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-3">
+                           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                              {lead.name?.charAt(0) || "L"}
+                           </div>
+                           <div>
+                              <div className="font-semibold text-sm">{lead.name}</div>
+                              <div className="text-xs text-primary font-medium flex items-center gap-1">
+                                 <Bot className="h-3 w-3" /> @{lead.instagram || "não definido"}
+                              </div>
+                           </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                           <div className="text-right hidden sm:block">
+                              <div className="text-xs text-muted-foreground">Score</div>
+                              <div className="text-sm font-bold text-emerald-600">{lead.score || 0}</div>
+                           </div>
+                           <Badge variant="outline">{lead.status || "Novo"}</Badge>
+                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                              <Plus className="h-4 w-4" />
+                           </Button>
+                        </div>
+                     </div>
+                   ))
+                 )}
                </div>
             </div>
           </SectionCard>
@@ -132,34 +175,85 @@ function MacroRefactorPage() {
         <TabsContent value="filas">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold">Minas de Leads</h3>
-            <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"><Plus className="h-4 w-4" /> Nova Fila Inteligente</Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={async () => {
+                  const res = await autoBuild();
+                  if (res.created > 0) {
+                    toast.success(`${res.created} novas filas criadas automaticamente!`);
+                    queuesQ.refetch();
+                  } else {
+                    toast.info("Nenhuma nova fila para criar.");
+                  }
+                }}
+              >
+                <Zap className="h-4 w-4 text-amber-500" /> Construir Filas Automáticas
+              </Button>
+              <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"><Plus className="h-4 w-4" /> Nova Fila Personalizada</Button>
+            </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-             {queues.map((q: any) => (
-               <div key={q.id} className="p-5 rounded-2xl border bg-card hover:border-primary/50 transition-colors">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                      <LayoutList className="h-5 w-5" />
-                    </div>
-                    <Badge variant="secondary">{q.status}</Badge>
-                  </div>
-                  <h4 className="font-bold text-lg mb-1">{q.name}</h4>
-                  <p className="text-xs text-muted-foreground mb-4">Criada em {new Date(q.created_at).toLocaleDateString('pt-BR')}</p>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Progresso</span>
-                      <span className="font-medium">{q.processed_leads}/{q.total_leads}</span>
-                    </div>
-                    <Progress value={(q.processed_leads / (q.total_leads || 1)) * 100} className="h-1.5" />
-                  </div>
-                  
-                  <div className="flex gap-2 mt-6">
-                    <Button size="sm" className="flex-1 gap-2"><Play className="h-3 w-3" /> Iniciar</Button>
-                    <Button size="icon" variant="outline" className="h-8 w-8 text-destructive"><Trash2 className="h-3 w-3" /></Button>
-                  </div>
+             {queues.length === 0 ? (
+               <div className="col-span-full py-12 text-center border-2 border-dashed rounded-2xl text-muted-foreground italic">
+                 Nenhuma mina de leads encontrada. Use "Construir Filas Automáticas" para começar.
                </div>
-             ))}
+             ) : (
+               queues.map((q: any) => (
+                 <div key={q.id} className="p-5 rounded-2xl border bg-card hover:border-primary/50 transition-colors shadow-sm">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                        <LayoutList className="h-5 w-5" />
+                      </div>
+                      <Badge variant={q.status === 'executing' ? 'default' : 'secondary'}>
+                        {q.status === 'executing' ? 'Em execução' : q.status === 'waiting' ? 'Aguardando' : q.status}
+                      </Badge>
+                    </div>
+                    <h4 className="font-bold text-lg mb-1">{q.name}</h4>
+                    <p className="text-[10px] text-muted-foreground mb-4 uppercase tracking-wider font-semibold">
+                      {q.campaign?.name || "Sem Campanha"} • {new Date(q.created_at).toLocaleDateString('pt-BR')}
+                    </p>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Progresso de Envio</span>
+                        <span className="font-bold">{q.processed_leads || 0}/{q.total_leads || 0}</span>
+                      </div>
+                      <Progress value={((q.processed_leads || 0) / (q.total_leads || 1)) * 100} className="h-1.5" />
+                    </div>
+                    
+                    <div className="flex gap-2 mt-6">
+                      <Button 
+                        size="sm" 
+                        className="flex-1 gap-2"
+                        disabled={q.status === 'executing'}
+                        onClick={async () => {
+                          await startQueue(q.id);
+                          toast.success("Fila iniciada!");
+                          queuesQ.refetch();
+                        }}
+                      >
+                        <Play className="h-3 w-3" /> {q.status === 'executing' ? 'Rodando...' : 'Iniciar'}
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="outline" 
+                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                        onClick={async () => {
+                          if (confirm("Excluir esta fila?")) {
+                            await deleteQueue(q.id);
+                            toast.success("Fila removida.");
+                            queuesQ.refetch();
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                 </div>
+               ))
+             )}
           </div>
         </TabsContent>
         
