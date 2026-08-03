@@ -179,15 +179,33 @@ export const buildAutoQueues = createServerFn({ method: "POST" })
     for (const [state, ids] of byState.entries()) {
       const queueName = `Fila Automática - ${state}`;
       
-      // Verifica se já existe
       const { data: existing } = await supa.from("macro_dm_queues")
-        .select("id")
+        .select("id, status")
         .eq("owner_id", userId)
         .eq("name", queueName)
-        .eq("status", "waiting")
         .single();
 
-      if (existing) continue;
+      if (existing) {
+        if (existing.status === 'waiting') {
+          const { count } = await supa.from("macro_dm_queue_items")
+            .select("id", { count: 'exact' })
+            .eq("queue_id", existing.id);
+            
+          if (!count || count === 0) {
+            const items = ids.map(id => ({
+              owner_id: userId,
+              queue_id: existing.id,
+              lead_id: id,
+              status: "pending"
+            }));
+            await supa.from("macro_dm_queue_items").insert(items);
+            await supa.from("macro_dm_queues")
+              .update({ total_leads: items.length })
+              .eq("id", existing.id);
+          }
+        }
+        continue;
+      }
 
       const { data: queue } = await supa.from("macro_dm_queues").insert({
         owner_id: userId,
