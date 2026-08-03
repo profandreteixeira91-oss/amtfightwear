@@ -81,7 +81,7 @@ function MacroRefactorPage() {
   const queues = queuesQ.data || [];
   const topLeads = leadsQ.data || [];
   const logs = logsQ.data || [];
-  const executingQueue = queues.find((q: any) => q.status === 'executing');
+  const executingQueue = queues.find((q: any) => q.status === 'executing' || q.status === 'paused');
 
   return (
     <PageShell
