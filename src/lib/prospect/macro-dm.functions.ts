@@ -61,7 +61,7 @@ export const listMacroQueues = createServerFn({ method: "GET" })
 
 export const createMacroQueue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({
+  .inputValidator((v: any) => z.object({
     name: z.string(),
     campaignId: z.string().uuid().optional(),
     filters: z.record(z.any()),
