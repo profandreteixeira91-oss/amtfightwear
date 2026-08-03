@@ -90,13 +90,11 @@ export const createMacroQueue = createServerFn({ method: "POST" })
     if (data.filters.state) query = query.eq("state", String(data.filters.state));
     if (data.filters.category) query = query.eq("category", String(data.filters.category));
     
-    const { data: leads } = await query;
+    const { data: leadsResult } = await (query as any);
     
-    const { data: leads } = await query;
-    
-    if (leads && leads.length > 0) {
+    if (leadsResult && leadsResult.length > 0) {
       // Inserir itens na fila
-      const items = leads.map(l => ({
+      const items = leadsResult.map((l: { id: string }) => ({
         owner_id: userId,
         queue_id: queue.id,
         lead_id: l.id,
