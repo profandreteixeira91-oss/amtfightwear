@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Faça a atualização da extensão do chrome */}
+{/* Execute esta instrucao no projeto: Continua a refatoração do módulo macro dm, os melhores leads já devem aparecer automaticamente na aba leads e as filas inteligentes já podem ser construídas automaticamente, e criar fila inteligente precisa funcionar */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
