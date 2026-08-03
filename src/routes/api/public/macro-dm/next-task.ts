@@ -115,7 +115,7 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
           }
 
           if (!instagram || instagram === 'pendente') {
-            // Se não tem Instagram válido, marca como falha e tenta o próximo na próxima chamada
+            // Se não tem Instagram válido, marca como falha e continua
             await supabase.from('macro_dm_queue_items').update({ status: 'failed' }).eq('id', item.id);
             await supabase.from('macro_dm_logs').insert({
               owner_id: queue.owner_id,
@@ -125,8 +125,13 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
               message: `Lead ${leadData.name} pulado: Instagram não encontrado ou inválido.`
             });
             
-            return new Response(JSON.stringify({ error: 'invalid_instagram', lead_name: leadData.name }), {
-              status: 400,
+            // Retorna um status que a extensão pode usar para pedir o próximo imediatamente
+            return new Response(JSON.stringify({ 
+              error: 'invalid_instagram', 
+              lead_name: leadData.name,
+              should_continue: true 
+            }), {
+              status: 200, // Alterado para 200 para não interromper o fluxo da extensão
               headers: { 'Content-Type': 'application/json', ...corsHeaders },
             });
           }
