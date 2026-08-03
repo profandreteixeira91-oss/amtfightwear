@@ -371,6 +371,9 @@ function MacroRefactorPage() {
                                 onClick={async () => {
                                   if (confirm("Parar a execução desta fila?")) {
                                     await updateStatus({ data: { id: executingQueue.id, status: 'canceled' } });
+                                    // Limpamos o estado local para forçar a UI a voltar ao estado inicial
+                                    queuesQ.refetch();
+                                    logsQ.refetch();
                                     toast.info("Execução parada.");
                                     queuesQ.refetch();
                                   }
