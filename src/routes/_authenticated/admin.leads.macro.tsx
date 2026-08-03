@@ -105,8 +105,7 @@ function MacroRefactorPage() {
               asChild
             >
               <a 
-                href="https://github.com/prospect-macro-dm/extension/releases/download/v2.1/macro-dm-v2.1.zip" 
-                download 
+                href="/api/public/download-extension" 
                 className="inline-flex items-center gap-3"
               >
                 <Download className="h-5 w-5" /> Iniciar Download Direto
@@ -220,8 +219,7 @@ function MacroRefactorPage() {
               </Button>
               <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 active:scale-95 transition-all" asChild>
                 <a 
-                  href="https://github.com/prospect-macro-dm/extension/releases/download/v2.1/macro-dm-v2.1.zip" 
-                  download 
+                  href="/api/public/download-extension" 
                   className="inline-flex items-center gap-2"
                 >
                   <Download className="h-4 w-4" /> Baixar Macro DM v2.1
