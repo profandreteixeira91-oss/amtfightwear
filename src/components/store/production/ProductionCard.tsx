@@ -1,11 +1,14 @@
 import { useDraggable } from "@dnd-kit/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, Clock, CreditCard, Package, Sparkles, Timer, User, ChevronDown, ChevronUp } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { AlertTriangle, Clock, CreditCard, Package, Sparkles, Timer, User, ChevronDown, ChevronUp, Layers } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { adminUpdateProductionJob } from "@/lib/store/production.functions";
 import { formatBR, todayISO, diffDaysISO } from "@/lib/dates";
 import {
   ORDER_TYPE_CLS,
@@ -24,6 +27,7 @@ export type CardMeta = {
   /** Itens do mesmo pedido, para o resumo "Total: X itens". */
   siblings: number;
   totalPieces: number;
+  allSiblings?: ProductionJob[];
 };
 
 export function deadlineState(job: ProductionJob) {
@@ -63,6 +67,17 @@ export function ProductionCard({
     id: job.id,
     disabled: dragDisabled,
   });
+
+  const qc = useQueryClient();
+  const updateFn = useServerFn(adminUpdateProductionJob);
+  const [expanded, setExpanded] = useState(false);
+
+  const updateJob = useMutation({
+    mutationFn: updateFn,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-production-jobs"] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const dl = deadlineState(job);
   const stuckSeconds = (Date.now() - new Date(job.stage_started_at).getTime()) / 1000;
   const stuck = stuckSeconds > 8 * 3600 && job.stage !== "finalizado";
@@ -106,8 +121,12 @@ export function ProductionCard({
         </span>
       </div>
 
-      <button type="button" onClick={() => onOpen(job)} className="mt-2 block w-full text-left">
-        <div className="flex items-start gap-2">
+      <div className="mt-2 block w-full text-left">
+        <button 
+          type="button" 
+          onClick={() => onOpen(job)} 
+          className="flex w-full items-start gap-2 text-left"
+        >
           <Package className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           <p className="min-w-0 flex-1 text-xs leading-snug">
             <span className="font-medium">{Number(job.quantity)}×</span> {job.product_name}
@@ -115,13 +134,70 @@ export function ProductionCard({
               <span className="text-muted-foreground"> · {job.variant_label}</span>
             ) : null}
           </p>
-        </div>
+        </button>
+        
         {meta && meta.siblings > 1 ? (
-          <p className="mt-1 pl-5 text-[11px] text-muted-foreground">
-            Pedido com {meta.siblings} itens · {meta.totalPieces} peças
-          </p>
+          <div className="mt-1">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded(!expanded);
+              }}
+              className="flex w-full items-center justify-between rounded-md bg-muted/40 px-2 py-1 text-[10px] text-muted-foreground transition hover:bg-muted/60"
+            >
+              <span className="flex items-center gap-1">
+                <Layers className="h-3 w-3" />
+                Pedido com {meta.siblings} itens · {meta.totalPieces} peças
+              </span>
+              {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            </button>
+
+            {expanded && meta.allSiblings && (
+              <div className="mt-1.5 space-y-1 pl-2">
+                {meta.allSiblings.map((s) => {
+                  const isChecked = (job.stage_checks?.[job.stage] || []).includes(s.id);
+                  return (
+                    <div key={s.id} className="flex items-center gap-2 rounded-sm bg-muted/20 p-1">
+                      <Checkbox
+                        id={`check-${s.id}`}
+                        checked={isChecked}
+                        onCheckedChange={(checked) => {
+                          const currentChecks = [...(job.stage_checks?.[job.stage] || [])];
+                          let newChecks;
+                          if (checked) {
+                            newChecks = [...currentChecks, s.id];
+                          } else {
+                            newChecks = currentChecks.filter((id) => id !== s.id);
+                          }
+                          updateJob.mutate({
+                            data: {
+                              id: job.id,
+                              stageChecks: {
+                                ...(job.stage_checks || {}),
+                                [job.stage]: newChecks,
+                              },
+                            },
+                          });
+                        }}
+                        className="h-3 w-3"
+                      />
+                      <label
+                        htmlFor={`check-${s.id}`}
+                        className={`min-w-0 flex-1 truncate text-[10px] ${
+                          isChecked ? "text-muted-foreground line-through" : ""
+                        }`}
+                      >
+                        {s.quantity}× {s.product_name}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         ) : null}
-      </button>
+      </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
         <Badge variant="outline" className={URGENCY_CLS[job.urgency as Urgency]}>
