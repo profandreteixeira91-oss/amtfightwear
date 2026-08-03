@@ -64,7 +64,8 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             })
           }
 
-          // 3. Pegar o próximo item pendente e marcá-lo como 'executing' atomicamente
+          // 3. Pegar o próximo item pendente ou em execução (para retry se a extensão reiniciou)
+          // Mas prioriza pendentes
           const { data: item, error: iError } = await supabase
             .from('macro_dm_queue_items')
             .select(`
@@ -76,33 +77,26 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
               )
             `)
             .eq('queue_id', queue.id)
-            .eq('status', 'pending')
+            .in('status', ['pending', 'executing'])
+            .order('status', { ascending: false }) // 'pending' (p) vem antes de 'executing' (e) se usarmos descending? Não, 'pending' > 'executing' alfabeticamente? p > e. Sim.
             .order('created_at', { ascending: true })
             .limit(1)
             .maybeSingle()
 
           if (iError || !item) {
-            // Se não há mais itens pendentes, verifica se há itens em 'executing' que ficaram órfãos
-            const { data: executingItems } = await supabase
-              .from('macro_dm_queue_items')
-              .select('id')
-              .eq('queue_id', queue.id)
-              .eq('status', 'executing')
-              .limit(1)
-
-            if (!executingItems || executingItems.length === 0) {
-              await supabase.from('macro_dm_queues').update({ status: 'completed' }).eq('id', queue.id)
-              return new Response(JSON.stringify({ status: 'completed' }), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders },
-              })
-            }
-
-            // Se ainda tem itens 'executing', apenas diz que está aguardando eles terminarem
-            return new Response(JSON.stringify({ status: 'waiting_for_finish', should_retry: true }), {
+            // Se não há mais itens, marca como concluído
+            await supabase.from('macro_dm_queues').update({ status: 'completed' }).eq('id', queue.id)
+            return new Response(JSON.stringify({ status: 'completed' }), {
               status: 200,
               headers: { 'Content-Type': 'application/json', ...corsHeaders },
             })
+          }
+
+          // Se estava pendente, marca como em execução
+          if (item.status === 'pending') {
+            await supabase.from('macro_dm_queue_items')
+              .update({ status: 'executing' })
+              .eq('id', item.id)
           }
 
           // Marca o item como em execução para não ser pego por outra instância/chamada
