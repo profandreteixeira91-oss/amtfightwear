@@ -17,6 +17,7 @@ import {
   Target,
   Users,
   History,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ const NAV: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/ads/pixel", label: "Pixel", icon: Crosshair },
   { to: "/admin/ads/historico", label: "Histórico", icon: History },
   { to: "/admin/ads/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/admin/ads/ia-agent", label: "Tráfego IA", icon: Bot },
 ];
 
 export function AdsManagerShell({ children }: { children: React.ReactNode }) {
