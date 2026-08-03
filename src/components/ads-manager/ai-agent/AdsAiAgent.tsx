@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, BrainCircuit, TrendingUp, AlertTriangle, Lightbulb, Bot, Loader2 } from "lucide-react";
@@ -8,12 +8,25 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdsManager } from "../AdsManagerContext";
 import { adsAiAnalyzeAccount } from "@/lib/ads/ads-ai.functions";
+import { amListAccounts } from "@/lib/ads/ads-manager.functions";
 import ReactMarkdown from "react-markdown";
 
 export function AdsAiAgent() {
-  const { accountId, range } = useAdsManager();
+  const { accountId, setAccountId, range } = useAdsManager();
   const analyze = useServerFn(adsAiAnalyzeAccount);
+  const listAccounts = useServerFn(amListAccounts);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Se não houver conta selecionada, tenta selecionar a primeira ativa automaticamente
+  useEffect(() => {
+    if (!accountId) {
+      listAccounts().then(accounts => {
+        const active = accounts.find(a => a.active);
+        if (active) setAccountId(active.id);
+        else if (accounts.length > 0) setAccountId(accounts[0].id);
+      }).catch(console.error);
+    }
+  }, [accountId, setAccountId, listAccounts]);
 
   const { data, refetch, isFetching } = useQuery({
     queryKey: ["ads-ai-analysis", accountId, range.since, range.until],
@@ -29,9 +42,9 @@ export function AdsAiAgent() {
       <Card className="border-dashed bg-muted/20">
         <CardContent className="flex flex-col items-center justify-center py-12 text-center">
           <Bot className="mb-4 h-12 w-12 text-muted-foreground/40" />
-          <h3 className="text-lg font-medium">Selecione uma conta para ativar o Agente IA</h3>
+          <h3 className="text-lg font-medium">Buscando conta de anúncios...</h3>
           <p className="max-w-xs text-sm text-muted-foreground">
-            O AMT Ads Agent precisa de dados de uma conta real para processar insights.
+            Aguarde enquanto localizamos sua conta conectada para ativar o Agente IA.
           </p>
         </CardContent>
       </Card>
