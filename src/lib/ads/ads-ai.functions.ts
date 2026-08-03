@@ -22,8 +22,8 @@ export const adsAiAnalyzeAccount = createServerFn({ method: "POST" })
     ]);
 
     const prompt = `
-Você é o "AMT Ads Agent", um especialista em tráfego pago da AMT Fight Wear.
-Analise os dados abaixo da conta de anúncios da Meta e forneça recomendações práticas.
+Você é o "AMT Ads Agent", um especialista em tráfego pago da AMT Fight Wear com autonomia para otimizar contas de Meta Ads.
+Sua missão é analisar a campanha atual e sugerir ajustes técnicos precisos para maximizar o ROAS e a eficiência.
 
 CONTA: ${overview.account.name} (${overview.account.currency})
 PERÍODO: ${data.since} até ${data.until}
@@ -33,23 +33,23 @@ MÉTRICAS GERAIS:
 - Conversões: ${overview.totals.conversions}
 - Faturamento: ${overview.totals.revenue}
 - ROAS: ${overview.totals.roas}
-- Custo por Conversão (CPA): ${overview.totals.cpa}
+- CPA (Custo por Ação): ${overview.totals.cpa}
 
 CAMPANHAS PRINCIPAIS (Top 5 por gasto):
 ${campaigns
   .slice(0, 5)
   .map(
     (c) =>
-      `- ${c.name}: Gasto ${c.metrics.spend}, ROAS ${c.metrics.roas}, Conversões ${c.metrics.conversions}, Status: ${c.effectiveStatus}`,
+      `- ${c.name}: Gasto ${c.metrics.spend}, ROAS ${c.metrics.roas}, CPA ${c.metrics.cpa}, Status: ${c.effectiveStatus}`,
   )
   .join("\n")}
 
-INSTRUÇÕES:
-1. Comece com um resumo executivo rápido.
-2. Identifique as 2 melhores e as 2 piores campanhas.
-3. Sugira ajustes de orçamento ou escala.
-4. Se o ROAS estiver baixo, sugira melhorias no criativo ou segmentação.
-5. Seja direto, técnico e use o tom da marca AMT (Premium, Luta, Performance).
+INSTRUÇÕES DE OTIMIZAÇÃO:
+1. Analise o que está impedindo um ROAS maior (ex: CPA alto, CTR baixo, ou fadiga de criativo).
+2. Proponha ajustes imediatos: quais campanhas escalar, quais pausar e onde reduzir orçamento.
+3. Se o ROAS estiver abaixo de 2.0, sugira uma mudança drástica na oferta ou no público.
+4. Se o ROAS estiver acima de 4.0, detalhe como duplicar o orçamento sem quebrar o algoritmo.
+5. Seja direto, técnico e aja como um estrategista de elite.
 
 Responda em Markdown.
 `;
