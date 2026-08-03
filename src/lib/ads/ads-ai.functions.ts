@@ -13,10 +13,12 @@ export const adsAiAnalyzeAccount = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
 
-    // Busca dados reais para análise
+    // Busca dados reais para análise. Chamamos diretamente as funções sem passar 'context' no input, 
+    // pois o server function context é injetado pelo runtime se necessário ou passado internamente.
+    // Como amGetOverview e amListCampaigns esperam o input como primeiro argumento:
     const [overview, campaigns] = await Promise.all([
-      amGetOverview({ data: { accountId: data.accountId, since: data.since, until: data.until }, context }),
-      amListCampaigns({ data: { accountId: data.accountId, since: data.since, until: data.until }, context }),
+      amGetOverview({ data: { accountId: data.accountId, since: data.since, until: data.until } }),
+      amListCampaigns({ data: { accountId: data.accountId, since: data.since, until: data.until } }),
     ]);
 
     const prompt = `
@@ -31,7 +33,7 @@ MÉTRICAS GERAIS:
 - Conversões: ${overview.totals.conversions}
 - Faturamento: ${overview.totals.revenue}
 - ROAS: ${overview.totals.roas}
-- Custo por Conversão: ${overview.totals.costPerConversion}
+- Custo por Conversão (CPA): ${overview.totals.cpa}
 
 CAMPANHAS PRINCIPAIS (Top 5 por gasto):
 ${campaigns

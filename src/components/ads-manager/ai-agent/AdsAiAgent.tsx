@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, BrainCircuit, TrendingUp, AlertTriangle, Lightbulb, Bot, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,7 +17,7 @@ export function AdsAiAgent() {
 
   const { data, refetch, isFetching } = useQuery({
     queryKey: ["ads-ai-analysis", accountId, range.since, range.until],
-    queryFn: () => analyze({ accountId: accountId!, since: range.since, until: range.until }),
+    queryFn: () => analyze({ data: { accountId: accountId!, since: range.since, until: range.until } }),
     enabled: !!accountId,
     staleTime: 30 * 60_000, // 30 min
   });
