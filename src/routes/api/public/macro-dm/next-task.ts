@@ -87,7 +87,7 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             })
           }
 
-          // 3. Buscar o Instagram separadamente
+          // 4. Buscar o Instagram separadamente
           const leadId = (item.lead as any).id;
           const { data: contact } = await supabase
             .from('prospect_contacts')
