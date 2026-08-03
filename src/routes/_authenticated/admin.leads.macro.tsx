@@ -262,9 +262,16 @@ function MacroRefactorPage() {
                         className="flex-1 gap-2"
                         disabled={q.status === 'executing'}
                         onClick={async () => {
-                          await startQueue(q.id);
-                          toast.success("Fila iniciada!");
-                          queuesQ.refetch();
+                          try {
+                            console.log("Iniciando fila:", q.id);
+                            const res = await startQueue({ data: q.id });
+                            console.log("Resposta iniciar:", res);
+                            toast.success("Fila iniciada!");
+                            queuesQ.refetch();
+                          } catch (err) {
+                            console.error("Erro ao iniciar fila:", err);
+                            toast.error("Erro ao iniciar fila.");
+                          }
                         }}
                       >
                         <Play className="h-3 w-3" /> {q.status === 'executing' ? 'Rodando...' : 'Iniciar'}

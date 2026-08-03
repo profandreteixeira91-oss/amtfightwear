@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Disponibilize aqui em arquivos o download da extensão macro dm sem passar por link, disponibilize o arquivo zip */}
+{/* Execute esta instrucao no projeto: Ao clicar em iniciar em uma fila inteligente, nada acontece, investigue e corrija de forma definitiva */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
