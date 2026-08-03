@@ -679,8 +679,8 @@ function AdminSidebar() {
             to={item.url}
             preload="intent"
             className={cn(
-              "flex items-center gap-2.5 text-[13px] font-medium text-sidebar-foreground/85 transition-colors",
-              "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              "flex items-center gap-2.5 text-[13px] font-medium text-black transition-colors",
+              "hover:bg-neutral-100 hover:text-black",
               active &&
                 "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
             )}
