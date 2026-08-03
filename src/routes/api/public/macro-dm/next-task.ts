@@ -53,7 +53,15 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             })
           }
 
-          // 2. Pegar o próximo item pendente da fila
+          // 2. Verificar se a fila está pausada
+          if (queue.status === 'paused') {
+            return new Response(JSON.stringify({ status: 'paused', message: 'Fila pausada pelo administrador' }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders },
+            })
+          }
+
+          // 3. Pegar o próximo item pendente da fila
           const { data: item, error: iError } = await supabase
             .from('macro_dm_queue_items')
             .select(`
