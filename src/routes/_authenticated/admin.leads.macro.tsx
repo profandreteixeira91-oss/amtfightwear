@@ -252,8 +252,8 @@ function MacroRefactorPage() {
                       <div className="p-2 rounded-lg bg-primary/10 text-primary">
                         <LayoutList className="h-5 w-5" />
                       </div>
-                      <Badge variant={q.status === 'executing' ? 'default' : 'secondary'}>
-                        {q.status === 'executing' ? 'Em execução' : q.status === 'waiting' ? 'Aguardando' : q.status}
+                      <Badge variant={q.status === 'executing' ? 'default' : q.status === 'paused' ? 'outline' : q.status === 'completed' ? 'secondary' : 'secondary'}>
+                        {q.status === 'executing' ? 'Em execução' : q.status === 'paused' ? 'Pausado' : q.status === 'completed' ? 'Concluído' : q.status === 'canceled' ? 'Cancelado' : 'Aguardando'}
                       </Badge>
                     </div>
                     <h4 className="font-bold text-lg mb-1">{q.name}</h4>
@@ -273,7 +273,7 @@ function MacroRefactorPage() {
                       <Button 
                         size="sm" 
                         className="flex-1 gap-2"
-                        disabled={q.status === 'executing'}
+                        disabled={q.status === 'executing' || q.status === 'completed' || q.status === 'canceled'}
                         onClick={async () => {
                           try {
                             await startQueue({ data: { id: q.id } });
@@ -370,7 +370,7 @@ function MacroRefactorPage() {
                                 className="gap-2"
                                 onClick={async () => {
                                   if (confirm("Parar a execução desta fila?")) {
-                                    await updateStatus({ data: { id: executingQueue.id, status: 'waiting' } });
+                                    await updateStatus({ data: { id: executingQueue.id, status: 'canceled' } });
                                     toast.info("Execução parada.");
                                     queuesQ.refetch();
                                   }
