@@ -809,7 +809,7 @@ function AdminSidebar() {
             >
               <Link
                 to="/dojo/app/tutorial"
-                className="flex items-center gap-2.5 text-[13px] font-medium text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-2.5 text-[13px] font-medium text-black hover:text-primary"
               >
                 <GraduationCap className="h-4 w-4 shrink-0" />
                 {!collapsed && <span className="truncate">Tutorial guiado</span>}
