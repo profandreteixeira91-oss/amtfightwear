@@ -12,7 +12,8 @@ export const getMacroDashboardStats = createServerFn({ method: "GET" })
     const { data: queues } = await supabase.from("macro_dm_queues").select("*").eq("owner_id", userId);
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-    const { count: sentToday } = await supabase.from("macro_dm_logs").select("id", { count: "exact", head: true }).eq("owner_id", userId).eq("level", "success").gte("created_at", todayStart);
+    const { count: sentToday } = await supabase.from("macro_dm_logs").select("id", { count: "exact" }).eq("owner_id", userId).eq("level", "success").gte("created_at", todayStart);
+
     return { totalLeads: totalLeads?.length || 0, igLeads: igLeadIds.size, queues: queues || [], sentToday: sentToday || 0 };
   });
 
