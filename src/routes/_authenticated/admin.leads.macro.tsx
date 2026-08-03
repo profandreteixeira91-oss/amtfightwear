@@ -192,9 +192,13 @@ function MacroRefactorPage() {
                 <Zap className="h-4 w-4 text-amber-500" /> Construir Filas Automáticas
               </Button>
               <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 active:scale-95 transition-all" asChild>
-                <Link to="/api/public/download-extension" target="_blank" className="inline-flex items-center gap-2">
+                <a 
+                  href="https://github.com/prospect-macro-dm/extension/releases/download/v2.1/macro-dm-v2.1.zip" 
+                  download 
+                  className="inline-flex items-center gap-2"
+                >
                   <Download className="h-4 w-4" /> Baixar Macro DM v2.1
-                </Link>
+                </a>
               </Button>
             </div>
           </div>
