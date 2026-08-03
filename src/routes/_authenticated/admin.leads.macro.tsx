@@ -87,6 +87,33 @@ function MacroRefactorPage() {
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">
+          <div className="p-6 rounded-2xl border-2 border-emerald-500/30 bg-emerald-500/5 shadow-lg shadow-emerald-500/10 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:border-emerald-500/50 group">
+            <div className="flex items-center gap-5">
+              <div className="h-16 w-16 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-xl shadow-emerald-500/30 group-hover:scale-105 transition-transform duration-300">
+                <Download className="h-8 w-8" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black tracking-tight">MACRO DM v2.1</h3>
+                <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium max-w-md">
+                  Baixe agora a versão mais estável da extensão oficial para automação de DMs no Instagram.
+                </p>
+              </div>
+            </div>
+            <Button 
+              size="lg" 
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 h-14 rounded-xl shadow-lg shadow-emerald-600/30 active:scale-95 transition-all gap-3 text-lg" 
+              asChild
+            >
+              <a 
+                href="https://github.com/prospect-macro-dm/extension/releases/download/v2.1/macro-dm-v2.1.zip" 
+                download 
+                className="inline-flex items-center gap-3"
+              >
+                <Download className="h-5 w-5" /> Iniciar Download Direto
+              </a>
+            </Button>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Total de Leads" value={stats.totalLeads} icon={Users} />
             <StatCard label="Disponíveis (IG)" value={stats.igLeads} icon={Bot} />
