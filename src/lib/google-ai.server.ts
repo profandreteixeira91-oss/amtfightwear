@@ -6,7 +6,7 @@ import { generateText } from "ai";
  * Utilizado como fallback para o OpenRouter quando este está sem créditos.
  */
 
-const DEFAULT_TEXT_MODEL = "gemini-1.5-flash";
+const DEFAULT_TEXT_MODEL = "gemini-1.5-flash-latest";
 
 export function createGoogleAi() {
   const key = process.env.GEMINI_API_KEY;
