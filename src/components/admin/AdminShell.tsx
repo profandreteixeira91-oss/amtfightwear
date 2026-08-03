@@ -46,6 +46,7 @@ import {
   Bell,
   Inbox,
   Factory,
+  Bot,
 } from "lucide-react";
 import { OwnerOnly } from "@/lib/auth/owner-only";
 import {
@@ -157,7 +158,9 @@ const NAV: NavGroup[] = [
   {
     label: "Ads & Instagram",
     items: [
-      { title: "Ads Dashboard", url: "/admin/anuncios", icon: Megaphone },
+      { title: "Ads Dashboard", url: "/admin/ads", icon: Megaphone },
+      { title: "Gerenciador (Legado)", url: "/admin/anuncios", icon: LayoutDashboard },
+      { title: "Tráfego IA", url: "/admin/ads/ia-agent", icon: Bot },
       { title: "Criativos & Copys", url: "/admin/anuncios/criativos", icon: ImageIcon },
       { title: "Automações", url: "/admin/instagram/automacoes", icon: Sparkles },
       { title: "IG Inbox / CRM", url: "/admin/instagram/inbox", icon: Instagram },
