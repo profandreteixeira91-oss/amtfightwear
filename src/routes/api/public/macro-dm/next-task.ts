@@ -61,13 +61,11 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
               status,
               lead:prospect_companies (
                 id,
-                name,
-                instagram:prospect_contacts!inner(value)
+                name
               )
             `)
             .eq('queue_id', queue.id)
             .eq('status', 'pending')
-            .eq('prospect_contacts.channel', 'instagram')
             .order('created_at', { ascending: true })
             .limit(1)
             .maybeSingle()
@@ -81,10 +79,17 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             })
           }
 
-          // 3. Marcar item como em processamento (ou sucesso logo, a extensão reportará)
-          // Para simplificar o fluxo inicial da extensão, vamos retornar o lead
+          // 3. Buscar o Instagram separadamente
+          const leadId = (item.lead as any).id;
+          const { data: contact } = await supabase
+            .from('prospect_contacts')
+            .select('value')
+            .eq('company_id', leadId)
+            .eq('channel', 'instagram')
+            .maybeSingle();
+
           const leadData = item.lead as any
-          const instagram = leadData.instagram?.[0]?.value || leadData.instagram
+          const instagram = contact?.value || 'pendente';
 
           return new Response(JSON.stringify({
             task_id: item.id,
