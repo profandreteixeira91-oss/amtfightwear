@@ -48,7 +48,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
   const headerTitle = props.headerTitle ?? "Atendimento AMT";
   const greeting =
     props.greeting ??
-    "Olá! Sou o assistente da AMT Fight Wear. Como posso ajudar? Posso indicar produtos, tirar dúvidas sobre tamanhos, frete e pagamento. Se preferir, clique em \"Falar com atendente\" a qualquer momento. 🥋";
+    "Olá! Sou o assistente da AMT Fight Wear. Como posso ajudar? Posso indicar produtos, tirar dúvidas sobre tamanhos, frete e pagamento. 🥋\n\n💡 **Dica de mestre:** Já conhece nosso Guia do Kimono? Ele ajuda a escolher o tamanho perfeito e cuidar da sua peça para durar anos!";
   const externalId = useMemo(() => getExternalId(storageKey, externalIdPrefix), [storageKey, externalIdPrefix]);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
