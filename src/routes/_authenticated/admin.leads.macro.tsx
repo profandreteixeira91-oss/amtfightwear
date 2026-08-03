@@ -342,8 +342,9 @@ function MacroRefactorPage() {
                                   <RotateCcw className={cn("h-6 w-6", executingQueue.status !== 'paused' && "animate-spin")} />
                                </div>
                               <div>
-                                 <div className="text-xs font-semibold text-emerald-600 uppercase">Executando Agora</div>
-                                 <div className="text-xl font-bold">{executingQueue.name}</div>
+                                 <div className={cn("text-xs font-semibold uppercase", executingQueue.status === 'paused' ? "text-amber-600" : "text-emerald-600")}>
+                                    {executingQueue.status === 'paused' ? 'Pausado' : 'Executando Agora'}
+                                 </div>
                               </div>
                            </div>
                            <div className="flex gap-2">
