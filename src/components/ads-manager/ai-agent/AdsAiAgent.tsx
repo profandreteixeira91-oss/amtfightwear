@@ -137,6 +137,21 @@ export function AdsAiAgent() {
                 <Skeleton className="h-4 w-2/3" />
                 <Skeleton className="h-4 w-full" />
               </div>
+            ) : error ? (
+              <div className="flex h-full flex-col items-center justify-center space-y-4 text-center">
+                <div className="rounded-full bg-destructive/10 p-3 text-destructive">
+                  <AlertTriangle className="h-8 w-8" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-destructive">Erro na Consultoria</h4>
+                  <p className="max-w-xs text-xs text-muted-foreground">
+                    {(error as Error)?.message || "Não foi possível gerar a análise agora."}
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => refetch()}>
+                  Tentar Novamente
+                </Button>
+              </div>
             ) : data?.analysis ? (
               <article className="prose prose-sm prose-invert max-w-none text-foreground prose-headings:text-foreground prose-strong:text-primary prose-code:text-primary">
                 <ReactMarkdown>{data.analysis}</ReactMarkdown>
