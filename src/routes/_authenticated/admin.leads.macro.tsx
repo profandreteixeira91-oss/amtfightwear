@@ -49,6 +49,7 @@ function MacroRefactorPage() {
   const startQueue = useServerFn(startMacroQueue);
   const deleteQueue = useServerFn(deleteMacroQueue);
   const getLogs = useServerFn(listMacroLogs);
+  const updateStatus = useServerFn(updateMacroQueueStatus);
 
   const statsQ = useQuery({
     queryKey: ["macro-dm", "stats"],
