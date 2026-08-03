@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Ao baixar a nova ezxtensão do macro dm not found, corrija */}
+{/* Execute esta instrucao no projeto: rota /ads e /ads/ads-ia devem aparecer na sidebar */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
