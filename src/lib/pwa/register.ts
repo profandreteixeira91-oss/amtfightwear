@@ -46,7 +46,11 @@ export async function registerPwa(): Promise<void> {
   }
   if (!("serviceWorker" in navigator)) return;
   try {
-    await navigator.serviceWorker.register(SW_PATH, { scope: "/" });
+    const registration = await navigator.serviceWorker.register(SW_PATH, { scope: "/" });
+    // Força atualização se houver um novo worker esperando
+    if (registration.waiting) {
+      registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    }
   } catch {
     /* noop */
   }
