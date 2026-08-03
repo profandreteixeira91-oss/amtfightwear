@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Painel de execução do macro DM - as filas iniciadas devem aparecer no painel para o acompanhamento dos logs */}
+{/* Execute esta instrucao no projeto: Após instalar a eztensão macro dm e iniciar uma fila, aparece fila iniciada porém nada acontece */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
