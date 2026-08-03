@@ -31,7 +31,6 @@ export type ProductionJob = {
   material_alert: string | null;
   rework_count: number;
   notes: string | null;
-  stage_checks: Record<string, string[]> | null;
   custom_config: Record<string, string | number | boolean | null> | null;
   queued_at: string;
   stage_started_at: string;
@@ -305,14 +304,12 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
         unit_price: z.number().min(0).max(10000000).nullable().optional(),
         rework: z.boolean().optional(),
         stageAssignee: z.string().trim().max(160).nullable().optional(),
-        stageChecks: z.record(z.string(), z.array(z.string())).optional(),
       })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { id, rework, stageAssignee, stageChecks, ...patch } = data;
+    const { id, rework, stageAssignee, ...patch } = data;
     const update: Record<string, unknown> = { ...patch };
-    if (stageChecks) update["stage_checks"] = stageChecks;
     if (patch.deadline === "") update["deadline"] = null;
 
     const { data: current, error: curErr } = await context.supabase

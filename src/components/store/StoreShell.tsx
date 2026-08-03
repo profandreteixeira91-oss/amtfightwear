@@ -153,17 +153,10 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
       {/* Top bar */}
       <div className="bg-foreground text-background text-[10px] sm:text-[11px] uppercase tracking-wider sm:tracking-widest">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2 sm:px-4">
-          <div className="flex items-center gap-4 overflow-hidden">
-            <span className="truncate">
-              <span className="hidden sm:inline">Frete grátis acima de R$ 399 · Parcelamos em até 10x</span>
-              <span className="sm:hidden">Frete grátis · até 10x sem juros</span>
-            </span>
-            <div className="hidden items-center gap-2 border-l border-background/20 pl-4 lg:flex">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-              <span className="font-bold text-emerald-400">Envio Hoje:</span>
-              <span className="normal-case opacity-90">Pedidos até 12h saem hoje mesmo!</span>
-            </div>
-          </div>
+          <span className="truncate">
+            <span className="hidden sm:inline">Frete grátis acima de R$ 399 · Parcelamos em até 10x</span>
+            <span className="sm:hidden">Frete grátis · até 10x sem juros</span>
+          </span>
           <a href="https://instagram.com/amtfightwear" target="_blank" rel="noreferrer" className="hidden sm:inline-flex shrink-0 items-center gap-1 hover:text-primary">
             <Instagram className="h-3 w-3" /> @amtfightwear
           </a>

@@ -188,9 +188,9 @@ function AdminOverview() {
   const onboardingDone = dojoRows.filter((d) => d.onboarding_completed).length;
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-6 p-4 md:space-y-10 md:p-10">
+    <div className="mx-auto max-w-[1400px] space-y-10 p-6 md:p-10">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-gradient-to-br from-white via-white to-neutral-50 p-6 shadow-sm md:rounded-3xl md:p-10">
+      <section className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-gradient-to-br from-white via-white to-neutral-50 p-8 shadow-sm md:p-10">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gradient-to-br from-red-500/20 to-red-700/10 blur-3xl"
@@ -210,7 +210,7 @@ function AdminOverview() {
           </div>
 
           <div className="max-w-3xl space-y-3">
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl md:text-5xl">
+            <h1 className="text-3xl font-bold tracking-tight text-neutral-900 md:text-5xl">
               Bem-vindo à Central AMT.
             </h1>
             <p className="text-sm leading-relaxed text-neutral-500 md:text-base">
@@ -262,7 +262,7 @@ function AdminOverview() {
           title="Panorama em tempo real"
           hint="Últimos 30 dias · atualizado a cada minuto"
         />
-        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
             tone="red"
             icon={ShoppingCart}
@@ -311,7 +311,7 @@ function AdminOverview() {
           ) : sectors.length === 0 ? (
             <div className="text-sm text-neutral-500">Nenhum pedido no período.</div>
           ) : (
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {sectors.map((s) => (
                 <div key={s.sector} className="rounded-xl border border-neutral-100 bg-neutral-50/60 p-3">
                   <div className="text-sm font-semibold text-neutral-900">{s.sector}</div>
@@ -329,7 +329,7 @@ function AdminOverview() {
             </div>
           )}
         </div>
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <MiniStat label="Receita paga (Loja)" value={brl(netRevenue)} hint={`${num(paidOrders)} pedidos pagos`} />
           <MiniStat label="Clientes (Loja)" value={num(customersTotal)} hint={`+${num(newCustomers)} novos`} />
           <MiniStat label="Dojos totais" value={num(dojosTotal)} hint={`${dojosActive} ativos`} />
@@ -341,7 +341,7 @@ function AdminOverview() {
       {/* Universos com atalhos */}
       <section className="space-y-4">
         <SectionHeader title="Universos" hint="Selecione um ecossistema para operar" />
-        <div className="grid gap-5 grid-cols-1 lg:grid-cols-3">
+        <div className="grid gap-5 lg:grid-cols-3">
           {UNIVERSES.map((u) => (
             <UniverseCard key={u.label} group={u} />
           ))}

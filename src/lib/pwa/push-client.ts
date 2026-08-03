@@ -34,14 +34,11 @@ export async function subscribePush(vapidPublicKey: string): Promise<PushSubscri
   if (perm !== "granted") return null;
 
   // Garante que o SW esteja registrado antes de tentar assinar (evita "no active service worker").
-  const existingReg = await navigator.serviceWorker.getRegistration("/");
-  if (!existingReg) {
+  if (!(await navigator.serviceWorker.getRegistration("/"))) {
     try {
       await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-      // Aguarda o registro ser processado pelo navegador
-      await new Promise(resolve => setTimeout(resolve, 500));
     } catch {
-      /* noop */
+      /* noop — registerPwa já tenta e a falha aqui vira erro claro abaixo */
     }
   }
   const reg = await navigator.serviceWorker.ready;

@@ -267,38 +267,7 @@ function CheckoutPage() {
       <form onSubmit={handleSubmit} className="mx-auto max-w-6xl px-4 py-8">
         <h1 className="mb-6 text-3xl font-black">Finalizar compra</h1>
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-3">
-          <div className="flex items-center gap-3 rounded-xl border bg-emerald-500/5 p-4 text-emerald-600 dark:text-emerald-400">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-500/10">
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div className="min-w-0">
-              <div className="text-xs font-black uppercase tracking-wider">Compra Segura</div>
-              <div className="text-[10px] opacity-80">Criptografia SSL de 256 bits</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-xl border bg-blue-500/5 p-4 text-blue-600 dark:text-blue-400">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blue-500/10">
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-            </div>
-            <div className="min-w-0">
-              <div className="text-xs font-black uppercase tracking-wider">Troca Fácil</div>
-              <div className="text-[10px] opacity-80">7 dias para devolução grátis</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-xl border bg-amber-500/5 p-4 text-amber-600 dark:text-amber-400">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-500/10">
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-            </div>
-            <div className="min-w-0">
-              <div className="text-xs font-black uppercase tracking-wider">Qualidade AMT</div>
-              <div className="text-[10px] opacity-80">Garantia direto da fábrica</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-6 rounded-lg border bg-card p-3 text-xs text-muted-foreground flex items-center gap-2">
-          <svg className="h-4 w-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div className="mb-6 rounded-lg border bg-card p-3 text-xs text-muted-foreground">
           Seus dados serão salvos automaticamente na sua conta para agilizar próximas compras.
         </div>
 

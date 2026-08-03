@@ -19,7 +19,6 @@ import {
   Timer,
   Trash2,
   Users,
-  ChevronDown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -273,24 +272,19 @@ function ProductionQueuePage() {
     : 0;
 
   const orderMeta = useMemo(() => {
-    const map = new Map<string, { siblings: number; totalPieces: number; allSiblings: ProductionJob[] }>();
+    const map = new Map<string, { siblings: number; totalPieces: number }>();
     for (const j of jobs) {
       const key = `${j.source}:${j.source_id ?? j.id}`;
-      const cur = map.get(key) ?? { siblings: 0, totalPieces: 0, allSiblings: [] };
+      const cur = map.get(key) ?? { siblings: 0, totalPieces: 0 };
       cur.siblings += 1;
       cur.totalPieces += Number(j.quantity || 0);
-      cur.allSiblings.push(j);
       map.set(key, cur);
     }
     return map;
   }, [jobs]);
 
   const metaOf = (j: ProductionJob) =>
-    orderMeta.get(`${j.source}:${j.source_id ?? j.id}`) ?? { 
-      siblings: 1, 
-      totalPieces: Number(j.quantity),
-      allSiblings: [j]
-    };
+    orderMeta.get(`${j.source}:${j.source_id ?? j.id}`) ?? { siblings: 1, totalPieces: Number(j.quantity) };
 
   const groups = useMemo(() => {
     const key = (j: ProductionJob) => {

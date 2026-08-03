@@ -46,9 +46,6 @@ import {
   Bell,
   Inbox,
   Factory,
-  Bot,
-  Menu,
-  X,
 } from "lucide-react";
 import { OwnerOnly } from "@/lib/auth/owner-only";
 import {
@@ -105,12 +102,12 @@ export function AdminShell({
 }) {
   return (
     <OwnerOnly>
-      <SidebarProvider defaultOpen={!window.matchMedia("(max-width: 768px)").matches}>
+      <SidebarProvider defaultOpen>
         <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background">
           <AdminSidebar />
           <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
             <AdminTopbar title={title} />
-            <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 transition-all duration-500 ease-in-out sm:p-8 lg:p-10">
+            <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6 transition-all duration-500 ease-in-out sm:p-8 lg:p-10">
               <div className="mx-auto w-full max-w-[1600px] animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {children}
               </div>
@@ -160,9 +157,7 @@ const NAV: NavGroup[] = [
   {
     label: "Ads & Instagram",
     items: [
-      { title: "Ads Dashboard", url: "/admin/ads", icon: Megaphone },
-      { title: "Gerenciador (Legado)", url: "/admin/anuncios", icon: LayoutDashboard },
-      { title: "Tráfego IA", url: "/admin/ads/ia-agent", icon: Bot },
+      { title: "Ads Dashboard", url: "/admin/anuncios", icon: Megaphone },
       { title: "Criativos & Copys", url: "/admin/anuncios/criativos", icon: ImageIcon },
       { title: "Automações", url: "/admin/instagram/automacoes", icon: Sparkles },
       { title: "IG Inbox / CRM", url: "/admin/instagram/inbox", icon: Instagram },
@@ -267,16 +262,7 @@ function AdminTopbar({ title }: { title?: string }) {
   return (
     <>
       <header className="admin-topbar sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md transition-all duration-300 sm:px-8">
-        <SidebarTrigger className="h-10 w-10 text-muted-foreground transition-colors hover:text-primary lg:hidden" />
-        <button
-          onClick={() => {
-            const { state, setOpen } = (window as any)._amtSidebar;
-            setOpen(state === "collapsed" ? "expanded" : "collapsed");
-          }}
-          className="hidden h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-primary lg:flex"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+        <SidebarTrigger className="h-10 w-10 text-muted-foreground transition-colors hover:text-primary" />
         <div className="mx-1 hidden h-6 w-px bg-border/60 md:block" />
 
         <nav
@@ -611,14 +597,7 @@ function AdminGlobalSearch({
 /* --------------------------------- Sidebar -------------------------------- */
 
 function AdminSidebar() {
-  const sidebar = useSidebar();
-  const { state, setOpen, isMobile, setOpenMobile } = sidebar;
-  
-  // Expõe o estado da sidebar globalmente para o botão da Topbar
-  React.useEffect(() => {
-    (window as any)._amtSidebar = sidebar;
-  }, [sidebar]);
-
+  const { state, setOpen, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const [favorites, setFavorites] = useLocalList(FAV_KEY, 6);
@@ -657,12 +636,6 @@ function AdminSidebar() {
     setOpen(false);
   };
 
-  const onItemClick = () => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  };
-
   const renderItem = (item: NavItem & { group?: string }, keyPrefix = "") => {
     const active = isActive(item.url);
     const fav = favorites.includes(item.url);
@@ -673,14 +646,13 @@ function AdminSidebar() {
           isActive={active}
           tooltip={collapsed ? item.title : undefined}
           className="h-9 rounded-xl"
-          onClick={onItemClick}
         >
           <Link
             to={item.url}
             preload="intent"
             className={cn(
-              "flex items-center gap-2.5 text-[13px] font-medium text-black transition-colors",
-              "hover:bg-neutral-100 hover:text-black",
+              "flex items-center gap-2.5 text-[13px] font-medium text-sidebar-foreground/85 transition-colors",
+              "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               active &&
                 "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
             )}
@@ -717,22 +689,11 @@ function AdminSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className={cn(
-        "admin-sidebar border-r border-border bg-white transition-all duration-300",
-        collapsed && !hoverExpanded.current ? "w-[80px]" : "w-[280px]"
-      )}
+      className="admin-sidebar border-r border-border"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <SidebarHeader className="relative border-b border-border/70 bg-white px-3 py-3">
-        {isMobile && (
-          <button
-            onClick={() => setOpenMobile(false)}
-            className="absolute right-4 top-4 z-50 rounded-lg p-2 text-neutral-500 hover:bg-neutral-100"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )}
+      <SidebarHeader className="border-b border-border/70 px-3 py-3">
         <Link to="/admin" className="flex items-center gap-2.5 rounded-xl px-1 py-1">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-sm">
             <Sparkles className="h-4 w-4" />
@@ -753,7 +714,7 @@ function AdminSidebar() {
       <SidebarContent className="gap-0 px-2 py-2">
         {favorites.length && !collapsed ? (
           <SidebarGroup className="px-0">
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground whitespace-nowrap overflow-hidden">
+            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Favoritos
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -769,7 +730,7 @@ function AdminSidebar() {
 
         {recents.length > 1 && !collapsed ? (
           <SidebarGroup className="px-0">
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground whitespace-nowrap overflow-hidden">
+            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Recentes
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -788,7 +749,7 @@ function AdminSidebar() {
           <SidebarGroup key={group.label} className="px-0">
             {gi > 0 ? <div className="mx-2 my-1.5 h-px bg-border/70" /> : null}
             {!collapsed && (
-              <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground whitespace-nowrap overflow-hidden">
+              <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {group.label}
               </SidebarGroupLabel>
             )}
@@ -809,7 +770,7 @@ function AdminSidebar() {
             >
               <Link
                 to="/dojo/app/tutorial"
-                className="flex items-center gap-2.5 text-[13px] font-medium text-black hover:text-primary"
+                className="flex items-center gap-2.5 text-[13px] font-medium text-muted-foreground hover:text-foreground"
               >
                 <GraduationCap className="h-4 w-4 shrink-0" />
                 {!collapsed && <span className="truncate">Tutorial guiado</span>}

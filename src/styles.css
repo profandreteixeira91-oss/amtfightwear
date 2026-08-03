@@ -361,8 +361,7 @@ body:has(.dojo-theme) [data-slot="sheet-content"][data-sidebar="sidebar"] {
 .admin-shell,
 .admin-shell [data-sidebar="sidebar"],
 [data-sidebar="sidebar"][data-admin="true"],
-[data-slot="sheet-content"][data-admin-sidebar="true"],
-[data-sidebar="sidebar"][data-mobile="true"] {
+[data-slot="sheet-content"][data-admin-sidebar="true"] {
   --sidebar: #ffffff;
   --sidebar-foreground: oklch(0.32 0 0);
   --sidebar-primary: oklch(0.56 0.235 27);
@@ -371,19 +370,8 @@ body:has(.dojo-theme) [data-slot="sheet-content"][data-sidebar="sidebar"] {
   --sidebar-accent-foreground: oklch(0.2 0 0);
   --sidebar-border: oklch(0.92 0 0);
   --sidebar-ring: oklch(0.56 0.235 27);
-  background-color: #ffffff !important;
-  color: oklch(0.2 0 0) !important;
-}
-
-/* Force text colors in sidebar items when in light mode */
-.admin-shell [data-sidebar="menu-button"] {
-  color: oklch(0.32 0 0) !important;
-}
-.admin-shell [data-sidebar="menu-button"][data-active="true"] {
-  color: var(--sidebar-primary) !important;
-}
-.admin-shell [data-sidebar="group-label"] {
-  color: oklch(0.45 0 0) !important;
+  background-color: #ffffff;
+  color: oklch(0.2 0 0);
 }
 
 :where(.dojo-theme) h1,

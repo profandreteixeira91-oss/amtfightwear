@@ -102,32 +102,6 @@ export function CartSheet() {
               <div className="mt-1 text-[11px] text-muted-foreground">
                 ou 10x de <strong>{formatBRL(subtotal / 10)}</strong> sem juros · frete no checkout
               </div>
-              <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                <div className="flex items-center justify-between text-[11px] font-bold text-primary">
-                  <span>🚀 UPSELL EXCLUSIVO</span>
-                  <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] text-white">RECOMENDADO</span>
-                </div>
-                <div className="mt-2 flex items-center gap-3">
-                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded border bg-background">
-                    <img 
-                      src="https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/products/faixa-preta-premium.jpg" 
-                      alt="Faixa Premium"
-                      className="h-full w-full object-cover"
-                      onError={(e) => (e.currentTarget.src = "https://placehold.co/100x100?text=Faixa")}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="truncate text-xs font-bold">Faixa Premium AMT</div>
-                    <div className="text-[10px] text-muted-foreground">Adicione e ganhe 10% OFF nela</div>
-                  </div>
-                  <button 
-                    type="button"
-                    className="rounded bg-primary px-3 py-1.5 text-[10px] font-bold text-white hover:opacity-90"
-                  >
-                    + R$ 89
-                  </button>
-                </div>
-              </div>
               <Link
                 to="/loja/checkout"
                 onClick={close}

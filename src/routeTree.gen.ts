@@ -122,7 +122,6 @@ import { Route as AppStudentCertificatesRouteImport } from './routes/app._studen
 import { Route as AppStudentCardRouteImport } from './routes/app._student.card'
 import { Route as AppStudentAnnouncementsRouteImport } from './routes/app._student.announcements'
 import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
-import { Route as ApiPublicDownloadExtensionRouteImport } from './routes/api/public/download-extension'
 import { Route as ApiPublicDojoManifestDotwebmanifestRouteImport } from './routes/api/public/dojo-manifest[.]webmanifest'
 import { Route as ApiDojoApkUploadRouteImport } from './routes/api/dojo/apk-upload'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
@@ -252,8 +251,6 @@ import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
-import { Route as ApiPublicMacroDmReportRouteImport } from './routes/api/public/macro-dm/report'
-import { Route as ApiPublicMacroDmNextTaskRouteImport } from './routes/api/public/macro-dm/next-task'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
 import { Route as ApiPublicHooksSendDojoRemindersRouteImport } from './routes/api/public/hooks/send-dojo-reminders'
 import { Route as ApiPublicHooksSendClassRemindersRouteImport } from './routes/api/public/hooks/send-class-reminders'
@@ -310,7 +307,6 @@ import { Route as AuthenticatedAdminAdsRelatoriosRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminAdsPublicosRouteImport } from './routes/_authenticated/admin.ads.publicos'
 import { Route as AuthenticatedAdminAdsPixelRouteImport } from './routes/_authenticated/admin.ads.pixel'
 import { Route as AuthenticatedAdminAdsMidiasRouteImport } from './routes/_authenticated/admin.ads.midias'
-import { Route as AuthenticatedAdminAdsIaAgentRouteImport } from './routes/_authenticated/admin.ads.ia-agent'
 import { Route as AuthenticatedAdminAdsHistoricoRouteImport } from './routes/_authenticated/admin.ads.historico'
 import { Route as AuthenticatedAdminAdsCriativosRouteImport } from './routes/_authenticated/admin.ads.criativos'
 import { Route as AuthenticatedAdminAdsConjuntosRouteImport } from './routes/_authenticated/admin.ads.conjuntos'
@@ -897,12 +893,6 @@ const AppStudentAgendaRoute = AppStudentAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AppStudentRoute,
 } as any)
-const ApiPublicDownloadExtensionRoute =
-  ApiPublicDownloadExtensionRouteImport.update({
-    id: '/api/public/download-extension',
-    path: '/api/public/download-extension',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicDojoManifestDotwebmanifestRoute =
   ApiPublicDojoManifestDotwebmanifestRouteImport.update({
     id: '/api/public/dojo-manifest.webmanifest',
@@ -1630,17 +1620,6 @@ const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
   path: '/api/public/meta/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicMacroDmReportRoute = ApiPublicMacroDmReportRouteImport.update({
-  id: '/api/public/macro-dm/report',
-  path: '/api/public/macro-dm/report',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicMacroDmNextTaskRoute =
-  ApiPublicMacroDmNextTaskRouteImport.update({
-    id: '/api/public/macro-dm/next-task',
-    path: '/api/public/macro-dm/next-task',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksSyncAdsInsightsRoute =
   ApiPublicHooksSyncAdsInsightsRouteImport.update({
     id: '/api/public/hooks/sync-ads-insights',
@@ -1973,12 +1952,6 @@ const AuthenticatedAdminAdsMidiasRoute =
     path: '/midias',
     getParentRoute: () => AuthenticatedAdminAdsRoute,
   } as any)
-const AuthenticatedAdminAdsIaAgentRoute =
-  AuthenticatedAdminAdsIaAgentRouteImport.update({
-    id: '/ia-agent',
-    path: '/ia-agent',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
 const AuthenticatedAdminAdsHistoricoRoute =
   AuthenticatedAdminAdsHistoricoRouteImport.update({
     id: '/historico',
@@ -2212,7 +2185,6 @@ export interface FileRoutesByFullPath {
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
-  '/api/public/download-extension': typeof ApiPublicDownloadExtensionRoute
   '/app/agenda': typeof AppStudentAgendaRoute
   '/app/announcements': typeof AppStudentAnnouncementsRoute
   '/app/card': typeof AppStudentCardRoute
@@ -2286,7 +2258,6 @@ export interface FileRoutesByFullPath {
   '/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
   '/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
-  '/admin/ads/ia-agent': typeof AuthenticatedAdminAdsIaAgentRoute
   '/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
   '/admin/ads/publicos': typeof AuthenticatedAdminAdsPublicosRoute
@@ -2343,8 +2314,6 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
-  '/api/public/macro-dm/next-task': typeof ApiPublicMacroDmNextTaskRoute
-  '/api/public/macro-dm/report': typeof ApiPublicMacroDmReportRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -2523,7 +2492,6 @@ export interface FileRoutesByTo {
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
-  '/api/public/download-extension': typeof ApiPublicDownloadExtensionRoute
   '/app/agenda': typeof AppStudentAgendaRoute
   '/app/announcements': typeof AppStudentAnnouncementsRoute
   '/app/card': typeof AppStudentCardRoute
@@ -2589,7 +2557,6 @@ export interface FileRoutesByTo {
   '/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
   '/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
-  '/admin/ads/ia-agent': typeof AuthenticatedAdminAdsIaAgentRoute
   '/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
   '/admin/ads/publicos': typeof AuthenticatedAdminAdsPublicosRoute
@@ -2646,8 +2613,6 @@ export interface FileRoutesByTo {
   '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
-  '/api/public/macro-dm/next-task': typeof ApiPublicMacroDmNextTaskRoute
-  '/api/public/macro-dm/report': typeof ApiPublicMacroDmReportRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -2837,7 +2802,6 @@ export interface FileRoutesById {
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
-  '/api/public/download-extension': typeof ApiPublicDownloadExtensionRoute
   '/app/_student/agenda': typeof AppStudentAgendaRoute
   '/app/_student/announcements': typeof AppStudentAnnouncementsRoute
   '/app/_student/card': typeof AppStudentCardRoute
@@ -2911,7 +2875,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/_authenticated/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
   '/_authenticated/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
-  '/_authenticated/admin/ads/ia-agent': typeof AuthenticatedAdminAdsIaAgentRoute
   '/_authenticated/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/_authenticated/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
   '/_authenticated/admin/ads/publicos': typeof AuthenticatedAdminAdsPublicosRoute
@@ -2968,8 +2931,6 @@ export interface FileRoutesById {
   '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
-  '/api/public/macro-dm/next-task': typeof ApiPublicMacroDmNextTaskRoute
-  '/api/public/macro-dm/report': typeof ApiPublicMacroDmReportRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -3160,7 +3121,6 @@ export interface FileRouteTypes {
     | '/store/wholesale'
     | '/api/dojo/apk-upload'
     | '/api/public/dojo-manifest.webmanifest'
-    | '/api/public/download-extension'
     | '/app/agenda'
     | '/app/announcements'
     | '/app/card'
@@ -3234,7 +3194,6 @@ export interface FileRouteTypes {
     | '/admin/ads/conjuntos'
     | '/admin/ads/criativos'
     | '/admin/ads/historico'
-    | '/admin/ads/ia-agent'
     | '/admin/ads/midias'
     | '/admin/ads/pixel'
     | '/admin/ads/publicos'
@@ -3291,8 +3250,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-class-reminders'
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
-    | '/api/public/macro-dm/next-task'
-    | '/api/public/macro-dm/report'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
@@ -3471,7 +3428,6 @@ export interface FileRouteTypes {
     | '/store/wholesale'
     | '/api/dojo/apk-upload'
     | '/api/public/dojo-manifest.webmanifest'
-    | '/api/public/download-extension'
     | '/app/agenda'
     | '/app/announcements'
     | '/app/card'
@@ -3537,7 +3493,6 @@ export interface FileRouteTypes {
     | '/admin/ads/conjuntos'
     | '/admin/ads/criativos'
     | '/admin/ads/historico'
-    | '/admin/ads/ia-agent'
     | '/admin/ads/midias'
     | '/admin/ads/pixel'
     | '/admin/ads/publicos'
@@ -3594,8 +3549,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-class-reminders'
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
-    | '/api/public/macro-dm/next-task'
-    | '/api/public/macro-dm/report'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
@@ -3784,7 +3737,6 @@ export interface FileRouteTypes {
     | '/_authenticated/store/wholesale'
     | '/api/dojo/apk-upload'
     | '/api/public/dojo-manifest.webmanifest'
-    | '/api/public/download-extension'
     | '/app/_student/agenda'
     | '/app/_student/announcements'
     | '/app/_student/card'
@@ -3858,7 +3810,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/ads/conjuntos'
     | '/_authenticated/admin/ads/criativos'
     | '/_authenticated/admin/ads/historico'
-    | '/_authenticated/admin/ads/ia-agent'
     | '/_authenticated/admin/ads/midias'
     | '/_authenticated/admin/ads/pixel'
     | '/_authenticated/admin/ads/publicos'
@@ -3915,8 +3866,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-class-reminders'
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
-    | '/api/public/macro-dm/next-task'
-    | '/api/public/macro-dm/report'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
@@ -4013,7 +3962,6 @@ export interface RootRouteChildren {
   LojaIndexRoute: typeof LojaIndexRoute
   ApiDojoApkUploadRoute: typeof ApiDojoApkUploadRoute
   ApiPublicDojoManifestDotwebmanifestRoute: typeof ApiPublicDojoManifestDotwebmanifestRoute
-  ApiPublicDownloadExtensionRoute: typeof ApiPublicDownloadExtensionRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
   LojaContaPedidosRoute: typeof LojaContaPedidosRoute
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
@@ -4043,8 +3991,6 @@ export interface RootRouteChildren {
   ApiPublicHooksSendClassRemindersRoute: typeof ApiPublicHooksSendClassRemindersRoute
   ApiPublicHooksSendDojoRemindersRoute: typeof ApiPublicHooksSendDojoRemindersRoute
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
-  ApiPublicMacroDmNextTaskRoute: typeof ApiPublicMacroDmNextTaskRoute
-  ApiPublicMacroDmReportRoute: typeof ApiPublicMacroDmReportRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicMetaWebhookRoute: typeof ApiPublicMetaWebhookRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -4850,13 +4796,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/agenda'
       preLoaderRoute: typeof AppStudentAgendaRouteImport
       parentRoute: typeof AppStudentRoute
-    }
-    '/api/public/download-extension': {
-      id: '/api/public/download-extension'
-      path: '/api/public/download-extension'
-      fullPath: '/api/public/download-extension'
-      preLoaderRoute: typeof ApiPublicDownloadExtensionRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/public/dojo-manifest.webmanifest': {
       id: '/api/public/dojo-manifest.webmanifest'
@@ -5761,20 +5700,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMetaCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/macro-dm/report': {
-      id: '/api/public/macro-dm/report'
-      path: '/api/public/macro-dm/report'
-      fullPath: '/api/public/macro-dm/report'
-      preLoaderRoute: typeof ApiPublicMacroDmReportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/macro-dm/next-task': {
-      id: '/api/public/macro-dm/next-task'
-      path: '/api/public/macro-dm/next-task'
-      fullPath: '/api/public/macro-dm/next-task'
-      preLoaderRoute: typeof ApiPublicMacroDmNextTaskRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/sync-ads-insights': {
       id: '/api/public/hooks/sync-ads-insights'
       path: '/api/public/hooks/sync-ads-insights'
@@ -6167,13 +6092,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdsMidiasRouteImport
       parentRoute: typeof AuthenticatedAdminAdsRoute
     }
-    '/_authenticated/admin/ads/ia-agent': {
-      id: '/_authenticated/admin/ads/ia-agent'
-      path: '/ia-agent'
-      fullPath: '/admin/ads/ia-agent'
-      preLoaderRoute: typeof AuthenticatedAdminAdsIaAgentRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
     '/_authenticated/admin/ads/historico': {
       id: '/_authenticated/admin/ads/historico'
       path: '/historico'
@@ -6316,7 +6234,6 @@ interface AuthenticatedAdminAdsRouteChildren {
   AuthenticatedAdminAdsConjuntosRoute: typeof AuthenticatedAdminAdsConjuntosRoute
   AuthenticatedAdminAdsCriativosRoute: typeof AuthenticatedAdminAdsCriativosRoute
   AuthenticatedAdminAdsHistoricoRoute: typeof AuthenticatedAdminAdsHistoricoRoute
-  AuthenticatedAdminAdsIaAgentRoute: typeof AuthenticatedAdminAdsIaAgentRoute
   AuthenticatedAdminAdsMidiasRoute: typeof AuthenticatedAdminAdsMidiasRoute
   AuthenticatedAdminAdsPixelRoute: typeof AuthenticatedAdminAdsPixelRoute
   AuthenticatedAdminAdsPublicosRoute: typeof AuthenticatedAdminAdsPublicosRoute
@@ -6330,7 +6247,6 @@ const AuthenticatedAdminAdsRouteChildren: AuthenticatedAdminAdsRouteChildren = {
   AuthenticatedAdminAdsConjuntosRoute: AuthenticatedAdminAdsConjuntosRoute,
   AuthenticatedAdminAdsCriativosRoute: AuthenticatedAdminAdsCriativosRoute,
   AuthenticatedAdminAdsHistoricoRoute: AuthenticatedAdminAdsHistoricoRoute,
-  AuthenticatedAdminAdsIaAgentRoute: AuthenticatedAdminAdsIaAgentRoute,
   AuthenticatedAdminAdsMidiasRoute: AuthenticatedAdminAdsMidiasRoute,
   AuthenticatedAdminAdsPixelRoute: AuthenticatedAdminAdsPixelRoute,
   AuthenticatedAdminAdsPublicosRoute: AuthenticatedAdminAdsPublicosRoute,
@@ -7220,7 +7136,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDojoApkUploadRoute: ApiDojoApkUploadRoute,
   ApiPublicDojoManifestDotwebmanifestRoute:
     ApiPublicDojoManifestDotwebmanifestRoute,
-  ApiPublicDownloadExtensionRoute: ApiPublicDownloadExtensionRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
   LojaContaPedidosRoute: LojaContaPedidosRoute,
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
@@ -7256,8 +7171,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksSendClassRemindersRoute: ApiPublicHooksSendClassRemindersRoute,
   ApiPublicHooksSendDojoRemindersRoute: ApiPublicHooksSendDojoRemindersRoute,
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
-  ApiPublicMacroDmNextTaskRoute: ApiPublicMacroDmNextTaskRoute,
-  ApiPublicMacroDmReportRoute: ApiPublicMacroDmReportRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
   ApiPublicMetaWebhookRoute: ApiPublicMetaWebhookRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
@@ -7274,3 +7187,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

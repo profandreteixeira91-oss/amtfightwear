@@ -3,7 +3,6 @@ export type AdminNotificationEvent =
   | "store_order.new"
   | "store_order.paid"
   | "sales_message.new"
-  | "support_message.new"
   | "dojo_support.new"
   | "profile.new"
   | "dojo_sub.new"
@@ -39,12 +38,6 @@ export const ADMIN_NOTIFICATION_CATALOG: AdminNotificationDef[] = [
     event: "sales_message.new",
     label: "Mensagens do chat",
     description: "Mensagens enviadas por clientes no chat de vendas da loja.",
-    group: "Atendimento",
-  },
-  {
-    event: "support_message.new",
-    label: "Mensagens em atendimento",
-    description: "Novas mensagens recebidas em tickets de suporte e atendimento técnico.",
     group: "Atendimento",
   },
   {

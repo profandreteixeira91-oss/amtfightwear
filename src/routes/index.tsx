@@ -1,4 +1,3 @@
-{/* Execute esta instrucao no projeto: Termine de configurar todo o novo macro dm, verifique botões não funcionando, todo o fluxo de funcionamento e ux ui */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
