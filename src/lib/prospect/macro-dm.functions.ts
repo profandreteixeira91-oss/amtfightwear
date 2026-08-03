@@ -286,7 +286,7 @@ export const updateMacroQueueStatus = createServerFn({ method: "POST" })
       await supa.from("macro_dm_queue_items")
         .update({ status: 'pending' })
         .eq("queue_id", id)
-        .eq("status", 'executing');
+        .in("status", ['executing', 'failed']);
     }
 
     if (error) throw error;

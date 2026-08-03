@@ -349,33 +349,41 @@ function MacroRefactorPage() {
                               </div>
                            </div>
                            <div className="flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                className="gap-2"
-                                onClick={async () => {
-                                  const nextStatus = executingQueue.status === 'paused' ? 'executing' : 'paused';
-                                  await updateStatus({ data: { id: executingQueue.id, status: nextStatus } });
-                                  toast.success(`Fila ${nextStatus === 'paused' ? 'pausada' : 'retomada'}.`);
-                                  queuesQ.refetch();
-                                }}
-                              >
-                                {executingQueue.status === 'paused' ? (
-                                  <><Play className="h-4 w-4" /> Retomar</>
-                                ) : (
-                                  <><Pause className="h-4 w-4" /> Pausar</>
-                                )}
-                              </Button>
+                              {executingQueue.status === 'executing' ? (
+                                <Button 
+                                  variant="outline" 
+                                  className="gap-2 border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+                                  onClick={async () => {
+                                    await updateStatus({ data: { id: executingQueue.id, status: 'paused' } });
+                                    toast.info("Automação pausada.");
+                                    queuesQ.refetch();
+                                  }}
+                                >
+                                  <Pause className="h-4 w-4" /> Pausar
+                                </Button>
+                              ) : (
+                                <Button 
+                                  variant="outline" 
+                                  className="gap-2 border-emerald-500/50 text-emerald-600 hover:bg-emerald-500/10"
+                                  onClick={async () => {
+                                    await updateStatus({ data: { id: executingQueue.id, status: 'executing' } });
+                                    toast.success("Automação retomada!");
+                                    queuesQ.refetch();
+                                  }}
+                                >
+                                  <Play className="h-4 w-4" /> Retomar
+                                </Button>
+                              )}
+                              
                               <Button 
                                 variant="destructive" 
                                 className="gap-2"
                                 onClick={async () => {
                                   if (confirm("Parar a execução desta fila?")) {
                                     await updateStatus({ data: { id: executingQueue.id, status: 'canceled' } });
-                                    // Limpamos o estado local para forçar a UI a voltar ao estado inicial
-                                    queuesQ.refetch();
-                                    logsQ.refetch();
                                     toast.info("Execução parada.");
                                     queuesQ.refetch();
+                                    logsQ.refetch();
                                   }
                                 }}
                               >
