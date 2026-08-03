@@ -283,10 +283,11 @@ export const updateMacroQueueStatus = createServerFn({ method: "POST" })
       .eq("owner_id", userId);
     
     if (status === 'canceled') {
+      // Limpa itens que ficaram presos em execução
       await supa.from("macro_dm_queue_items")
         .update({ status: 'pending' })
         .eq("queue_id", id)
-        .in("status", ['executing', 'failed']);
+        .eq("status", 'executing');
     }
 
     if (error) throw error;
