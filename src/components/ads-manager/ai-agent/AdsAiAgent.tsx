@@ -28,11 +28,22 @@ export function AdsAiAgent() {
     }
   }, [accountId, setAccountId, listAccounts]);
 
-  const { data, refetch, isFetching } = useQuery({
+  const { data, refetch, isFetching, error } = useQuery({
     queryKey: ["ads-ai-analysis", accountId, range.since, range.until],
-    queryFn: () => analyze({ data: { accountId: accountId!, since: range.since, until: range.until } }),
+    queryFn: async () => {
+      try {
+        console.log("[AdsAiAgent] Starting analysis for account:", accountId);
+        const result = await analyze({ data: { accountId: accountId!, since: range.since, until: range.until } });
+        console.log("[AdsAiAgent] Analysis complete:", result);
+        return result;
+      } catch (err) {
+        console.error("[AdsAiAgent] Error in analyze function:", err);
+        throw err;
+      }
+    },
     enabled: !!accountId,
     staleTime: 30 * 60_000, // 30 min
+    retry: false, // Don't retry automatically to avoid looping errors
   });
 
   const loading = isFetching || isAnalyzing;
@@ -125,6 +136,21 @@ export function AdsAiAgent() {
                 <Skeleton className="h-32 w-full" />
                 <Skeleton className="h-4 w-2/3" />
                 <Skeleton className="h-4 w-full" />
+              </div>
+            ) : error ? (
+              <div className="flex h-full flex-col items-center justify-center space-y-4 text-center">
+                <div className="rounded-full bg-destructive/10 p-3 text-destructive">
+                  <AlertTriangle className="h-8 w-8" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-destructive">Erro na Consultoria</h4>
+                  <p className="max-w-xs text-xs text-muted-foreground">
+                    {(error as Error)?.message || "Não foi possível gerar a análise agora."}
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => refetch()}>
+                  Tentar Novamente
+                </Button>
               </div>
             ) : data?.analysis ? (
               <article className="prose prose-sm prose-invert max-w-none text-foreground prose-headings:text-foreground prose-strong:text-primary prose-code:text-primary">

@@ -17,8 +17,14 @@ export const adsAiAnalyzeAccount = createServerFn({ method: "POST" })
     // pois o server function context é injetado pelo runtime se necessário ou passado internamente.
     // Como amGetOverview e amListCampaigns esperam o input como primeiro argumento:
     const [overview, campaigns] = await Promise.all([
-      amGetOverview({ data: { accountId: data.accountId, since: data.since, until: data.until } }),
-      amListCampaigns({ data: { accountId: data.accountId, since: data.since, until: data.until } }),
+      amGetOverview({ data: { accountId: data.accountId, since: data.since, until: data.until } }).catch(err => {
+        console.error("Error in amGetOverview:", err);
+        throw new Error("Não foi possível carregar o resumo da conta. Verifique sua conexão com o Meta Ads.");
+      }),
+      amListCampaigns({ data: { accountId: data.accountId, since: data.since, until: data.until } }).catch(err => {
+        console.error("Error in amListCampaigns:", err);
+        return []; // Fallback para lista vazia se falhar
+      }),
     ]);
 
     const prompt = `
