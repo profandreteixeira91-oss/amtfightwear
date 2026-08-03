@@ -53,9 +53,12 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             })
           }
 
-          // 2. Verificar se a fila está pausada
-          if (queue.status === 'paused') {
-            return new Response(JSON.stringify({ status: 'paused', message: 'Fila pausada pelo administrador' }), {
+          // 2. Verificar se a fila está pausada ou cancelada
+          if (queue.status === 'paused' || queue.status === 'canceled') {
+            return new Response(JSON.stringify({ 
+              status: queue.status, 
+              message: `Fila ${queue.status === 'paused' ? 'pausada' : 'cancelada'} pelo administrador` 
+            }), {
               status: 200,
               headers: { 'Content-Type': 'application/json', ...corsHeaders },
             })

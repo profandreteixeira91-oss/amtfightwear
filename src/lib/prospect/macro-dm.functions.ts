@@ -267,7 +267,7 @@ export const updateMacroQueueStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { id: string, status: string }) => z.object({ 
     id: z.string().uuid(),
-    status: z.enum(['waiting', 'executing', 'paused', 'completed'])
+    status: z.enum(['waiting', 'executing', 'paused', 'completed', 'canceled'])
   }).parse(data))
   .handler(async ({ data, context }) => {
     const { id, status } = data;
