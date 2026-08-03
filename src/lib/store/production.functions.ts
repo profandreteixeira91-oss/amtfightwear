@@ -31,6 +31,7 @@ export type ProductionJob = {
   material_alert: string | null;
   rework_count: number;
   notes: string | null;
+  stage_checks: Record<string, string[]> | null;
   custom_config: Record<string, string | number | boolean | null> | null;
   queued_at: string;
   stage_started_at: string;
