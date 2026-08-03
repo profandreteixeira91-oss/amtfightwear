@@ -61,11 +61,11 @@ export const listMacroQueues = createServerFn({ method: "GET" })
 
 export const createMacroQueue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({
+  .inputValidator((v) => z.object({
     name: z.string(),
     campaignId: z.string().uuid().optional(),
     filters: z.record(z.any()),
-  }).parse)
+  }).parse(v))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     
@@ -76,7 +76,7 @@ export const createMacroQueue = createServerFn({ method: "POST" })
         owner_id: userId,
         campaign_id: data.campaignId,
         name: data.name,
-        filters: data.filters,
+        filters: data.filters as any,
         status: "waiting"
       })
       .select()
@@ -84,11 +84,13 @@ export const createMacroQueue = createServerFn({ method: "POST" })
 
     if (qError) throw qError;
 
-    // 2. Buscar leads que batem com os filtros (simplificado para MVP da refatoração)
+    // 2. Buscar leads que batem com os filtros
     let query = supabase.from("prospect_companies").select("id").eq("owner_id", userId);
     
-    if (data.filters.state) query = query.eq("state", data.filters.state);
-    if (data.filters.category) query = query.eq("category", data.filters.category);
+    if (data.filters.state) query = query.eq("state", String(data.filters.state));
+    if (data.filters.category) query = query.eq("category", String(data.filters.category));
+    
+    const { data: leads } = await query;
     
     const { data: leads } = await query;
     
