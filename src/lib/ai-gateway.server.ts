@@ -1,23 +1,20 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { googleChat } from "./google-ai.server";
 
 // OpenRouter — API OpenAI-compatível (usa OPENROUTER_API_KEY).
-// Modelo padrão gratuito: DeepSeek Chat v3 (:free).
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_TEXT_MODEL = "deepseek/deepseek-chat-v3";
 // OpenRouter/DeepSeek free não gera imagens — mantemos Gemini para imagem.
 const DEFAULT_IMAGE_MODEL = "gemini-2.5-flash-image-preview";
 
-// Cabeçalhos opcionais recomendados pela OpenRouter (analytics no dashboard deles).
 const OPENROUTER_HEADERS: Record<string, string> = {
   "HTTP-Referer": "https://amtfightwear.com.br",
   "X-Title": "AMT Fight Wear",
 };
 
-// Normaliza ids antigos (Gemini/OpenAI) para modelos válidos do OpenRouter.
 function mapModel(id: string): string {
   const clean = id.trim();
   const table: Record<string, string> = {
-    // Antigos aliases Gemini → DeepSeek free
     "gemini-flash-latest": DEFAULT_TEXT_MODEL,
     "gemini-flash-lite-latest": DEFAULT_TEXT_MODEL,
     "gemini-2.5-flash": DEFAULT_TEXT_MODEL,
@@ -35,10 +32,6 @@ function mapModel(id: string): string {
   return table[clean] ?? clean;
 }
 
-/**
- * Cria um provider AI SDK apontando para o OpenRouter.
- * Usa OPENROUTER_API_KEY (chave do OpenRouter configurada nos secrets).
- */
 export function createLovableAiGateway(_ignored?: string) {
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) throw new Error("OPENROUTER_API_KEY não configurada");
@@ -53,10 +46,39 @@ export function createLovableAiGateway(_ignored?: string) {
 }
 
 /**
- * Helper direto para chamadas fetch OpenAI-compat ao OpenRouter.
- * Retorna a resposta textual do 1º choice ou lança erro tratável.
+ * Centralizador de chamadas de Chat.
+ * Tenta OpenRouter primeiro, se falhar por créditos ou erro grave, cai para o Google AI (Gemini).
  */
-export async function openrouterChat(opts: {
+export async function aiChat(opts: {
+  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+  model?: string;
+  json?: boolean;
+  temperature?: number;
+}): Promise<string> {
+  try {
+    return await openrouterChat(opts);
+  } catch (error: any) {
+    // Se for erro de créditos (402) ou limite (429), ou se a chave não existir, usamos Gemini.
+    const errorMsg = error.message?.toLowerCase() || "";
+    const isQuotaError = errorMsg.includes("créditos") || 
+                        errorMsg.includes("credit") || 
+                        errorMsg.includes("402") || 
+                        errorMsg.includes("429") ||
+                        errorMsg.includes("limite");
+    
+    if (isQuotaError || !process.env.OPENROUTER_API_KEY) {
+      console.warn("OpenRouter sem créditos ou limite atingido, utilizando Google AI como fallback.");
+      return await googleChat(opts);
+    }
+    
+    throw error;
+  }
+}
+
+/**
+ * Helper direto para chamadas fetch OpenAI-compat ao OpenRouter.
+ */
+async function openrouterChat(opts: {
   messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
   model?: string;
   json?: boolean;
@@ -66,7 +88,6 @@ export async function openrouterChat(opts: {
   if (!key) throw new Error("OPENROUTER_API_KEY não configurada");
 
   const model = mapModel(opts.model ?? DEFAULT_TEXT_MODEL);
-  // Cascata: modelo pedido → deepseek-chat-v3 (fallback).
   const models = Array.from(new Set([model, DEFAULT_TEXT_MODEL]));
   const transient = new Set([429, 500, 502, 503, 504]);
   let lastErr = "";
@@ -103,19 +124,19 @@ export async function openrouterChat(opts: {
   }
 
   if (lastStatus === 429) {
-    throw new Error(
-      "OpenRouter atingiu limite de uso do modelo gratuito. Aguarde alguns minutos, ou configure um modelo pago.",
-    );
+    throw new Error("OpenRouter: limite de uso atingido.");
   }
   if (lastStatus === 402) {
-    throw new Error("OpenRouter: créditos insuficientes. Adicione créditos em https://openrouter.ai/credits.");
+    throw new Error("OpenRouter: créditos insuficientes.");
   }
-  if ([500, 502, 503, 504].includes(lastStatus)) {
-    throw new Error("OpenRouter temporariamente indisponível. Tente novamente em instantes.");
-  }
-  throw new Error(`OpenRouter ${lastStatus}: ${lastErr.slice(0, 300)}`);
+  
+  throw new Error(`OpenRouter error ${lastStatus}: ${lastErr.slice(0, 100)}`);
 }
+
+// Mantendo compatibilidade com nomes antigos para evitar quebras em outros arquivos
+export const openrouterChat = aiChat;
 
 export const LOVABLE_GATEWAY_URL = OPENROUTER_BASE_URL;
 export const DEFAULT_TEXT_MODEL_ID = DEFAULT_TEXT_MODEL;
 export const DEFAULT_IMAGE_MODEL_ID = DEFAULT_IMAGE_MODEL;
+
