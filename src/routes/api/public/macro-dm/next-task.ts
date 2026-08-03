@@ -84,9 +84,23 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             .maybeSingle()
 
           if (iError || !item) {
-            // Se não há mais itens, marca como concluído
-            await supabase.from('macro_dm_queues').update({ status: 'completed' }).eq('id', queue.id)
-            return new Response(JSON.stringify({ status: 'completed' }), {
+            // Se não há mais itens e todos estão concluídos ou falharam
+            const { count: pendingCount } = await supabase
+              .from('macro_dm_queue_items')
+              .select('id', { count: 'exact', head: true })
+              .eq('queue_id', queue.id)
+              .in('status', ['pending', 'executing'])
+            
+            if (!pendingCount || pendingCount === 0) {
+              await supabase.from('macro_dm_queues').update({ status: 'completed' }).eq('id', queue.id)
+              return new Response(JSON.stringify({ status: 'completed' }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders },
+              })
+            }
+
+            // Se ainda tem itens mas por algum motivo maybeSingle veio vazio, retorna retry
+            return new Response(JSON.stringify({ status: 'waiting', message: 'Aguardando sincronização de tarefas...' }), {
               status: 200,
               headers: { 'Content-Type': 'application/json', ...corsHeaders },
             })
