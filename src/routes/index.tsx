@@ -1,3 +1,4 @@
+{/* Execute esta instrucao no projeto: Faça a atualização da extensão do chrome */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";

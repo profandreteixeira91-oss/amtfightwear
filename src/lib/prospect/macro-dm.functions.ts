@@ -27,12 +27,12 @@ export const listMacroQueues = createServerFn({ method: "GET" })
 const createQueueInput = z.object({
   name: z.string(),
   campaignId: z.string().uuid().optional(),
-  filters: z.record(z.any()),
+  filters: z.record(z.string(), z.any()),
 });
 
 export const createMacroQueue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => createQueueInput.parse(v))
+  .validator((v: unknown) => createQueueInput.parse(v))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: queue, error: qError } = await (supabase as any).from("macro_dm_queues").insert({ owner_id: userId, campaign_id: data.campaignId, name: data.name, filters: data.filters as any, status: "waiting" }).select().single();
