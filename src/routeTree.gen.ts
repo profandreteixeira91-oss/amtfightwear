@@ -252,6 +252,8 @@ import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
+import { Route as ApiPublicMacroDmReportRouteImport } from './routes/api/public/macro-dm/report'
+import { Route as ApiPublicMacroDmNextTaskRouteImport } from './routes/api/public/macro-dm/next-task'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
 import { Route as ApiPublicHooksSendDojoRemindersRouteImport } from './routes/api/public/hooks/send-dojo-reminders'
 import { Route as ApiPublicHooksSendClassRemindersRouteImport } from './routes/api/public/hooks/send-class-reminders'
@@ -1628,6 +1630,17 @@ const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
   path: '/api/public/meta/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMacroDmReportRoute = ApiPublicMacroDmReportRouteImport.update({
+  id: '/api/public/macro-dm/report',
+  path: '/api/public/macro-dm/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMacroDmNextTaskRoute =
+  ApiPublicMacroDmNextTaskRouteImport.update({
+    id: '/api/public/macro-dm/next-task',
+    path: '/api/public/macro-dm/next-task',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksSyncAdsInsightsRoute =
   ApiPublicHooksSyncAdsInsightsRouteImport.update({
     id: '/api/public/hooks/sync-ads-insights',
@@ -2330,6 +2343,8 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
+  '/api/public/macro-dm/next-task': typeof ApiPublicMacroDmNextTaskRoute
+  '/api/public/macro-dm/report': typeof ApiPublicMacroDmReportRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -2631,6 +2646,8 @@ export interface FileRoutesByTo {
   '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
+  '/api/public/macro-dm/next-task': typeof ApiPublicMacroDmNextTaskRoute
+  '/api/public/macro-dm/report': typeof ApiPublicMacroDmReportRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -2951,6 +2968,8 @@ export interface FileRoutesById {
   '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
+  '/api/public/macro-dm/next-task': typeof ApiPublicMacroDmNextTaskRoute
+  '/api/public/macro-dm/report': typeof ApiPublicMacroDmReportRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -3272,6 +3291,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-class-reminders'
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
+    | '/api/public/macro-dm/next-task'
+    | '/api/public/macro-dm/report'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
@@ -3573,6 +3594,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-class-reminders'
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
+    | '/api/public/macro-dm/next-task'
+    | '/api/public/macro-dm/report'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
@@ -3892,6 +3915,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-class-reminders'
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
+    | '/api/public/macro-dm/next-task'
+    | '/api/public/macro-dm/report'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
@@ -4018,6 +4043,8 @@ export interface RootRouteChildren {
   ApiPublicHooksSendClassRemindersRoute: typeof ApiPublicHooksSendClassRemindersRoute
   ApiPublicHooksSendDojoRemindersRoute: typeof ApiPublicHooksSendDojoRemindersRoute
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
+  ApiPublicMacroDmNextTaskRoute: typeof ApiPublicMacroDmNextTaskRoute
+  ApiPublicMacroDmReportRoute: typeof ApiPublicMacroDmReportRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicMetaWebhookRoute: typeof ApiPublicMetaWebhookRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -5734,6 +5761,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMetaCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/macro-dm/report': {
+      id: '/api/public/macro-dm/report'
+      path: '/api/public/macro-dm/report'
+      fullPath: '/api/public/macro-dm/report'
+      preLoaderRoute: typeof ApiPublicMacroDmReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/macro-dm/next-task': {
+      id: '/api/public/macro-dm/next-task'
+      path: '/api/public/macro-dm/next-task'
+      fullPath: '/api/public/macro-dm/next-task'
+      preLoaderRoute: typeof ApiPublicMacroDmNextTaskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/sync-ads-insights': {
       id: '/api/public/hooks/sync-ads-insights'
       path: '/api/public/hooks/sync-ads-insights'
@@ -7215,6 +7256,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksSendClassRemindersRoute: ApiPublicHooksSendClassRemindersRoute,
   ApiPublicHooksSendDojoRemindersRoute: ApiPublicHooksSendDojoRemindersRoute,
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
+  ApiPublicMacroDmNextTaskRoute: ApiPublicMacroDmNextTaskRoute,
+  ApiPublicMacroDmReportRoute: ApiPublicMacroDmReportRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
   ApiPublicMetaWebhookRoute: ApiPublicMetaWebhookRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
@@ -7231,3 +7274,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
