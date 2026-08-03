@@ -37,8 +37,8 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
           // 1. Encontrar uma fila em execução (ou a específica solicitada)
           let query = supabase
             .from('macro_dm_queues')
-            .select('id, name, owner_id')
-            .eq('status', 'executing')
+            .select('id, name, owner_id, status')
+            .in('status', ['executing', 'paused'])
           
           if (queue_id) {
             query = query.eq('id', queue_id)
