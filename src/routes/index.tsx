@@ -1,4 +1,4 @@
-{/* Execute esta instrucao no projeto: Auditoria UX UI completa para dispositivos móveisd em /admin - Sidebar com fundo branco e texto preto, ao clicar num item da sidebar ela recolhe automaticamente, não permita overflow, textos cortados ou cards cortados */}
+{/* Execute esta instrucao no projeto: Painel de execução do macro DM - as filas iniciadas devem aparecer no painel para o acompanhamento dos logs */}
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";

@@ -263,3 +263,17 @@ export const startMacroQueue = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const listMacroLogs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await (context.supabase as any)
+      .from("macro_dm_logs")
+      .select("*")
+      .eq("owner_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    
+    if (error) throw error;
+    return data as any[];
+  });
+
