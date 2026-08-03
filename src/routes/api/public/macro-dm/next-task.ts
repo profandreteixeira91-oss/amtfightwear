@@ -64,7 +64,7 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
             })
           }
 
-          // 3. Pegar o próximo item pendente da fila
+          // 3. Pegar o próximo item pendente e marcá-lo como 'executing' atomicamente
           const { data: item, error: iError } = await supabase
             .from('macro_dm_queue_items')
             .select(`
@@ -89,6 +89,11 @@ export const Route = createFileRoute('/api/public/macro-dm/next-task')({
               headers: { 'Content-Type': 'application/json', ...corsHeaders },
             })
           }
+
+          // Marca o item como em execução para não ser pego por outra instância/chamada
+          await supabase.from('macro_dm_queue_items')
+            .update({ status: 'executing' })
+            .eq('id', item.id)
 
           // 4. Buscar o Instagram separadamente
           const leadId = (item.lead as any).id;
