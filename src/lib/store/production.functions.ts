@@ -310,8 +310,9 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { id, rework, stageAssignee, ...patch } = data;
+    const { id, rework, stageAssignee, stageChecks, ...patch } = data;
     const update: Record<string, unknown> = { ...patch };
+    if (stageChecks) update["stage_checks"] = stageChecks;
     if (patch.deadline === "") update["deadline"] = null;
 
     const { data: current, error: curErr } = await context.supabase
