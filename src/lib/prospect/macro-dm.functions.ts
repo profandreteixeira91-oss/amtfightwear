@@ -263,6 +263,26 @@ export const startMacroQueue = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const updateMacroQueueStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { id: string, status: string }) => z.object({ 
+    id: z.string().uuid(),
+    status: z.enum(['waiting', 'executing', 'paused', 'completed'])
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { id, status } = data;
+    const { supabase, userId } = context;
+    const supa = supabase as any;
+
+    const { error } = await supa.from("macro_dm_queues")
+      .update({ status })
+      .eq("id", id)
+      .eq("owner_id", userId);
+    
+    if (error) throw error;
+    return { success: true };
+  });
+
 export const listMacroLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
