@@ -305,6 +305,7 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
         unit_price: z.number().min(0).max(10000000).nullable().optional(),
         rework: z.boolean().optional(),
         stageAssignee: z.string().trim().max(160).nullable().optional(),
+        stageChecks: z.record(z.array(z.string())).optional(),
       })
       .parse(i),
   )
