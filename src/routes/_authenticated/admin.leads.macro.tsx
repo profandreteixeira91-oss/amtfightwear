@@ -23,7 +23,8 @@ import {
   getTopLeadsForMacro,
   buildAutoQueues,
   startMacroQueue,
-  deleteMacroQueue
+  deleteMacroQueue,
+  listMacroLogs
 } from "@/lib/prospect/macro-dm.functions";
 import { toast } from "sonner";
 
@@ -45,6 +46,7 @@ function MacroRefactorPage() {
   const autoBuild = useServerFn(buildAutoQueues);
   const startQueue = useServerFn(startMacroQueue);
   const deleteQueue = useServerFn(deleteMacroQueue);
+  const getLogs = useServerFn(listMacroLogs);
 
   const statsQ = useQuery({
     queryKey: ["macro-dm", "stats"],
@@ -66,9 +68,17 @@ function MacroRefactorPage() {
     queryFn: () => getCampaigns(),
   });
 
+  const logsQ = useQuery({
+    queryKey: ["macro-dm", "logs"],
+    queryFn: () => getLogs(),
+    refetchInterval: 5000, // Atualiza a cada 5s para tempo real no painel
+  });
+
   const stats = statsQ.data || { totalLeads: 0, igLeads: 0, queues: [], sentToday: 0 };
   const queues = queuesQ.data || [];
   const topLeads = leadsQ.data || [];
+  const logs = logsQ.data || [];
+  const executingQueue = queues.find((q: any) => q.status === 'executing');
 
   return (
     <PageShell
@@ -299,51 +309,151 @@ function MacroRefactorPage() {
            <SectionCard title="Painel de Execução" description="Acompanhe a automação em tempo real.">
               <div className="grid gap-6 lg:grid-cols-3">
                  <div className="lg:col-span-2 space-y-6">
-                    <div className="p-6 rounded-2xl border bg-primary/5 border-primary/20 flex items-center justify-between">
-                       <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                             <RotateCcw className="h-6 w-6 animate-spin" />
-                          </div>
-                          <div>
-                             <div className="text-xs font-semibold text-emerald-600 uppercase">Executando Agora</div>
-                             <div className="text-xl font-bold">Aguardando Cooldown...</div>
-                          </div>
-                       </div>
-                       <div className="flex gap-2">
-                          <Button variant="outline" className="gap-2"><Pause className="h-4 w-4" /> Pausar</Button>
-                          <Button variant="destructive" className="gap-2"><Trash2 className="h-4 w-4" /> Cancelar</Button>
-                       </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                       <div className="font-semibold flex items-center gap-2"><Clock className="h-4 w-4" /> Próximo Envio</div>
-                       <div className="p-6 rounded-2xl border bg-card">
-                          <div className="flex items-center gap-4">
-                             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                                <Users className="h-6 w-6" />
-                             </div>
-                             <div className="flex-1">
-                                <div className="font-bold">@usuario_instagram</div>
-                                <div className="text-xs text-muted-foreground">Academia em São Paulo</div>
-                             </div>
-                             <Badge variant="outline">Aguardando 45s</Badge>
-                          </div>
-                       </div>
-                    </div>
+                    {!executingQueue ? (
+                      <div className="p-12 text-center border-2 border-dashed rounded-2xl bg-muted/5 flex flex-col items-center gap-4">
+                        <Bot className="h-12 w-12 text-muted-foreground opacity-20" />
+                        <div className="space-y-1">
+                          <p className="font-bold text-muted-foreground">Nenhuma fila em execução</p>
+                          <p className="text-xs text-muted-foreground">Inicie uma fila na aba "Filas Inteligentes" para acompanhar o progresso aqui.</p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => {
+                            const tabList = document.querySelector('[role="tablist"]');
+                            const filasTab = tabList?.querySelector('[value="filas"]') as HTMLElement;
+                            filasTab?.click();
+                          }}
+                        >
+                          Ir para Filas
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="p-6 rounded-2xl border bg-primary/5 border-primary/20 flex items-center justify-between animate-pulse-subtle">
+                           <div className="flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                                 <RotateCcw className="h-6 w-6 animate-spin" />
+                              </div>
+                              <div>
+                                 <div className="text-xs font-semibold text-emerald-600 uppercase">Executando Agora</div>
+                                 <div className="text-xl font-bold">{executingQueue.name}</div>
+                              </div>
+                           </div>
+                           <div className="flex gap-2">
+                              <Button variant="outline" className="gap-2"><Pause className="h-4 w-4" /> Pausar</Button>
+                              <Button variant="destructive" className="gap-2"><Trash2 className="h-4 w-4" /> Parar</Button>
+                           </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                           <div className="font-semibold flex items-center gap-2"><Clock className="h-4 w-4" /> Status do Lote</div>
+                           <div className="p-6 rounded-2xl border bg-card shadow-sm">
+                              <div className="space-y-4">
+                                 <div className="flex justify-between items-end">
+                                    <div className="space-y-1">
+                                       <div className="text-sm font-medium text-muted-foreground">Progresso Total</div>
+                                       <div className="text-2xl font-black">{executingQueue.processed_leads || 0} / {executingQueue.total_leads || 0}</div>
+                                    </div>
+                                    <div className="text-right">
+                                       <div className="text-xs font-bold text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded-full inline-block mb-1">
+                                          {Math.round(((executingQueue.processed_leads || 0) / (executingQueue.total_leads || 1)) * 100)}% concluído
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <Progress value={((executingQueue.processed_leads || 0) / (executingQueue.total_leads || 1)) * 100} className="h-3" />
+                                 <div className="grid grid-cols-3 gap-4 pt-2">
+                                    <div className="p-3 rounded-xl bg-muted/30 border">
+                                       <div className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Sucesso</div>
+                                       <div className="text-lg font-bold text-emerald-600">{executingQueue.processed_leads || 0}</div>
+                                    </div>
+                                    <div className="p-3 rounded-xl bg-muted/30 border">
+                                       <div className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Falhas</div>
+                                       <div className="text-lg font-bold text-red-600">0</div>
+                                    </div>
+                                    <div className="p-3 rounded-xl bg-muted/30 border">
+                                       <div className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Cooldown</div>
+                                       <div className="text-lg font-bold">45s</div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                      </>
+                    )}
                  </div>
                  
-                 <div className="rounded-2xl border bg-card flex flex-col h-[500px]">
-                    <div className="p-4 border-b font-bold flex items-center gap-2"><Activity className="h-4 w-4" /> Logs em Tempo Real</div>
-                    <ScrollArea className="flex-1 p-4">
+                 <div className="rounded-2xl border bg-card flex flex-col h-[500px] shadow-sm overflow-hidden">
+                    <div className="p-4 border-b bg-muted/20 font-bold flex items-center justify-between">
+                       <div className="flex items-center gap-2"><Activity className="h-4 w-4 text-primary" /> Logs em Tempo Real</div>
+                       {logs.length > 0 && (
+                         <Badge variant="outline" className="font-mono text-[10px]">{logs.length} eventos</Badge>
+                       )}
+                    </div>
+                    <ScrollArea className="flex-1 p-4 bg-zinc-950">
                        <div className="space-y-2 font-mono text-[10px]">
-                          <div className="text-emerald-500">[14:20:01] Fila SP iniciada com sucesso</div>
-                          <div className="text-blue-500">[14:20:05] Buscando lead @academia_sp...</div>
-                          <div className="text-blue-500">[14:20:08] Perfil encontrado. Carregando automação.</div>
-                          <div className="text-emerald-500">[14:20:15] Mensagem enviada para @academia_sp</div>
-                          <div className="text-amber-500">[14:20:16] Iniciando cooldown de 45 segundos</div>
+                          {logs.length === 0 ? (
+                             <div className="text-zinc-500 italic py-4 text-center">Aguardando logs do sistema...</div>
+                          ) : (
+                             logs.map((log: any, idx: number) => (
+                               <div key={log.id || idx} className="flex gap-2">
+                                  <span className="text-zinc-600 shrink-0">[{new Date(log.created_at).toLocaleTimeString()}]</span>
+                                  <span className={cn(
+                                    "break-all",
+                                    log.level === 'success' ? 'text-emerald-500' : 
+                                    log.level === 'error' ? 'text-red-500' : 
+                                    log.level === 'warning' ? 'text-amber-500' : 'text-blue-400'
+                                  )}>
+                                    {log.message}
+                                  </span>
+                                </div>
+                             ))
+                          )}
                        </div>
                     </ScrollArea>
                  </div>
+              </div>
+           </SectionCard>
+        </TabsContent>
+        
+        <TabsContent value="logs">
+           <SectionCard title="Histórico Completo" description="Relatório detalhado de todas as operações do Macro DM.">
+              <div className="rounded-xl border overflow-hidden">
+                 <table className="w-full text-sm text-left">
+                    <thead className="bg-muted/50 border-b">
+                       <tr>
+                          <th className="p-3 font-semibold">Data/Hora</th>
+                          <th className="p-3 font-semibold">Fila</th>
+                          <th className="p-3 font-semibold">Mensagem</th>
+                          <th className="p-3 font-semibold">Status</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                       {logs.length === 0 ? (
+                          <tr>
+                             <td colSpan={4} className="p-12 text-center text-muted-foreground italic">Nenhum log encontrado.</td>
+                          </tr>
+                       ) : (
+                          logs.map((log: any) => (
+                             <tr key={log.id} className="hover:bg-muted/30 transition-colors">
+                                <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
+                                   {new Date(log.created_at).toLocaleString('pt-BR')}
+                                </td>
+                                <td className="p-3 font-medium">{log.queue_name || "Geral"}</td>
+                                <td className="p-3 text-xs max-w-md truncate">{log.message}</td>
+                                <td className="p-3">
+                                   <Badge variant={
+                                     log.level === 'success' ? 'default' : 
+                                     log.level === 'error' ? 'destructive' : 'outline'
+                                   } className="capitalize">
+                                     {log.level}
+                                   </Badge>
+                                </td>
+                             </tr>
+                          ))
+                       )}
+                    </tbody>
+                 </table>
               </div>
            </SectionCard>
         </TabsContent>
