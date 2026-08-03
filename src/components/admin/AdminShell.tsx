@@ -103,11 +103,15 @@ export function AdminShell({
   return (
     <OwnerOnly>
       <SidebarProvider defaultOpen>
-        <div className="admin-shell admin-surface flex min-h-dvh w-full">
+        <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background">
           <AdminSidebar />
-          <div className="flex min-w-0 flex-1 flex-col">
+          <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
             <AdminTopbar title={title} />
-            <main className="admin-main min-w-0 flex-1">{children}</main>
+            <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6 transition-all duration-500 ease-in-out sm:p-8 lg:p-10">
+              <div className="mx-auto w-full max-w-[1600px] animate-in fade-in slide-in-from-bottom-2 duration-500">
+                {children}
+              </div>
+            </main>
           </div>
         </div>
       </SidebarProvider>
@@ -257,9 +261,9 @@ function AdminTopbar({ title }: { title?: string }) {
 
   return (
     <>
-      <header className="admin-topbar sticky top-0 z-30 flex h-16 items-center gap-2 px-3 sm:px-5">
-        <SidebarTrigger className="text-muted-foreground" />
-        <div className="mx-1 hidden h-5 w-px bg-border md:block" />
+      <header className="admin-topbar sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md transition-all duration-300 sm:px-8">
+        <SidebarTrigger className="h-10 w-10 text-muted-foreground transition-colors hover:text-primary" />
+        <div className="mx-1 hidden h-6 w-px bg-border/60 md:block" />
 
         <nav
           aria-label="Trilha de navegação"
@@ -336,10 +340,10 @@ function IconAction({
   className?: string;
 }) {
   const inner = (
-    <span className="relative grid h-9 w-9 place-items-center">
-      <Icon className="h-4 w-4" />
+    <span className="relative grid h-10 w-10 place-items-center transition-transform hover:scale-105 active:scale-95">
+      <Icon className="h-[18px] w-[18px]" />
       {dot ? (
-        <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary ring-2 ring-background" />
+        <span className="absolute right-2 top-2 h-2 w-2 animate-pulse rounded-full bg-primary ring-2 ring-background" />
       ) : null}
     </span>
   );
