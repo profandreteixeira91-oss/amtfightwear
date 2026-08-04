@@ -159,6 +159,21 @@ export const Route = createFileRoute("/api/public/hooks/ig-webhook")({
                 is_echo: isEcho,
                 sent_at: m.timestamp ? new Date(m.timestamp).toISOString() : new Date().toISOString(),
               }, { onConflict: "conversation_id,mid" });
+
+              // Notificar admins sobre mensagem IG recebida
+              if (direction === "in" && convId) {
+                try {
+                  const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
+                  await sendPushToAmtAdmins({
+                    title: "Nova mensagem Instagram",
+                    body: preview || "Mídia recebida",
+                    url: `/admin/atendimento?chat=${convId}`,
+                    tag: `ig-msg-${convId}`,
+                  }, "sales_message.new");
+                } catch (e) {
+                  console.warn("Falha ao notificar admins IG:", e);
+                }
+              }
             }
           }
 

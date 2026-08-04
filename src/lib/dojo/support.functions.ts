@@ -80,6 +80,20 @@ export const createTicket = createServerFn({ method: "POST" })
       body: data.body,
     });
     if (mErr) throw new Error(mErr.message);
+
+    // Notificar admins sobre o novo ticket
+    try {
+      const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
+      await sendPushToAmtAdmins({
+        title: "Novo Ticket de Suporte",
+        body: `${data.subject}: ${data.body.slice(0, 100)}...`,
+        url: `/admin/atendimento/suporte?id=${ticket.id}`,
+        tag: `ticket-${ticket.id}`,
+      }, "dojo_support.new");
+    } catch (e) {
+      console.warn("Falha ao notificar admins sobre ticket:", e);
+    }
+
     return ticket as SupportTicket;
   });
 
@@ -129,6 +143,23 @@ export const postMessage = createServerFn({ method: "POST" })
       .select("*")
       .single();
     if (error) throw new Error(error.message);
+
+    // Se for mensagem do CLIENTE, notificar admin
+    if (role === "client") {
+      try {
+        const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
+        const { data: ticket } = await context.supabase.from("dojo_support_tickets").select("subject").eq("id", data.ticketId).single();
+        await sendPushToAmtAdmins({
+          title: "Nova mensagem de suporte",
+          body: `${ticket?.subject ?? "Suporte"}: ${data.body.slice(0, 100)}...`,
+          url: `/admin/atendimento/suporte?id=${data.ticketId}`,
+          tag: `ticket-msg-${data.ticketId}`,
+        }, "dojo_support.new");
+      } catch (e) {
+        console.warn("Falha ao notificar admins sobre mensagem:", e);
+      }
+    }
+
     return msg as SupportMessage;
   });
 
