@@ -19,10 +19,10 @@ export function PerformanceRadar({ data }: { data: DimensionScore[] }) {
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-          <PolarGrid stroke="rgba(255,255,255,0.1)" />
+          <PolarGrid stroke="rgba(0,0,0,0.1)" />
           <PolarAngleAxis
             dataKey="name"
-            tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 10, fontWeight: 600 }}
+            tick={{ fill: "#000000", fontSize: 10, fontWeight: 700 }}
           />
           <PolarRadiusAxis
             angle={30}
