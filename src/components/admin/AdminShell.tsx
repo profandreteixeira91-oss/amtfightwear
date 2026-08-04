@@ -152,6 +152,7 @@ const NAV: NavGroup[] = [
       { title: "Macro / Segmentos", url: "/admin/leads/macro", icon: TrendingUp },
       { title: "CRM Unificado", url: "/admin/crm", icon: Users },
       { title: "Atendimento", url: "/admin/atendimento", icon: MessageCircle },
+      { title: "Suporte Dojo Manager", url: "/admin/atendimento/suporte", icon: LifeBuoy },
     ],
   },
   {
