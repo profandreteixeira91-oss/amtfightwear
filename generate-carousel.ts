@@ -3,7 +3,7 @@ import { openrouterChat } from "./src/lib/ai-gateway.server.ts";
 import fs from "fs";
 import path from "path";
 
-const IMAGE_MODEL = "deepseek/deepseek-chat";
+const IMAGE_MODEL = "openai/dall-e-3";
 const OUTPUT_DIR = "public/ads/carousel";
 
 const concepts = [
@@ -56,8 +56,9 @@ async function generateAndSave() {
         },
         body: JSON.stringify({
           model: IMAGE_MODEL,
-          max_tokens: 1000,
-          messages: [{ role: "user", content: concept.prompt }]
+          messages: [{ role: "user", content: concept.prompt }],
+          max_tokens: 100
+
 
 
 
