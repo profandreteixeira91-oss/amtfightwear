@@ -158,6 +158,9 @@ const emptyForm: StudentForm = {
   terms_accepted: false,
   anamnesis: {},
   modalities: [],
+  unit_id: null,
+  current_belt_id: null,
+  current_degree: 0,
 };
 
 function StudentsPage() {
