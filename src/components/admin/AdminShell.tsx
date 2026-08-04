@@ -103,7 +103,7 @@ export function AdminShell({
   return (
     <OwnerOnly>
       <SidebarProvider defaultOpen>
-        <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background">
+        <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground">
           <AdminSidebar />
           <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
             <AdminTopbar title={title} />
@@ -647,7 +647,12 @@ function AdminSidebar() {
           asChild
           isActive={active}
           tooltip={collapsed ? item.title : undefined}
-          className="h-9 rounded-xl"
+          className={cn(
+            "h-9 w-full rounded-xl transition-all duration-200",
+            active
+              ? "bg-primary/10 font-bold text-primary shadow-sm hover:bg-primary/15"
+              : "text-foreground/80 hover:bg-muted hover:text-foreground",
+          )}
         >
           <Link
             to={item.url}
@@ -655,23 +660,15 @@ function AdminSidebar() {
             onClick={() => {
               if (isMobile) setOpen(false);
             }}
-            className={cn(
-              "flex items-center gap-2.5 text-[13px] font-medium text-sidebar-foreground/85 transition-colors",
-              "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              active &&
-                "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
-            )}
+            className="flex items-center gap-2.5"
           >
             <item.icon
               className={cn(
-                "h-4 w-4 shrink-0 transition-colors",
-                active ? "text-primary" : "text-muted-foreground",
+                "h-[18px] w-[18px] shrink-0 transition-transform group-hover:scale-110",
+                active ? "text-primary" : "text-foreground/60 group-hover:text-foreground",
               )}
             />
-            {!collapsed && <span className="truncate">{item.title}</span>}
-            {active && !collapsed ? (
-              <span className="ml-auto h-4 w-1 shrink-0 rounded-full bg-primary" />
-            ) : null}
+            {!collapsed && <span className="truncate text-sm tracking-tight">{item.title}</span>}
           </Link>
         </SidebarMenuButton>
         {!collapsed ? (
@@ -694,32 +691,33 @@ function AdminSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="admin-sidebar border-r border-border"
+      className="admin-sidebar border-r"
+      data-admin="true"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <SidebarHeader className="border-b border-border/70 px-3 py-3">
-        <Link to="/admin" className="flex items-center gap-2.5 rounded-xl px-1 py-1">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-sm">
+      <SidebarHeader className="border-b bg-background/50 p-3 backdrop-blur-sm">
+        <Link to="/admin" className="flex items-center gap-2.5 rounded-xl px-1 py-1 transition-opacity hover:opacity-80">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
             <Sparkles className="h-4 w-4" />
           </span>
           {!collapsed && (
             <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold tracking-tight text-foreground">
+              <span className="block truncate text-sm font-black uppercase tracking-tight text-foreground">
                 Central AMT
               </span>
-              <span className="block truncate text-[11px] text-muted-foreground">
-                Ecossistema administrativo
+              <span className="block truncate text-[10px] font-semibold text-muted-foreground/80">
+                Administração Global
               </span>
             </span>
           )}
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="gap-0 px-2 py-2">
+      <SidebarContent className="gap-0 bg-background px-2 py-2">
         {favorites.length && !collapsed ? (
           <SidebarGroup className="px-0">
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <SidebarGroupLabel className="px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
               Favoritos
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -735,7 +733,7 @@ function AdminSidebar() {
 
         {recents.length > 1 && !collapsed ? (
           <SidebarGroup className="px-0">
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <SidebarGroupLabel className="px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
               Recentes
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -752,9 +750,9 @@ function AdminSidebar() {
 
         {NAV.map((group, gi) => (
           <SidebarGroup key={group.label} className="px-0">
-            {gi > 0 ? <div className="mx-2 my-1.5 h-px bg-border/70" /> : null}
+            {gi > 0 ? <div className="mx-2 my-1.5 h-px bg-border/40" /> : null}
             {!collapsed && (
-              <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              <SidebarGroupLabel className="px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
                 {group.label}
               </SidebarGroupLabel>
             )}
@@ -765,7 +763,7 @@ function AdminSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border/70 p-2">
+      <SidebarFooter className="border-t bg-background/50 p-2 backdrop-blur-sm">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
