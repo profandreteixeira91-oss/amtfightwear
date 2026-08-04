@@ -3,7 +3,7 @@ import { openrouterChat } from "./src/lib/ai-gateway.server.ts";
 import fs from "fs";
 import path from "path";
 
-const IMAGE_MODEL = "openai/gpt-4o-mini";
+const IMAGE_MODEL = "openai/dall-e-3";
 const OUTPUT_DIR = "public/ads/carousel";
 
 const concepts = [
@@ -46,15 +46,18 @@ async function generateAndSave() {
       
       // OpenRouter para imagens geralmente usa a mesma interface de chat ou endpoints específicos.
       // DALL-E 3 via OpenRouter é chamado como um modelo de chat que retorna a URL da imagem no conteúdo ou metadados.
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const response = await fetch("https://api.openai.com/v1/images/generations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${key}`,
+          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`, // Se a chave for da OpenAI, vai funcionar direto
         },
         body: JSON.stringify({
           model: IMAGE_MODEL,
-          messages: [{ role: "user", content: concept.prompt }]
+          prompt: concept.prompt,
+          n: 1,
+          size: "1024x1024"
+
         }),
       });
 
@@ -67,7 +70,8 @@ async function generateAndSave() {
       }
 
       const data = await response.json();
-      const imageUrl = data.choices?.[0]?.message?.content?.match(/https:\/\/\S+/)?.[0];
+      const imageUrl = data.data?.[0]?.url;
+
 
 
       if (!imageUrl || !imageUrl.startsWith("http")) {
