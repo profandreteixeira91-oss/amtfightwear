@@ -308,6 +308,7 @@ import { Route as AuthenticatedAdminAdsPublicosRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminAdsPixelRouteImport } from './routes/_authenticated/admin.ads.pixel'
 import { Route as AuthenticatedAdminAdsMidiasRouteImport } from './routes/_authenticated/admin.ads.midias'
 import { Route as AuthenticatedAdminAdsHistoricoRouteImport } from './routes/_authenticated/admin.ads.historico'
+import { Route as AuthenticatedAdminAdsGeradorIaRouteImport } from './routes/_authenticated/admin.ads.gerador-ia'
 import { Route as AuthenticatedAdminAdsCriativosRouteImport } from './routes/_authenticated/admin.ads.criativos'
 import { Route as AuthenticatedAdminAdsConjuntosRouteImport } from './routes/_authenticated/admin.ads.conjuntos'
 import { Route as AuthenticatedAdminAdsCampanhasRouteImport } from './routes/_authenticated/admin.ads.campanhas'
@@ -1958,6 +1959,12 @@ const AuthenticatedAdminAdsHistoricoRoute =
     path: '/historico',
     getParentRoute: () => AuthenticatedAdminAdsRoute,
   } as any)
+const AuthenticatedAdminAdsGeradorIaRoute =
+  AuthenticatedAdminAdsGeradorIaRouteImport.update({
+    id: '/gerador-ia',
+    path: '/gerador-ia',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
 const AuthenticatedAdminAdsCriativosRoute =
   AuthenticatedAdminAdsCriativosRouteImport.update({
     id: '/criativos',
@@ -2257,6 +2264,7 @@ export interface FileRoutesByFullPath {
   '/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
+  '/admin/ads/gerador-ia': typeof AuthenticatedAdminAdsGeradorIaRoute
   '/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
   '/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
@@ -2556,6 +2564,7 @@ export interface FileRoutesByTo {
   '/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
+  '/admin/ads/gerador-ia': typeof AuthenticatedAdminAdsGeradorIaRoute
   '/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
   '/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
@@ -2874,6 +2883,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/_authenticated/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
   '/_authenticated/admin/ads/criativos': typeof AuthenticatedAdminAdsCriativosRoute
+  '/_authenticated/admin/ads/gerador-ia': typeof AuthenticatedAdminAdsGeradorIaRoute
   '/_authenticated/admin/ads/historico': typeof AuthenticatedAdminAdsHistoricoRoute
   '/_authenticated/admin/ads/midias': typeof AuthenticatedAdminAdsMidiasRoute
   '/_authenticated/admin/ads/pixel': typeof AuthenticatedAdminAdsPixelRoute
@@ -3193,6 +3203,7 @@ export interface FileRouteTypes {
     | '/admin/ads/campanhas'
     | '/admin/ads/conjuntos'
     | '/admin/ads/criativos'
+    | '/admin/ads/gerador-ia'
     | '/admin/ads/historico'
     | '/admin/ads/midias'
     | '/admin/ads/pixel'
@@ -3492,6 +3503,7 @@ export interface FileRouteTypes {
     | '/admin/ads/campanhas'
     | '/admin/ads/conjuntos'
     | '/admin/ads/criativos'
+    | '/admin/ads/gerador-ia'
     | '/admin/ads/historico'
     | '/admin/ads/midias'
     | '/admin/ads/pixel'
@@ -3809,6 +3821,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/ads/campanhas'
     | '/_authenticated/admin/ads/conjuntos'
     | '/_authenticated/admin/ads/criativos'
+    | '/_authenticated/admin/ads/gerador-ia'
     | '/_authenticated/admin/ads/historico'
     | '/_authenticated/admin/ads/midias'
     | '/_authenticated/admin/ads/pixel'
@@ -6099,6 +6112,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdsHistoricoRouteImport
       parentRoute: typeof AuthenticatedAdminAdsRoute
     }
+    '/_authenticated/admin/ads/gerador-ia': {
+      id: '/_authenticated/admin/ads/gerador-ia'
+      path: '/gerador-ia'
+      fullPath: '/admin/ads/gerador-ia'
+      preLoaderRoute: typeof AuthenticatedAdminAdsGeradorIaRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
     '/_authenticated/admin/ads/criativos': {
       id: '/_authenticated/admin/ads/criativos'
       path: '/criativos'
@@ -6233,6 +6253,7 @@ interface AuthenticatedAdminAdsRouteChildren {
   AuthenticatedAdminAdsCampanhasRoute: typeof AuthenticatedAdminAdsCampanhasRoute
   AuthenticatedAdminAdsConjuntosRoute: typeof AuthenticatedAdminAdsConjuntosRoute
   AuthenticatedAdminAdsCriativosRoute: typeof AuthenticatedAdminAdsCriativosRoute
+  AuthenticatedAdminAdsGeradorIaRoute: typeof AuthenticatedAdminAdsGeradorIaRoute
   AuthenticatedAdminAdsHistoricoRoute: typeof AuthenticatedAdminAdsHistoricoRoute
   AuthenticatedAdminAdsMidiasRoute: typeof AuthenticatedAdminAdsMidiasRoute
   AuthenticatedAdminAdsPixelRoute: typeof AuthenticatedAdminAdsPixelRoute
@@ -6246,6 +6267,7 @@ const AuthenticatedAdminAdsRouteChildren: AuthenticatedAdminAdsRouteChildren = {
   AuthenticatedAdminAdsCampanhasRoute: AuthenticatedAdminAdsCampanhasRoute,
   AuthenticatedAdminAdsConjuntosRoute: AuthenticatedAdminAdsConjuntosRoute,
   AuthenticatedAdminAdsCriativosRoute: AuthenticatedAdminAdsCriativosRoute,
+  AuthenticatedAdminAdsGeradorIaRoute: AuthenticatedAdminAdsGeradorIaRoute,
   AuthenticatedAdminAdsHistoricoRoute: AuthenticatedAdminAdsHistoricoRoute,
   AuthenticatedAdminAdsMidiasRoute: AuthenticatedAdminAdsMidiasRoute,
   AuthenticatedAdminAdsPixelRoute: AuthenticatedAdminAdsPixelRoute,
