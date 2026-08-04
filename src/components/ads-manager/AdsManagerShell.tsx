@@ -17,6 +17,7 @@ import {
   Target,
   Users,
   History,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +45,7 @@ const NAV: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/ads/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/admin/ads/pixel", label: "Pixel", icon: Crosshair },
   { to: "/admin/ads/historico", label: "Histórico", icon: History },
+  { to: "/admin/ads/gerador-ia", label: "Gerador Criativo", icon: Wand2 },
   { to: "/admin/ads/configuracoes", label: "Configurações", icon: Settings },
 ];
 
