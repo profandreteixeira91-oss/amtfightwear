@@ -270,7 +270,47 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       })
       .select()
       .single();
+    const { data: order, error } = await supabaseAdmin
+      .from("store_orders")
+      .insert({
+        user_id: context.userId ?? data.user_id ?? null,
+        customer_email: data.customer_email,
+        customer_name: data.customer_name,
+        customer_phone: data.customer_phone,
+        customer_document: data.customer_document,
+        shipping_address: data.shipping_address,
+        subtotal,
+        shipping_cost: 0,
+        discount,
+        total,
+        notes: data.notes,
+        status: "pending_payment",
+        payment_status: "pending",
+        max_production_days: 10,
+        metadata: {
+          wholesale: true,
+          default_discount_percent: DEFAULT_PCT,
+          min_qty_per_subcategory: MIN_QTY,
+          label_logo: data.label_logo ?? null,
+          subtotal_original: subtotalOriginal,
+        },
+      })
+      .select()
+      .single();
     if (error || !order) throw new Error(error?.message ?? "Erro ao criar pedido");
+
+    // Notificar admins sobre o novo pedido de ATACADO
+    try {
+      const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
+      await sendPushToAmtAdmins({
+        title: "Novo Pedido de Atacado",
+        body: `${order.customer_name}: R$ ${order.total.toFixed(2)} (Aguardando pagamento)`,
+        url: `/admin/pedidos?id=${order.id}`,
+        tag: `order-new-${order.id}`,
+      }, "store_order.new");
+    } catch (e) {
+      console.warn("Falha ao notificar admin sobre novo pedido atacado:", e);
+    }
 
     const insertPayload = orderItems.map((oi) => ({ ...oi, order_id: order.id })) as never;
     const { error: itemsErr } = await supabaseAdmin.from("store_order_items").insert(insertPayload);
