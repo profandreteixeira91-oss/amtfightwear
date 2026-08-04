@@ -56,8 +56,9 @@ async function generateAndSave() {
         },
         body: JSON.stringify({
           model: IMAGE_MODEL,
-          max_tokens: 100,
+          max_tokens: 1000,
           messages: [{ role: "user", content: concept.prompt }]
+
 
 
 
