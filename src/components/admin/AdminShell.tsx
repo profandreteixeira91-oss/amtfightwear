@@ -159,6 +159,7 @@ const NAV: NavGroup[] = [
     label: "Ads & Instagram",
     items: [
       { title: "Ads Dashboard", url: "/admin/anuncios", icon: Megaphone },
+      { title: "Gerenciador de Anúncios", url: "/admin/ads", icon: Target },
       { title: "Criativos & Copys", url: "/admin/anuncios/criativos", icon: ImageIcon },
       { title: "Automações", url: "/admin/instagram/automacoes", icon: Sparkles },
       { title: "IG Inbox / CRM", url: "/admin/instagram/inbox", icon: Instagram },
