@@ -50,7 +50,7 @@ async function generateAndSave() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`, // Se a chave for da OpenAI, vai funcionar direto
+          "Authorization": `Bearer ${key}`,
         },
         body: JSON.stringify({
           model: IMAGE_MODEL,
