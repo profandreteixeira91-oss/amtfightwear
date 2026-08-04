@@ -144,8 +144,9 @@ const listInput = z.object({
   ids: z.array(z.string().uuid()).max(500).optional(),
   limit: z.number().int().min(1).max(500).default(50),
   offset: z.number().int().min(0).default(0),
-  orderBy: z.enum(["created_at","score","name","last_contacted_at"]).default("created_at"),
-  orderDir: z.enum(["asc","desc"]).default("desc"),
+  orderBy: z.enum(["created_at", "score", "name", "last_contacted_at", "state", "city"]).default("created_at"),
+  orderDir: z.enum(["asc", "desc"]).default("desc"),
+  groupByState: z.boolean().optional(),
 });
 
 export const listLeads = createServerFn({ method: "POST" })
