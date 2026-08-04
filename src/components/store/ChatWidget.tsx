@@ -38,6 +38,7 @@ export type ChatWidgetProps = {
   buttonLabel?: string;
   headerTitle?: string;
   greeting?: string;
+  autoRequestInfo?: boolean;
 };
 
 export function ChatWidget(props: ChatWidgetProps = {}) {
@@ -48,7 +49,8 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
   const headerTitle = props.headerTitle ?? "Atendimento AMT";
   const greeting =
     props.greeting ??
-    "Olá! Sou o assistente da AMT Fight Wear. Como posso ajudar? Posso indicar produtos, tirar dúvidas sobre tamanhos, frete e pagamento. Se preferir, clique em \"Falar com atendente\" a qualquer momento. 🥋";
+    "Olá! Bem-vindo à AMT Fight Wear. Como posso ajudar você hoje? 🥋";
+  const autoRequestInfo = props.autoRequestInfo ?? true;
   const externalId = useMemo(() => getExternalId(storageKey, externalIdPrefix), [storageKey, externalIdPrefix]);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -56,6 +58,8 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<"active" | "human" | "closed">("active");
   const [hasUnread, setHasUnread] = useState(false);
+  const [showInfoForm, setShowInfoForm] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const lastSeenRef = useRef<string | null>(null);
 
@@ -74,8 +78,14 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
         created_at: new Date().toISOString(),
       };
       setMessages([greet]);
+
+      if (autoRequestInfo) {
+        setTimeout(() => {
+          setShowInfoForm(true);
+        }, 1500);
+      }
     }
-  }, [storageMsgs, greeting]);
+  }, [storageMsgs, greeting, autoRequestInfo]);
 
   useEffect(() => {
     saveCached(storageMsgs, messages);
@@ -133,11 +143,12 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
     if (open) setHasUnread(false);
   }, [open]);
 
-  async function send() {
-    const text = input.trim();
+  async function send(customText?: string, customData?: typeof formData) {
+    const text = customText ?? input.trim();
     if (!text || sending) return;
     setSending(true);
-    setInput("");
+    if (!customText) setInput("");
+    
     const userMsg: Msg = {
       id: `local-${Date.now()}`,
       role: "user",
@@ -147,10 +158,17 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
     setMessages((prev) => [...prev, userMsg]);
 
     try {
+      const body: any = { channel: "web", external_id: externalId, message: text };
+      if (customData) {
+        body.customer_name = customData.name;
+        body.customer_email = customData.email;
+        body.customer_phone = customData.phone;
+      }
+
       const res = await fetch("/api/public/sales/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ channel: "web", external_id: externalId, message: text }),
+        body: JSON.stringify(body),
       });
 
       const mode = res.headers.get("X-Mode");
@@ -261,7 +279,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
             </button>
           </div>
 
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-muted/30 p-3">
+          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-muted/30 p-3 pb-6">
             {messages.map((m) => {
               if (m.role === "system") {
                 return (
@@ -297,6 +315,49 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
                 </div>
               );
             })}
+            {showInfoForm && (
+              <div className="mx-auto mt-4 w-[90%] space-y-3 rounded-xl border border-primary/20 bg-background p-4 shadow-md">
+                <p className="text-center text-xs font-semibold text-foreground">
+                  Para facilitar seu atendimento, preencha seus dados:
+                </p>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    placeholder="Nome completo"
+                    className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Seu melhor e-mail"
+                    className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Celular / WhatsApp"
+                    className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (formData.name && formData.email) {
+                      setShowInfoForm(false);
+                      void send("Olá, acabei de preencher meus dados para o atendimento.", formData);
+                    }
+                  }}
+                  disabled={!formData.name || !formData.email}
+                  className="w-full rounded-md bg-primary py-2 text-sm font-bold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50"
+                >
+                  Confirmar Dados
+                </button>
+              </div>
+            )}
             {sending && (
               <div className="text-center text-[11px] text-muted-foreground">enviando…</div>
             )}
