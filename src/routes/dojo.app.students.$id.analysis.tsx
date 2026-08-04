@@ -60,12 +60,10 @@ function age(birth?: string | null) {
 }
 
 const BREAKDOWN_LABELS: Record<string, { label: string; icon: any }> = {
-  frequencia: { label: "Frequência", icon: CalendarDays },
-  assiduidade: { label: "Assiduidade", icon: Flame },
+  frequencia: { label: "Frequência e Assiduidade", icon: CalendarDays },
   avaliacoes: { label: "Avaliações", icon: Target },
   graduacoes: { label: "Graduações", icon: GraduationCap },
   competicoes: { label: "Competições", icon: Trophy },
-  eventos: { label: "Eventos", icon: Zap },
 };
 
 function AnalysisPage() {
@@ -189,7 +187,7 @@ function AnalysisPage() {
 
       {/* Score radial + insights + breakdown */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <SectionCard title="Índice Geral" description="Score composto de 6 dimensões">
+        <SectionCard title="Índice Geral" description="Score composto de 4 dimensões">
           {score.isLoading ? (
             <Skeleton className="h-56 w-full" />
           ) : score.data ? (
@@ -205,8 +203,9 @@ function AnalysisPage() {
               {Object.entries(score.data.breakdown).map(([k, v]) => {
                 const meta = BREAKDOWN_LABELS[k] ?? { label: k, icon: Activity };
                 const Icon = meta.icon;
-                const val = Number(v);
-                const color = val >= 80 ? "bg-emerald-500" : val >= 60 ? "bg-primary" : val >= 40 ? "bg-amber-500" : "bg-destructive";
+                const displayVal = Number(v);
+                const progressVal = Number((score.data as any).breakdownScores?.[k] ?? v);
+                const color = progressVal >= 80 ? "bg-emerald-500" : progressVal >= 60 ? "bg-primary" : progressVal >= 40 ? "bg-amber-500" : "bg-destructive";
                 return (
                   <div key={k}>
                     <div className="mb-2 flex items-center justify-between text-sm">
@@ -214,10 +213,13 @@ function AnalysisPage() {
                         <Icon className="h-4 w-4 text-muted-foreground" />
                         {meta.label}
                       </span>
-                      <span className="tabular-nums text-muted-foreground">{val}<span className="text-xs">/100</span></span>
+                      <span className="tabular-nums text-muted-foreground">
+                        {displayVal}
+                        {k !== 'graduacoes' && <span className="text-xs">/100</span>}
+                      </span>
                     </div>
                     <div className="h-2.5 overflow-hidden rounded-full bg-muted">
-                      <div className={`h-full ${color} transition-all`} style={{ width: `${Math.min(100, val)}%` }} />
+                      <div className={`h-full ${color} transition-all`} style={{ width: `${Math.min(100, progressVal)}%` }} />
                     </div>
                   </div>
                 );

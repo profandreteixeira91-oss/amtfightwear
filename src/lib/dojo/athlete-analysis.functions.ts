@@ -191,47 +191,48 @@ export const getAthletePerformanceScore = createServerFn({ method: "GET" })
     const since90 = new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString();
     const since30 = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
 
-    const [attRes, evalRes, gradRes, compRes] = await Promise.all([
+    const [attRes, evalRes, gradRes, compRes, studentClasses] = await Promise.all([
       supabase.from("dojo_attendance").select("checked_in_at, status").eq("student_id", data.studentId).gte("checked_in_at", since90),
       supabase.from("dojo_eval_sessions").select("percentage, finished_at").eq("student_id", data.studentId).not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(5),
       supabase.from("dojo_graduations").select("graduation_date").eq("student_id", data.studentId).order("graduation_date", { ascending: false }),
       supabase.from("academy_competition_results").select("medal, wins, losses").eq("owner_id", (await supabase.from("dojo_students").select("owner_id").eq("id", data.studentId).maybeSingle()).data?.owner_id ?? "00000000-0000-0000-0000-000000000000"),
+      supabase.from("dojo_class_students").select("class_id, dojo_classes(occurrences)").eq("student_id", data.studentId),
     ]);
 
-    // 1) Frequência (30%): meta = 3x/semana * 12 semanas ≈ 36
-    const presents = (attRes.data ?? []).filter((r: any) => isPresentStatus(r.status)).length;
-    const freqScore = Math.min(100, (presents / 36) * 100);
+    // 1) Frequência e Assiduidade (40%): Quantidade de aulas (inscrito) x check-ins
+    const totalPresents = (attRes.data ?? []).filter((r: any) => isPresentStatus(r.status)).length;
+    
+    // Cálculo de aulas esperadas nos últimos 90 dias com base na recorrência das turmas
+    let expectedClasses = 0;
+    (studentClasses.data ?? []).forEach((sc: any) => {
+      const occurrences = (sc.dojo_classes?.occurrences ?? []) as any[];
+      expectedClasses += occurrences.length * 12; // ~12 semanas em 90 dias
+    });
+    
+    // Fallback caso não tenha turmas ou ocorrências para não dividir por zero
+    if (expectedClasses === 0) expectedClasses = 36; // 3x semana padrão
+    
+    const freqScore = Math.min(100, (totalPresents / expectedClasses) * 100);
 
-    // 2) Assiduidade (10%): dias distintos nos últimos 30d
-    const days30 = new Set((attRes.data ?? []).filter((r: any) => isPresentStatus(r.status) && r.checked_in_at >= since30).map((r: any) => localDayISO(r.checked_in_at)));
-    const streakScore = Math.min(100, (days30.size / 12) * 100);
-
-    // 3) Avaliações (20%)
+    // 2) Avaliações (30%)
     const evals = evalRes.data ?? [];
     const evalScore = evals.length ? evals.reduce((s: number, e: any) => s + Number(e.percentage || 0), 0) / evals.length : 0;
 
-    // 4) Evolução em graduações (15%): última graduação em janela razoável
-    const lastGrad = gradRes.data?.[0];
-    let gradScore = 50;
-    if (lastGrad) {
-      const monthsSince = (Date.now() - new Date(lastGrad.graduation_date).getTime()) / (1000 * 3600 * 24 * 30);
-      gradScore = monthsSince < 18 ? 90 : monthsSince < 36 ? 70 : 40;
-    }
+    // 3) Graduações (15%): Total de graduações (excluindo a branca)
+    const graduationCount = gradRes.data?.length ?? 0;
+    // Mapeamento: 1 graduação = 40, 2 = 60, 3 = 80, 4+ = 100
+    const gradScoreVal = graduationCount === 0 ? 0 : Math.min(100, 30 + (graduationCount * 20));
 
-    // 5) Competições (15%)
+    // 4) Competições (15%): Total de participações e medalhas
     const comps = compRes.data ?? [];
     const gold = comps.filter((c: any) => c.medal === "gold").length;
     const silver = comps.filter((c: any) => c.medal === "silver").length;
     const bronze = comps.filter((c: any) => c.medal === "bronze").length;
     const wins = comps.reduce((s: number, c: any) => s + Number(c.wins || 0), 0);
-    const compScore = comps.length ? Math.min(100, ((gold * 5 + silver * 3 + bronze * 2 + wins) / (comps.length + 1)) * 15) : 0;
-
-    // 6) Participação em eventos / check-ins recentes (10%)
-    const days30Set = days30.size;
-    const eventsScore = Math.min(100, (days30Set / 10) * 100);
+    const compScore = comps.length ? Math.min(100, (comps.length * 10) + (gold * 15) + (silver * 10) + (bronze * 5) + (wins * 2)) : 0;
 
     const score = Math.round(
-      freqScore * 0.30 + streakScore * 0.10 + evalScore * 0.20 + gradScore * 0.15 + compScore * 0.15 + eventsScore * 0.10,
+      freqScore * 0.40 + evalScore * 0.30 + gradScoreVal * 0.15 + compScore * 0.15
     );
 
     const label = score >= 85 ? "Excelente" : score >= 70 ? "Muito bom" : score >= 55 ? "Bom" : score >= 40 ? "Regular" : "Necessita atenção";
@@ -241,12 +242,16 @@ export const getAthletePerformanceScore = createServerFn({ method: "GET" })
       label,
       breakdown: {
         frequencia: Math.round(freqScore),
-        assiduidade: Math.round(streakScore),
         avaliacoes: Math.round(evalScore),
-        graduacoes: Math.round(gradScore),
+        graduacoes: graduationCount, // RAW COUNT para exibição
         competicoes: Math.round(compScore),
-        eventos: Math.round(eventsScore),
       },
+      breakdownScores: {
+        frequencia: Math.round(freqScore),
+        avaliacoes: Math.round(evalScore),
+        graduacoes: Math.round(gradScoreVal), // 0-100 para a barra
+        competicoes: Math.round(compScore),
+      }
     };
   });
 
