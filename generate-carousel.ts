@@ -3,7 +3,7 @@ import { openrouterChat } from "./src/lib/ai-gateway.server.ts";
 import fs from "fs";
 import path from "path";
 
-const IMAGE_MODEL = "openai/dall-e-3";
+const IMAGE_MODEL = "google/gemini-2.5-flash-image-preview";
 const OUTPUT_DIR = "public/ads/carousel";
 
 const concepts = [
@@ -46,7 +46,7 @@ async function generateAndSave() {
       
       // OpenRouter para imagens geralmente usa a mesma interface de chat ou endpoints específicos.
       // DALL-E 3 via OpenRouter é chamado como um modelo de chat que retorna a URL da imagem no conteúdo ou metadados.
-      const response = await fetch("https://openrouter.ai/api/v1/images/generations", {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,11 +54,10 @@ async function generateAndSave() {
         },
         body: JSON.stringify({
           model: IMAGE_MODEL,
-          prompt: concept.prompt,
-          n: 1,
-          size: "1024x1024"
+          messages: [{ role: "user", content: concept.prompt }]
         }),
       });
+
 
 
       if (!response.ok) {
@@ -68,7 +67,7 @@ async function generateAndSave() {
       }
 
       const data = await response.json();
-      const imageUrl = data.data?.[0]?.url;
+      const imageUrl = data.choices?.[0]?.message?.content?.match(/https:\/\/\S+/)?.[0];
 
 
       if (!imageUrl || !imageUrl.startsWith("http")) {
