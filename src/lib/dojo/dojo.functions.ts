@@ -735,7 +735,7 @@ export const saveDojoEnrollment = createServerFn({ method: "POST" })
     due_day: z.number().int().min(1).max(31),
     start_date: z.string(),
     end_date: z.string().optional().nullable(),
-    status: z.enum(["active","paused","cancelled"]).optional(),
+    status: z.enum(["active", "paused", "cancelled", "overdue"]).optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
