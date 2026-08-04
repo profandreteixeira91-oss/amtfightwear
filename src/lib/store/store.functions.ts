@@ -284,6 +284,19 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       console.warn("Falha ao notificar admin sobre novo pedido atacado:", e);
     }
 
+    // Notificar admins sobre o novo pedido de ATACADO
+    try {
+      const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
+      await sendPushToAmtAdmins({
+        title: "Novo Pedido de Atacado",
+        body: `${order.customer_name}: R$ ${order.total.toFixed(2)} (Aguardando pagamento)`,
+        url: `/admin/pedidos?id=${order.id}`,
+        tag: `order-new-${order.id}`,
+      }, "store_order.new");
+    } catch (e) {
+      console.warn("Falha ao notificar admin sobre novo pedido atacado:", e);
+    }
+
     const insertPayload = orderItems.map((oi) => ({ ...oi, order_id: order.id })) as never;
     const { error: itemsErr } = await supabaseAdmin.from("store_order_items").insert(insertPayload);
     if (itemsErr) throw new Error(itemsErr.message);
