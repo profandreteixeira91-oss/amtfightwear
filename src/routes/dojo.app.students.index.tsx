@@ -1064,7 +1064,22 @@ function StudentsPage() {
                               ))}
                             </select>
                           </div>
-                          <div className="md:col-span-5">
+                          <div className="md:col-span-3">
+                            <label className="text-[11px] text-muted-foreground">Turma</label>
+                            <select
+                              className="border rounded p-2 bg-background w-full"
+                              value={m.class_id ?? ""}
+                              onChange={(e) => update({ class_id: e.target.value || null })}
+                            >
+                              <option value="">— Sem turma —</option>
+                              {((classes.data ?? []) as any[])
+                                .filter((c) => c.modality === m.modality)
+                                .map((c) => (
+                                  <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
+                          </div>
+                          <div className="md:col-span-3">
                             <label className="text-[11px] text-muted-foreground">Graduação atual</label>
                             <select
                               className="border rounded p-2 bg-background w-full"
