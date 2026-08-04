@@ -18,7 +18,7 @@ import {
   getAthleteCompetitions, getAthleteInsights,
 } from "@/lib/dojo/athlete-analysis.functions";
 import { getMyHome } from "@/lib/student/student.functions";
-import { PerformanceGauge } from "@/components/dojo/athlete-analysis/PerformanceGauge";
+import { PerformanceRadar } from "@/components/dojo/athlete-analysis/PerformanceRadar";
 import { AttendanceHeatmap } from "@/components/dojo/athlete-analysis/AttendanceHeatmap";
 import { AttendanceMonthlyChart } from "@/components/dojo/athlete-analysis/AttendanceMonthlyChart";
 import { EvaluationTrendChart } from "@/components/dojo/athlete-analysis/EvaluationTrendChart";
@@ -171,7 +171,7 @@ function StudentPerformancePage() {
       {/* Gauge + breakdown */}
       <div className="grid min-w-0 gap-4 lg:grid-cols-3">
         <SectionCard title="Índice Geral" description="Score composto de 6 dimensões">
-          {score.isLoading ? <Skeleton className="h-56" /> : score.data ? <PerformanceGauge score={score.data.score} label={score.data.label} /> : null}
+          {score.isLoading ? <Skeleton className="h-56" /> : score.data ? <PerformanceRadar data={Object.entries((score.data as any).breakdownScores ?? score.data.breakdown).map(([k, v]) => ({ name: k, value: Number(v) }))} /> : null}
         </SectionCard>
         <SectionCard title="Decomposição do Score" description="Contribuição por dimensão" className="lg:col-span-2">
           {score.isLoading ? (

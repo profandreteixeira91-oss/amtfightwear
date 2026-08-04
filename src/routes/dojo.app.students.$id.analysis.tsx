@@ -23,7 +23,6 @@ import {
   getAthleteCompetitions, getAthleteVideos, getAthleteInsights,
   compareAthletes, listAthletesForCompare,
 } from "@/lib/dojo/athlete-analysis.functions";
-import { PerformanceGauge } from "@/components/dojo/athlete-analysis/PerformanceGauge";
 import { AttendanceHeatmap } from "@/components/dojo/athlete-analysis/AttendanceHeatmap";
 import { AttendanceMonthlyChart } from "@/components/dojo/athlete-analysis/AttendanceMonthlyChart";
 import { EvaluationTrendChart } from "@/components/dojo/athlete-analysis/EvaluationTrendChart";
