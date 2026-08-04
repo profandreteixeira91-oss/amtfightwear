@@ -225,6 +225,7 @@ export function ClassStudentsDialog({
               )}
             </div>
           </section>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
