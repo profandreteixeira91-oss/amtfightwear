@@ -171,7 +171,7 @@ function StudentPerformancePage() {
       {/* Gauge + breakdown */}
       <div className="grid min-w-0 gap-4 lg:grid-cols-3">
         <SectionCard title="Índice Geral" description="Score composto de 6 dimensões">
-          {score.isLoading ? <Skeleton className="h-56" /> : score.data ? <PerformanceRadar data={Object.entries((score.data as any).breakdownScores ?? score.data.breakdown).map(([k, v]) => ({ name: k, value: Number(v) }))} /> : null}
+          {score.isLoading ? <Skeleton className="h-56" /> : score.data ? <PerformanceRadar data={Object.entries((score.data as any).breakdownScores ?? score.data.breakdown).map(([k, v]) => ({ name: BREAKDOWN_LABELS[k]?.label ?? k, value: Number(v) }))} /> : null}
         </SectionCard>
         <SectionCard title="Decomposição do Score" description="Contribuição por dimensão" className="lg:col-span-2">
           {score.isLoading ? (
