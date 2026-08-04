@@ -30,6 +30,7 @@ import { EvaluationTrendChart } from "@/components/dojo/athlete-analysis/Evaluat
 import { MedalsBreakdown } from "@/components/dojo/athlete-analysis/MedalsBreakdown";
 import { CompareRadar } from "@/components/dojo/athlete-analysis/CompareRadar";
 import { TechnicalTab } from "@/components/dojo/athlete-analysis/TechnicalTab";
+import { PerformanceRadar } from "@/components/dojo/athlete-analysis/PerformanceRadar";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
 import { FightVideosTab } from "@/components/dojo/athlete-analysis/FightVideosTab";
 import { GoalsTab } from "@/components/dojo/athlete-analysis/GoalsTab";
@@ -187,11 +188,16 @@ function AnalysisPage() {
 
       {/* Score radial + insights + breakdown */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <SectionCard title="Índice Geral" description="Score composto de 4 dimensões">
+        <SectionCard title="Dimensões de Performance" description="Avaliação gráfica por categoria">
           {score.isLoading ? (
             <Skeleton className="h-56 w-full" />
           ) : score.data ? (
-            <PerformanceGauge score={score.data.score} label={score.data.label} />
+            <PerformanceRadar 
+              data={Object.entries(score.data.breakdownScores).map(([k, v]) => ({
+                name: BREAKDOWN_LABELS[k]?.label?.split(' ')[0] ?? k,
+                value: Number(v)
+              }))} 
+            />
           ) : null}
         </SectionCard>
 
