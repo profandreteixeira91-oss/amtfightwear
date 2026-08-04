@@ -171,7 +171,6 @@ function DashboardPanel() {
   const q = useQuery({
     queryKey: ["dojo-checkin-dashboard"],
     queryFn: () => dashboard(),
-    refetchInterval: 15000,
   });
 
   const d = q.data;
@@ -280,7 +279,7 @@ function KioskPanel() {
 
   const settingsQ = useQuery({ queryKey: ["dojo-checkin-settings"], queryFn: () => settingsFn() });
   const unitsQ = useQuery({ queryKey: ["dojo-units"], queryFn: () => listUnits() });
-  const dashQ = useQuery({ queryKey: ["dojo-checkin-dashboard"], queryFn: () => dashFn(), refetchInterval: 20000 });
+  const dashQ = useQuery({ queryKey: ["dojo-checkin-dashboard"], queryFn: () => dashFn() });
 
   const welcomeTpl = settingsQ.data?.welcome_message || "Bem-vindo, {{name}}! Bom treino 🥋";
   const activeUnit = (unitsQ.data ?? []).find((u: any) => u.id === unitId);
@@ -986,7 +985,7 @@ function PresentPanel() {
   const listFn = useServerFn(presentNowList);
   const checkoutFn = useServerFn(checkoutAttendance);
   const qc = useQueryClient();
-  const q = useQuery({ queryKey: ["dojo-present"], queryFn: () => listFn(), refetchInterval: 30000 });
+  const q = useQuery({ queryKey: ["dojo-present"], queryFn: () => listFn() });
 
   async function doCheckout(id: string) {
     try {
