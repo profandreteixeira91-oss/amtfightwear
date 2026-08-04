@@ -552,6 +552,8 @@ function StudentsPage() {
       qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
       qc.invalidateQueries({ queryKey: ["dojo-student"] });
       qc.invalidateQueries({ queryKey: ["dojo-graduations"] });
+      qc.invalidateQueries({ queryKey: ["dojo-classes"] });
+      qc.invalidateQueries({ queryKey: ["dojo-occurrences"] });
     } catch (e: any) {
       toast.error("Erro ao salvar", { description: e.message });
     }
