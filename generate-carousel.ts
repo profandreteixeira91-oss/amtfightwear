@@ -3,7 +3,7 @@ import { openrouterChat } from "./src/lib/ai-gateway.server.ts";
 import fs from "fs";
 import path from "path";
 
-const IMAGE_MODEL = "openai/dall-e-3";
+const IMAGE_MODEL = "openai/gpt-4o";
 const OUTPUT_DIR = "public/ads/carousel";
 
 const concepts = [
