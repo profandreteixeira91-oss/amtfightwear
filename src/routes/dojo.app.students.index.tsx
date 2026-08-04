@@ -14,6 +14,7 @@ import {
   bulkImportDojoStudents,
   addDojoGraduation,
 } from "@/lib/dojo/dojo.functions";
+import { addClassStudent, listClasses } from "@/lib/dojo/schedule.functions";
 import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
@@ -90,7 +91,7 @@ type StudentForm = {
   unit_id: string | null;
   current_belt_id: string | null;
   current_degree: number | string;
-  modalities: Array<{ modality: string; belt_id: string; degree: number }>;
+  modalities: Array<{ modality: string; belt_id: string; degree: number; class_id?: string | null }>;
   status: "active" | "inactive" | "frozen";
   notes: string;
   photo_url: string | null;
@@ -170,6 +171,8 @@ function StudentsPage() {
   const enrollFn = useServerFn(enrollStudentWithPlan);
   const bulkImportFn = useServerFn(bulkImportDojoStudents);
   const addGradFn = useServerFn(addDojoGraduation);
+  const listClassesFn = useServerFn(listClasses);
+  const addClassStudentFn = useServerFn(addClassStudent);
   const { data: branding } = useDojoBranding();
   const [importOpen, setImportOpen] = useState(false);
   const [importRows, setImportRows] = useState<ParsedStudentRow[]>([]);
@@ -181,6 +184,7 @@ function StudentsPage() {
   const [beltFilter, setBeltFilter] = useState("all");
   const [unitFilter, setUnitFilter] = useState("all");
   const [cityFilter, setCityFilter] = useState("");
+  const classes = useQuery({ queryKey: ["dojo-classes"], queryFn: () => listClassesFn() });
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
   const [open, setOpen] = useState(false);
@@ -419,6 +423,18 @@ function StudentsPage() {
       // Registrar no histórico de graduações tudo que foi adicionado/alterado
       // nesta janela (funciona tanto no cadastro quanto na edição).
       if (studentId) {
+        // --- Registrar na Turma ---
+        for (const m of validMods) {
+          if (m.class_id) {
+            try {
+              await addClassStudentFn({ data: { class_id: m.class_id, student_id: studentId } });
+            } catch (e: any) {
+              console.error("Erro ao matricular na turma:", e);
+              // Não bloqueia o resto do salvamento
+            }
+          }
+        }
+        
         const before = new Set(initialModsRef.current);
         const toRegister = validMods.filter((m) => !before.has(`${m.belt_id}:${Number(m.degree ?? 0)}`));
         const today = todayISO();
@@ -536,6 +552,8 @@ function StudentsPage() {
       qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
       qc.invalidateQueries({ queryKey: ["dojo-student"] });
       qc.invalidateQueries({ queryKey: ["dojo-graduations"] });
+      qc.invalidateQueries({ queryKey: ["dojo-classes"] });
+      qc.invalidateQueries({ queryKey: ["dojo-occurrences"] });
     } catch (e: any) {
       toast.error("Erro ao salvar", { description: e.message });
     }
@@ -1048,7 +1066,22 @@ function StudentsPage() {
                               ))}
                             </select>
                           </div>
-                          <div className="md:col-span-5">
+                          <div className="md:col-span-3">
+                            <label className="text-[11px] text-muted-foreground">Turma</label>
+                            <select
+                              className="border rounded p-2 bg-background w-full"
+                              value={m.class_id ?? ""}
+                              onChange={(e) => update({ class_id: e.target.value || null })}
+                            >
+                              <option value="">— Sem turma —</option>
+                              {((classes.data ?? []) as any[])
+                                .filter((c) => c.modality === m.modality)
+                                .map((c) => (
+                                  <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
+                          </div>
+                          <div className="md:col-span-3">
                             <label className="text-[11px] text-muted-foreground">Graduação atual</label>
                             <select
                               className="border rounded p-2 bg-background w-full"
