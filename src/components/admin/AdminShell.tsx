@@ -138,6 +138,7 @@ const NAV: NavGroup[] = [
     label: "Geral",
     items: [
       { title: "Início", url: "/admin", icon: LayoutDashboard },
+      { title: "Clientes (Loja)", url: "/admin/clientes", icon: UserSquare2 },
       { title: "Visão Geral SaaS", url: "/admin/dojo", icon: Building2 },
       { title: "Analytics Global", url: "/admin/dashboard", icon: TrendingUp },
     ],
