@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://preview--bright-spark-echo.lovable.app/dojo/app/classes aplique o filtro por inicial na vertical ao lado direito dos nomes dos alunos, similar a uma lista de contatos (agenda)
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://preview--bright-spark-echo.lovable.app/dojo/app/classes o filtro de iniciais deve sempre aparecer de A a Z, sem cortar nenhuma letra durante a rolagem
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";

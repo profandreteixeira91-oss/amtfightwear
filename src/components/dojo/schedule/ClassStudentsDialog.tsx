@@ -203,33 +203,35 @@ export function ClassStudentsDialog({
                 </div>
 
                 {/* Alphabet Sidebar */}
-                <div className="absolute right-0 top-0 bottom-0 w-8 flex flex-col items-center justify-center bg-background/40 backdrop-blur-sm border-l border-border/20 py-2 select-none overflow-y-auto">
-                  <button
-                    onClick={() => setInitialFilter(null)}
-                    className={`w-full text-[9px] font-black py-1 transition-colors ${
-                      initialFilter === null 
-                        ? "text-primary bg-primary/10" 
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    TUDO
-                  </button>
-                  {alphabet.map((letter) => (
+                <div className="absolute right-0 top-0 bottom-0 w-8 flex flex-col bg-background/40 backdrop-blur-sm border-l border-border/20 py-2 select-none overflow-y-auto scrollbar-none z-10">
+                  <div className="flex flex-col items-center min-h-full">
                     <button
-                      key={letter}
-                      onClick={() => {
-                        setInitialFilter(letter === initialFilter ? null : letter);
-                        setTerm("");
-                      }}
-                      className={`w-full text-[10px] font-bold py-0.5 transition-colors ${
-                        initialFilter === letter 
+                      onClick={() => setInitialFilter(null)}
+                      className={`w-full text-[9px] font-black py-1 transition-colors shrink-0 ${
+                        initialFilter === null 
                           ? "text-primary bg-primary/10" 
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      {letter}
+                      TUDO
                     </button>
-                  ))}
+                    {alphabet.map((letter) => (
+                      <button
+                        key={letter}
+                        onClick={() => {
+                          setInitialFilter(letter === initialFilter ? null : letter);
+                          setTerm("");
+                        }}
+                        className={`w-full text-[10px] font-bold py-0.5 transition-colors shrink-0 ${
+                          initialFilter === letter 
+                            ? "text-primary bg-primary/10" 
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {letter}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>
