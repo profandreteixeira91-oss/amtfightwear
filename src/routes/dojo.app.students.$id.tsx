@@ -247,15 +247,8 @@ function StudentDetail() {
     } catch (e: any) { toast.error(e.message); }
   };
 
-  const s = (q.data?.student ?? null) as any;
-  const graduations = q.data?.graduations ?? [];
-  const enrollments = q.data?.enrollments ?? [];
-  const invoices = q.data?.invoices ?? [];
-  const certificates = q.data?.certificates ?? [];
-  const attendanceRows = (attendance.data ?? []) as any[];
-
-  const currentEnrollment = enrollments.find((e: any) => e.status === "active") ?? enrollments[0];
   const anamn = s?.anamnesis ?? {};
+
 
   // === Métricas ===
   const enrollmentDate = s?.created_at ?? currentEnrollment?.start_date ?? null;
