@@ -38,7 +38,7 @@ function readReminderSettings(row: any): ReminderSettings {
 
 type OwnerPrefs = {
   dueSoonOffsets: number[]; // dias ANTES do vencimento (positivos)
-  overdueFrequency: number; // reenvia a cada N dias após vencer
+  overdueOffsets: number[]; // dias APÓS o vencimento (positivos)
   categories: { invoice_due_soon: boolean; invoice_overdue: boolean };
 };
 
@@ -51,13 +51,15 @@ function readPrefs(row: any): OwnerPrefs {
   const due = rawDue
     .map((n) => Math.round(Number(n)))
     .filter((n) => Number.isFinite(n) && n >= 0 && n <= 60);
-  const freqRaw = Number(extras.invoice_overdue_frequency_days);
-  const freq = Number.isFinite(freqRaw) && freqRaw >= 1 && freqRaw <= 30
-    ? Math.round(freqRaw)
-    : DEFAULT_NOTIFICATION_EXTRAS.invoice_overdue_frequency_days;
+  const rawOverdue = Array.isArray(extras.invoice_overdue_offsets_days)
+    ? (extras.invoice_overdue_offsets_days as unknown[])
+    : DEFAULT_NOTIFICATION_EXTRAS.invoice_overdue_offsets_days;
+  const overdue = rawOverdue
+    .map((n) => Math.round(Number(n)))
+    .filter((n) => Number.isFinite(n) && n >= 1 && n <= 60);
   return {
     dueSoonOffsets: due,
-    overdueFrequency: freq,
+    overdueOffsets: overdue,
     categories: {
       invoice_due_soon: categories.invoice_due_soon !== false,
       invoice_overdue: categories.invoice_overdue !== false,
@@ -112,9 +114,9 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
           if (p.categories.invoice_due_soon) {
             for (const d of p.dueSoonOffsets) allOffsets.add(-d);
           }
-          // Para overdue, varremos até 30 dias após o vencimento
+          // Para overdue, varremos os offsets configurados
           if (p.categories.invoice_overdue) {
-            for (let d = 1; d <= 30; d++) allOffsets.add(d);
+            for (const d of p.overdueOffsets) allOffsets.add(d);
           }
         }
 
@@ -185,7 +187,7 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
               // "Vence hoje" — dispara se 0 estiver na lista OU se algum offset ≥1 estiver configurado
               shouldPush = prefs.dueSoonOffsets.includes(0);
             } else if (diff > 0 && prefs.categories.invoice_overdue) {
-              shouldPush = diff % prefs.overdueFrequency === 0;
+              shouldPush = prefs.overdueOffsets.includes(diff);
             }
           } else if (amtSettings.enabled && amtSettings.channels.push) {
             shouldPush = amtSettings.rules.some(

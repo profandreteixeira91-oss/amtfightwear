@@ -43,6 +43,7 @@ function StudentNotificationsConfigPage() {
   const [saving, setSaving] = useState(false);
   const [newClassOffset, setNewClassOffset] = useState<string>("");
   const [newDueOffset, setNewDueOffset] = useState<string>("");
+  const [newOverdueOffset, setNewOverdueOffset] = useState<string>("");
 
   useEffect(() => {
     if (data?.categories) setState(data.categories);
@@ -112,9 +113,31 @@ function StudentNotificationsConfigPage() {
     }));
   }
 
-  function setOverdueFreq(v: number) {
-    const clamped = Math.max(1, Math.min(30, Math.round(v || 1)));
-    setExtras((e) => ({ ...e, invoice_overdue_frequency_days: clamped }));
+  function addOverdueOffset() {
+    const n = Math.round(Number(newOverdueOffset));
+    if (!Number.isFinite(n) || n < 1 || n > 60) {
+      toast.error("Informe um valor entre 1 e 60 dias");
+      return;
+    }
+    if (extras.invoice_overdue_offsets_days.includes(n)) {
+      toast.info("Esse dia já está configurado");
+      return;
+    }
+    if (extras.invoice_overdue_offsets_days.length >= 8) {
+      toast.error("Máximo de 8 disparos");
+      return;
+    }
+    setExtras((e) => ({
+      ...e,
+      invoice_overdue_offsets_days: [...e.invoice_overdue_offsets_days, n].sort((a, b) => a - b),
+    }));
+    setNewOverdueOffset("");
+  }
+  function removeOverdueOffset(n: number) {
+    setExtras((e) => ({
+      ...e,
+      invoice_overdue_offsets_days: e.invoice_overdue_offsets_days.filter((v) => v !== n),
+    }));
   }
 
   async function save() {
@@ -246,7 +269,7 @@ function StudentNotificationsConfigPage() {
             </div>
           </section>
 
-          {/* Overdue frequency */}
+          {/* Invoice overdue (multi-offset) */}
           <section className="rounded-2xl border border-red-500/15 bg-neutral-950/60 p-4 md:p-5 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)]">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -255,22 +278,34 @@ function StudentNotificationsConfigPage() {
               </div>
               <Switch checked={!!state.invoice_overdue} onCheckedChange={(v) => toggle("invoice_overdue", !!v)} />
             </div>
-            <p className="mt-1 text-xs text-neutral-400">Frequência com que o lembrete de faturas vencidas é reenviado.</p>
-            <div className="mt-3 space-y-2">
-              <Label className="text-xs text-neutral-300">Reenviar a cada</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min={1}
-                  max={30}
-                  inputMode="numeric"
-                  value={extras.invoice_overdue_frequency_days}
-                  onChange={(e) => setOverdueFreq(Number(e.target.value))}
-                  className="h-9 w-24 bg-neutral-900/80 border-red-500/20 text-white"
-                />
-                <span className="text-sm text-neutral-300">dia(s) após o vencimento</span>
-              </div>
-              <p className="text-[11px] text-neutral-500">Ex: 3 = envia no 3º, 6º, 9º dia após o vencimento (até 30 dias).</p>
+            <p className="mt-1 text-xs text-neutral-400">Dias após o vencimento. Pode configurar vários disparos.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {extras.invoice_overdue_offsets_days.length === 0 && (
+                <span className="text-xs text-neutral-500">Nenhum disparo configurado.</span>
+              )}
+              {extras.invoice_overdue_offsets_days.map((d) => (
+                <span key={d} className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs text-red-100">
+                  {d} dia{d > 1 ? "s" : ""} após
+                  <button type="button" onClick={() => removeOverdueOffset(d)} className="ml-1 rounded hover:bg-red-500/20 p-0.5">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Input
+                type="number"
+                min={1}
+                max={60}
+                inputMode="numeric"
+                placeholder="Ex: 5"
+                value={newOverdueOffset}
+                onChange={(e) => setNewOverdueOffset(e.target.value)}
+                className="h-9 bg-neutral-900/80 border-red-500/20 text-white placeholder:text-neutral-500"
+              />
+              <Button type="button" onClick={addOverdueOffset} className="h-9 shrink-0 bg-red-600 hover:bg-red-500 text-white">
+                <Plus className="h-4 w-4 mr-1" /> Add
+              </Button>
             </div>
           </section>
         </div>
