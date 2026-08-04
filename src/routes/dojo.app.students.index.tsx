@@ -171,6 +171,8 @@ function StudentsPage() {
   const enrollFn = useServerFn(enrollStudentWithPlan);
   const bulkImportFn = useServerFn(bulkImportDojoStudents);
   const addGradFn = useServerFn(addDojoGraduation);
+  const listClassesFn = useServerFn(listClasses);
+  const addClassStudentFn = useServerFn(addClassStudent);
   const { data: branding } = useDojoBranding();
   const [importOpen, setImportOpen] = useState(false);
   const [importRows, setImportRows] = useState<ParsedStudentRow[]>([]);
@@ -182,6 +184,7 @@ function StudentsPage() {
   const [beltFilter, setBeltFilter] = useState("all");
   const [unitFilter, setUnitFilter] = useState("all");
   const [cityFilter, setCityFilter] = useState("");
+  const classes = useQuery({ queryKey: ["dojo-classes"], queryFn: () => listClassesFn() });
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
   const [open, setOpen] = useState(false);
@@ -420,6 +423,18 @@ function StudentsPage() {
       // Registrar no histórico de graduações tudo que foi adicionado/alterado
       // nesta janela (funciona tanto no cadastro quanto na edição).
       if (studentId) {
+        // --- Registrar na Turma ---
+        for (const m of validMods) {
+          if (m.class_id) {
+            try {
+              await addClassStudentFn({ data: { class_id: m.class_id, student_id: studentId } });
+            } catch (e: any) {
+              console.error("Erro ao matricular na turma:", e);
+              // Não bloqueia o resto do salvamento
+            }
+          }
+        }
+        
         const before = new Set(initialModsRef.current);
         const toRegister = validMods.filter((m) => !before.has(`${m.belt_id}:${Number(m.degree ?? 0)}`));
         const today = todayISO();

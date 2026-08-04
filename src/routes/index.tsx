@@ -116,7 +116,7 @@ function StoreHomePage() {
   return (
     <StoreShell categories={categories}>
       <div className="bg-primary py-2 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-white">
-        Execute esta instrucao no projeto: Dojo Manager: Quando o dono do dojo cadastra a unidade e modalidade em alunos (como novo aluno ou em edição) a mesma deve ficar salva, investigue e corrija de forma definitva
+        Execute esta instrucao no projeto: Dojo manager, quando uma turma é cadastrada em um novo aluno, a mesma deve ser salva e refletir no módulo turmas e agenda, verifique e corrija de forma definitiva
       </div>
       {/* ============================================================
           HERO
