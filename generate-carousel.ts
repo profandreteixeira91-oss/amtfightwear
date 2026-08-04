@@ -3,7 +3,7 @@ import { openrouterChat } from "./src/lib/ai-gateway.server.ts";
 import fs from "fs";
 import path from "path";
 
-const IMAGE_MODEL = "openai/gpt-4o";
+const IMAGE_MODEL = "deepseek/deepseek-chat";
 const OUTPUT_DIR = "public/ads/carousel";
 
 const concepts = [
