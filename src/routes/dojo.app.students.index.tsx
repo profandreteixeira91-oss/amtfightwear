@@ -90,7 +90,7 @@ type StudentForm = {
   unit_id: string | null;
   current_belt_id: string | null;
   current_degree: number | string;
-  modalities: Array<{ modality: string; belt_id: string; degree: number }>;
+  modalities: Array<{ modality: string; belt_id: string; degree: number; class_id?: string | null }>;
   status: "active" | "inactive" | "frozen";
   notes: string;
   photo_url: string | null;
