@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/students/daadca27-297b-4b09-8ec1-660dc2657826/analysis dimensões de performance - os textos devem ser pretos
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/student-notifications-config cobranças vencidas tem que ser editadas e funcionar exatamente igual ao card cobranças a vencer, dando a opção de configurar vários dias para o disparo das notificações, e as notificações devem ser 100% funcionais e ativas
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";

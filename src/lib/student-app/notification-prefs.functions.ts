@@ -55,18 +55,18 @@ export const NOTIFICATION_CATEGORY_META: Array<{
  * Regras de temporização configuráveis pelo dono do dojo.
  * - class_reminder_offsets_min: minutos antes do início da aula em que o push é disparado (múltiplos valores).
  * - invoice_due_soon_offsets_days: dias antes do vencimento (positivos) em que a cobrança a vencer é notificada.
- * - invoice_overdue_frequency_days: intervalo em dias com que o lembrete de cobrança vencida é reenviado.
+ * - invoice_overdue_offsets_days: dias após o vencimento (positivos) em que a cobrança vencida é notificada (múltiplos valores).
  */
 export type NotificationExtras = {
   class_reminder_offsets_min: number[];
   invoice_due_soon_offsets_days: number[];
-  invoice_overdue_frequency_days: number;
+  invoice_overdue_offsets_days: number[];
 };
 
 export const DEFAULT_NOTIFICATION_EXTRAS: NotificationExtras = {
   class_reminder_offsets_min: [60, 15],
   invoice_due_soon_offsets_days: [3, 1],
-  invoice_overdue_frequency_days: 3,
+  invoice_overdue_offsets_days: [1, 3, 7],
 };
 
 function normalize(input: unknown): Record<NotificationCategoryKey, boolean> {
@@ -102,16 +102,14 @@ export function normalizeExtras(input: unknown): NotificationExtras {
   const dueOff =
     normalizeIntArray(src.invoice_due_soon_offsets_days, { min: 0, max: 60, maxLen: 6 }) ??
     DEFAULT_NOTIFICATION_EXTRAS.invoice_due_soon_offsets_days;
-  const rawFreq = Number(src.invoice_overdue_frequency_days);
-  const freq =
-    Number.isFinite(rawFreq) && rawFreq >= 1 && rawFreq <= 30
-      ? Math.round(rawFreq)
-      : DEFAULT_NOTIFICATION_EXTRAS.invoice_overdue_frequency_days;
+  const overdueOff =
+    normalizeIntArray(src.invoice_overdue_offsets_days, { min: 1, max: 60, maxLen: 8 }) ??
+    DEFAULT_NOTIFICATION_EXTRAS.invoice_overdue_offsets_days;
   // Ordena para exibição estável (crescente para minutos e dias).
   return {
     class_reminder_offsets_min: [...classOff].sort((a, b) => b - a),
     invoice_due_soon_offsets_days: [...dueOff].sort((a, b) => b - a),
-    invoice_overdue_frequency_days: freq,
+    invoice_overdue_offsets_days: [...overdueOff].sort((a, b) => a - b),
   };
 }
 
