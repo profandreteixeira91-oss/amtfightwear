@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Activity, CheckCircle2, Clock, Fingerprint, LogOut, QrCode, Search,
   UserPlus, Users, Zap, Shield, ScanLine, History, Settings2,
@@ -48,6 +49,35 @@ export const Route = createFileRoute("/dojo/app/checkin")({
 
 function DojoCheckinModule() {
   const [tab, setTab] = useState("dashboard");
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    // Configura canal de tempo real para atualizações instantâneas
+    const channel = supabase
+      .channel('dojo-checkin-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'dojo_attendance' },
+        (payload) => {
+          console.log('Mudança detectada no check-in:', payload);
+          qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
+          qc.invalidateQueries({ queryKey: ["dojo-att"] });
+          qc.invalidateQueries({ queryKey: ["dojo-present"] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'dojo_partner_checkins' },
+        () => {
+          qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [qc]);
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
