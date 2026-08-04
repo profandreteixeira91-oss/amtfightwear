@@ -46,7 +46,7 @@ async function generateAndSave() {
       
       // OpenRouter para imagens geralmente usa a mesma interface de chat ou endpoints específicos.
       // DALL-E 3 via OpenRouter é chamado como um modelo de chat que retorna a URL da imagem no conteúdo ou metadados.
-      const response = await fetch("https://api.openai.com/v1/images/generations", {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,9 +54,8 @@ async function generateAndSave() {
         },
         body: JSON.stringify({
           model: IMAGE_MODEL,
-          prompt: concept.prompt,
-          n: 1,
-          size: "1024x1024"
+          messages: [{ role: "user", content: concept.prompt }]
+
 
         }),
       });
@@ -70,7 +69,9 @@ async function generateAndSave() {
       }
 
       const data = await response.json();
-      const imageUrl = data.data?.[0]?.url;
+      console.log(`Resposta para ${concept.id}:`, JSON.stringify(data));
+      const imageUrl = data.choices?.[0]?.message?.content?.match(/https:\/\/\S+/)?.[0];
+
 
 
 
