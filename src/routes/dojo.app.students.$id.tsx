@@ -112,7 +112,7 @@ function StudentDetail() {
   });
 
   const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: todayISO(), evaluator: "", notes: "" });
-  const [enroll, setEnroll] = useState({ plan_id: "", custom_amount: "", due_day: 5, start_date: todayISO(), status: "active" as const });
+  const [enroll, setEnroll] = useState({ id: "", plan_id: "", custom_amount: "", due_day: 5, start_date: todayISO(), status: "active" as any });
   const [inv, setInv] = useState({ description: "", amount: "", due_date: todayISO() });
   const [previewCert, setPreviewCert] = useState<any | null>(null);
   const [manualNote, setManualNote] = useState("");
@@ -157,14 +157,25 @@ function StudentDetail() {
   const doAddEnroll = async () => {
     if (!enroll.plan_id) return toast.error("Escolha o plano");
     try {
-      await saveEnroll({ data: {
-        student_id: id, plan_id: enroll.plan_id,
-        custom_amount: parseAmountBR(enroll.custom_amount),
-        due_day: Number(enroll.due_day), start_date: enroll.start_date, status: enroll.status,
-      }});
-      toast.success("Matrícula salva");
+      await saveEnroll({
+        data: {
+          id: enroll.id || undefined,
+          student_id: id,
+          plan_id: enroll.plan_id,
+          custom_amount: parseAmountBR(enroll.custom_amount),
+          due_day: Number(enroll.due_day),
+          start_date: enroll.start_date,
+          status: enroll.status,
+        },
+      });
+      toast.success(enroll.id ? "Matrícula atualizada" : "Matrícula salva");
       refresh();
-    } catch (e: any) { toast.error(e.message); }
+      if (!enroll.id) {
+        setEnroll({ id: "", plan_id: "", custom_amount: "", due_day: 5, start_date: todayISO(), status: "active" });
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const doChangePlan = async () => {
@@ -754,50 +765,71 @@ function StudentDetail() {
 
             {/* --- Plano atual + Troca de plano --- */}
             <TabsContent value="plano" className="mt-4 space-y-4">
-              <SectionCard title="Plano atual" icon={Wallet}>
-                {currentEnrollment ? (
-                  <>
-                    <InfoGrid>
-                      <Info label="Plano" value={currentEnrollment.plan?.name ?? "—"} />
-                      <Info
-                        label="Valor mensal"
-                        value={brl(currentEnrollment.custom_amount ?? currentEnrollment.plan?.amount ?? 0)}
-                      />
-                      <Info label="Dia de vencimento" value={`Dia ${currentEnrollment.due_day ?? "—"}`} />
-                      <Info label="Início" value={fmtDate(currentEnrollment.start_date)} />
-                      <Info label="Status" value={<Badge variant="outline">{currentEnrollment.status}</Badge>} />
-                      <Info
-                        label="Recorrência"
-                        value={(currentEnrollment.plan as any)?.billing_cycle ?? (currentEnrollment.plan as any)?.recurrence ?? "Mensal"}
-                      />
-                    </InfoGrid>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <Button
-                        onClick={() => setChangePlan({
-                          open: true, plan_id: "", custom_amount: "",
-                          due_day: currentEnrollment.due_day ?? 5,
-                          start_date: todayISO(),
-                        })}
+              <SectionCard title="Matrícula" icon={Wallet}>
+                <div className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div>
+                      <label className="text-xs text-muted-foreground">Plano</label>
+                      <select
+                        className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                        value={enroll.plan_id}
+                        onChange={(e) => setEnroll({ ...enroll, plan_id: e.target.value })}
                       >
-                        <RefreshCw className="mr-2 h-4 w-4" /> Trocar de plano
-                      </Button>
+                        <option value="">Selecione um plano</option>
+                        {(plans.data ?? []).map((p: any) => (
+                          <option key={p.id} value={p.id}>{p.name} · {brl(p.amount)}</option>
+                        ))}
+                      </select>
                     </div>
-                  </>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="text-sm text-muted-foreground">
-                      Este aluno ainda não possui plano ativo.
+                    <div>
+                      <label className="text-xs text-muted-foreground">Valor mensal (R$)</label>
+                      <Input
+                        placeholder="Ex: 150,00"
+                        value={enroll.custom_amount}
+                        onChange={(e) => setEnroll({ ...enroll, custom_amount: e.target.value })}
+                      />
                     </div>
-                    <Button
-                      onClick={() => setChangePlan({
-                        open: true, plan_id: "", custom_amount: "", due_day: 5,
-                        start_date: todayISO(),
-                      })}
-                    >
-                      <Wallet className="mr-2 h-4 w-4" /> Matricular em um plano
-                    </Button>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Dia de vencimento</label>
+                      <Input
+                        type="number" min={1} max={31}
+                        value={enroll.due_day}
+                        onChange={(e) => setEnroll({ ...enroll, due_day: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Data de início</label>
+                      <Input
+                        type="date"
+                        value={enroll.start_date}
+                        onChange={(e) => setEnroll({ ...enroll, start_date: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Situação (Status)</label>
+                      <select
+                        className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                        value={enroll.status}
+                        onChange={(e) => setEnroll({ ...enroll, status: e.target.value as any })}
+                      >
+                        <option value="active">Ativo (Mensalidades pagas)</option>
+                        <option value="overdue">Pendente (Mensalidade vencida)</option>
+                        <option value="paused">Pausado/Trancado</option>
+                        <option value="cancelled">Cancelado</option>
+                      </select>
+                    </div>
                   </div>
-                )}
+                  <div className="flex gap-2">
+                    <Button onClick={doAddEnroll}>
+                      {enroll.id ? "Salvar alterações" : "Criar matrícula"}
+                    </Button>
+                    {enroll.id && (
+                      <Button variant="ghost" onClick={() => setEnroll({ id: "", plan_id: "", custom_amount: "", due_day: 5, start_date: todayISO(), status: "active" })}>
+                        Novo
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </SectionCard>
 
               {changePlan.open && (
@@ -869,14 +901,36 @@ function StudentDetail() {
                 <SectionCard title="Histórico de planos" icon={ClipboardList}>
                   <div className="rounded-lg border border-border">
                     {enrollments.map((e: any) => (
-                      <div key={e.id} className="flex items-center justify-between border-b border-border p-3 text-sm last:border-0">
+                      <div
+                        key={e.id}
+                        className="group flex items-center justify-between border-b border-border p-3 text-sm last:border-0 hover:bg-muted/30"
+                      >
                         <div className="min-w-0 flex-1">
                           <div className="font-medium truncate">{e.plan?.name ?? "—"}</div>
                           <div className="text-xs text-muted-foreground">
                             {brl(e.custom_amount ?? e.plan?.amount ?? 0)} · início {fmtDate(e.start_date)} · venc. dia {e.due_day}
                           </div>
                         </div>
-                        <Badge variant={e.status === "active" ? "default" : "outline"}>{e.status}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={e.status === "active" ? "default" : "outline"}>
+                            {e.status === "active" ? "Ativo" : e.status === "overdue" ? "Pendente" : e.status}
+                          </Badge>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                            onClick={() => setEnroll({
+                              id: e.id,
+                              plan_id: e.plan_id,
+                              custom_amount: e.custom_amount ? String(e.custom_amount).replace(".", ",") : "",
+                              due_day: e.due_day || 5,
+                              start_date: e.start_date ? e.start_date.slice(0, 10) : todayISO(),
+                              status: e.status,
+                            })}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
