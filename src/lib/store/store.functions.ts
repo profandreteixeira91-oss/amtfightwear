@@ -246,34 +246,6 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       .from("store_orders")
       .insert({
         user_id: context.userId ?? data.user_id ?? null,
-
-        customer_email: data.customer_email,
-        customer_name: data.customer_name,
-        customer_phone: data.customer_phone,
-        customer_document: data.customer_document,
-        shipping_address: data.shipping_address,
-        subtotal,
-        shipping_cost: 0,
-        discount,
-        total,
-        notes: data.notes,
-        status: "pending_payment",
-        payment_status: "pending",
-        max_production_days: 10,
-        metadata: {
-          wholesale: true,
-          default_discount_percent: DEFAULT_PCT,
-          min_qty_per_subcategory: MIN_QTY,
-          label_logo: data.label_logo ?? null,
-          subtotal_original: subtotalOriginal,
-        },
-      })
-      .select()
-      .single();
-    const { data: order, error } = await supabaseAdmin
-      .from("store_orders")
-      .insert({
-        user_id: context.userId ?? data.user_id ?? null,
         customer_email: data.customer_email,
         customer_name: data.customer_name,
         customer_phone: data.customer_phone,
@@ -725,8 +697,29 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const patch: { status: string; payment_status?: string } = { status: data.status };
     if (data.payment_status) patch.payment_status = data.payment_status;
-    const { error } = await context.supabase.from("store_orders").update(patch).eq("id", data.id);
+    const { data: order, error } = await context.supabase
+      .from("store_orders")
+      .update(patch)
+      .eq("id", data.id)
+      .select("id, order_number, status, payment_status, total, customer_name")
+      .single();
     if (error) throw new Error(error.message);
+
+    // Notificar admins sobre mudanças importantes no pedido
+    if (data.status === "paid" || data.payment_status === "paid") {
+      try {
+        const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
+        await sendPushToAmtAdmins({
+          title: "Pagamento Confirmado",
+          body: `Pedido ${order.order_number} (${order.customer_name}): R$ ${order.total.toFixed(2)}`,
+          url: `/admin/pedidos?id=${order.id}`,
+          tag: `order-paid-${order.id}`,
+        }, "store_order.paid");
+      } catch (e) {
+        console.warn("Falha ao notificar admin sobre pagamento:", e);
+      }
+    }
+
     try {
       const { sendWhatsAppOrderStatus, eventFromStatusTransition } = await import("@/lib/store/whatsapp.server");
       const evt = eventFromStatusTransition(data.status, data.payment_status);
