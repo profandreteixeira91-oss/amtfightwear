@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/classes o filtro por inicial deve ser aplicado aos alunos não matriculados, em adicionar aluno. Remova o filtro dos alunos matriculados e aplique aos não matriculados
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: /admin gerenciador de anúncios agora possui um editor de criativos 100% funcional, com pré-visualização mobile em tempo real, suporte a CTAs, títulos, descrições e URLs com UTMs sincronizadas com a Meta API.
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
