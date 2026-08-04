@@ -26,14 +26,20 @@ export const adminListStoreCustomers = createServerFn({ method: "GET" })
     await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Mudamos para buscar da VIEW via select normal
+    // Buscamos os dados crus para evitar problemas de tipagem da view no gerador
     const { data, error } = await supabaseAdmin
-      .from("store_customers_unified")
+      .from("profiles" as any)
       .select("*")
-      .order("created_at", { ascending: false });
+      .limit(0); // Força um tipo qualquer
+      
+    // Na verdade, usamos a query direta via supabaseAdmin.rpc se possível, 
+    // ou simplesmente fazemos o fetch manual do recurso que sabemos que existe
+    const { data: viewData, error: viewError } = await supabaseAdmin
+      .from("store_customers_unified" as any)
+      .select("*");
 
-    if (error) throw new Error(error.message);
-    return (data || []) as StoreCustomer[];
+    if (viewError) throw new Error(viewError.message);
+    return (viewData || []) as StoreCustomer[];
   });
 
 export const adminGetCustomerDetails = createServerFn({ method: "GET" })
@@ -45,13 +51,15 @@ export const adminGetCustomerDetails = createServerFn({ method: "GET" })
 
     // 1. Dados básicos
     const { data: customer, error: custError } = await supabaseAdmin
-      .from("store_customers_unified")
+      .from("store_customers_unified" as any)
       .select("*")
       .eq("id", data.id)
       .maybeSingle();
 
     if (custError) throw new Error(custError.message);
     if (!customer) throw new Error("Cliente não encontrado");
+
+    const cust = customer as StoreCustomer;
 
     // 2. Histórico de Pedidos
     const isGuest = data.id.startsWith("guest:");
@@ -61,8 +69,8 @@ export const adminGetCustomerDetails = createServerFn({ method: "GET" })
     if (isGuest) {
       ordersQuery = ordersQuery.eq("customer_email", data.id.replace("guest:", ""));
     } else if (isChat) {
-      if ((customer as StoreCustomer).email) ordersQuery = ordersQuery.eq("customer_email", (customer as StoreCustomer).email);
-      else return { customer: customer as StoreCustomer, orders: [], carts: [], conversations: [] };
+      if (cust.email) ordersQuery = ordersQuery.eq("customer_email", cust.email);
+      else return { customer: cust, orders: [], carts: [], conversations: [] };
     } else {
       ordersQuery = ordersQuery.eq("user_id", data.id);
     }
@@ -73,7 +81,7 @@ export const adminGetCustomerDetails = createServerFn({ method: "GET" })
     if (isChat) {
       const extId = data.id.replace("chat:", "");
       const { data: conv } = await supabaseAdmin.from("sales_conversations").select("id").eq("external_id", extId).maybeSingle();
-      if (conv) cartsQuery = cartsQuery.eq("conversation_id", conv.id);
+      if (conv) cartsQuery = (cartsQuery as any).eq("conversation_id", conv.id);
       else cartsQuery = cartsQuery.limit(0);
     } else if (!isGuest) {
       cartsQuery = cartsQuery.eq("user_id", data.id);
@@ -86,15 +94,15 @@ export const adminGetCustomerDetails = createServerFn({ method: "GET" })
     let convsQuery = supabaseAdmin.from("sales_conversations").select("*").order("last_message_at", { ascending: false });
     if (isChat) {
       convsQuery = convsQuery.eq("external_id", data.id.replace("chat:", ""));
-    } else if ((customer as StoreCustomer).email) {
-      convsQuery = convsQuery.eq("customer_email", (customer as StoreCustomer).email);
+    } else if (cust.email) {
+      convsQuery = convsQuery.eq("customer_email", cust.email);
     } else {
       convsQuery = convsQuery.limit(0);
     }
     const { data: conversations } = await convsQuery;
 
     return {
-      customer: customer as StoreCustomer,
+      customer: cust,
       orders: (orders || []) as any[],
       carts: (carts || []) as any[],
       conversations: (conversations || []) as any[],
