@@ -40,12 +40,14 @@ export function ClassStudentsDialog({
   });
 
   const students: any[] = (cls.data as any)?.students ?? [];
+  const searchResults: any[] = (search.data as any[]) ?? [];
   
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-  const filteredStudents = initialFilter 
-    ? students.filter(row => row.dojo_students?.full_name?.toUpperCase().startsWith(initialFilter))
-    : students;
+  // Filter the search results (not yet enrolled) by initial if selected
+  const filteredSearch = initialFilter 
+    ? searchResults.filter(s => s.full_name?.toUpperCase().startsWith(initialFilter))
+    : searchResults;
 
   const capacity = (cls.data as any)?.max_students ?? 0;
   const isFull = capacity > 0 && students.length >= capacity;
@@ -106,12 +108,63 @@ export function ClassStudentsDialog({
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Matriculados nesta turma
                 </h4>
-                {students.length > 10 && (
-                  <span className="text-[10px] text-muted-foreground">{filteredStudents.length} de {students.length}</span>
-                )}
               </div>
 
-              {/* Filtro por Inicial */}
+              <div className="divide-y rounded-xl border flex-1 overflow-y-auto min-h-[300px]">
+                {students.length === 0 && (
+                  <div className="p-8 text-center text-sm text-muted-foreground">
+                    Nenhum aluno matriculado.
+                  </div>
+                )}
+                {students.map((row: any) => {
+                  const s = row.dojo_students;
+                  return (
+                    <div key={row.id} className="flex items-center gap-3 p-2 hover:bg-muted/30 transition-colors">
+                      <div className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-muted text-xs font-semibold">
+                        {s?.photo_url ? (
+                          <img src={s.photo_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          s?.full_name?.[0] ?? "?"
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium break-words">{s?.full_name}</div>
+                        <div className="text-xs text-muted-foreground break-words">{s?.phone || s?.email || "—"}</div>
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        disabled={busy === row.id}
+                        title="Remover da turma"
+                        onClick={() => remove(row.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="min-w-0 flex flex-col h-full">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Adicionar aluno
+              </h4>
+              
+              <div className="relative mb-2">
+                <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="pl-8"
+                  placeholder="Busca por nome..."
+                  value={term}
+                  onChange={(e) => {
+                    setTerm(e.target.value);
+                    if (e.target.value && initialFilter) setInitialFilter(null);
+                  }}
+                />
+              </div>
+
+              {/* Filtro por Inicial para Novos Alunos */}
               <div className="mb-3 flex flex-wrap gap-1 border-b pb-2">
                 <Button
                   variant={initialFilter === null ? "default" : "outline"}
@@ -121,110 +174,63 @@ export function ClassStudentsDialog({
                 >
                   Tudo
                 </Button>
-                {alphabet.map((letter) => {
-                  const hasStudents = students.some(row => row.dojo_students?.full_name?.toUpperCase().startsWith(letter));
-                  return (
-                    <Button
-                      key={letter}
-                      variant={initialFilter === letter ? "default" : "outline"}
-                      size="sm"
-                      className="h-6 w-6 p-0 text-[10px]"
-                      disabled={!hasStudents}
-                      onClick={() => setInitialFilter(letter)}
-                    >
-                      {letter}
-                    </Button>
-                  );
-                })}
+                {alphabet.map((letter) => (
+                  <Button
+                    key={letter}
+                    variant={initialFilter === letter ? "default" : "outline"}
+                    size="sm"
+                    className="h-6 w-6 p-0 text-[10px]"
+                    onClick={() => {
+                      setInitialFilter(letter);
+                      setTerm(""); // Clear search term when using initial filter
+                    }}
+                  >
+                    {letter}
+                  </Button>
+                ))}
               </div>
 
-              <div className="divide-y rounded-xl border flex-1 overflow-y-auto min-h-[300px]">
-                {filteredStudents.length === 0 && (
-                  <div className="p-8 text-center text-sm text-muted-foreground">
-                    {initialFilter ? `Nenhum aluno com inicial "${initialFilter}".` : "Nenhum aluno matriculado."}
+              {isFull && (
+                <p className="mb-2 text-xs text-amber-600">Turma lotada — remova alguém para incluir novos alunos.</p>
+              )}
+
+              <div className="flex-1 overflow-y-auto divide-y rounded-xl border min-h-[300px]">
+                {filteredSearch.map((s: any) => {
+                  const already = students.some((r: any) => r.student_id === s.id);
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      disabled={already || isFull || busy === s.id}
+                      onClick={() => add(s.id)}
+                      className="flex w-full items-center gap-3 p-2 text-left hover:bg-muted disabled:opacity-50"
+                    >
+                      <div className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-muted text-xs font-semibold">
+                        {s.photo_url ? (
+                          <img src={s.photo_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          s.full_name?.[0] ?? "?"
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium break-words">{s.full_name}</div>
+                        <div className="text-xs text-muted-foreground break-words">{s.phone || s.email}</div>
+                      </div>
+                      {already ? (
+                        <span className="shrink-0 text-[11px] text-muted-foreground">Já matriculado</span>
+                      ) : (
+                        <UserPlus className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      )}
+                    </button>
+                  );
+                })}
+                {filteredSearch.length === 0 && (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    {initialFilter ? `Nenhum aluno com inicial "${initialFilter}".` : "Nenhum aluno encontrado."}
                   </div>
                 )}
-                {filteredStudents.map((row: any) => {
-                  const s = row.dojo_students;
-                  return (
-                    <div key={row.id} className="flex items-center gap-3 p-2 hover:bg-muted/30 transition-colors">
-                    <div className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-muted text-xs font-semibold">
-                      {s?.photo_url ? (
-                        <img src={s.photo_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        s?.full_name?.[0] ?? "?"
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium break-words">{s?.full_name}</div>
-                      <div className="text-xs text-muted-foreground break-words">{s?.phone || s?.email || "—"}</div>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      disabled={busy === row.id}
-                      title="Remover da turma"
-                      onClick={() => remove(row.id)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="min-w-0 flex flex-col h-full">
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Adicionar aluno
-            </h4>
-            <div className="relative mb-2">
-              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-8"
-                placeholder="Nome, telefone, email ou CPF"
-                value={term}
-                onChange={(e) => setTerm(e.target.value)}
-              />
-            </div>
-            {isFull && (
-              <p className="mb-2 text-xs text-amber-600">Turma lotada — remova alguém para incluir novos alunos.</p>
-            )}
-            <div className="flex-1 overflow-y-auto divide-y rounded-xl border min-h-[300px]">
-              {((search.data as any[]) ?? []).map((s: any) => {
-                const already = students.some((r: any) => r.student_id === s.id);
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    disabled={already || isFull || busy === s.id}
-                    onClick={() => add(s.id)}
-                    className="flex w-full items-center gap-3 p-2 text-left hover:bg-muted disabled:opacity-50"
-                  >
-                    <div className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-muted text-xs font-semibold">
-                      {s.photo_url ? (
-                        <img src={s.photo_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        s.full_name?.[0] ?? "?"
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium break-words">{s.full_name}</div>
-                      <div className="text-xs text-muted-foreground break-words">{s.phone || s.email}</div>
-                    </div>
-                    {already ? (
-                      <span className="shrink-0 text-[11px] text-muted-foreground">Já matriculado</span>
-                    ) : (
-                      <UserPlus className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    )}
-                  </button>
-                );
-              })}
-              {((search.data as any[]) ?? []).length === 0 && (
-                <div className="p-4 text-center text-sm text-muted-foreground">Nenhum aluno encontrado.</div>
-              )}
-            </div>
-          </section>
+              </div>
+            </section>
           </div>
         </div>
       </DialogContent>

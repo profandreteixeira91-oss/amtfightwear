@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/classes Ao clicar em alunos, habilite o filtro de alunos por inicial, todos os alunos devem aparecer na lista sem causar overflow na janela de diálogo.
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/classes o filtro por inicial deve ser aplicado aos alunos não matriculados, em adicionar aluno. Remova o filtro dos alunos matriculados e aplique aos não matriculados
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
