@@ -112,6 +112,15 @@ function StudentDetail() {
     staleTime: 60_000,
   });
 
+  const s = (q.data?.student ?? null) as any;
+  const graduations = q.data?.graduations ?? [];
+  const enrollments = q.data?.enrollments ?? [];
+  const invoices = q.data?.invoices ?? [];
+  const certificates = q.data?.certificates ?? [];
+  const attendanceRows = (attendance.data ?? []) as any[];
+
+  const currentEnrollment = enrollments.find((e: any) => e.status === "active") ?? enrollments[0];
+
   const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: todayISO(), evaluator: "", notes: "" });
   const [enroll, setEnroll] = useState({ id: "", plan_id: "", custom_amount: "", due_day: 5, start_date: todayISO(), status: "active" as any });
   const [inv, setInv] = useState({ description: "", amount: "", due_date: todayISO() });
@@ -139,6 +148,7 @@ function StudentDetail() {
       });
     }
   }, [currentEnrollment]);
+
 
   const templatesFn = useServerFn(listCertificateTemplates);
   const issueCertFn = useServerFn(issueCertificate);
