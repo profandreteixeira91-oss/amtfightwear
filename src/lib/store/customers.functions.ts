@@ -26,20 +26,12 @@ export const adminListStoreCustomers = createServerFn({ method: "GET" })
     await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Buscamos os dados crus para evitar problemas de tipagem da view no gerador
-    const { data, error } = await supabaseAdmin
-      .from("profiles" as any)
-      .select("*")
-      .limit(0); // Força um tipo qualquer
-      
-    // Na verdade, usamos a query direta via supabaseAdmin.rpc se possível, 
-    // ou simplesmente fazemos o fetch manual do recurso que sabemos que existe
     const { data: viewData, error: viewError } = await supabaseAdmin
       .from("store_customers_unified" as any)
       .select("*");
 
     if (viewError) throw new Error(viewError.message);
-    return (viewData || []) as StoreCustomer[];
+    return (viewData || []) as unknown as StoreCustomer[];
   });
 
 export const adminGetCustomerDetails = createServerFn({ method: "GET" })
@@ -59,7 +51,7 @@ export const adminGetCustomerDetails = createServerFn({ method: "GET" })
     if (custError) throw new Error(custError.message);
     if (!customer) throw new Error("Cliente não encontrado");
 
-    const cust = customer as StoreCustomer;
+    const cust = customer as unknown as StoreCustomer;
 
     // 2. Histórico de Pedidos
     const isGuest = data.id.startsWith("guest:");
