@@ -76,8 +76,8 @@ async function generateAndSave() {
       }
 
       const data = await response.json();
-      console.log(`Resposta para ${concept.id}:`, JSON.stringify(data));
-      const imageUrl = data.choices?.[0]?.message?.content?.match(/https:\/\/\S+/)?.[0];
+      const imageUrl = data.data?.[0]?.url;
+
 
 
 
