@@ -650,6 +650,9 @@ function AdminSidebar() {
           <Link
             to={item.url}
             preload="intent"
+            onClick={() => {
+              if (isMobile) setOpen(false);
+            }}
             className={cn(
               "flex items-center gap-2.5 text-[13px] font-medium text-sidebar-foreground/85 transition-colors",
               "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
