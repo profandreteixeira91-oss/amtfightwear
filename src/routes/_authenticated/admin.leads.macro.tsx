@@ -79,6 +79,8 @@ type MacroPrefs = {
   sessionCap: number;
   dailyCap: number;
   stageFilter: string; // "" = qualquer estágio não contatado
+  smartQueueEnabled: boolean;
+  priorityState: string;
 };
 const DEFAULT_PREFS: MacroPrefs = {
   cooldownMinSec: 45,
@@ -86,6 +88,8 @@ const DEFAULT_PREFS: MacroPrefs = {
   sessionCap: 15,
   dailyCap: 40,
   stageFilter: "novo",
+  smartQueueEnabled: false,
+  priorityState: "",
 };
 const PREFS_KEY = "prospect.macro.prefs.v1";
 const COUNTER_KEY = "prospect.macro.counter.v1";
@@ -211,7 +215,7 @@ function MacroPage() {
 
   const manualActive = useManualOnly && manualIds.length > 0;
   const queueQ = useQuery({
-    queryKey: ["prospect", "macro-queue", prefs.stageFilter, manualActive ? manualIds.join(",") : "auto"],
+    queryKey: ["prospect", "macro-queue", prefs.stageFilter, manualActive ? manualIds.join(",") : "auto", prefs.smartQueueEnabled, prefs.priorityState],
     queryFn: () =>
       fetchList({
         data: manualActive
@@ -225,9 +229,9 @@ function MacroPage() {
           : {
               hasInstagram: true,
               pipeline_stage: prefs.stageFilter || undefined,
-              limit: 100,
+              limit: 200,
               offset: 0,
-              orderBy: "score",
+              orderBy: prefs.smartQueueEnabled ? "state" : "score",
               orderDir: "desc",
             },
       }),
@@ -235,11 +239,32 @@ function MacroPage() {
 
   const rawRows = (queueQ.data?.rows ?? []) as LeadRow[];
   const orderedRows = useMemo(() => {
-    if (!manualActive) return rawRows;
-    // Preserva a ordem em que o usuário adicionou os leads na fila
-    const pos = new Map(manualIds.map((id, i) => [id, i]));
-    return [...rawRows].sort((a, b) => (pos.get(a.id) ?? 0) - (pos.get(b.id) ?? 0));
-  }, [rawRows, manualActive, manualIds]);
+    if (manualActive) {
+      const pos = new Map(manualIds.map((id, i) => [id, i]));
+      return [...rawRows].sort((a, b) => (pos.get(a.id) ?? 0) - (pos.get(b.id) ?? 0));
+    }
+    
+    if (prefs.smartQueueEnabled) {
+      return [...rawRows].sort((a, b) => {
+        // Mapa de calor: Prioriza estados com mais leads (simulando incidência de compras)
+        // ou prioriza o estado selecionado
+        const stateA = String(a.state || "").toUpperCase();
+        const stateB = String(b.state || "").toUpperCase();
+        
+        if (prefs.priorityState) {
+          if (stateA === prefs.priorityState && stateB !== prefs.priorityState) return -1;
+          if (stateB === prefs.priorityState && stateA !== prefs.priorityState) return 1;
+        }
+        
+        // Agrupamento por estado + Score
+        if (stateA !== stateB) return stateA.localeCompare(stateB);
+        return Number(b.score ?? 0) - Number(a.score ?? 0);
+      });
+    }
+
+    return rawRows;
+  }, [rawRows, manualActive, manualIds, prefs.smartQueueEnabled, prefs.priorityState]);
+
   const queue = useMemo(
     () =>
       orderedRows.filter((r) => {
@@ -607,6 +632,31 @@ function MacroPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="flex items-center gap-2">
+                <Switch 
+                  checked={prefs.smartQueueEnabled} 
+                  onCheckedChange={(v) => setPrefs({ ...prefs, smartQueueEnabled: v })} 
+                />
+                Fila Inteligente (Heatmap)
+              </Label>
+              {prefs.smartQueueEnabled && (
+                <Select
+                  value={prefs.priorityState || "__none"}
+                  onValueChange={(v) => setPrefs({ ...prefs, priorityState: v === "__none" ? "" : v })}
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Priorizar Estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none">Ordem Alfabética</SelectItem>
+                    {["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"].map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between rounded-lg border border-border/60 bg-muted/30 p-3">
