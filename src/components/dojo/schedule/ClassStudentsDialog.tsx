@@ -24,6 +24,7 @@ export function ClassStudentsDialog({
   const qc = useQueryClient();
 
   const [term, setTerm] = useState("");
+  const [initialFilter, setInitialFilter] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   const cls = useQuery({
@@ -39,6 +40,13 @@ export function ClassStudentsDialog({
   });
 
   const students: any[] = (cls.data as any)?.students ?? [];
+  
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+  const filteredStudents = initialFilter 
+    ? students.filter(row => row.dojo_students?.full_name?.toUpperCase().startsWith(initialFilter))
+    : students;
+
   const capacity = (cls.data as any)?.max_students ?? 0;
   const isFull = capacity > 0 && students.length >= capacity;
 
@@ -77,7 +85,8 @@ export function ClassStudentsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+        <div className="p-6 pb-2">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-4 w-4 shrink-0" />
@@ -87,21 +96,57 @@ export function ClassStudentsDialog({
             Matricule ou remova alunos desta turma. {students.length}
             {capacity ? `/${capacity}` : ""} vagas ocupadas.
           </DialogDescription>
-        </DialogHeader>
+        </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <section className="min-w-0">
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Matriculados nesta turma
-            </h4>
-            <div className="divide-y rounded-xl border">
-              {students.length === 0 && (
-                <div className="p-4 text-center text-sm text-muted-foreground">Nenhum aluno matriculado.</div>
-              )}
-              {students.map((row: any) => {
-                const s = row.dojo_students;
-                return (
-                  <div key={row.id} className="flex items-center gap-3 p-2">
+        <div className="flex-1 overflow-y-auto p-6 pt-0">
+          <div className="grid gap-6 md:grid-cols-2 h-full">
+            <section className="min-w-0 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Matriculados nesta turma
+                </h4>
+                {students.length > 10 && (
+                  <span className="text-[10px] text-muted-foreground">{filteredStudents.length} de {students.length}</span>
+                )}
+              </div>
+
+              {/* Filtro por Inicial */}
+              <div className="mb-3 flex flex-wrap gap-1 border-b pb-2">
+                <Button
+                  variant={initialFilter === null ? "default" : "outline"}
+                  size="sm"
+                  className="h-6 w-8 p-0 text-[10px]"
+                  onClick={() => setInitialFilter(null)}
+                >
+                  Tudo
+                </Button>
+                {alphabet.map((letter) => {
+                  const hasStudents = students.some(row => row.dojo_students?.full_name?.toUpperCase().startsWith(letter));
+                  return (
+                    <Button
+                      key={letter}
+                      variant={initialFilter === letter ? "default" : "outline"}
+                      size="sm"
+                      className="h-6 w-6 p-0 text-[10px]"
+                      disabled={!hasStudents}
+                      onClick={() => setInitialFilter(letter)}
+                    >
+                      {letter}
+                    </Button>
+                  );
+                })}
+              </div>
+
+              <div className="divide-y rounded-xl border flex-1 overflow-y-auto min-h-[300px]">
+                {filteredStudents.length === 0 && (
+                  <div className="p-8 text-center text-sm text-muted-foreground">
+                    {initialFilter ? `Nenhum aluno com inicial "${initialFilter}".` : "Nenhum aluno matriculado."}
+                  </div>
+                )}
+                {filteredStudents.map((row: any) => {
+                  const s = row.dojo_students;
+                  return (
+                    <div key={row.id} className="flex items-center gap-3 p-2 hover:bg-muted/30 transition-colors">
                     <div className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-muted text-xs font-semibold">
                       {s?.photo_url ? (
                         <img src={s.photo_url} alt="" className="h-full w-full object-cover" />
@@ -128,7 +173,7 @@ export function ClassStudentsDialog({
             </div>
           </section>
 
-          <section className="min-w-0">
+          <section className="min-w-0 flex flex-col h-full">
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Adicionar aluno
             </h4>
@@ -144,7 +189,7 @@ export function ClassStudentsDialog({
             {isFull && (
               <p className="mb-2 text-xs text-amber-600">Turma lotada — remova alguém para incluir novos alunos.</p>
             )}
-            <div className="max-h-[320px] divide-y overflow-y-auto rounded-xl border">
+            <div className="flex-1 overflow-y-auto divide-y rounded-xl border min-h-[300px]">
               {((search.data as any[]) ?? []).map((s: any) => {
                 const already = students.some((r: any) => r.student_id === s.id);
                 return (
