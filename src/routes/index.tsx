@@ -115,9 +115,6 @@ function StoreHomePage() {
 
   return (
     <StoreShell categories={categories}>
-      <div className="bg-primary py-2 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-white">
-        Execute esta instrucao no projeto: dojo/app/checkin a dashboard deve ser atualizada em tempo real, puxar os check-ins feitos e atualizar
-      </div>
       {/* ============================================================
           HERO
          ============================================================ */}
