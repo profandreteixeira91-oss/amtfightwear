@@ -37,13 +37,13 @@ export const ADMIN_NOTIFICATION_CATALOG: AdminNotificationDef[] = [
   {
     event: "sales_message.new",
     label: "Mensagens do chat",
-    description: "Mensagens enviadas por clientes no chat de vendas da loja.",
+    description: "Novas mensagens recebidas de clientes no chat (Web, WhatsApp, Instagram).",
     group: "Atendimento",
   },
   {
     event: "dojo_support.new",
     label: "Suporte do Dojo Manager",
-    description: "Novos tickets e respostas enviados pelos donos de dojo.",
+    description: "Novos tickets ou mensagens de suporte enviados por donos de dojo.",
     group: "Atendimento",
   },
   {
