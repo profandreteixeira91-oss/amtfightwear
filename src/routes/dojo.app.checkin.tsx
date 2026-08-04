@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Activity, CheckCircle2, Clock, Fingerprint, LogOut, QrCode, Search,
   UserPlus, Users, Zap, Shield, ScanLine, History, Settings2,
@@ -48,6 +49,36 @@ export const Route = createFileRoute("/dojo/app/checkin")({
 
 function DojoCheckinModule() {
   const [tab, setTab] = useState("dashboard");
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    // Configura canal de tempo real para atualizações instantâneas
+    const channel = supabase
+      .channel('dojo-checkin-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'dojo_attendance' },
+        (payload) => {
+          console.log('Mudança detectada no check-in:', payload);
+          qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
+          qc.invalidateQueries({ queryKey: ["dojo-att"] });
+          qc.invalidateQueries({ queryKey: ["dojo-present"] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'dojo_partner_checkins' },
+        () => {
+          qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
+          qc.invalidateQueries({ queryKey: ["dojo-partner-checkins"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [qc]);
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -140,7 +171,6 @@ function DashboardPanel() {
   const q = useQuery({
     queryKey: ["dojo-checkin-dashboard"],
     queryFn: () => dashboard(),
-    refetchInterval: 15000,
   });
 
   const d = q.data;
@@ -249,7 +279,7 @@ function KioskPanel() {
 
   const settingsQ = useQuery({ queryKey: ["dojo-checkin-settings"], queryFn: () => settingsFn() });
   const unitsQ = useQuery({ queryKey: ["dojo-units"], queryFn: () => listUnits() });
-  const dashQ = useQuery({ queryKey: ["dojo-checkin-dashboard"], queryFn: () => dashFn(), refetchInterval: 20000 });
+  const dashQ = useQuery({ queryKey: ["dojo-checkin-dashboard"], queryFn: () => dashFn() });
 
   const welcomeTpl = settingsQ.data?.welcome_message || "Bem-vindo, {{name}}! Bom treino 🥋";
   const activeUnit = (unitsQ.data ?? []).find((u: any) => u.id === unitId);
@@ -955,7 +985,7 @@ function PresentPanel() {
   const listFn = useServerFn(presentNowList);
   const checkoutFn = useServerFn(checkoutAttendance);
   const qc = useQueryClient();
-  const q = useQuery({ queryKey: ["dojo-present"], queryFn: () => listFn(), refetchInterval: 30000 });
+  const q = useQuery({ queryKey: ["dojo-present"], queryFn: () => listFn() });
 
   async function doCheckout(id: string) {
     try {
