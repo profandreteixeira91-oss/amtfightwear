@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/student-notifications-config cobranças vencidas tem que ser editadas e funcionar exatamente igual ao card cobranças a vencer, dando a opção de configurar vários dias para o disparo das notificações, e as notificações devem ser 100% funcionais e ativas
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/classes Ao clicar em alunos, habilite o filtro de alunos por inicial, todos os alunos devem aparecer na lista sem causar overflow na janela de diálogo.
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
