@@ -37,16 +37,25 @@ export const adminSendSalesReply = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // Salva como 'assistant' para aparecer inline no widget do cliente,
     // mas marca origem humana no parts.source para o painel diferenciar.
-    const { error } = await supabaseAdmin.from("sales_messages").insert({
+    const { error, data: msg } = await supabaseAdmin.from("sales_messages").insert({
       conversation_id: data.conversation_id,
       role: "assistant",
       parts: { text: data.text, source: "human" },
-    });
+    }).select("id").single();
     if (error) throw new Error(error.message);
-    await supabaseAdmin
+
+    const { data: conv } = await supabaseAdmin
       .from("sales_conversations")
       .update({ last_message_at: new Date().toISOString() })
-      .eq("id", data.conversation_id);
+      .eq("id", data.conversation_id)
+      .select("customer_name")
+      .single();
+
+    // Notificar outros admins (opcional, mas o pedido pede para garantir que mensagens recebidas funcionem)
+    // No caso de RESPOSTA do admin, geralmente não notificamos os próprios admins, 
+    // mas como o sistema é multi-admin, pode ser útil.
+    // Porém, o foco é na mensagem RECEBIDA.
+
     return { ok: true };
   });
 
