@@ -408,6 +408,7 @@ function StudentsPage() {
       const skip = new Set([
         "anamnesis", "status", "lgpd_consent", "image_rights_consent",
         "terms_accepted", "has_medical_clearance", "current_degree",
+        "modalities", "unit_id", "current_belt_id"
       ]);
       Object.keys(payload).forEach((k) => {
         if (!skip.has(k) && payload[k] === "") payload[k] = null;
