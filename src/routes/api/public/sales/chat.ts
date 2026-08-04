@@ -23,7 +23,7 @@ const BodySchema = z.object({
   external_id: z.string().min(3).max(120),
   message: z.string().min(1).max(2000),
   customer_name: z.string().max(120).optional(),
-  customer_email: z.string().email().max(200).optional(),
+  customer_email: z.string().max(200).optional(),
   customer_phone: z.string().max(40).optional(),
 });
 

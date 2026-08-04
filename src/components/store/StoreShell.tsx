@@ -394,7 +394,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
       </section>
 
       {/* Floating store chat */}
-      <ChatWidget />
+      <ChatWidget autoRequestInfo={true} />
 
       {/* Footer */}
       <footer className="bg-foreground text-background">
