@@ -3,7 +3,7 @@ import { openrouterChat } from "./src/lib/ai-gateway.server.ts";
 import fs from "fs";
 import path from "path";
 
-const IMAGE_MODEL = "google/gemini-2.5-flash-image-preview";
+const IMAGE_MODEL = "openai/gpt-4o-mini"; // Modelo alternativo que pode gerar imagem via DALL-E se o OpenRouter estiver configurado assim, ou apenas para testar conectividade
 const OUTPUT_DIR = "public/ads/carousel";
 
 const concepts = [
