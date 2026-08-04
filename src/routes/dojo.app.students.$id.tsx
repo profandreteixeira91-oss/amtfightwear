@@ -2,7 +2,8 @@ import { formatDegree, degreeSuffix, degreeUnit, formatBeltName, formatBeltFull 
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+
 import {
   getDojoStudent, listDojoBelts, listDojoPlans, listDojoUnits,
   addDojoGraduation, deleteDojoGraduation, updateDojoGraduation,
@@ -111,6 +112,15 @@ function StudentDetail() {
     staleTime: 60_000,
   });
 
+  const s = (q.data?.student ?? null) as any;
+  const graduations = q.data?.graduations ?? [];
+  const enrollments = q.data?.enrollments ?? [];
+  const invoices = q.data?.invoices ?? [];
+  const certificates = q.data?.certificates ?? [];
+  const attendanceRows = (attendance.data ?? []) as any[];
+
+  const currentEnrollment = enrollments.find((e: any) => e.status === "active") ?? enrollments[0];
+
   const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: todayISO(), evaluator: "", notes: "" });
   const [enroll, setEnroll] = useState({ id: "", plan_id: "", custom_amount: "", due_day: 5, start_date: todayISO(), status: "active" as any });
   const [inv, setInv] = useState({ description: "", amount: "", due_date: todayISO() });
@@ -125,6 +135,21 @@ function StudentDetail() {
   const [issuingCert, setIssuingCert] = useState(false);
   const [gradEdit, setGradEdit] = useState<{ open: boolean; grad: any | null; graduation_date: string; evaluator: string }>({ open: false, grad: null, graduation_date: "", evaluator: "" });
   const [gradEditBusy, setGradEditBusy] = useState(false);
+
+  useEffect(() => {
+    if (currentEnrollment) {
+      setEnroll({
+        id: currentEnrollment.id,
+        plan_id: currentEnrollment.plan_id,
+        custom_amount: currentEnrollment.custom_amount ? String(currentEnrollment.custom_amount).replace(".", ",") : "",
+        due_day: currentEnrollment.due_day || 5,
+        start_date: currentEnrollment.start_date ? currentEnrollment.start_date.slice(0, 10) : todayISO(),
+        status: currentEnrollment.status,
+      });
+    }
+  }, [currentEnrollment]);
+
+
   const templatesFn = useServerFn(listCertificateTemplates);
   const issueCertFn = useServerFn(issueCertificate);
   const certTemplates = useQuery({
@@ -222,15 +247,8 @@ function StudentDetail() {
     } catch (e: any) { toast.error(e.message); }
   };
 
-  const s = (q.data?.student ?? null) as any;
-  const graduations = q.data?.graduations ?? [];
-  const enrollments = q.data?.enrollments ?? [];
-  const invoices = q.data?.invoices ?? [];
-  const certificates = q.data?.certificates ?? [];
-  const attendanceRows = (attendance.data ?? []) as any[];
-
-  const currentEnrollment = enrollments.find((e: any) => e.status === "active") ?? enrollments[0];
   const anamn = s?.anamnesis ?? {};
+
 
   // === Métricas ===
   const enrollmentDate = s?.created_at ?? currentEnrollment?.start_date ?? null;
