@@ -26,7 +26,11 @@ export const adminListStoreCustomers = createServerFn({ method: "GET" })
     await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data, error } = await supabaseAdmin.rpc("get_store_customers_unified");
+    // Mudamos para buscar da VIEW via select normal
+    const { data, error } = await supabaseAdmin
+      .from("store_customers_unified")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
     return (data || []) as StoreCustomer[];
@@ -40,10 +44,13 @@ export const adminGetCustomerDetails = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // 1. Dados básicos
-    const { data: customers, error: custError } = await supabaseAdmin.rpc("get_store_customers_unified");
+    const { data: customer, error: custError } = await supabaseAdmin
+      .from("store_customers_unified")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+
     if (custError) throw new Error(custError.message);
-    
-    const customer = (customers as StoreCustomer[]).find(c => c.id === data.id);
     if (!customer) throw new Error("Cliente não encontrado");
 
     // 2. Histórico de Pedidos
@@ -54,8 +61,8 @@ export const adminGetCustomerDetails = createServerFn({ method: "GET" })
     if (isGuest) {
       ordersQuery = ordersQuery.eq("customer_email", data.id.replace("guest:", ""));
     } else if (isChat) {
-      if (customer.email) ordersQuery = ordersQuery.eq("customer_email", customer.email);
-      else return { customer, orders: [], carts: [], conversations: [] };
+      if ((customer as StoreCustomer).email) ordersQuery = ordersQuery.eq("customer_email", (customer as StoreCustomer).email);
+      else return { customer: customer as StoreCustomer, orders: [], carts: [], conversations: [] };
     } else {
       ordersQuery = ordersQuery.eq("user_id", data.id);
     }
@@ -79,17 +86,17 @@ export const adminGetCustomerDetails = createServerFn({ method: "GET" })
     let convsQuery = supabaseAdmin.from("sales_conversations").select("*").order("last_message_at", { ascending: false });
     if (isChat) {
       convsQuery = convsQuery.eq("external_id", data.id.replace("chat:", ""));
-    } else if (customer.email) {
-      convsQuery = convsQuery.eq("customer_email", customer.email);
+    } else if ((customer as StoreCustomer).email) {
+      convsQuery = convsQuery.eq("customer_email", (customer as StoreCustomer).email);
     } else {
       convsQuery = convsQuery.limit(0);
     }
     const { data: conversations } = await convsQuery;
 
     return {
-      customer,
-      orders: orders ?? [],
-      carts: carts ?? [],
-      conversations: conversations ?? [],
+      customer: customer as StoreCustomer,
+      orders: (orders || []) as any[],
+      carts: (carts || []) as any[],
+      conversations: (conversations || []) as any[],
     };
   });
