@@ -372,6 +372,17 @@ export const Route = createFileRoute("/api/public/sales/chat")({
                   await saveMessage(sb, conversationId, "assistant", text);
                 }
                 await sb.from("sales_conversations").update({ last_message_at: new Date().toISOString() }).eq("id", conversationId);
+
+                // Notificar admins sobre a nova mensagem do USUÁRIO (se o fluxo chegou até aqui)
+                const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
+                const { data: conv } = await sb.from("sales_conversations").select("customer_name, channel").eq("id", conversationId).single();
+                
+                await sendPushToAmtAdmins({
+                  title: `Nova mensagem (${conv?.channel ?? "Chat"})`,
+                  body: `${conv?.customer_name ?? "Cliente"}: ${body.message.slice(0, 100)}...`,
+                  url: `/admin/atendimento?chat=${conversationId}`,
+                  tag: `sales-${conversationId}`,
+                }, "sales_message.new");
               } catch (e) {
                 console.error("[sales/chat] persist error", e);
               }
