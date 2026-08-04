@@ -7,14 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { adminListStoreCustomers } from "@/lib/store/customers.functions";
+import { adminListStoreCustomers, adminGetCustomerDetails, type StoreCustomer } from "@/lib/store/customers.functions";
 import { PageShell } from "@/components/common/PageShell";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ShoppingBag, MessageCircle, ShoppingCart, User, Mail, Phone, MapPin, Calendar, CreditCard, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes")({
   head: () => ({
     meta: [
       { title: "Clientes da Loja — AMT" },
-      { name: "description", content: "Clientes cadastrados na loja AMT." },
+      { name: "description", content: "Gerenciamento completo de clientes, histórico e carrinhos." },
     ],
   }),
   component: StoreCustomersPage,
@@ -31,6 +35,7 @@ function StoreCustomersPage() {
     queryFn: () => fetchCustomers(),
   });
   const [q, setQ] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -56,7 +61,7 @@ function StoreCustomersPage() {
     <PageShell
       eyebrow="Loja"
       title="Clientes"
-      description="Todos os clientes que criaram conta e navegaram na loja."
+      description="Todos os clientes que criaram conta, navegaram ou entraram em contato."
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Card>
@@ -85,7 +90,7 @@ function StoreCustomersPage() {
             {isLoading ? "Carregando..." : `${rows.length} cliente(s)`}
           </CardTitle>
           <Input
-            placeholder="Buscar por nome, e-mail, telefone, cidade..."
+            placeholder="Buscar por nome, e-mail, telefone..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="w-full sm:max-w-xs"
@@ -94,7 +99,7 @@ function StoreCustomersPage() {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="space-y-3 p-6">
-              {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+              {Array.from({ length: 6 }).map((_, i) => <Skeleton className="h-12 w-full" />)}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -102,11 +107,11 @@ function StoreCustomersPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Cliente</TableHead>
-                    <TableHead className="hidden md:table-cell">Contato</TableHead>
-                    <TableHead className="hidden lg:table-cell">Localidade</TableHead>
+                    <TableHead className="hidden md:table-cell">Origem</TableHead>
                     <TableHead className="text-right">Pedidos</TableHead>
+                    <TableHead className="text-right">Abandonos</TableHead>
                     <TableHead className="text-right">Total pago</TableHead>
-                    <TableHead className="hidden md:table-cell">Cadastro</TableHead>
+                    <TableHead className="w-10"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -117,29 +122,36 @@ function StoreCustomersPage() {
                       </TableCell>
                     </TableRow>
                   ) : rows.map((c) => (
-                    <TableRow key={c.id}>
+                    <TableRow 
+                      key={c.id} 
+                      className="cursor-pointer hover:bg-accent/50"
+                      onClick={() => setSelectedId(c.id)}
+                    >
                       <TableCell>
-                        <div className="font-medium">{c.full_name || "Sem nome"}</div>
-                        <div className="text-xs text-muted-foreground md:hidden">{c.email}</div>
+                        <div className="font-medium">{c.full_name || "Lead do Chat"}</div>
+                        <div className="text-xs text-muted-foreground">{c.email}</div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
-                        <div>{c.email}</div>
-                        {c.phone && <div className="text-xs">{c.phone}</div>}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
-                        {[c.city, c.state].filter(Boolean).join(" · ") || "—"}
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant="outline" className="text-[10px] font-medium uppercase">
+                          {c.type === "registered" ? "Cadastrado" : c.type === "lead" ? "Chat/Lead" : "Visitante"}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="font-semibold">{c.orders_count}</div>
                         {c.paid_count > 0 && (
-                          <Badge variant="secondary" className="text-[10px]">{c.paid_count} pagos</Badge>
+                          <span className="text-[10px] text-emerald-600 font-bold">{c.paid_count} pagos</span>
                         )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {c.abandoned_carts_count > 0 ? (
+                          <Badge variant="destructive" className="text-[10px]">{c.abandoned_carts_count}</Badge>
+                        ) : "0"}
                       </TableCell>
                       <TableCell className="text-right font-mono text-sm">
                         {fmtBRL(Number(c.total_spent ?? 0))}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
-                        {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                      <TableCell>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground/30" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -149,6 +161,152 @@ function StoreCustomersPage() {
           )}
         </CardContent>
       </Card>
+
+      <CustomerDetailsDialog id={selectedId} onClose={() => setSelectedId(null)} />
     </PageShell>
+  );
+}
+
+function CustomerDetailsDialog({ id, onClose }: { id: string | null; onClose: () => void }) {
+  const fetchDetails = useServerFn(adminGetCustomerDetails);
+  const { data, isLoading } = useQuery({
+    queryKey: ["store", "customer", id],
+    queryFn: () => fetchDetails({ data: { id: id! } }),
+    enabled: !!id,
+  });
+
+  return (
+    <Dialog open={!!id} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        {isLoading ? (
+          <div className="space-y-4 p-8">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : data ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3 text-2xl font-black">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
+                  <User className="h-6 w-6" />
+                </div>
+                <div>
+                  <div>{data.customer.full_name || "Lead identificado"}</div>
+                  <div className="text-sm font-normal text-muted-foreground">ID: {data.customer.id}</div>
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="grid gap-6 md:grid-cols-3 mt-4">
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-xs uppercase tracking-widest text-muted-foreground">Contato</CardTitle></CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm"><Mail className="h-4 w-4 text-primary" /> {data.customer.email || "—"}</div>
+                    <div className="flex items-center gap-2 text-sm"><Phone className="h-4 w-4 text-primary" /> {data.customer.phone || "—"}</div>
+                    <div className="flex items-center gap-2 text-sm"><MapPin className="h-4 w-4 text-primary" /> {[data.customer.city, data.customer.state].filter(Boolean).join(" · ") || "—"}</div>
+                    <div className="flex items-center gap-2 text-sm"><Calendar className="h-4 w-4 text-primary" /> Desde {new Date(data.customer.created_at).toLocaleDateString("pt-BR")}</div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-xs uppercase tracking-widest text-muted-foreground">Financeiro</CardTitle></CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between text-sm"><span>Total Gasto:</span> <span className="font-bold text-emerald-600">{fmtBRL(data.customer.total_spent)}</span></div>
+                    <div className="flex items-center justify-between text-sm"><span>Pedidos:</span> <span className="font-bold">{data.customer.orders_count}</span></div>
+                    <div className="flex items-center justify-between text-sm"><span>Pagos:</span> <span className="font-bold">{data.customer.paid_count}</span></div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="md:col-span-2">
+                <Tabs defaultValue="pedidos">
+                  <TabsList className="w-full justify-start border-b rounded-none h-12 bg-transparent p-0 gap-6">
+                    <TabsTrigger value="pedidos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 font-bold"><ShoppingBag className="mr-2 h-4 w-4" /> Pedidos</TabsTrigger>
+                    <TabsTrigger value="carrinhos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 font-bold"><ShoppingCart className="mr-2 h-4 w-4" /> Carrinhos</TabsTrigger>
+                    <TabsTrigger value="chat" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 font-bold"><MessageCircle className="mr-2 h-4 w-4" /> Chat</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="pedidos" className="mt-4">
+                    {data.orders.length === 0 ? (
+                      <div className="p-8 text-center text-sm text-muted-foreground border-2 border-dashed rounded-xl">Sem pedidos registrados.</div>
+                    ) : (
+                      <div className="space-y-3">
+                        {data.orders.map((o) => (
+                          <div key={o.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/30 transition-colors">
+                            <div>
+                              <div className="font-bold text-sm">Pedido #{o.order_number}</div>
+                              <div className="text-[10px] text-muted-foreground">{new Date(o.created_at).toLocaleString("pt-BR")}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-sm">{fmtBRL(o.total)}</div>
+                              <Badge variant={o.payment_status === "paid" ? "secondary" : "outline"} className="text-[9px] uppercase">
+                                {o.payment_status === "paid" ? "Pago" : "Pendente"}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="carrinhos" className="mt-4">
+                    {data.carts.length === 0 ? (
+                      <div className="p-8 text-center text-sm text-muted-foreground border-2 border-dashed rounded-xl">Sem carrinhos registrados.</div>
+                    ) : (
+                      <div className="space-y-4">
+                        {data.carts.map((c) => (
+                          <div key={c.id} className="p-4 rounded-xl border bg-accent/10">
+                            <div className="flex items-center justify-between mb-3">
+                              <Badge variant={c.status === "active" ? "destructive" : "outline"} className="text-[10px]">
+                                {c.status === "active" ? "Abandonado" : "Enviado/Convertido"}
+                              </Badge>
+                              <span className="text-[10px] text-muted-foreground">{new Date(c.created_at).toLocaleString("pt-BR")}</span>
+                            </div>
+                            <div className="space-y-2">
+                              {c.store_cart_items.map((it: any) => (
+                                <div key={it.id} className="flex justify-between text-xs">
+                                  <span>{it.quantity}x {it.product_name}</span>
+                                  <span className="font-medium">{fmtBRL(it.unit_price * it.quantity)}</span>
+                                </div>
+                              ))}
+                              <div className="pt-2 border-t flex justify-between font-bold text-sm">
+                                <span>Total Estimado</span>
+                                <span>{fmtBRL(c.total_estimate)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="chat" className="mt-4">
+                    {data.conversations.length === 0 ? (
+                      <div className="p-8 text-center text-sm text-muted-foreground border-2 border-dashed rounded-xl">Sem histórico de chat.</div>
+                    ) : (
+                      <div className="space-y-3">
+                        {data.conversations.map((conv) => (
+                          <div key={conv.id} className="p-3 rounded-lg border hover:bg-accent/30 transition-colors flex items-center justify-between">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-bold text-sm truncate">{conv.channel} · {conv.status}</div>
+                              <div className="text-[10px] text-muted-foreground">Última: {new Date(conv.last_message_at).toLocaleString("pt-BR")}</div>
+                            </div>
+                            <Button asChild size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                <a href={`/admin/atendimento?chat=${conv.id}`}><MessageCircle className="h-4 w-4" /></a>
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          </>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 }
