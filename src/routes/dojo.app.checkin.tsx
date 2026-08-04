@@ -70,6 +70,7 @@ function DojoCheckinModule() {
         { event: '*', schema: 'public', table: 'dojo_partner_checkins' },
         () => {
           qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
+          qc.invalidateQueries({ queryKey: ["dojo-partner-checkins"] });
         }
       )
       .subscribe();
