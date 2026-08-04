@@ -13,9 +13,8 @@ import {
   enrollStudentWithPlan,
   bulkImportDojoStudents,
   addDojoGraduation,
-  listDojoClasses,
 } from "@/lib/dojo/dojo.functions";
-import { addClassStudent } from "@/lib/dojo/schedule.functions";
+import { addClassStudent, listClasses } from "@/lib/dojo/schedule.functions";
 import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
