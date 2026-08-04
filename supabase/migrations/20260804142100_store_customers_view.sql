@@ -41,7 +41,7 @@ WITH customer_base AS (
     SELECT 
         'guest:' || customer_email as id,
         customer_email as email,
-        NULL as full_name, -- Geralmente o nome está no pedido, mas aqui simplificamos
+        NULL as full_name, 
         NULL as phone,
         NULL as document,
         NULL as city,
