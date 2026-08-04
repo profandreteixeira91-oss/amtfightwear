@@ -27,10 +27,20 @@ export const searchStudents = createServerFn({ method: "GET" })
 export const checkinDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    // Usamos o fuso do Brasil (America/Sao_Paulo) para definir "hoje"
     const now = new Date();
-    const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-    const startWeek = new Date(now.getTime() - 7 * 86400000).toISOString();
-    const startMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const brToday = dayISO(now); // YYYY-MM-DD
+    
+    // Para queries no banco, precisamos converter o início do dia no Brasil para UTC
+    const startDayDate = new Date(`${brToday}T00:00:00-03:00`);
+    const startDay = startDayDate.toISOString();
+    
+    const weekAgo = new Date(startDayDate.getTime() - 7 * 86400000);
+    const startWeek = weekAgo.toISOString();
+    
+    const monthStart = new Date(startDayDate.getFullYear(), startDayDate.getMonth(), 1);
+    const startMonth = monthStart.toISOString();
+    
     const supa = context.supabase;
 
     const [today, week, month, presentNow, checkouts, gympass, totalpass, pendingPartner] = await Promise.all([
@@ -62,21 +72,26 @@ export const checkinDashboard = createServerFn({ method: "GET" })
         .eq("status", "pending"),
     ]);
 
-    // hourly distribution today
+    // hourly distribution today (fuso Brasil)
     const { data: todays } = await supa
       .from("dojo_attendance")
       .select("checked_in_at, method")
       .gte("checked_in_at", startDay)
-      .limit(500);
+      .limit(1000);
+      
     const hourly = Array.from({ length: 24 }, (_, h) => ({ hour: h, count: 0 }));
     (todays ?? []).forEach((r: any) => {
-      const h = new Date(r.checked_in_at).getHours();
-      hourly[h].count++;
+      // Converte UTC para hora local Brasil
+      const h = new Date(r.checked_in_at).toLocaleTimeString("en-US", { timeZone: "America/Sao_Paulo", hour12: false, hour: "numeric" });
+      const hourIdx = parseInt(h);
+      if (!isNaN(hourIdx)) {
+        hourly[hourIdx].count++;
+      }
     });
     const peak = hourly.reduce((a, b) => (b.count > a.count ? b : a), hourly[0]);
 
     // 30d average
-    const start30 = new Date(now.getTime() - 30 * 86400000).toISOString();
+    const start30 = new Date(startDayDate.getTime() - 30 * 86400000).toISOString();
     const { count: last30 } = await supa
       .from("dojo_attendance")
       .select("id", { count: "exact", head: true })
@@ -98,6 +113,7 @@ export const checkinDashboard = createServerFn({ method: "GET" })
       hourly,
     };
   });
+
 
 // ---------- Present now list ----------
 export const presentNowList = createServerFn({ method: "GET" })
