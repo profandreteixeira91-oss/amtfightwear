@@ -103,7 +103,7 @@ export function AdminShell({
   return (
     <OwnerOnly>
       <SidebarProvider defaultOpen>
-        <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background">
+        <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground">
           <AdminSidebar />
           <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
             <AdminTopbar title={title} />

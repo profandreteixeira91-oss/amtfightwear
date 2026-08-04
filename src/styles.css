@@ -372,8 +372,12 @@ body:has(.dojo-theme) [data-slot="sheet-content"][data-sidebar="sidebar"] {
   --sidebar-accent-foreground: #000000;
   --sidebar-border: oklch(0.92 0 0);
   --sidebar-ring: oklch(0.56 0.235 27);
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.admin-shell [data-sidebar="sidebar"] * {
+  border-color: oklch(0.92 0 0) !important;
 }
 
 .admin-shell [data-sidebar="menu-button"] {
