@@ -87,15 +87,16 @@ export function ClassStudentsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
         <div className="p-6 pb-2">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="h-4 w-4 shrink-0" />
-            <span className="break-words">Alunos — {(cls.data as any)?.name ?? "Turma"}</span>
-          </DialogTitle>
-          <DialogDescription>
-            Matricule ou remova alunos desta turma. {students.length}
-            {capacity ? `/${capacity}` : ""} vagas ocupadas.
-          </DialogDescription>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-4 w-4 shrink-0" />
+              <span className="break-words">Alunos — {(cls.data as any)?.name ?? "Turma"}</span>
+            </DialogTitle>
+            <DialogDescription>
+              Matricule ou remova alunos desta turma. {students.length}
+              {capacity ? `/${capacity}` : ""} vagas ocupadas.
+            </DialogDescription>
+          </DialogHeader>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 pt-0">
