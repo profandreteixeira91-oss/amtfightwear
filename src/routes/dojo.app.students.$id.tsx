@@ -2,7 +2,8 @@ import { formatDegree, degreeSuffix, degreeUnit, formatBeltName, formatBeltFull 
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+
 import {
   getDojoStudent, listDojoBelts, listDojoPlans, listDojoUnits,
   addDojoGraduation, deleteDojoGraduation, updateDojoGraduation,
