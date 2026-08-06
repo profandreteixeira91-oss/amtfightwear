@@ -16,7 +16,7 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
   const subscribePix = useServerFn(subscribeWithPix);
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState(defaultEmail ?? "");
-  const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string; ticketUrl: string } | null>(null);
+  const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string; ticketUrl: string } | null>(null); // Mantido por compatibilidade de tipo se necessário, mas não mais usado no fluxo principal
   const [copied, setCopied] = useState(false);
 
   async function handlePix(e: React.FormEvent) {
