@@ -244,20 +244,26 @@ function AdminProductsPage() {
 
   return (
     <PageShell
-      title="Produtos da loja"
-      description={`${filtered.length} produtos${search ? ` (filtrados de ${data?.length ?? 0})` : ""}`}
+      title="Catálogo de Produtos"
+      description={`${filtered.length} itens encontrados`}
       actions={
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-          <Input
-            placeholder="Buscar produto..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full sm:w-56"
-          />
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Input
+              placeholder="Buscar produtos..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              className="pl-9 bg-muted/50 border-border/40 focus:bg-background transition-all"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Plus className="h-4 w-4 rotate-45" /> {/* Magnifying glass placeholder or search icon if available */}
+            </div>
+          </div>
+          
           <select
             value={categoryFilter}
             onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
-            className="h-10 w-full rounded-md border bg-background px-2 text-sm sm:w-auto sm:min-w-[12rem]"
+            className="h-10 w-full sm:w-48 rounded-md border border-border/40 bg-muted/50 px-3 text-sm focus:bg-background transition-all outline-none"
           >
             <option value="">Todas as categorias</option>
             {(() => {
@@ -284,80 +290,109 @@ function AdminProductsPage() {
               return out;
             })()}
           </select>
-          <div className="flex flex-wrap items-center gap-2">
-            {categoryFilter && (
-              <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter(""); setPage(1); }}>
-                Limpar filtro
-              </Button>
-            )}
-            <Button onClick={() => setCreatingProduct(true)} size="sm">
-              <Plus className="h-4 w-4 mr-1" /> Adicionar
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button onClick={() => setCreatingProduct(true)} size="default" className="flex-1 sm:flex-none shadow-sm shadow-primary/20">
+              <Plus className="h-4 w-4 mr-2" /> Novo Produto
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setManagingCategories(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Categorias
+            <Button variant="outline" size="default" onClick={() => setManagingCategories(true)} className="flex-1 sm:flex-none bg-background/50">
+              <Plus className="h-4 w-4 mr-2" /> Categorias
             </Button>
-            <Link to="/admin/atacado"><Button variant="outline" size="sm">Atacado</Button></Link>
-            <Link to="/admin/produtos/importar"><Button variant="outline" size="sm">Importar</Button></Link>
-            <Link to="/admin/fiscal"><Button variant="secondary" size="sm">Módulo Fiscal</Button></Link>
           </div>
         </div>
       }
     >
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-2">
+        <div className="lg:col-span-3 space-y-6">
+          {/* Quick Stats or Highlights could go here if needed, keeping it clean for now */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4">
+               <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/40 rounded-full border border-border/40 text-xs font-medium">
+                  <span className="w-2 h-2 rounded-full bg-primary" />
+                  {data?.length ?? 0} Produtos Totais
+               </div>
+               {categoryFilter && (
+                 <Button variant="link" size="sm" onClick={() => setCategoryFilter("")} className="h-auto p-0 text-muted-foreground hover:text-primary">
+                   Limpar Filtro
+                 </Button>
+               )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Link to="/admin/produtos/importar"><Button variant="ghost" size="sm" className="text-xs h-8">Importar</Button></Link>
+              <Link to="/admin/atacado"><Button variant="ghost" size="sm" className="text-xs h-8">Regras Atacado</Button></Link>
+              <Link to="/admin/fiscal"><Button variant="ghost" size="sm" className="text-xs h-8 text-primary">Painel Fiscal</Button></Link>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <Card className="border-primary/40 bg-primary/5">
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[auto_repeat(3,minmax(0,1fr))_auto] lg:items-end">
-            <div className="text-sm font-semibold">
-              Edição em massa
-              <div className="text-xs font-normal text-muted-foreground">
-                {selected.size} selecionado(s)
+      <Card className="border-border/40 bg-muted/30 backdrop-blur-sm overflow-hidden shadow-sm">
+        <CardContent className="p-0">
+          <div className="p-4 border-b border-border/40 bg-background/40">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  Ações em Massa
+                  {selected.size > 0 && (
+                    <Badge variant="secondary" className="font-mono text-[10px]">{selected.size} selecionado(s)</Badge>
+                  )}
+                </h3>
+                <p className="text-xs text-muted-foreground">Selecione itens na tabela para aplicar alterações rápidas.</p>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0} className="text-xs">
+                  Selecionar Tudo
+                </Button>
+                {selected.size > 0 && (
+                  <>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      className="text-xs"
+                      onClick={async () => {
+                        if (!confirm(`Excluir ${selected.size} produto(s)?`)) return;
+                        setSaving(true);
+                        for (const id of Array.from(selected)) await deleteProduct({ data: { id } });
+                        setSaving(false);
+                        setSelected(new Set());
+                        toast.success("Excluídos com sucesso");
+                        refresh();
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Excluir
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())} className="text-xs">Limpar</Button>
+                  </>
+                )}
               </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Novo preço (R$)</label>
-              <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-full" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Ajuste % (ex: 10 ou -5)</label>
-              <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-full" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Novo estoque</label>
-              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-full" />
-            </div>
-            <Button onClick={applyBulk} disabled={saving || selected.size === 0} className="w-full sm:w-auto">Aplicar</Button>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0}>
-              Selecionar todos filtrados ({filtered.length})
+          
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <div className="space-y-1.5">
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Novo Preço</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">R$</span>
+                <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="0,00" className="pl-8 h-9 text-sm" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Ajuste Percentual</Label>
+              <div className="relative">
+                <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="ex: 10 ou -5" className="h-9 text-sm pr-7" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">%</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Novo Estoque</Label>
+              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="0" className="h-9 text-sm" />
+            </div>
+            <Button onClick={applyBulk} disabled={saving || selected.size === 0} className="h-9 shadow-sm">
+              {saving ? "Aplicando..." : "Aplicar Alterações"}
             </Button>
-            {selected.size > 0 && (
-              <>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={async () => {
-                    if (!confirm(`Excluir ${selected.size} produto(s) selecionado(s)? Esta ação não pode ser desfeita.`)) return;
-                    setSaving(true);
-                    let ok = 0, fail = 0;
-                    for (const id of Array.from(selected)) {
-                      try { await deleteProduct({ data: { id } }); ok++; }
-                      catch { fail++; }
-                    }
-                    setSaving(false);
-                    setSelected(new Set());
-                    toast.success(`${ok} excluído(s)${fail ? `, ${fail} falha(s)` : ""}`);
-                    refresh();
-                  }}
-                  disabled={saving}
-                >
-                  <Trash2 className="h-3 w-3 mr-1" /> Excluir selecionados
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
-              </>
-            )}
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Selecione produtos na tabela abaixo (ou use "Selecionar todos filtrados") e informe novo preço, ajuste % ou estoque. Preço absoluto tem prioridade sobre ajuste %.</p>
         </CardContent>
       </Card>
 
