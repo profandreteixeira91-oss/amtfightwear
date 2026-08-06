@@ -150,7 +150,7 @@ export const startMySubscription = createServerFn({ method: "POST" })
 export const getMpPublicKey = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
-    const key = process.env.MERCADOPAGO_PUBLIC_KEY;
+    const key = process.env.STORE_MERCADOPAGO_PUBLIC_KEY || process.env.MERCADOPAGO_PUBLIC_KEY;
     if (!key) throw new Error("MERCADOPAGO_PUBLIC_KEY não configurada");
     return { publicKey: key };
   });
