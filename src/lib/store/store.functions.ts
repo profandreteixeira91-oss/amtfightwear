@@ -477,7 +477,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: product } = await sb.from("store_products" as any).select("*").eq("slug", data.slug).eq("status", "active").maybeSingle();
+    const { data: product } = await sb.from("store_products" as any).select("*").eq("slug", data.slug).eq("status", "active").maybeSingle() as any;
     if (!product) return { product: null, images: [], variants: [], related: [], category: null };
     const [imagesR, variantsR, categoryR] = await Promise.all([
       sb.from("store_product_images").select("*").eq("product_id", product.id).order("sort_order"),
