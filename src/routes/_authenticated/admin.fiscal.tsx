@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig } from "@/lib/fiscal/fiscal.functions";
+import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig, fetchCompanyByCnpj } from "@/lib/fiscal/fiscal.functions";
 import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -49,6 +49,10 @@ function FiscalDashboard() {
   const fetchProducts = useServerFn(getProductsWithFiscal);
   const updateProdFiscal = useServerFn(updateProductFiscal);
   const saveConfigFn = useServerFn(saveFiscalConfig);
+  const findCnpjFn = useServerFn(fetchCompanyByCnpj);
+  
+  const [fiscalConfig, setFiscalConfig] = useState<any>(null);
+  const [isSearchingCnpj, setIsSearchingCnpj] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [productSearch, setProductSearch] = useState("");
@@ -436,16 +440,50 @@ function FiscalDashboard() {
                 >
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Razão Social</label>
-                      <Input name="razao_social" defaultValue={status?.issuer_name !== "Não configurado" ? status?.issuer_name : ""} required />
+                      <label className="text-sm font-medium">CNPJ</label>
+                      <div className="flex gap-2">
+                        <Input 
+                          name="cnpj" 
+                          placeholder="00.000.000/0000-00" 
+                          required 
+                          defaultValue={fiscalConfig?.cnpj || ""}
+                          onBlur={async (e) => {
+                            const cnpj = e.target.value.replace(/\D/g, "");
+                            if (cnpj.length === 14) {
+                              setIsSearchingCnpj(true);
+                              try {
+                                const result = await findCnpjFn({ data: { cnpj } });
+                                setFiscalConfig(result);
+                                toast.success("Dados da empresa carregados!");
+                              } catch (err: any) {
+                                toast.error(err.message);
+                              } finally {
+                                setIsSearchingCnpj(false);
+                              }
+                            }
+                          }}
+                        />
+                        {isSearchingCnpj && <Loader2 className="h-4 w-4 animate-spin self-center" />}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Digite o CNPJ para preencher automaticamente.</p>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">CNPJ</label>
-                      <Input name="cnpj" placeholder="00.000.000/0000-00" required />
+                      <label className="text-sm font-medium">Razão Social</label>
+                      <Input 
+                        name="razao_social" 
+                        value={fiscalConfig?.razao_social || (status?.issuer_name !== "Não configurado" ? status?.issuer_name : "")} 
+                        onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, razao_social: e.target.value }))}
+                        required 
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Inscrição Estadual</label>
-                      <Input name="inscricao_estadual" required />
+                      <Input 
+                        name="inscricao_estadual" 
+                        value={fiscalConfig?.inscricao_estadual || ""} 
+                        onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, inscricao_estadual: e.target.value }))}
+                        required 
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Ambiente SEFAZ</label>
@@ -459,37 +497,78 @@ function FiscalDashboard() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-4 gap-2">
                       <div className="col-span-3 space-y-2">
+                      <div className="col-span-3 space-y-2">
                         <label className="text-sm font-medium">Endereço</label>
-                        <Input name="address_street" placeholder="Rua / Av" required />
+                        <Input 
+                          name="address_street" 
+                          placeholder="Rua / Av" 
+                          value={fiscalConfig?.address?.street || ""} 
+                          onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, address: { ...prev?.address, street: e.target.value } }))}
+                          required 
+                        />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Nº</label>
-                        <Input name="address_number" required />
+                        <Input 
+                          name="address_number" 
+                          value={fiscalConfig?.address?.number || ""} 
+                          onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, address: { ...prev?.address, number: e.target.value } }))}
+                          required 
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Cidade</label>
-                        <Input name="address_city_name" required />
+                        <Input 
+                          name="address_city_name" 
+                          value={fiscalConfig?.address?.city || ""} 
+                          onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, address: { ...prev?.address, city: e.target.value } }))}
+                          required 
+                        />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Código IBGE Cidade</label>
-                        <Input name="address_city_code" placeholder="Ex: 3550308" required />
+                        <Input 
+                          name="address_city_code" 
+                          placeholder="Ex: 3550308" 
+                          value={fiscalConfig?.address?.city_code || ""} 
+                          onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, address: { ...prev?.address, city_code: e.target.value } }))}
+                          required 
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       <div className="col-span-2 space-y-2">
                         <label className="text-sm font-medium">Bairro</label>
-                        <Input name="address_neighborhood" required />
+                        <Input 
+                          name="address_neighborhood" 
+                          value={fiscalConfig?.address?.neighborhood || ""} 
+                          onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, address: { ...prev?.address, neighborhood: e.target.value } }))}
+                          required 
+                        />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium">UF</label>
-                        <Input name="address_state" maxLength={2} placeholder="SP" required />
+                        <Input 
+                          name="address_state" 
+                          maxLength={2} 
+                          placeholder="SP" 
+                          value={fiscalConfig?.address?.state || ""} 
+                          onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, address: { ...prev?.address, state: e.target.value } }))}
+                          required 
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">CEP</label>
-                      <Input name="address_zip" placeholder="00000-000" required />
+                      <Input 
+                        name="address_zip" 
+                        placeholder="00000-000" 
+                        value={fiscalConfig?.address?.zip || ""} 
+                        onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, address: { ...prev?.address, zip: e.target.value } }))}
+                        required 
+                      />
                     </div>
                   </div>
                   
