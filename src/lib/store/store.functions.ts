@@ -1015,7 +1015,7 @@ export const adminCreateStoreProduct = createServerFn({ method: "POST" })
     const { data: created, error } = await context.supabase
       .from("store_products" as any)
       .insert(data)
-      .select("id") as any
+      .select("id")
       .single();
     if (error) throw new Error(error.message);
     return { id: (created as any).id };
