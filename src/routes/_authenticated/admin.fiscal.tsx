@@ -152,11 +152,18 @@ function FiscalDashboard() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button className="w-full gap-2 rounded-full bg-red-600 shadow-sm transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] sm:w-auto">
+                <Button 
+                  onClick={() => setActiveTab("invoices")}
+                  className="w-full gap-2 rounded-full bg-red-600 shadow-sm transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
+                >
                   <Plus className="h-4 w-4" />
                   Emitir Nota (NF-e)
                 </Button>
-                <Button variant="outline" className="w-full gap-2 rounded-full bg-white/70 backdrop-blur sm:w-auto">
+                <Button 
+                  onClick={() => setActiveTab("config")}
+                  variant="outline" 
+                  className="w-full gap-2 rounded-full bg-white/70 backdrop-blur sm:w-auto"
+                >
                   <Settings className="h-4 w-4" />
                   Configurações
                 </Button>
