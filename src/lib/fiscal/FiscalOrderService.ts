@@ -33,8 +33,8 @@ export const listBillingOrders = createServerFn({ method: "GET" })
         .select("id, order_number, customer_name, customer_document, shipping_address, created_at, total, payment_method, payment_status, status, metadata")
         .order("created_at", { ascending: false })
         .limit(100),
-      sb.from("quotes")
-        .select("id, quote_number, customer_name, customer_document, city, state, created_at, total_amount, status, created_by")
+      sb.from("store_quotes")
+        .select("id, quote_number, customer_name, customer_document, customer_address, created_at, total, status")
         .eq("status", "accepted")
         .order("created_at", { ascending: false })
         .limit(100),
@@ -72,16 +72,17 @@ export const listBillingOrders = createServerFn({ method: "GET" })
 
     // Map quotes
     (quotesRes.data ?? []).forEach((q: any) => {
+      const addr = q.customer_address as any;
       billingOrders.push({
         id: q.id,
         number: String(q.quote_number),
         type: "quote",
         customer_name: q.customer_name,
         customer_document: q.customer_document ?? "",
-        city: q.city ?? "",
-        state: q.state ?? "",
-        date: q.created_at,
-        total: q.total_amount,
+        city: addr?.city ?? "",
+        state: addr?.state ?? "",
+        date: q.date || q.created_at,
+        total: q.total,
         item_count: 0,
         payment_method: "Orçamento",
         payment_status: q.status,
