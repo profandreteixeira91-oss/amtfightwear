@@ -428,11 +428,11 @@ function StudentsPage() {
       if (studentId) {
         // --- Registrar na Turma ---
         for (const m of validMods) {
-          if (m.class_id) {
+          if (m.class_ids && m.class_ids.length > 0) {
             try {
-              await addClassStudentFn({ data: { class_id: m.class_id, student_id: studentId } });
+              await syncClassesFn({ data: { student_id: studentId, class_ids: m.class_ids, modality: m.modality } });
             } catch (e: any) {
-              console.error("Erro ao matricular na turma:", e);
+              console.error("Erro ao sincronizar turmas:", e);
               // Não bloqueia o resto do salvamento
             }
           }
