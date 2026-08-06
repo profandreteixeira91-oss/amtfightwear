@@ -104,8 +104,8 @@ function AdminProductsPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const rows = data ?? [];
-    return rows.filter((p) => {
+    const rows = (data as any) ?? [];
+    return rows.filter((p: any) => {
       if (allowedCategoryIds && !(p.category_id && allowedCategoryIds.has(p.category_id))) return false;
       if (!q) return true;
       const tokens = q.split(/\s+/).filter(Boolean);
@@ -135,7 +135,7 @@ function AdminProductsPage() {
   const toggleAllPage = (v: boolean) => {
     setSelected((prev) => {
       const n = new Set(prev);
-      for (const p of pageRows) {
+      for (const p of (pageRows as any[])) {
         if (v) n.add(p.id);
         else n.delete(p.id);
       }
@@ -143,7 +143,7 @@ function AdminProductsPage() {
     });
   };
 
-  const allPageSelected = pageRows.length > 0 && pageRows.every((p) => selected.has(p.id));
+  const allPageSelected = pageRows.length > 0 && pageRows.every((p: any) => selected.has(p.id));
 
   const patchOne = async (id: string, patch: Record<string, unknown>) => {
     await update({ data: { id, patch } });
@@ -446,7 +446,7 @@ function AdminProductsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/30">
-                    {pageRows.map((p) => {
+                    {pageRows.map((p: any) => {
                       const e = edits[p.id];
                       const priceVal = e?.price ?? String(p.price);
                       const stockVal = e?.stock ?? String(p.stock);
