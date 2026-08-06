@@ -159,6 +159,8 @@ export const subscribeWithCardToken = createServerFn({ method: "POST" })
     if (!email) throw new Error("E-mail do dono indisponível");
 
     const notification = "https://amtfightwear.com.br/api/public/hooks/mercadopago";
+    const origin = "https://dojomanager.amtfightwear.com.br";
+    const backUrl = `${origin}/dojo/app/subscription`;
 
     const preapproval = await mpAmt<any>("/preapproval", {
       method: "POST",
@@ -167,6 +169,7 @@ export const subscribeWithCardToken = createServerFn({ method: "POST" })
         external_reference: `dojo_sub:${sub.id}`,
         payer_email: email,
         card_token_id: data.cardTokenId,
+        back_url: backUrl,
         status: "authorized",
         auto_recurring: {
           frequency: 1,
