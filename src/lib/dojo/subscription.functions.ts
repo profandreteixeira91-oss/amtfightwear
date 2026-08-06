@@ -113,11 +113,11 @@ export const startMySubscription = createServerFn({ method: "POST" })
           transaction_amount: PLAN_AMOUNT,
           currency_id: "BRL",
         },
-+        // Customização visual baseada no design do Dojo Manager
-+        theme: {
-+          elements_color: MP_DESIGN_CONFIG.main_color,
-+          header_color: "#000000",
-+        },
+        // Customização visual baseada no design do Dojo Manager
+        theme: {
+          elements_color: MP_DESIGN_CONFIG.main_color,
+          header_color: "#000000",
+        },
         payment_methods_allowed: {
           payment_types: [{ id: "credit_card" }, { id: "account_money" }, { id: "pix" }],
           payment_methods: [],
