@@ -58,8 +58,7 @@ function FiscalOrdersPage() {
   }, [orders]);
 
   return (
-    <AdminShell>
-      <div className="flex flex-col gap-8 p-6 md:p-8">
+    <div className="flex flex-col gap-8 p-6 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
