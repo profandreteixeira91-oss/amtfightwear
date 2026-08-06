@@ -63,8 +63,10 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     ]);
     const authUsers = authPage.users.filter(
       (user) =>
-        knownDojoOwners.has(user.id) ||
-        user.user_metadata?.account_type === "dojo_manager",
+        (knownDojoOwners.has(user.id) ||
+        user.user_metadata?.account_type === "dojo_manager") &&
+        user.email !== "igor.reboredo@gmail.com" &&
+        user.email !== "profandreteixeira91@gmail.com"
     );
     const ownerIds = authUsers.map((user) => user.id);
     if (ownerIds.length === 0) return [] as DojoAccountRow[];

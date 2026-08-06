@@ -113,7 +113,7 @@ function CustomersPage() {
     <>
       <PageHeader
         eyebrow="Base ativa"
-        title="Clientes"
+        title="Base de donos de dojo"
         description="Donos de dojo cadastrados no AMT Dojo Manager e status de assinatura."
       />
 
