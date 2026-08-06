@@ -50,11 +50,11 @@ function useStoreManifestSwap() {
 export function AppLayout() {
   useStoreManifestSwap();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isAdmin = pathname.startsWith("/admin") || pathname.startsWith("/_authenticated/admin") || pathname.includes("/fiscal");
+  const isInternalAdmin = pathname.startsWith("/admin") || pathname.startsWith("/_authenticated/admin") || pathname.includes("/fiscal");
 
   // Central AMT (/admin/*) gerencia seu próprio chrome via AdminShell.
   // Não renderizamos AppTopNav/AppHeader/AppFooter para evitar duplicação.
-  if (isAdmin) {
+  if (isInternalAdmin) {
     return (
       <div className="min-h-screen w-full bg-neutral-50">
         <Outlet />

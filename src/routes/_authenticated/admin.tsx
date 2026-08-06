@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { OwnerOnly } from "@/lib/auth/owner-only";
@@ -9,6 +9,9 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 function AdminLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isFiscal = pathname.includes("/fiscal");
+
   // PWA: troca o manifest para "Admin AMT" enquanto o usuário está em /admin
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -39,7 +42,9 @@ function AdminLayout() {
 
   return (
     <OwnerOnly description="O painel administrativo da AMT Fight Wear é independente do Portal do Aluno e do Dojo Manager. Sua conta não tem permissão para acessar esta área.">
-      <Outlet />
+      <AdminShell title={isFiscal ? "Módulo Fiscal" : undefined}>
+        <Outlet />
+      </AdminShell>
     </OwnerOnly>
   );
 }
