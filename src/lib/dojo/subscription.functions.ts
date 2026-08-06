@@ -299,3 +299,66 @@ export const listMySubscriptionPayments = createServerFn({ method: "GET" })
     }
     return { paid, pending };
   });
+
+/**
+ * Inicia uma assinatura via PIX.
+ * O MP não possui "assinatura por PIX" nativa no /preapproval para contas BR (geralmente exige cartão ou saldo).
+ * Vamos criar um pagamento pontual e marcar localmente para processar via webhook/cron ou renovação manual
+ * para simular a recorrência ou usar o preapproval se permitido.
+ */
+export const subscribeWithPix = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        payerEmail: z.string().email(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: sub } = await context.supabase
+      .from("dojo_subscriptions")
+      .select("*")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!sub) throw new Error("Assinatura não inicializada");
+
+    const notification = "https://amtfightwear.com.br/api/public/hooks/mercadopago";
+
+    // Criamos um pagamento via PIX para o primeiro mês.
+    // O sistema de recorrência local/webhook cuidará de notificar o usuário para pagar o próximo.
+    const payment = await mpAmt<any>("/v1/payments", {
+      method: "POST",
+      body: JSON.stringify({
+        transaction_amount: PLAN_AMOUNT,
+        description: "Mensalidade AMT Dojo Manager (PIX)",
+        payment_method_id: "pix",
+        payer: {
+          email: data.payerEmail,
+        },
+        external_reference: `dojo_sub_pix:${sub.id}`,
+        notification_url: notification,
+      }),
+    });
+
+    const pixData = payment.point_of_interaction?.transaction_data;
+
+    await context.supabase
+      .from("dojo_subscriptions")
+      .update({
+        mp_pix_id: String(payment.id),
+        mp_pix_qr_code: pixData?.qr_code,
+        mp_pix_qr_code_base64: pixData?.qr_code_base64,
+        mp_pix_ticket_url: pixData?.ticket_url,
+        last_event: payment,
+      } as never)
+      .eq("id", sub.id);
+
+    return {
+      id: String(payment.id),
+      qrCode: pixData?.qr_code,
+      qrCodeBase64: pixData?.qr_code_base64,
+      ticketUrl: pixData?.ticket_url,
+    };
+  });
+
