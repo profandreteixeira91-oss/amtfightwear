@@ -130,7 +130,7 @@ function SubscriptionPage() {
             </div>
           )}
 
-          {sub?.current_period_end && (
+          {status === "active" && sub?.current_period_end && (
             <div className="text-xs text-neutral-500">
               Próxima cobrança: {new Date(sub.current_period_end).toLocaleDateString("pt-BR")}
             </div>
