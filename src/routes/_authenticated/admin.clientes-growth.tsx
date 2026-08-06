@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { OwnerOnly } from "@/lib/auth/owner-only";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { UserSquare2, Search, Users, TrendingUp, Building2, GraduationCap } from "lucide-react";
+import { UserSquare2, Search, Users, TrendingUp, Building2, GraduationCap, Trash2 } from "lucide-react";
 
 import { PageHeader } from "@/components/common/PageHeader";
 import { StatCard } from "@/components/common/StatCard";
@@ -15,9 +15,21 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { adminListDojoAccounts, type DojoAccountRow } from "@/lib/store/dojo-admin.functions";
+import { adminListDojoAccounts, adminDeleteDojoOwnerAccount, type DojoAccountRow } from "@/lib/store/dojo-admin.functions";
 import { brl, intFmt } from "@/lib/format";
 import { formatBR } from "@/lib/dates";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes-growth")({
   head: () => ({
@@ -52,11 +64,28 @@ function statusVariant(status: string | null): "default" | "secondary" | "destru
 
 function CustomersPage() {
   const [q, setQ] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  const queryClient = useQueryClient();
   const fetchAccounts = useServerFn(adminListDojoAccounts);
+  const deleteAccountFn = useServerFn(adminDeleteDojoOwnerAccount);
+
   const { data, isLoading, error, refetch } = useQuery<DojoAccountRow[]>({
     queryKey: ["admin", "growth", "dojo-accounts"],
     queryFn: () => fetchAccounts(),
     refetchInterval: 60_000,
+  });
+
+  const { mutate: deleteAccount, isPending: isDeleting } = useMutation({
+    mutationFn: (ownerId: string) => deleteAccountFn({ data: { ownerId } }),
+    onSuccess: () => {
+      toast.success("Conta removida com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["admin", "growth", "dojo-accounts"] });
+      setDeletingId(null);
+    },
+    onError: (err) => {
+      toast.error(`Falha ao remover conta: ${err.message}`);
+    },
   });
 
   const items = useMemo(() => {
@@ -143,8 +172,9 @@ function CustomersPage() {
                           <TableHead className="hidden md:table-cell">Contato</TableHead>
                           <TableHead className="hidden lg:table-cell">Cidade</TableHead>
                           <TableHead>Plano</TableHead>
-                          <TableHead className="text-right">Alunos</TableHead>
+                           <TableHead className="text-right">Alunos</TableHead>
                           <TableHead className="hidden lg:table-cell text-right">Cadastro</TableHead>
+                          <TableHead className="w-10"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -168,8 +198,18 @@ function CustomersPage() {
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right">{intFmt(c.students_count)}</TableCell>
-                            <TableCell className="hidden lg:table-cell text-right text-sm text-muted-foreground">
+                             <TableCell className="hidden lg:table-cell text-right text-sm text-muted-foreground">
                               {formatBR(c.created_at)}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                onClick={() => setDeletingId(c.owner_id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -180,6 +220,28 @@ function CustomersPage() {
               </CardContent>
             </Card>
           </motion.div>
+
+          <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remover conta de Dono de Dojo?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação removerá permanentemente as unidades, alunos, planos e o vínculo desta conta com o Dojo Manager.
+                  O acesso administrativo do usuário será revogado, mas o perfil básico pode permanecer no sistema.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deletingId && deleteAccount(deletingId)}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? "Removendo..." : "Sim, remover conta"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </>
       )}
     </>

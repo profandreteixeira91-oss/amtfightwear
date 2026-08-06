@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { dayISO } from "@/lib/dates";
+import { z } from "zod";
 
 // ---------- Admin: list dojo owner accounts + subscription status ----------
 
@@ -227,4 +228,26 @@ export const adminGetDojoLandingStats = createServerFn({ method: "GET" })
       series,
       referrers,
     };
+  });
+
+// ---------- Admin: delete dojo owner account ----------
+
+export const adminDeleteDojoOwnerAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ ownerId: z.string().uuid() }).parse(data))
+  .handler(async ({ context, data }) => {
+    await assertSaasOwner(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Chamamos a função SQL SECURITY DEFINER criada via migração
+    const { error } = await supabaseAdmin.rpc("admin_delete_dojo_owner", {
+      owner_id_to_delete: data.ownerId,
+    });
+
+    if (error) {
+      console.error("Erro ao deletar conta de dono de dojo:", error);
+      throw new Error(`Erro ao deletar conta: ${error.message}`);
+    }
+
+    return { success: true };
   });
