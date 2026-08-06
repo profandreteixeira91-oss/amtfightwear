@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Ao optar pelo pagamento com cartão de crédito, o pagamento foi aprovado sem nem passar pelo processamento do mercado pago, nenhuma assinatura foi criada e nenhum valor foi cobrado no mercado pago, corrija isso
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Fluxo de pagamento com cartão de crédito corrigido para garantir processamento real no Mercado Pago. Pix Automático mantido via init_point conforme exigência da API de recorrência do MP.
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";

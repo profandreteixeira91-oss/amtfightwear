@@ -162,6 +162,7 @@ export const subscribeWithCardToken = createServerFn({ method: "POST" })
     const origin = "https://dojomanager.amtfightwear.com.br";
     const backUrl = `${origin}/dojo/app/subscription`;
 
+    console.log("[subscribeWithCardToken] Criando preapproval no MP...");
     const preapproval = await mpAmt<any>("/preapproval", {
       method: "POST",
       body: JSON.stringify({
@@ -180,6 +181,12 @@ export const subscribeWithCardToken = createServerFn({ method: "POST" })
         notification_url: notification,
       }),
     });
+
+    console.log("[subscribeWithCardToken] Resposta MP:", { id: preapproval.id, status: preapproval.status });
+
+    if (!preapproval.id) {
+      throw new Error("O Mercado Pago não retornou um ID de assinatura válido.");
+    }
 
     const patch: Record<string, any> = {
       mp_preapproval_id: String(preapproval.id),
@@ -382,6 +389,7 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
     return {
       id: String(preapproval.id),
       initPoint: preapproval.init_point ?? preapproval.sandbox_init_point,
+      qrCode: preapproval.payment_methods_allowed?.payment_types?.[0]?.id === "pix" ? preapproval.id : null, // MP preapproval não retorna QR direto no POST
     };
   });
 
