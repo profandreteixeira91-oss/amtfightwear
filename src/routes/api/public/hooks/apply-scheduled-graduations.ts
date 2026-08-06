@@ -55,7 +55,8 @@ export const Route = createFileRoute("/api/public/hooks/apply-scheduled-graduati
                 .maybeSingle();
 
               const currentMod = (student as any)?.dojo_belts?.modality ?? null;
-              const newMod = beltById.get(g.belt_id)?.modality ?? "jiu-jitsu";
+              const belt = beltById.get(g.belt_id) as any;
+              const newMod = belt?.modality ?? "jiu-jitsu";
 
               const { data: newer } = await (supabaseAdmin as any)
                 .from("dojo_graduations")
@@ -76,7 +77,7 @@ export const Route = createFileRoute("/api/public/hooks/apply-scheduled-graduati
               gradsApplied++;
 
               if (student && !student.cancelled_at) {
-                const belt = beltById.get(g.belt_id);
+                const belt = beltById.get(g.belt_id) as any;
                 const degreeTxt = typeof g.degree === "number" && g.degree > 0 ? ` — ${g.degree}º grau` : "";
                 await sendPushToStudent(g.student_id, {
                   title: "Parabéns pela graduação! 🥋",
