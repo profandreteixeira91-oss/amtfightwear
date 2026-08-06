@@ -266,21 +266,21 @@ function FiscalDashboard() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl space-y-4">
+            <div className="flex flex-col gap-8">
+              <div className="space-y-4">
                 <h1 className="text-4xl font-extrabold tracking-tight text-neutral-900 md:text-6xl lg:leading-[1.1]">
                   Gestão Fiscal <span className="text-red-600">Inteligente</span>
                 </h1>
-                <p className="max-w-xl text-base leading-relaxed text-neutral-500 md:text-lg">
+                <p className="max-w-3xl text-base leading-relaxed text-neutral-500 md:text-lg">
                   Automatize sua emissão de NF-e e NFS-e com total segurança jurídica e integração nativa ao ecossistema AMT.
                 </p>
               </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="flex flex-wrap items-center gap-4">
                 <Button 
                   onClick={() => setShowOrderSelection(true)}
                   disabled={isEmitting}
-                  className="h-14 w-full gap-3 rounded-2xl bg-red-600 px-8 text-base font-semibold shadow-[0_10px_20px_-5px_rgba(220,38,38,0.3)] transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
+                  className="h-14 gap-3 rounded-2xl bg-red-600 px-8 text-base font-semibold shadow-[0_10px_20px_-5px_rgba(220,38,38,0.3)] transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
                 >
                   {isEmitting ? (
                     <>
@@ -294,10 +294,10 @@ function FiscalDashboard() {
                     </>
                   )}
                 </Button>
-                <Link to="/admin/fiscal/pedidos">
+                <Link to="/admin/fiscal/pedidos" className="w-full sm:w-auto">
                   <Button 
                     variant="outline" 
-                    className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 sm:w-auto"
+                    className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50"
                   >
                     <Package className="h-5 w-5" />
                     Central de Faturamento

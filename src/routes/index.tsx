@@ -1,7 +1,9 @@
 /**
- * Execute esta instrucao no projeto: Os produtos aparecem no site mas ainda não aparecem em catálogo, corrija de forma definitiva
- * Módulo de Emissão de Nota Fiscal Eletrônica (NF-e e NFS-e) com Certificado Digital A1
- * Implementado em /admin/fiscal
+ * Execute esta instrucao no projeto: admin/fiscal
+ * Corrija este card
+ * passe o titulo para a linha superior ocupando a largura total do card
+ * o subtitulo deve também ocupar a largura total do card
+ * os botões ficam abaixo do subtitulo
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
