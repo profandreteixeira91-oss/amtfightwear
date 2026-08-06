@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Mas primeiro preciso confirmar se sua integração está usando Payments, Preferences ou Preapproval, pois isso determina as capacidades disponíveis.
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Para alguns alunos, a sua graduação atual está sumindo e constando
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
