@@ -14,8 +14,11 @@ import {
   Download,
   Search,
   CheckCircle2,
-  Package
+  Package,
+  TrendingUp,
+  ArrowRight
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -699,25 +702,36 @@ function KpiCard({
   hint: string;
   tone?: "red" | "amber" | "emerald" | "slate" | "neutral";
 }) {
-  const tones = {
-    red: "border-l-red-500 text-red-600 bg-red-50/30",
-    amber: "border-l-amber-500 text-amber-600 bg-amber-50/30",
-    emerald: "border-l-emerald-500 text-emerald-600 bg-emerald-50/30",
-    slate: "border-l-slate-500 text-slate-600 bg-slate-50/30",
-    neutral: "border-l-neutral-300 text-neutral-600 bg-neutral-50/30",
+  const iconTones = {
+    red: "bg-red-500/10 text-red-600",
+    amber: "bg-amber-500/10 text-amber-600",
+    emerald: "bg-emerald-500/10 text-emerald-600",
+    slate: "bg-slate-500/10 text-slate-600",
+    neutral: "bg-neutral-500/10 text-neutral-600",
   };
 
   return (
-    <Card className={`overflow-hidden border-l-4 shadow-sm transition-all hover:shadow-md ${tones[tone]}`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <p className="text-[10px] font-bold uppercase tracking-wider opacity-70">{hint}</p>
-        <Icon className="h-4 w-4 opacity-70" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-neutral-900">{value}</div>
-        <p className="mt-1 text-xs text-neutral-500 leading-tight">{label}</p>
-      </CardContent>
-    </Card>
+    <div className={cn(
+      "relative group flex flex-col gap-4 rounded-[2rem] border border-neutral-200/60 bg-white p-7 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+    )}>
+      <div className="flex items-center justify-between">
+        <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-110 group-hover:rotate-3", iconTones[tone])}>
+          <Icon className="h-6 w-6" />
+        </div>
+        <Badge variant="outline" className="rounded-full border-neutral-200/60 bg-neutral-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+          {hint}
+        </Badge>
+      </div>
+      
+      <div className="space-y-1">
+        <div className="text-3xl font-black tracking-tight text-neutral-900 md:text-4xl">
+          {value}
+        </div>
+        <p className="text-xs font-medium leading-relaxed text-neutral-500">
+          {label}
+        </p>
+      </div>
+    </div>
   );
 }
 
