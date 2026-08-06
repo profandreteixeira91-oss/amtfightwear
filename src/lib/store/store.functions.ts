@@ -267,8 +267,8 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
           subtotal_original: subtotalOriginal,
         },
       })
-      .select("*") as any
-      .single() as any;
+      .select("*")
+      .single();
     if (error || !order) throw new Error(error?.message ?? "Erro ao criar pedido");
 
     // Notificar admins sobre o novo pedido de ATACADO
