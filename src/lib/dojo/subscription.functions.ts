@@ -345,9 +345,8 @@ export const listMySubscriptionPayments = createServerFn({ method: "GET" })
 
 /**
  * Inicia uma assinatura via PIX.
- * O MP não possui "assinatura por PIX" nativa no /preapproval para contas BR (geralmente exige cartão ou saldo).
- * Vamos criar um pagamento pontual e marcar localmente para processar via webhook/cron ou renovação manual
- * para simular a recorrência ou usar o preapproval se permitido.
+ * Para PIX, usamos a API de Pagamentos (/v1/payments) para gerar um QR Code.
+ * A recorrência é gerida internamente pelo sistema (Dojo Manager).
  */
 export const subscribeWithPix = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -368,49 +367,45 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
 
     const notification = "https://amtfightwear.com.br/api/public/hooks/mercadopago";
 
-    // Criamos uma assinatura (preapproval) específica para PIX.
-    // Isso habilita o fluxo de Pix Automático onde o MP gerencia a recorrência.
-    const origin = "https://dojomanager.amtfightwear.com.br";
-    const backUrl = `${origin}/dojo/app/subscription`;
-
-    const preapproval = await mpAmt<any>("/preapproval", {
+    // Criamos um pagamento PIX via API de Pagamentos do MP
+    const payment = await mpAmt<any>("/v1/payments", {
       method: "POST",
       body: JSON.stringify({
-        reason: "AMT Dojo Manager — Assinatura mensal (Pix Automático)",
-        external_reference: `dojo_sub_pix:${sub.id}`,
-        payer_email: data.payerEmail,
-        back_url: backUrl,
-        status: "pending",
-        auto_recurring: {
-          frequency: 1,
-          frequency_type: "months",
-          transaction_amount: PLAN_AMOUNT,
-          currency_id: "BRL",
-        },
-        theme: {
-          elements_color: MP_DESIGN_CONFIG.main_color,
-          header_color: "#000000",
-        },
-        payment_methods_allowed: {
-          payment_types: [
-            { id: "pix" },
-            { id: "bank_transfer" },
-            { id: "credit_card" },
-            { id: "account_money" }
-          ],
-          payment_methods: [],
-        },
+        transaction_amount: PLAN_AMOUNT,
+        description: "AMT Dojo Manager — Assinatura mensal (PIX)",
+        payment_method_id: "pix",
+        external_reference: `dojo_sub_pix_payment:${sub.id}`,
         notification_url: notification,
+        payer: {
+          email: data.payerEmail,
+        },
       }),
     });
 
+    const qrCodeBase64 = payment.point_of_interaction?.transaction_data?.qr_code_base64;
+    const qrCodeCopyPaste = payment.point_of_interaction?.transaction_data?.qr_code;
+
+    // Se o usuário está migrando de cartão para PIX, cancelamos o preapproval anterior
+    if (sub.subscription_type === "card" && sub.mp_preapproval_id) {
+      try {
+        await mpAmt(`/preapproval/${sub.mp_preapproval_id}`, {
+          method: "PUT",
+          body: JSON.stringify({ status: "cancelled" }),
+        });
+      } catch (e) {
+        console.warn("Falha ao cancelar assinatura anterior durante migração para PIX", e);
+      }
+    }
+
     const patch: Record<string, any> = {
-      mp_preapproval_id: String(preapproval.id),
-      last_event: preapproval,
+      subscription_type: "pix",
+      payment_method: "pix",
+      last_payment_id: String(payment.id),
+      current_payment_status: payment.status,
+      last_qr_code: qrCodeBase64,
+      last_copy_paste: qrCodeCopyPaste,
+      mp_preapproval_id: null, // Remove o ID de assinatura MP se houver
     };
-    if (preapproval.status === "authorized") patch.status = "active";
-    else if (preapproval.status === "pending") patch.status = "pending";
-    if (preapproval.next_payment_date) patch.current_period_end = preapproval.next_payment_date;
 
     await context.supabase
       .from("dojo_subscriptions")
@@ -418,9 +413,46 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
       .eq("id", sub.id);
 
     return {
-      id: String(preapproval.id),
-      initPoint: preapproval.init_point ?? preapproval.sandbox_init_point,
-      qrCode: preapproval.payment_methods_allowed?.payment_types?.[0]?.id === "pix" ? preapproval.id : null, // MP preapproval não retorna QR direto no POST
+      paymentId: String(payment.id),
+      status: payment.status,
+      qrCodeBase64,
+      qrCodeCopyPaste,
     };
   });
+
+/**
+ * Sincroniza um pagamento PIX específico.
+ */
+export const syncPixPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ paymentId: z.string() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const payment = await mpAmt<any>(`/v1/payments/${data.paymentId}`);
+    
+    if (payment.status === "approved") {
+      const { data: sub } = await context.supabase
+        .from("dojo_subscriptions")
+        .select("id")
+        .eq("last_payment_id", data.paymentId)
+        .maybeSingle();
+
+      if (sub) {
+        const nextDue = new Date();
+        nextDue.setMonth(nextDue.getMonth() + 1);
+
+        await context.supabase
+          .from("dojo_subscriptions")
+          .update({
+            status: "active",
+            current_payment_status: "approved",
+            current_period_end: nextDue.toISOString(),
+            next_due_date: nextDue.toISOString().split("T")[0],
+          } as never)
+          .eq("id", sub.id);
+      }
+    }
+
+    return { status: payment.status };
+  });
+
 
