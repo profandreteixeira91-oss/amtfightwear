@@ -267,8 +267,8 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
           subtotal_original: subtotalOriginal,
         },
       })
-      .select("*") as any
-      .single();
+      .select("*")
+      .single() as any;
     if (error || !order) throw new Error(error?.message ?? "Erro ao criar pedido");
 
     // Notificar admins sobre o novo pedido de ATACADO
@@ -645,8 +645,8 @@ export const createStoreOrder = createServerFn({ method: "POST" })
         status: "pending_payment",
         payment_status: "pending",
       })
-      .select("*") as any
-      .single();
+      .select("*")
+      .single() as any;
 
     if (error || !order) throw new Error(error?.message ?? "Erro ao criar pedido");
 
