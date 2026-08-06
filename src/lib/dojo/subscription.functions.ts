@@ -13,13 +13,23 @@ export const TRIAL_DAYS = 14;
 async function mpAmt<T = any>(path: string, init?: RequestInit): Promise<T> {
   const key = process.env.MERCADOPAGO_ACCESS_TOKEN;
   if (!key) throw new Error("MERCADOPAGO_ACCESS_TOKEN da AMT não configurada");
+
+  // Headers base
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${key}`,
+    ...(init?.headers as Record<string, string> ?? {}),
+  };
+
+  // O Mercado Pago exige X-Idempotency-Key em POST e PUT.
+  // Geramos uma chave baseada no timestamp se não for fornecida.
+  if ((init?.method === "POST" || init?.method === "PUT") && !headers["X-Idempotency-Key"]) {
+    headers["X-Idempotency-Key"] = `amt-idemp-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+  }
+
   const res = await fetch(`${MP_BASE}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
-      ...(init?.headers ?? {}),
-    },
+    headers,
   });
   const text = await res.text();
   const body = text ? (() => { try { return JSON.parse(text); } catch { return text; } })() : null;
