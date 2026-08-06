@@ -20,26 +20,29 @@ export const emitNFe = createServerFn({ method: "POST" })
     let orderItems: any[] = [];
 
     if (data.type === 'order') {
-      // 1. Fetch order data
       const { data: order, error: orderError } = await s
-        .from('orders')
-        .select('*, order_items(*, products(*))')
+        .from('store_orders')
+        .select('*')
         .eq('id', data.orderId)
         .single();
       
       if (orderError || !order) throw new Error("Pedido não encontrado");
       orderData = order;
-      orderItems = order.order_items || [];
 
-      // Fetch customer data
-      const { data: customer } = await s
-        .from('customers')
-        .select('*')
-        .eq('id', order.customer_id || '')
-        .maybeSingle();
-      customerData = customer;
+      const { data: items } = await s
+        .from('store_order_items')
+        .select('*, products:store_products(ncm, cest, cfop_internal, cfop_interstate)')
+        .eq('order_id', data.orderId);
+      
+      orderItems = (items as any[]) || [];
+
+      customerData = {
+        full_name: order.customer_name,
+        email: order.customer_email,
+        document: order.customer_document,
+        address_state: (order.shipping_address as any)?.state || 'SP'
+      };
     } else {
-      // 1. Fetch quote data
       const { data: quote, error: quoteError } = await s
         .from('store_quotes')
         .select('*')
@@ -49,13 +52,11 @@ export const emitNFe = createServerFn({ method: "POST" })
       if (quoteError || !quote) throw new Error("Orçamento não encontrado");
       orderData = quote;
       
-      // Map quote items to standard format
       const items = Array.isArray(quote.items) ? quote.items : [];
       
-      // For quotes, we need to fetch NCM/CEST from products table since it's just a JSON in store_quotes
       for (const item of items as any[]) {
         const { data: prod } = await s
-          .from('products')
+          .from('store_products' as any)
           .select('ncm, cest, cfop_internal, cfop_interstate')
           .eq('id', item.product_id)
           .maybeSingle();
@@ -69,11 +70,11 @@ export const emitNFe = createServerFn({ method: "POST" })
       customerData = {
         full_name: quote.customer_name,
         email: quote.customer_email,
-        document: quote.customer_document
+        document: quote.customer_document,
+        address_state: (quote.customer_address as any)?.state || 'SP'
       };
     }
 
-    // 3. Validate issuer config
     const { data: config } = await s
       .from('fiscal_issuer_config')
       .select('*')
@@ -81,7 +82,6 @@ export const emitNFe = createServerFn({ method: "POST" })
     
     if (!config) throw new Error("Configurações do emitente não encontradas");
 
-    // 4. Validate certificate
     const { data: certificate } = await s
       .from('fiscal_certificates')
       .select('*')
@@ -97,24 +97,21 @@ export const emitNFe = createServerFn({ method: "POST" })
     const invoiceNumber = (config.last_nfe_number || 0) + 1;
     const series = config.last_nfe_series || 1;
     
-    // Identificar UF para CFOP automático
     const issuerState = config.address_state || 'SP';
-    const customerState = customerData?.address_state || 'SP'; // Fallback ou busca no customerData
+    const customerState = customerData?.address_state || 'SP';
     
     const accessKey = `352608${config.cnpj.replace(/\D/g, '')}55001${String(invoiceNumber).padStart(9, '0')}1${Math.floor(10000000 + Math.random() * 90000000)}`;
     
-    // Validar campos obrigatórios antes da emissão
     for (const item of orderItems) {
-      if (!item.products?.ncm) throw new Error(`Produto ${item.product_name || 'sem nome'} está sem NCM preenchido.`);
+      if (!item.products?.ncm) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem NCM preenchido.`);
       
       const cfop = (customerState === issuerState) 
         ? item.products?.cfop_internal 
         : item.products?.cfop_interstate;
       
-      if (!cfop) throw new Error(`Produto ${item.product_name || 'sem nome'} está sem CFOP configurado para operação ${(customerState === issuerState) ? 'interna' : 'interestadual'}.`);
+      if (!cfop) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem CFOP configurado para operação ${(customerState === issuerState) ? 'interna' : 'interestadual'}.`);
     }
 
-    // Simulate processing steps
     const { data: invoice, error: invoiceError } = await s
       .from('fiscal_invoices')
       .insert({
@@ -137,27 +134,13 @@ export const emitNFe = createServerFn({ method: "POST" })
 
     if (invoiceError) throw new Error("Erro ao salvar nota fiscal: " + invoiceError.message);
 
-    // 15. Update status
     if (data.type === 'order') {
-      await s
-        .from('orders')
-        .update({ status: 'invoiced' })
-        .eq('id', data.orderId);
+      await s.from('store_orders').update({ status: 'invoiced' }).eq('id', data.orderId);
     } else {
-      await s
-        .from('store_quotes')
-        .update({ status: 'invoiced' })
-        .eq('id', data.orderId);
+      await s.from('store_quotes').update({ status: 'invoiced' }).eq('id', data.orderId);
     }
 
-    // 17. Send email (Simulated/Placeholder)
-    console.log(`Email enviado para ${customerData?.email || 'cliente'} com a NF-e ${invoiceNumber}`);
-
-    // Update issuer last number
-    await s
-      .from('fiscal_issuer_config')
-      .update({ last_nfe_number: invoiceNumber })
-      .eq('id', config.id);
+    await s.from('fiscal_issuer_config').update({ last_nfe_number: invoiceNumber }).eq('id', config.id);
 
     return {
       success: true,

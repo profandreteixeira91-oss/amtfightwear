@@ -214,7 +214,7 @@ function AdminProductsPage() {
 
   const applyBulk = async () => {
     if (selected.size === 0) return toast.error("Selecione produtos");
-    const rows = (data ?? []).filter((p) => selected.has(p.id));
+    const rows = ((data as any[]) ?? []).filter((p) => selected.has(p.id));
     const priceAbs = bulkPrice.trim() ? Number(bulkPrice.replace(",", ".")) : null;
     const pricePct = bulkPricePct.trim() ? Number(bulkPricePct.replace(",", ".")) : null;
     const stockAbs = bulkStock.trim() ? Number(bulkStock) : null;
@@ -347,7 +347,7 @@ function AdminProductsPage() {
               </div>
               
               <div className="flex flex-wrap items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0} className="text-xs">
+                <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p: any) => p.id)))} disabled={filtered.length === 0} className="text-xs">
                   Selecionar Tudo
                 </Button>
                 {selected.size > 0 && (
@@ -1165,7 +1165,7 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
       if (suggestion) {
         setFiscalData(suggestion);
         toast.info("Sugestão fiscal aplicada para esta categoria", {
-          description: `NCM: ${suggestion.ncm} | CFOP: ${suggestion.cfop_internal}`,
+          description: `NCM: ${(suggestion as any).ncm} | CFOP: ${(suggestion as any).cfop_internal}`,
         });
       }
     } catch (err) {

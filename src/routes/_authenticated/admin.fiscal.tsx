@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { 
   FileText, 
@@ -43,10 +43,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 
 
 export const Route = createFileRoute("/_authenticated/admin/fiscal")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      orderId: search.orderId as string | undefined,
+      type: search.type as "order" | "quote" | undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Módulo Fiscal — Central AMT" },
@@ -57,6 +63,7 @@ export const Route = createFileRoute("/_authenticated/admin/fiscal")({
 });
 
 function FiscalDashboard() {
+  const { orderId, type } = Route.useSearch();
   const queryClient = useQueryClient();
   const fetchStatus = useServerFn(getFiscalStatus);
   const fetchInvoices = useServerFn(getFiscalInvoices);
@@ -77,6 +84,12 @@ function FiscalDashboard() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastInvoice, setLastInvoice] = useState<any>(null);
   const [showOrderSelection, setShowOrderSelection] = useState(false);
+
+  useEffect(() => {
+    if (orderId && type) {
+      handleEmitNFe(orderId, type);
+    }
+  }, [orderId, type]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [productSearch, setProductSearch] = useState("");
@@ -191,6 +204,9 @@ function FiscalDashboard() {
         toast.success("NF-e autorizada com sucesso!");
         queryClient.invalidateQueries({ queryKey: ['fiscal-invoices'] });
         queryClient.invalidateQueries({ queryKey: ['fiscal-status'] });
+        queryClient.invalidateQueries({ queryKey: ['fiscal-billing-orders'] });
+        // Clear search params
+        window.history.replaceState({}, '', window.location.pathname);
       }
     } catch (err: any) {
       toast.error("Erro na emissão: " + err.message);
@@ -255,13 +271,22 @@ function FiscalDashboard() {
                     </>
                   )}
                 </Button>
+                <Link to="/admin/fiscal/pedidos">
+                  <Button 
+                    variant="outline" 
+                    className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 sm:w-auto"
+                  >
+                    <Package className="h-5 w-5" />
+                    Central de Faturamento
+                  </Button>
+                </Link>
                 <Button 
                   onClick={() => setActiveTab("config")}
                   variant="outline" 
                   className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 sm:w-auto"
                 >
                   <Settings className="h-5 w-5" />
-                  Configurações
+                  Emitente
                 </Button>
               </div>
             </div>

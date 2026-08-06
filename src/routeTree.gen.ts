@@ -296,6 +296,7 @@ import { Route as AuthenticatedAdminInstagramContaRouteImport } from './routes/_
 import { Route as AuthenticatedAdminInstagramComentariosRouteImport } from './routes/_authenticated/admin.instagram.comentarios'
 import { Route as AuthenticatedAdminInstagramAutomacoesRouteImport } from './routes/_authenticated/admin.instagram.automacoes'
 import { Route as AuthenticatedAdminInstagramAdminRouteImport } from './routes/_authenticated/admin.instagram.admin'
+import { Route as AuthenticatedAdminFiscalPedidosRouteImport } from './routes/_authenticated/admin.fiscal.pedidos'
 import { Route as AuthenticatedAdminAnunciosOtimizacaoRouteImport } from './routes/_authenticated/admin.anuncios.otimizacao'
 import { Route as AuthenticatedAdminAnunciosNovaRouteImport } from './routes/_authenticated/admin.anuncios.nova'
 import { Route as AuthenticatedAdminAnunciosEscalaRouteImport } from './routes/_authenticated/admin.anuncios.escala'
@@ -1888,6 +1889,12 @@ const AuthenticatedAdminInstagramAdminRoute =
     path: '/admin',
     getParentRoute: () => AuthenticatedAdminInstagramRoute,
   } as any)
+const AuthenticatedAdminFiscalPedidosRoute =
+  AuthenticatedAdminFiscalPedidosRouteImport.update({
+    id: '/pedidos',
+    path: '/pedidos',
+    getParentRoute: () => AuthenticatedAdminFiscalRoute,
+  } as any)
 const AuthenticatedAdminAnunciosOtimizacaoRoute =
   AuthenticatedAdminAnunciosOtimizacaoRouteImport.update({
     id: '/otimizacao',
@@ -2136,7 +2143,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/admin/fiscal': typeof AuthenticatedAdminFiscalRoute
+  '/admin/fiscal': typeof AuthenticatedAdminFiscalRouteWithChildren
   '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
@@ -2286,6 +2293,7 @@ export interface FileRoutesByFullPath {
   '/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
+  '/admin/fiscal/pedidos': typeof AuthenticatedAdminFiscalPedidosRoute
   '/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
   '/admin/instagram/comentarios': typeof AuthenticatedAdminInstagramComentariosRoute
@@ -2447,7 +2455,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/admin/fiscal': typeof AuthenticatedAdminFiscalRoute
+  '/admin/fiscal': typeof AuthenticatedAdminFiscalRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
@@ -2587,6 +2595,7 @@ export interface FileRoutesByTo {
   '/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
+  '/admin/fiscal/pedidos': typeof AuthenticatedAdminFiscalPedidosRoute
   '/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
   '/admin/instagram/comentarios': typeof AuthenticatedAdminInstagramComentariosRoute
@@ -2757,7 +2766,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/_authenticated/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/_authenticated/admin/fiscal': typeof AuthenticatedAdminFiscalRoute
+  '/_authenticated/admin/fiscal': typeof AuthenticatedAdminFiscalRouteWithChildren
   '/_authenticated/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/loja': typeof AuthenticatedAdminLojaRoute
@@ -2907,6 +2916,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/_authenticated/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/_authenticated/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
+  '/_authenticated/admin/fiscal/pedidos': typeof AuthenticatedAdminFiscalPedidosRoute
   '/_authenticated/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/_authenticated/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
   '/_authenticated/admin/instagram/comentarios': typeof AuthenticatedAdminInstagramComentariosRoute
@@ -3228,6 +3238,7 @@ export interface FileRouteTypes {
     | '/admin/anuncios/escala'
     | '/admin/anuncios/nova'
     | '/admin/anuncios/otimizacao'
+    | '/admin/fiscal/pedidos'
     | '/admin/instagram/admin'
     | '/admin/instagram/automacoes'
     | '/admin/instagram/comentarios'
@@ -3529,6 +3540,7 @@ export interface FileRouteTypes {
     | '/admin/anuncios/escala'
     | '/admin/anuncios/nova'
     | '/admin/anuncios/otimizacao'
+    | '/admin/fiscal/pedidos'
     | '/admin/instagram/admin'
     | '/admin/instagram/automacoes'
     | '/admin/instagram/comentarios'
@@ -3848,6 +3860,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/anuncios/escala'
     | '/_authenticated/admin/anuncios/nova'
     | '/_authenticated/admin/anuncios/otimizacao'
+    | '/_authenticated/admin/fiscal/pedidos'
     | '/_authenticated/admin/instagram/admin'
     | '/_authenticated/admin/instagram/automacoes'
     | '/_authenticated/admin/instagram/comentarios'
@@ -6041,6 +6054,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminInstagramAdminRouteImport
       parentRoute: typeof AuthenticatedAdminInstagramRoute
     }
+    '/_authenticated/admin/fiscal/pedidos': {
+      id: '/_authenticated/admin/fiscal/pedidos'
+      path: '/pedidos'
+      fullPath: '/admin/fiscal/pedidos'
+      preLoaderRoute: typeof AuthenticatedAdminFiscalPedidosRouteImport
+      parentRoute: typeof AuthenticatedAdminFiscalRoute
+    }
     '/_authenticated/admin/anuncios/otimizacao': {
       id: '/_authenticated/admin/anuncios/otimizacao'
       path: '/otimizacao'
@@ -6353,6 +6373,20 @@ const AuthenticatedAdminAnunciosRouteWithChildren =
     AuthenticatedAdminAnunciosRouteChildren,
   )
 
+interface AuthenticatedAdminFiscalRouteChildren {
+  AuthenticatedAdminFiscalPedidosRoute: typeof AuthenticatedAdminFiscalPedidosRoute
+}
+
+const AuthenticatedAdminFiscalRouteChildren: AuthenticatedAdminFiscalRouteChildren =
+  {
+    AuthenticatedAdminFiscalPedidosRoute: AuthenticatedAdminFiscalPedidosRoute,
+  }
+
+const AuthenticatedAdminFiscalRouteWithChildren =
+  AuthenticatedAdminFiscalRoute._addFileChildren(
+    AuthenticatedAdminFiscalRouteChildren,
+  )
+
 interface AuthenticatedAdminInstagramRouteChildren {
   AuthenticatedAdminInstagramAdminRoute: typeof AuthenticatedAdminInstagramAdminRoute
   AuthenticatedAdminInstagramAutomacoesRoute: typeof AuthenticatedAdminInstagramAutomacoesRoute
@@ -6435,7 +6469,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminDojoRoute: typeof AuthenticatedAdminDojoRoute
   AuthenticatedAdminEnvioRoute: typeof AuthenticatedAdminEnvioRoute
-  AuthenticatedAdminFiscalRoute: typeof AuthenticatedAdminFiscalRoute
+  AuthenticatedAdminFiscalRoute: typeof AuthenticatedAdminFiscalRouteWithChildren
   AuthenticatedAdminInstagramRoute: typeof AuthenticatedAdminInstagramRouteWithChildren
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminLojaRoute: typeof AuthenticatedAdminLojaRoute
@@ -6478,7 +6512,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAdminDojoRoute: AuthenticatedAdminDojoRoute,
   AuthenticatedAdminEnvioRoute: AuthenticatedAdminEnvioRoute,
-  AuthenticatedAdminFiscalRoute: AuthenticatedAdminFiscalRoute,
+  AuthenticatedAdminFiscalRoute: AuthenticatedAdminFiscalRouteWithChildren,
   AuthenticatedAdminInstagramRoute:
     AuthenticatedAdminInstagramRouteWithChildren,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,

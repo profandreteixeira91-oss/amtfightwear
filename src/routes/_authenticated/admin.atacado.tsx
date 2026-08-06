@@ -45,7 +45,7 @@ function WholesaleSettingsPage() {
     setConditions(settings.conditions);
   }, [settings]);
 
-  const wholesaleCount = (products ?? []).filter((p) => (p as { wholesale_enabled?: boolean }).wholesale_enabled).length;
+  const wholesaleCount = (products ?? []).filter((p: any) => (p as { wholesale_enabled?: boolean }).wholesale_enabled).length;
 
   const onSave = async () => {
     const pctNum = Number(pct.replace(",", "."));

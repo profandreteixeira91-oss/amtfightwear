@@ -108,7 +108,7 @@ function CategoryPage() {
   // Price bounds
   const priceBounds = useMemo(() => {
     if (!products.length) return { min: 0, max: 0 };
-    const prices = products.map((p) => Number(p.price ?? 0));
+    const prices = products.map((p: any) => Number(p.price ?? 0));
     return { min: Math.floor(Math.min(...prices)), max: Math.ceil(Math.max(...prices)) };
   }, [products]);
 
@@ -161,7 +161,7 @@ function CategoryPage() {
   }, [subCategories, childrenByParent]);
 
   const filtered = useMemo(() => {
-    let list = products.slice();
+    let list = (products as any[]).slice();
     if (selectedSubIds.size > 0) {
       const allowedIds = new Set<string>();
       for (const sid of selectedSubIds) {
