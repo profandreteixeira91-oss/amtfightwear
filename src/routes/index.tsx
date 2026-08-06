@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Para alguns alunos, a sua graduação atual está sumindo e constando
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: A graduação de alguns alunos está sumindo, passando a constar "sem graduação" e com isso, o perfil do aluno não abre em dojo manager, verifique o motivo e corrija de forma definitiva.
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
