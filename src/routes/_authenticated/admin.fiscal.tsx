@@ -223,13 +223,38 @@ function FiscalDashboard() {
         </div>
 
         {/* Conteúdo Principal */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
-          <TabsList className="admin-surface flex h-auto w-full flex-wrap justify-start gap-1 border p-1 sm:inline-flex">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="invoices">Notas Emitidas</TabsTrigger>
-            <TabsTrigger value="certificate">Certificado Digital</TabsTrigger>
-            <TabsTrigger value="config">Configuração Fiscal</TabsTrigger>
-            <TabsTrigger value="products">Produtos</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-10">
+          <TabsList className="flex h-16 w-full items-center justify-start gap-2 overflow-x-auto rounded-[1.5rem] border border-neutral-200/60 bg-white/50 p-2 backdrop-blur-md sm:w-fit sm:justify-center">
+            <TabsTrigger 
+              value="overview" 
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+            >
+              Visão Geral
+            </TabsTrigger>
+            <TabsTrigger 
+              value="invoices"
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+            >
+              Histórico de Notas
+            </TabsTrigger>
+            <TabsTrigger 
+              value="certificate"
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+            >
+              Certificado A1
+            </TabsTrigger>
+            <TabsTrigger 
+              value="config"
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+            >
+              Emitente
+            </TabsTrigger>
+            <TabsTrigger 
+              value="products"
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+            >
+              Produtos
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
