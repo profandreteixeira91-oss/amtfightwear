@@ -116,7 +116,7 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
   };
   const [cats, prodsRes] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, parent_id").eq("active", true).order("sort_order"),
-    sb.from("products")
+    sb.from("store_products" as any)
       .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description, wholesale_discount_percent")
       .eq("status", "active")
       .eq("wholesale_enabled", true)
@@ -169,7 +169,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
     const variantIds = [...new Set(data.items.map((i) => i.variant_id).filter((v): v is string => !!v))];
     const [{ data: products }, { data: variants }] = await Promise.all([
       supabaseAdmin
-        .from("products")
+        .from("store_products" as any)
         .select("id, name, price, image_url, category_id, wholesale_enabled, wholesale_discount_percent")
         .in("id", productIds),
       variantIds.length
@@ -338,16 +338,16 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
 
   const [categories, featured, newest, bjjBelts, judoBelts, kimonos] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12),
-    sb.from("products").select(productSel).eq("status", "active").limit(200),
-    sb.from("products").select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12),
+    sb.from("store_products" as any).select(productSel).eq("status", "active").limit(200),
+    sb.from("store_products" as any).select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12),
     bjjBeltIds.length
-      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60)
+      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60)
       : Promise.resolve({ data: [] as never[] }),
     judoBeltIds.length
-      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60)
+      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60)
       : Promise.resolve({ data: [] as never[] }),
     kimonoIds.length
-      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24)
+      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24)
       : Promise.resolve({ data: [] as never[] }),
   ]);
 
@@ -406,7 +406,7 @@ export const listStoreCategories = createServerFn({ method: "GET" }).handler(asy
 
   const ids = cats.map((c) => c.id);
   const { data: prods } = await sb
-    .from("products")
+    .from("store_products" as any)
     .select("category_id, image_url, featured, created_at")
     .eq("status", "active")
     .in("category_id", ids)
