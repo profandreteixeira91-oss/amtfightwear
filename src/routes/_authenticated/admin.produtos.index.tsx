@@ -1359,125 +1359,159 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Categorias</DialogTitle>
-        </DialogHeader>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-3 border-r md:pr-4">
-            <div className="font-semibold text-sm">
-              {editing ? "Editar categoria" : "Nova categoria"}
-            </div>
-            <div>
-              <Label>Nome *</Label>
-              <Input value={draft.name} onChange={(e) => handleName(e.target.value)} />
-            </div>
-            <div>
-              <Label>Slug *</Label>
-              <Input value={draft.slug} onChange={(e) => setDraft((d) => ({ ...d, slug: e.target.value }))} />
-            </div>
-            <div>
-              <Label>Descrição</Label>
-              <Textarea value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} rows={2} />
-            </div>
-            <div>
-              <Label>URL da imagem</Label>
-              <Input value={draft.image_url} onChange={(e) => setDraft((d) => ({ ...d, image_url: e.target.value }))} placeholder="https://..." />
-            </div>
-            <div className="grid grid-cols-2 gap-3 items-end">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-2xl">
+        <div className="flex flex-col h-[85vh]">
+          <DialogHeader className="p-6 border-b border-border/40 bg-muted/20">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/10 rounded-xl">
+                <LayoutGrid className="h-5 w-5 text-primary" />
+              </div>
               <div>
-                <Label>Ordem</Label>
-                <Input
-                  type="number"
-                  value={String(draft.sort_order)}
-                  onChange={(e) => setDraft((d) => ({ ...d, sort_order: Number(e.target.value) || 0 }))}
-                />
-              </div>
-              <div className="flex items-center gap-2 pb-2">
-                <Switch checked={draft.active} onCheckedChange={(v) => setDraft((d) => ({ ...d, active: v }))} />
-                <span className="text-sm">Ativa</span>
+                <DialogTitle className="text-xl font-bold">Gestão de Categorias</DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">Organize seu catálogo e configure dados fiscais padrão.</p>
               </div>
             </div>
+          </DialogHeader>
 
-            <div className="border-t pt-3 space-y-2">
-              <div className="font-semibold text-sm">Dados fiscais (padrão da categoria)</div>
-              <p className="text-xs text-muted-foreground">
-                Preencha para usar como padrão em produtos desta categoria. Use "Aplicar em todos os produtos" para sobrescrever os produtos existentes.
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs">NCM</Label>
-                  <Input className="h-8" value={draft.ncm} onChange={(e) => setDraft((d) => ({ ...d, ncm: e.target.value }))} placeholder="Ex: 62171000" />
-                </div>
-                <div>
-                  <Label className="text-xs">CEST</Label>
-                  <Input className="h-8" value={draft.cest} onChange={(e) => setDraft((d) => ({ ...d, cest: e.target.value }))} placeholder="Ex: 28.038.00" />
-                </div>
-                <div>
-                  <Label className="text-xs">Origem</Label>
-                  <Input className="h-8" value={draft.origem} onChange={(e) => setDraft((d) => ({ ...d, origem: e.target.value }))} placeholder="0 - Nacional" />
-                </div>
-                <div>
-                  <Label className="text-xs">CFOP</Label>
-                  <Input className="h-8" value={draft.cfop} onChange={(e) => setDraft((d) => ({ ...d, cfop: e.target.value }))} placeholder="Ex: 5102" />
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-xs">Unidade</Label>
-                  <Input className="h-8" value={draft.unidade} onChange={(e) => setDraft((d) => ({ ...d, unidade: e.target.value }))} placeholder="UN, PC, KG..." />
-                </div>
-              </div>
-              {editing && (
-                <Button variant="outline" size="sm" onClick={applyToProducts} disabled={applying} className="w-full">
-                  {applying ? "Aplicando..." : "Aplicar em todos os produtos"}
+          <div className="flex-1 flex min-h-0">
+            {/* Sidebar: Lista de Categorias */}
+            <div className="w-1/3 border-r border-border/40 bg-muted/5 flex flex-col">
+              <div className="p-4 border-b border-border/40 bg-muted/10 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Categorias</span>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDraft(emptyCatDraft())} title="Nova Categoria">
+                  <Plus className="h-4 w-4" />
                 </Button>
-              )}
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="p-2 space-y-1">
+                  {isLoading ? (
+                    <div className="p-4 text-center text-xs text-muted-foreground">Carregando...</div>
+                  ) : (data ?? []).length === 0 ? (
+                    <div className="p-4 text-center text-xs text-muted-foreground italic">Nenhuma categoria.</div>
+                  ) : (
+                    (data ?? []).map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => startEdit(c)}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all flex items-center justify-between group ${
+                          draft.id === c.id ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" : "hover:bg-muted"
+                        }`}
+                      >
+                        <span className="truncate pr-2 font-medium">{c.name}</span>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Trash2 
+                            className={`h-3.5 w-3.5 ${draft.id === c.id ? "text-primary-foreground/70" : "text-destructive hover:text-destructive"}`}
+                            onClick={(e) => { e.stopPropagation(); remove(c.id); }}
+                          />
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={save} disabled={saving} className="flex-1">
-                <Save className="h-3 w-3 mr-1" />
-                {saving ? "Salvando..." : editing ? "Salvar alterações" : "Criar categoria"}
-              </Button>
-              {editing && (
-                <Button variant="ghost" onClick={() => setDraft(emptyCatDraft())}>Cancelar</Button>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="font-semibold text-sm">Categorias existentes</div>
-            {isLoading ? (
-              <div className="text-sm text-muted-foreground">Carregando...</div>
-            ) : (data ?? []).length === 0 ? (
-              <div className="text-sm text-muted-foreground">Nenhuma categoria ainda.</div>
-            ) : (
-              <div className="space-y-1 max-h-[420px] overflow-y-auto">
-                {(data ?? []).map((c) => (
-                  <div key={c.id} className="flex items-center gap-2 border rounded p-2 text-sm">
-                    {c.image_url && <img src={c.image_url} alt="" className="h-8 w-8 rounded object-cover" />}
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{c.name}</div>
-                      <div className="text-xs text-muted-foreground truncate">
-                        /{c.slug} · ordem {c.sort_order} {!c.active && "· inativa"}
+            {/* Main: Formulário de Edição */}
+            <div className="flex-1 flex flex-col bg-background">
+              <ScrollArea className="flex-1">
+                <div className="p-6 space-y-8">
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-sm font-bold flex items-center gap-2 mb-4">
+                        <Info className="h-4 w-4 text-primary" />
+                        Informações Gerais
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Nome da Categoria *</Label>
+                          <Input value={draft.name} onChange={(e) => handleName(e.target.value)} className="bg-muted/30 focus:bg-background h-9" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Slug (URL)</Label>
+                          <Input value={draft.slug} onChange={(e) => setDraft((d) => ({ ...d, slug: e.target.value }))} className="bg-muted/30 focus:bg-background h-9 font-mono text-xs" />
+                        </div>
+                        <div className="md:col-span-2 space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Descrição</Label>
+                          <Textarea value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} rows={2} className="bg-muted/30 focus:bg-background text-sm resize-none" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">URL da Imagem</Label>
+                          <Input value={draft.image_url} onChange={(e) => setDraft((d) => ({ ...d, image_url: e.target.value }))} placeholder="https://..." className="bg-muted/30 focus:bg-background h-9 text-xs" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase font-bold text-muted-foreground">Ordem</Label>
+                            <Input type="number" value={String(draft.sort_order)} onChange={(e) => setDraft((d) => ({ ...d, sort_order: Number(e.target.value) || 0 }))} className="bg-muted/30 focus:bg-background h-9" />
+                          </div>
+                          <div className="flex flex-col justify-end pb-1.5 space-y-2">
+                             <Label className="text-[10px] uppercase font-bold text-muted-foreground">Status</Label>
+                             <div className="flex items-center gap-2">
+                                <Switch checked={draft.active} onCheckedChange={(v) => setDraft((d) => ({ ...d, active: v }))} className="scale-90" />
+                                <span className="text-xs font-medium">{draft.active ? "Ativa" : "Inativa"}</span>
+                             </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <Button size="icon" variant="ghost" onClick={() => startEdit(c)}>
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => remove(c.id)}>
-                      <Trash2 className="h-3 w-3 text-destructive" />
-                    </Button>
+
+                    <div className="pt-4 border-t border-border/40">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-bold flex items-center gap-2">
+                          <Receipt className="h-4 w-4 text-primary" />
+                          Dados Fiscais Padrão
+                        </h3>
+                        {editing && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={applyToProducts} disabled={applying} className="h-8 text-[10px] font-bold uppercase tracking-tight">
+                                  {applying ? "Aplicando..." : "Propagar para Produtos"}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p>Aplica NCM, CEST e outros dados desta categoria em todos os produtos vinculados a ela.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">NCM</Label>
+                          <Input value={draft.ncm} onChange={(e) => setDraft((d) => ({ ...d, ncm: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">CEST</Label>
+                          <Input value={draft.cest} onChange={(e) => setDraft((d) => ({ ...d, cest: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Origem</Label>
+                          <Input value={draft.origem} onChange={(e) => setDraft((d) => ({ ...d, origem: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">CFOP</Label>
+                          <Input value={draft.cfop} onChange={(e) => setDraft((d) => ({ ...d, cfop: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Unidade</Label>
+                          <Input value={draft.unidade} onChange={(e) => setDraft((d) => ({ ...d, unidade: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
+              </ScrollArea>
+
+              <div className="p-6 border-t border-border/40 bg-muted/20 flex items-center justify-end gap-3">
+                <Button variant="ghost" onClick={onClose} disabled={saving}>Fechar</Button>
+                <Button onClick={save} disabled={saving} className="min-w-[120px] shadow-lg shadow-primary/20">
+                  {saving ? "Salvando..." : (editing ? "Atualizar Categoria" : "Criar Categoria")}
+                </Button>
               </div>
-            )}
+            </div>
           </div>
         </div>
-
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Fechar</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
