@@ -816,7 +816,7 @@ export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST
   .handler(async ({ data, context }) => {
     const { data: cat, error: cErr } = await context.supabase
       .from("store_categories")
-      .select("ncm, cest, origem, cfop, unidade") as any
+      .select("ncm, cest, origem, cfop, unidade")
       .eq("id", data.category_id)
       .maybeSingle();
     if (cErr) throw new Error(cErr.message);
