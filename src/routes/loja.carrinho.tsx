@@ -188,7 +188,7 @@ function CartPage() {
 
   return (
     <StoreShell categories={categories}>
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
+      <div className="mx-auto max-w-6xl overflow-hidden px-4 py-8 sm:py-12">
         <div className="mb-8 flex items-center gap-3">
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <ShoppingBag className="h-5 w-5" />
@@ -261,7 +261,7 @@ function CartPage() {
                           {formatBRL(i.unit_price)} <span className="opacity-60">un.</span>
                         </div>
 
-                        <div className="mt-auto flex items-end justify-between gap-3 pt-3">
+                        <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-3">
                           <div className="inline-flex items-center rounded-full border bg-background">
                             <button
                               type="button"
