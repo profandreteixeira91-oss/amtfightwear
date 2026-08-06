@@ -765,7 +765,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
-      .from("products" as any)
+      .from("store_products" as any)
       .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop_internal, cfop_interstate")
       .order("updated_at", { ascending: false })
       .limit(500);
@@ -837,7 +837,7 @@ export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST
     };
     for (const f of data.fields) patch[f] = catRec[f] ?? null;
     const { data: updated, error } = await context.supabase
-      .from("products")
+      .from("store_products" as any)
       .update(patch)
       .eq("category_id", data.category_id)
       .select("id");
@@ -878,7 +878,7 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("products" as any).update(data.patch).eq("id", data.id);
+    const { error } = await context.supabase.from("store_products" as any).update(data.patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     // Sincroniza estoque entre todas as variantes ativas quando alterado em massa
     if (typeof data.patch.stock === "number") {
@@ -905,7 +905,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: product, error } = await context.supabase
-      .from("products" as any)
+      .from("store_products" as any)
       .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin")
       .eq("id", data.id)
       .maybeSingle();
