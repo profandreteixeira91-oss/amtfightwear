@@ -912,7 +912,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     const { data: variants } = await context.supabase
       .from("store_product_variants")
-      .select("*") as any
+      .select("*")
       .eq("product_id", data.id)
       .order("sort_order");
     return { product, variants: variants ?? [] };
