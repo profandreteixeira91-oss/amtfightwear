@@ -255,13 +255,22 @@ function FiscalDashboard() {
                     </>
                   )}
                 </Button>
+                <Link to="/admin/fiscal/pedidos">
+                  <Button 
+                    variant="outline" 
+                    className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 sm:w-auto"
+                  >
+                    <Package className="h-5 w-5" />
+                    Central de Faturamento
+                  </Button>
+                </Link>
                 <Button 
                   onClick={() => setActiveTab("config")}
                   variant="outline" 
                   className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 sm:w-auto"
                 >
                   <Settings className="h-5 w-5" />
-                  Configurações
+                  Emitente
                 </Button>
               </div>
             </div>
