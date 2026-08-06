@@ -1,5 +1,12 @@
 /**
- * Execute esta instrucao no projeto: Faça a auditoria do módulo /fiscal , leia o módulo, identifique dependências, faça todo o procedimento e corrija o erro apresentado na imagem enviada
+ * Execute esta instrucao no projeto: Arquivo em anexo
+ *
+ * Implemente as regras deste documento.
+ *
+ * Faça auditoria de todas as rotas existentes.
+ * Corrija permissões inconsistentes.
+ * Não altere layout.
+ * Não altere funcionalidades.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
