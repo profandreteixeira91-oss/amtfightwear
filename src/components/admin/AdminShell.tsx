@@ -341,9 +341,9 @@ function IconAction({
   onClick?: () => void;
   dot?: boolean;
   className?: string;
-  isMobile?: boolean;
-  setOpen?: (open: boolean) => void;
 }) {
+  const { isMobile, setOpen } = useSidebar();
+
   const handleClick = () => {
     if (onClick) onClick();
     if (isMobile && setOpen) setOpen(false);
