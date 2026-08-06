@@ -258,7 +258,7 @@ function AdminProductsPage() {
               className="pl-9 bg-muted/50 border-border/40 focus:bg-background transition-all"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              <Plus className="h-4 w-4 rotate-45" /> {/* Magnifying glass placeholder or search icon if available */}
+              <Search className="h-4 w-4" />
             </div>
           </div>
           
