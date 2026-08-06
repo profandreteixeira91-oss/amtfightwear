@@ -161,7 +161,7 @@ function CategoryPage() {
   }, [subCategories, childrenByParent]);
 
   const filtered = useMemo(() => {
-    let list = products.slice();
+    let list = (products as any[]).slice();
     if (selectedSubIds.size > 0) {
       const allowedIds = new Set<string>();
       for (const sid of selectedSubIds) {
