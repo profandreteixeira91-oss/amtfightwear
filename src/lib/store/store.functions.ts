@@ -443,7 +443,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
     // so a root category page shows every product under its subtree.
     const { data: allCats } = await sb
       .from("store_categories")
-      .select("id, parent_id") as any
+      .select("id, parent_id")
       .eq("active", true);
     const childrenByParent = new Map<string, string[]>();
     for (const c of allCats ?? []) {
