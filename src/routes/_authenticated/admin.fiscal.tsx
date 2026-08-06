@@ -852,11 +852,11 @@ function FiscalDashboard() {
                 ) : !pendingOrders || pendingOrders.length === 0 ? (
                   <div className="p-8 text-center text-muted-foreground italic">Nenhum pedido recente encontrado.</div>
                 ) : (
-                  pendingOrders.map(order => (
+                  pendingOrders.map((order: any) => (
                     <div 
                       key={order.id} 
                       className="flex items-center justify-between p-4 border rounded-xl hover:bg-neutral-50 transition-colors cursor-pointer group"
-                      onClick={() => handleEmitNFe(order.id, order.type)}
+                      onClick={() => handleEmitNFe(order.id, order.type as any)}
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-2">

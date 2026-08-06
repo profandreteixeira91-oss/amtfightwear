@@ -73,13 +73,6 @@ export const emitNFe = createServerFn({ method: "POST" })
       };
     }
 
-    // Fetch customer data to get name and document
-    const { data: customer } = await s
-      .from('customers')
-      .select('*')
-      .eq('id', order.customer_id || '')
-      .maybeSingle();
-
     // 3. Validate issuer config
     const { data: config } = await s
       .from('fiscal_issuer_config')
@@ -142,7 +135,7 @@ export const emitNFe = createServerFn({ method: "POST" })
     }
 
     // 17. Send email (Simulated/Placeholder)
-    console.log(`Email enviado para ${customer?.email || 'cliente'} com a NF-e ${invoiceNumber}`);
+    console.log(`Email enviado para ${customerData?.email || 'cliente'} com a NF-e ${invoiceNumber}`);
 
     // Update issuer last number
     await s
