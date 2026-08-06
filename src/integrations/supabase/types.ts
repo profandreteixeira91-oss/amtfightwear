@@ -12993,6 +12993,10 @@ export type Database = {
     }
     Functions: {
       active_student_from_header: { Args: never; Returns: string }
+      admin_delete_dojo_owner: {
+        Args: { owner_id_to_delete: string }
+        Returns: undefined
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
