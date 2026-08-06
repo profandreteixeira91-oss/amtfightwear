@@ -51,7 +51,7 @@ function normalizeWholesaleSettings(raw: unknown): WholesaleSettings {
 }
 
 async function readWholesaleSettings(sb: ReturnType<typeof publicClient>): Promise<WholesaleSettings> {
-  const { data } = (await sb.from("app_settings").select("value") as any).eq("key", "wholesale_settings").maybeSingle();
+  const { data } = await sb.from("app_settings").select("value").eq("key", "wholesale_settings").maybeSingle();
   return normalizeWholesaleSettings(data?.value);
 }
 
