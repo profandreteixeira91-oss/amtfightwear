@@ -760,13 +760,6 @@ function FiscalDashboard() {
                                   onBlur={(e) => handleProductFiscalUpdate(p.id, 'cest', e.target.value)}
                                 />
                               </td>
-                                <Input 
-                                  defaultValue={p.cest || ""} 
-                                  placeholder="00.000.00"
-                                  className="h-8 w-28 text-xs"
-                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cest', e.target.value)}
-                                />
-                              </td>
                               <td className="p-4">
                                 <Input 
                                   defaultValue={p.cfop || ""} 
