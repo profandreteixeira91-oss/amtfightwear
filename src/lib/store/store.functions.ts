@@ -117,12 +117,12 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
   const [cats, prodsRes] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, parent_id") as any.eq("active", true).order("sort_order"),
     sb.from("store_products" as any)
-      .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description, wholesale_discount_percent" as any) as any
+      .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description, wholesale_discount_percent") as any
       .eq("status", "active")
       .eq("wholesale_enabled", true)
       .order("name"),
   ]);
-  const prods = prodsRes.data ?? [];
+  const prods = (prodsRes.data as any[]) ?? [];
   const variants = await fetchAllVariants(prods.map((p) => p.id));
   return { categories: cats.data ?? [], products: prods, variants, settings };
 });
@@ -173,7 +173,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
         .select("id, name, price, image_url, category_id, wholesale_enabled, wholesale_discount_percent") as any
         .in("id", productIds),
       variantIds.length
-        ? supabaseAdmin.from("store_product_variants").select("id, product_id, size, color, option_label, sku, price") as any.in("id", variantIds)
+        ? supabaseAdmin.from("store_product_variants").select("id, product_id, size, color, option_label, sku, price") as any).in("id", variantIds)
         : Promise.resolve({ data: [] as Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null }> }),
     ]);
     if (!products || products.length !== productIds.length) {
@@ -461,7 +461,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
       if (kids) stack.push(...kids);
     }
 
-    const { data: products } = await sb
+    const { data: products } = (await sb
       .from("store_products" as any)
       .select("id, name, slug, price, compare_at_price, image_url, short_description, category_id") as any
       .eq("status", "active")
@@ -566,11 +566,11 @@ export const createStoreOrder = createServerFn({ method: "POST" })
 
     const productIds = [...new Set(productItems.map((i) => i.product_id))];
     const { data: products } = productIds.length
-      ? await supabaseAdmin.from("store_products" as any).select("id, name, price, image_url") as any.in("id", productIds)
+      ? await supabaseAdmin.from("store_products" as any).select("id, name, price, image_url") as any).in("id", productIds)
       : { data: [] };
     const variantIds = productItems.map((i) => i.variant_id).filter(Boolean) as string[];
     const { data: variants } = variantIds.length
-      ? await supabaseAdmin.from("store_product_variants").select("*") as any.in("id", variantIds)
+      ? await supabaseAdmin.from("store_product_variants").select("*") as any).in("id", variantIds)
       : { data: [] };
 
     let subtotal = 0;
