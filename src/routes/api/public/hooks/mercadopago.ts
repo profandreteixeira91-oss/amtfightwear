@@ -168,16 +168,27 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
         }
         
         // Fluxo 1.5: Assinatura SaaS do Dojo Manager via PIX
-        const isDojoSubPix = String(orderId ?? "").startsWith("dojo_sub_pix:");
-        if (isDojoSubPix && status === "approved") {
-          const subId = String(orderId).slice("dojo_sub_pix:".length);
-          const nextMonth = new Date();
-          nextMonth.setMonth(nextMonth.getMonth() + 1);
-          await supabaseAdmin.from("dojo_subscriptions").update({
-            status: "active",
-            current_period_end: nextMonth.toISOString(),
-            last_event: payment,
-          } as never).eq("id", subId);
+        const isDojoSubPix = String(orderId ?? "").startsWith("dojo_sub_pix:") || String(orderId ?? "").startsWith("dojo_sub_pix_payment:");
+        if (isDojoSubPix) {
+          const subId = String(orderId).includes(":") ? String(orderId).split(":")[1] : null;
+          if (subId && status === "approved") {
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            
+            await supabaseAdmin.from("dojo_subscriptions").update({
+              status: "active",
+              current_payment_status: "approved",
+              current_period_end: nextMonth.toISOString(),
+              next_due_date: nextMonth.toISOString().split("T")[0],
+              last_event: payment,
+            } as never).eq("id", subId);
+          } else if (subId) {
+            // Atualiza status pendente/falho se necessário
+            await supabaseAdmin.from("dojo_subscriptions").update({
+              current_payment_status: status,
+              last_event: payment,
+            } as never).eq("id", subId);
+          }
           return new Response("ok");
         }
 

@@ -7846,17 +7846,25 @@ export type Database = {
           cancelled_at: string | null
           created_at: string
           currency: string
+          current_payment_status: string | null
           current_period_end: string | null
           id: string
+          last_copy_paste: string | null
           last_event: Json | null
+          last_notification_sent_at: string | null
+          last_payment_id: string | null
+          last_qr_code: string | null
           mp_pix_id: string | null
           mp_pix_qr_code: string | null
           mp_pix_qr_code_base64: string | null
           mp_pix_ticket_url: string | null
           mp_preapproval_id: string | null
+          next_due_date: string | null
           owner_id: string
+          payment_method: string | null
           plan_amount: number
           status: string
+          subscription_type: string | null
           trial_ends_at: string | null
           updated_at: string
         }
@@ -7864,17 +7872,25 @@ export type Database = {
           cancelled_at?: string | null
           created_at?: string
           currency?: string
+          current_payment_status?: string | null
           current_period_end?: string | null
           id?: string
+          last_copy_paste?: string | null
           last_event?: Json | null
+          last_notification_sent_at?: string | null
+          last_payment_id?: string | null
+          last_qr_code?: string | null
           mp_pix_id?: string | null
           mp_pix_qr_code?: string | null
           mp_pix_qr_code_base64?: string | null
           mp_pix_ticket_url?: string | null
           mp_preapproval_id?: string | null
+          next_due_date?: string | null
           owner_id: string
+          payment_method?: string | null
           plan_amount?: number
           status?: string
+          subscription_type?: string | null
           trial_ends_at?: string | null
           updated_at?: string
         }
@@ -7882,17 +7898,25 @@ export type Database = {
           cancelled_at?: string | null
           created_at?: string
           currency?: string
+          current_payment_status?: string | null
           current_period_end?: string | null
           id?: string
+          last_copy_paste?: string | null
           last_event?: Json | null
+          last_notification_sent_at?: string | null
+          last_payment_id?: string | null
+          last_qr_code?: string | null
           mp_pix_id?: string | null
           mp_pix_qr_code?: string | null
           mp_pix_qr_code_base64?: string | null
           mp_pix_ticket_url?: string | null
           mp_preapproval_id?: string | null
+          next_due_date?: string | null
           owner_id?: string
+          payment_method?: string | null
           plan_amount?: number
           status?: string
+          subscription_type?: string | null
           trial_ends_at?: string | null
           updated_at?: string
         }
