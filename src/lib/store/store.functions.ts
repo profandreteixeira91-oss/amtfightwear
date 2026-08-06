@@ -674,7 +674,7 @@ export const cancelStoreOrder = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: order } = await supabaseAdmin.from("store_orders").select("id, status, payment_status") as any).eq("id", data.id).maybeSingle();
+    const { data: order } = await supabaseAdmin.from("store_orders").select("id, status, payment_status").eq("id", data.id).maybeSingle();
     if (!order) throw new Error("Pedido não encontrado.");
     const allowed = ["pending_payment", "pending", "failed"];
     if (!allowed.includes(String(order.status ?? "").toLowerCase())) {
