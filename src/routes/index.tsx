@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: /admin > João Almeida — joaovictoralmeidasantos969@gmail.com — Trial 0 05/08/2026 | Moises Bernardo Teixeira — moises.bernardo@uol.com.br — Trial 0 04/08/2026. Dois novos donos de dojo se cadastraram, verifique por onde essas pessoas fizeram o cadastro
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Deixando claro: pessoas que se cadastram através de dojo/auth são donos de dojo | Pessoas que se cadastram através do site da amtfightwear.com.br são clientes da loja, este fluxo precisa ficar bem claro em /admin para não haver confusão
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
