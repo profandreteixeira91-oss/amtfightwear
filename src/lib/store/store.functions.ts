@@ -766,7 +766,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("products")
-      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent")
+      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop_internal, cfop_interstate")
       .order("updated_at", { ascending: false })
       .limit(500);
     return data ?? [];
@@ -903,7 +903,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: product, error } = await context.supabase
       .from("products")
-      .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop, unidade, gtin")
+      .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin")
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
