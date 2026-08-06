@@ -1,4 +1,3 @@
-
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,13 +42,14 @@ export interface CertificateInfo {
 
 export const getFiscalStatus = createServerFn({ method: "GET" })
   .handler(async () => {
-    // Usando client padrão com as type assertions necessárias para o TS não reclamar da falta de tipos gerados
-    const { data: config } = await (supabase as any)
+    const s = supabase as any;
+    
+    const { data: config } = await s
       .from('fiscal_issuer_config')
       .select('*')
       .maybeSingle();
 
-    const { data: certificate } = await (supabase as any)
+    const { data: certificate } = await s
       .from('fiscal_certificates')
       .select('*')
       .eq('status', 'active')
@@ -57,12 +57,12 @@ export const getFiscalStatus = createServerFn({ method: "GET" })
       .limit(1)
       .maybeSingle();
 
-    const { count: pendingCount } = await (supabase as any)
+    const { count: pendingCount } = await s
       .from('fiscal_invoices')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending');
 
-    const { count: totalMonth } = await (supabase as any)
+    const { count: totalMonth } = await s
       .from('fiscal_invoices')
       .select('*', { count: 'exact', head: true })
       .gte('issue_date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
@@ -85,7 +85,8 @@ export const getFiscalStatus = createServerFn({ method: "GET" })
 
 export const getFiscalInvoices = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data } = await (supabase as any)
+    const s = supabase as any;
+    const { data } = await s
       .from('fiscal_invoices')
       .select('*')
       .order('created_at', { ascending: false })
@@ -100,7 +101,7 @@ export const uploadCertificate = createServerFn({ method: "POST" })
     password: z.string(),
   }).parse(data))
   .handler(async ({ data }) => {
-    // Simulação de metadados extraídos
+    const s = supabase as any;
     const dummyCert = {
       subject_name: "AMT FIGHT WEAR LTDA",
       issuer_name: "AC CERTISIGN RFB G5",
@@ -111,7 +112,7 @@ export const uploadCertificate = createServerFn({ method: "POST" })
       status: 'active'
     };
 
-    const { error } = await (supabase as any)
+    const { error } = await s
       .from('fiscal_certificates')
       .insert([dummyCert]);
 
@@ -138,7 +139,8 @@ export const saveFiscalConfig = createServerFn({ method: "POST" })
     })
   }).parse(data))
   .handler(async ({ data }) => {
-    const { error } = await (supabase as any)
+    const s = supabase as any;
+    const { error } = await s
       .from('fiscal_issuer_config')
       .upsert({
         razao_social: data.razao_social,
