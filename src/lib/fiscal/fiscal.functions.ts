@@ -6,24 +6,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * Interface para os dados fiscais de um produto
  */
 export interface ProductFiscalData {
+  id?: string;
   ncm: string;
   cest?: string;
   cfop_default?: string;
-  origin: number; // 0-8
-  csosn?: string;
-  cst_icms?: string;
-  cst_pis?: string;
-  cst_cofins?: string;
+  origin?: number;
   icms_rate?: number;
-  ipi_rate?: number;
-  pis_rate?: number;
-  cofins_rate?: number;
-  weight_bruto?: number;
-  weight_liquido?: number;
-  unit_commercial: string;
-  unit_tributable: string;
-  gtin?: string;
 }
+
 
 /**
  * Interface para os dados do certificado digital
