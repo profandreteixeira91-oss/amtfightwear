@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Rota de suporte corrigida de /admin/atendimento/suporte para /admin/saas/suporte no AdminShell.
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Responda: ~E possível customizar a pãgina de checkout do próprio mercado pago?
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
