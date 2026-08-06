@@ -1070,19 +1070,33 @@ function StudentsPage() {
                             </select>
                           </div>
                           <div className="md:col-span-3">
-                            <label className="text-[11px] text-muted-foreground">Turma</label>
-                            <select
-                              className="border rounded p-2 bg-background w-full"
-                              value={m.class_id ?? ""}
-                              onChange={(e) => update({ class_id: e.target.value || null })}
-                            >
-                              <option value="">— Sem turma —</option>
+                            <label className="text-[11px] text-muted-foreground">Turmas</label>
+                            <div className="flex flex-col gap-1 max-h-[120px] overflow-y-auto border rounded p-2 bg-background">
                               {((classes.data ?? []) as any[])
                                 .filter((c) => c.modality === m.modality)
-                                .map((c) => (
-                                  <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                            </select>
+                                .map((c) => {
+                                  const isSelected = (m.class_ids ?? []).includes(c.id);
+                                  return (
+                                    <label key={c.id} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/50 p-1 rounded">
+                                      <Checkbox
+                                        checked={isSelected}
+                                        onCheckedChange={(checked) => {
+                                          const current = m.class_ids ?? [];
+                                          if (checked) {
+                                            update({ class_ids: [...current, c.id] });
+                                          } else {
+                                            update({ class_ids: current.filter(id => id !== c.id) });
+                                          }
+                                        }}
+                                      />
+                                      <span className="truncate" title={c.name}>{c.name}</span>
+                                    </label>
+                                  );
+                                })}
+                              {((classes.data ?? []) as any[]).filter((c) => c.modality === m.modality).length === 0 && (
+                                <span className="text-[10px] text-muted-foreground italic">Nenhuma turma para {m.modality}</span>
+                              )}
+                            </div>
                           </div>
                           <div className="md:col-span-3">
                             <label className="text-[11px] text-muted-foreground">Graduação atual</label>
