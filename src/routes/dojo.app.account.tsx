@@ -31,6 +31,7 @@ export const Route = createFileRoute("/dojo/app/account")({
   head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
   validateSearch: (s: Record<string, unknown>) => ({
     onboarding: s.onboarding === "1" || s.onboarding === 1 ? true : undefined,
+    tab: typeof s.tab === "string" ? s.tab : undefined,
   }),
   component: AccountPage,
 });
