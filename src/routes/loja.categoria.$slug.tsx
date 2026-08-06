@@ -108,7 +108,7 @@ function CategoryPage() {
   // Price bounds
   const priceBounds = useMemo(() => {
     if (!products.length) return { min: 0, max: 0 };
-    const prices = products.map((p) => Number(p.price ?? 0));
+    const prices = products.map((p: any) => Number(p.price ?? 0));
     return { min: Math.floor(Math.min(...prices)), max: Math.ceil(Math.max(...prices)) };
   }, [products]);
 
