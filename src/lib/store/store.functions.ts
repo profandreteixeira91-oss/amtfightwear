@@ -82,7 +82,7 @@ export const adminBulkSetWholesaleEnabled = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ enabled: z.boolean() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error, count } = await context.supabase
-      .from("store_products" as any)
+      .from("products")
       .update({ wholesale_enabled: data.enabled }, { count: "exact" })
       .neq("wholesale_enabled", data.enabled);
     if (error) throw new Error(error.message);
@@ -119,7 +119,7 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
   };
   const [cats, prodsRes] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, parent_id").eq("active", true).order("sort_order"),
-    sb.from("store_products" as any)
+    sb.from("products")
       .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description, wholesale_discount_percent")
       .eq("status", "active")
       .eq("wholesale_enabled", true)
@@ -173,7 +173,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
     const variantIds = [...new Set(data.items.map((i) => i.variant_id).filter((v): v is string => !!v))];
     const [{ data: products }, { data: variants }] = await Promise.all([
       supabaseAdmin
-        .from("store_products" as any)
+        .from("products")
         .select("id, name, price, image_url, category_id, wholesale_enabled, wholesale_discount_percent")
         .in("id", productIds),
       variantIds.length
@@ -341,16 +341,16 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
 
   const [categoriesR, featuredR, newestR, bjjBeltsR, judoBeltsR, kimonosR] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12) as any,
-    sb.from("store_products" as any).select(productSel).eq("status", "active").limit(200) as any,
-    sb.from("store_products" as any).select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12) as any,
+    sb.from("products").select(productSel).eq("status", "active").limit(200) as any,
+    sb.from("products").select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12) as any,
     bjjBeltIds.length
-      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60) as any
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60) as any
       : Promise.resolve({ data: [] as any[] }),
     judoBeltIds.length
-      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60) as any
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60) as any
       : Promise.resolve({ data: [] as any[] }),
     kimonoIds.length
-      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24) as any
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24) as any
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
@@ -409,7 +409,7 @@ export const listStoreCategories = createServerFn({ method: "GET" }).handler(asy
 
   const ids = cats.map((c) => c.id);
   const { data: prods } = await sb
-    .from("store_products" as any)
+    .from("products")
     .select("category_id, image_url, featured, created_at")
     .eq("status", "active")
     .in("category_id", ids)
@@ -465,7 +465,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
     }
 
     const { data: products } = await sb
-      .from("store_products" as any)
+      .from("products")
       .select("id, name, slug, price, compare_at_price, image_url, short_description, category_id")
       .eq("status", "active")
       .in("category_id", ids)
@@ -479,7 +479,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: product } = await sb.from("store_products" as any).select("*").eq("slug", data.slug).eq("status", "active").maybeSingle() as any;
+    const { data: product } = await sb.from("products").select("*").eq("slug", data.slug).eq("status", "active").maybeSingle() as any;
     if (!product) return { product: null, images: [], variants: [], related: [], category: null };
     const [imagesR, variantsR, categoryR] = await Promise.all([
       sb.from("store_product_images").select("*").eq("product_id", product.id).order("sort_order"),
@@ -489,7 +489,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         : Promise.resolve({ data: null }),
     ]);
     const { data: related } = product.category_id
-      ? await sb.from("store_products" as any).select("id, name, slug, price, compare_at_price, image_url").eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)
+      ? await sb.from("products").select("id, name, slug, price, compare_at_price, image_url").eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)
       : { data: [] };
     return {
       product,
@@ -569,7 +569,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
 
     const productIds = [...new Set(productItems.map((i) => i.product_id))];
     const { data: products } = productIds.length
-      ? await supabaseAdmin.from("store_products" as any).select("id, name, price, image_url").in("id", productIds)
+      ? await supabaseAdmin.from("products").select("id, name, price, image_url").in("id", productIds)
       : { data: [] };
     const variantIds = productItems.map((i) => i.variant_id).filter(Boolean) as string[];
     const { data: variants } = variantIds.length
@@ -768,7 +768,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
-      .from("store_products" as any)
+      .from("products")
       .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop_internal, cfop_interstate")
       .order("updated_at", { ascending: false })
       .limit(500) as any;
@@ -840,7 +840,7 @@ export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST
     };
     for (const f of data.fields) patch[f] = catRec[f] ?? null;
     const { data: updated, error } = await context.supabase
-      .from("store_products" as any)
+      .from("products")
       .update(patch)
       .eq("category_id", data.category_id)
       .select("id") as any;
@@ -881,7 +881,7 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("store_products" as any).update(data.patch).eq("id", data.id);
+    const { error } = await context.supabase.from("products").update(data.patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     // Sincroniza estoque entre todas as variantes ativas quando alterado em massa
     if (typeof data.patch.stock === "number") {
@@ -908,7 +908,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: product, error } = await context.supabase
-      .from("store_products" as any)
+      .from("products")
       .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin")
       .eq("id", data.id)
       .maybeSingle() as any;
@@ -1016,7 +1016,7 @@ export const adminCreateStoreProduct = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { data: created, error } = await context.supabase
-      .from("store_products" as any)
+      .from("products")
       .insert(data)
       .select("id")
       .single();
@@ -1028,7 +1028,7 @@ export const adminDeleteStoreProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("store_products" as any).delete().eq("id", data.id);
+    const { error } = await context.supabase.from("products").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
