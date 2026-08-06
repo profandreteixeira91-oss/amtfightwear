@@ -405,14 +405,14 @@ export const listStoreCategories = createServerFn({ method: "GET" }).handler(asy
   };
 
   const ids = cats.map((c) => c.id);
-  const { data: prods } = (await sb
+  const { data: prods } = await sb
     .from("store_products" as any)
-    .select("category_id, image_url, featured, created_at") as any
+    .select("category_id, image_url, featured, created_at")
     .eq("status", "active")
     .in("category_id", ids)
     .not("image_url", "is", null)
     .order("featured", { ascending: false })
-    .order("created_at", { ascending: false })) as any;
+    .order("created_at", { ascending: false });
 
   const imageByCat = new Map<string, string>();
   for (const p of (prods as any[]) ?? []) {
