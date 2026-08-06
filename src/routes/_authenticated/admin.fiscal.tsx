@@ -385,6 +385,114 @@ function FiscalDashboard() {
              </Card>
           </TabsContent>
 
+          <TabsContent value="config">
+            <Card className="admin-card">
+              <CardHeader>
+                <CardTitle>Configurações Fiscais</CardTitle>
+                <CardDescription>Defina os parâmetros do emitente para emissão de notas.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    const data = {
+                      razao_social: formData.get("razao_social") as string,
+                      cnpj: formData.get("cnpj") as string,
+                      inscricao_estadual: formData.get("inscricao_estadual") as string,
+                      regime_tributario: Number(formData.get("regime_tributario")),
+                      environment: formData.get("environment") as 'homologacao' | 'producao',
+                      address: {
+                        street: formData.get("address_street") as string,
+                        number: formData.get("address_number") as string,
+                        neighborhood: formData.get("address_neighborhood") as string,
+                        city: formData.get("address_city_name") as string,
+                        state: formData.get("address_state") as string,
+                        zip: formData.get("address_zip") as string,
+                        city_code: formData.get("address_city_code") as string,
+                      }
+                    };
+                    
+                    toast.promise(saveConfigFn({ data }), {
+                      loading: 'Salvando configurações...',
+                      success: () => {
+                        queryClient.invalidateQueries({ queryKey: ['fiscal-status'] });
+                        return 'Configurações salvas!';
+                      },
+                      error: (err) => `Erro: ${err.message}`
+                    });
+                  }}
+                  className="grid gap-6 md:grid-cols-2"
+                >
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Razão Social</label>
+                      <Input name="razao_social" defaultValue={status?.issuer_name !== "Não configurado" ? status?.issuer_name : ""} required />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">CNPJ</label>
+                      <Input name="cnpj" placeholder="00.000.000/0000-00" required />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Inscrição Estadual</label>
+                      <Input name="inscricao_estadual" required />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Ambiente SEFAZ</label>
+                      <select name="environment" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" defaultValue={status?.environment}>
+                        <option value="homologacao">Homologação (Testes)</option>
+                        <option value="producao">Produção</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 gap-2">
+                      <div className="col-span-3 space-y-2">
+                        <label className="text-sm font-medium">Endereço</label>
+                        <Input name="address_street" placeholder="Rua / Av" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Nº</label>
+                        <Input name="address_number" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Cidade</label>
+                        <Input name="address_city_name" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Código IBGE Cidade</label>
+                        <Input name="address_city_code" placeholder="Ex: 3550308" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="col-span-2 space-y-2">
+                        <label className="text-sm font-medium">Bairro</label>
+                        <Input name="address_neighborhood" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">UF</label>
+                        <Input name="address_state" maxLength={2} placeholder="SP" required />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">CEP</label>
+                      <Input name="address_zip" placeholder="00000-000" required />
+                    </div>
+                  </div>
+                  
+                  <div className="md:col-span-2 flex justify-end gap-3 pt-4 border-t">
+                    <Button type="submit" className="bg-red-600 hover:bg-red-700">
+                      Salvar Configurações
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="products">
             <Card className="admin-card">
               <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
