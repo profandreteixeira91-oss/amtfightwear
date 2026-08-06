@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, QrCode, Copy, Check, CheckCircle2 } from "lucide-react";
+import { Loader2, QrCode, Copy, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { subscribeWithPix, syncPixPayment, PLAN_AMOUNT } from "@/lib/dojo/subscription.functions";
+import { subscribeWithPix, PLAN_AMOUNT } from "@/lib/dojo/subscription.functions";
 
 interface Props {
   defaultEmail?: string;
@@ -14,7 +14,6 @@ interface Props {
 
 export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
   const subscribePix = useServerFn(subscribeWithPix);
-  const syncPix = useServerFn(syncPixPayment);
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState(defaultEmail ?? "");
   const [pixResult, setPixResult] = useState<{ 
@@ -24,30 +23,6 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
     qrCodeCopyPaste: string; 
   } | null>(null);
   const [copied, setCopied] = useState(false);
-  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
-
-  // Polling para verificar o status do pagamento
-  useEffect(() => {
-    let interval: any;
-    if (pixResult && pixResult.status !== "approved" && !paymentConfirmed) {
-      interval = setInterval(async () => {
-        try {
-          const res = await syncPix({ data: { paymentId: pixResult.paymentId } });
-          if (res.status === "approved") {
-            setPaymentConfirmed(true);
-            toast.success("Pagamento confirmado!");
-            clearInterval(interval);
-            setTimeout(() => {
-              onSuccess?.();
-            }, 3000);
-          }
-        } catch (err) {
-          console.warn("Falha ao sincronizar pagamento", err);
-        }
-      }, 5000); // Verifica a cada 5 segundos
-    }
-    return () => clearInterval(interval);
-  }, [pixResult, paymentConfirmed, syncPix, onSuccess]);
 
   async function handlePix(e: React.FormEvent) {
     e.preventDefault();
@@ -77,23 +52,6 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
     setCopied(true);
     toast.success("Código copiado!");
     setTimeout(() => setCopied(false), 2000);
-  }
-
-  if (paymentConfirmed) {
-    return (
-      <div className="space-y-6 text-center animate-in fade-in zoom-in duration-500">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 ring-8 ring-emerald-50">
-          <CheckCircle2 className="h-10 w-10" />
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-xl font-bold text-neutral-900">Pagamento Confirmado!</h3>
-          <p className="text-sm text-neutral-500">
-            Sua assinatura do AMT Dojo Manager foi ativada com sucesso.
-          </p>
-        </div>
-        <p className="text-xs text-neutral-400">Redirecionando em instantes...</p>
-      </div>
-    );
   }
 
   if (pixResult) {
@@ -137,13 +95,9 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
             </Button>
           </div>
 
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
-              <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-              Aguardando confirmação do pagamento...
-            </div>
+          <div className="flex flex-col gap-2">
             <p className="text-[10px] text-neutral-400">
-              O sistema identifica o pagamento em poucos segundos. Não feche esta tela.
+              Sua assinatura será ativada automaticamente assim que o pagamento for confirmado via Webhook.
             </p>
           </div>
         </div>
