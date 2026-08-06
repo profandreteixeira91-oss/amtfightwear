@@ -7849,6 +7849,10 @@ export type Database = {
           current_period_end: string | null
           id: string
           last_event: Json | null
+          mp_pix_id: string | null
+          mp_pix_qr_code: string | null
+          mp_pix_qr_code_base64: string | null
+          mp_pix_ticket_url: string | null
           mp_preapproval_id: string | null
           owner_id: string
           plan_amount: number
@@ -7863,6 +7867,10 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           last_event?: Json | null
+          mp_pix_id?: string | null
+          mp_pix_qr_code?: string | null
+          mp_pix_qr_code_base64?: string | null
+          mp_pix_ticket_url?: string | null
           mp_preapproval_id?: string | null
           owner_id: string
           plan_amount?: number
@@ -7877,6 +7885,10 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           last_event?: Json | null
+          mp_pix_id?: string | null
+          mp_pix_qr_code?: string | null
+          mp_pix_qr_code_base64?: string | null
+          mp_pix_ticket_url?: string | null
           mp_preapproval_id?: string | null
           owner_id?: string
           plan_amount?: number
