@@ -28,8 +28,11 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
     setBusy(true);
     try {
       const res = await subscribePix({ data: { payerEmail: email } });
-      setPixData(res);
-      toast.success("QR Code Pix gerado!");
+      if (res.initPoint) {
+        window.location.href = res.initPoint;
+      } else {
+        toast.error("URL de checkout indisponível");
+      }
     } catch (err: any) {
       toast.error(err?.message ?? "Falha ao gerar Pix");
     } finally {
