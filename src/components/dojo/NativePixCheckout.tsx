@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, QrCode, Copy, Check, ExternalLink } from "lucide-react";
+import { Loader2, QrCode, Copy, Check, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { subscribeWithPix, PLAN_AMOUNT } from "@/lib/dojo/subscription.functions";
+import { subscribeWithPix, syncPixPayment, PLAN_AMOUNT } from "@/lib/dojo/subscription.functions";
 
 interface Props {
   defaultEmail?: string;
@@ -14,10 +14,40 @@ interface Props {
 
 export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
   const subscribePix = useServerFn(subscribeWithPix);
+  const syncPix = useServerFn(syncPixPayment);
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState(defaultEmail ?? "");
-  const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string; ticketUrl: string } | null>(null); // Mantido por compatibilidade de tipo se necessário, mas não mais usado no fluxo principal
+  const [pixResult, setPixResult] = useState<{ 
+    paymentId: string; 
+    status: string; 
+    qrCodeBase64: string; 
+    qrCodeCopyPaste: string; 
+  } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+
+  // Polling para verificar o status do pagamento
+  useEffect(() => {
+    let interval: any;
+    if (pixResult && pixResult.status !== "approved" && !paymentConfirmed) {
+      interval = setInterval(async () => {
+        try {
+          const res = await syncPix({ data: { paymentId: pixResult.paymentId } });
+          if (res.status === "approved") {
+            setPaymentConfirmed(true);
+            toast.success("Pagamento confirmado!");
+            clearInterval(interval);
+            setTimeout(() => {
+              onSuccess?.();
+            }, 3000);
+          }
+        } catch (err) {
+          console.warn("Falha ao sincronizar pagamento", err);
+        }
+      }, 5000); // Verifica a cada 5 segundos
+    }
+    return () => clearInterval(interval);
+  }, [pixResult, paymentConfirmed, syncPix, onSuccess]);
 
   async function handlePix(e: React.FormEvent) {
     e.preventDefault();
@@ -28,13 +58,12 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
     setBusy(true);
     try {
       const res = await subscribePix({ data: { payerEmail: email } });
-      if (res.initPoint) {
-        // Para Pix Automático (preapproval), o MP exige que o usuário autorize no site deles
-        // pois não é um Pix comum, é uma autorização de débito recorrente.
-        window.location.href = res.initPoint;
-      } else {
-        toast.error("URL de autorização indisponível");
-      }
+      setPixResult({
+        paymentId: res.paymentId,
+        status: res.status,
+        qrCodeBase64: res.qrCodeBase64,
+        qrCodeCopyPaste: res.qrCodeCopyPaste,
+      });
     } catch (err: any) {
       toast.error(err?.message ?? "Falha ao gerar Pix");
     } finally {
@@ -43,14 +72,31 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
   }
 
   function copyToClipboard() {
-    if (!pixData?.qrCode) return;
-    navigator.clipboard.writeText(pixData.qrCode);
+    if (!pixResult?.qrCodeCopyPaste) return;
+    navigator.clipboard.writeText(pixResult.qrCodeCopyPaste);
     setCopied(true);
     toast.success("Código copiado!");
     setTimeout(() => setCopied(false), 2000);
   }
 
-  if (pixData) {
+  if (paymentConfirmed) {
+    return (
+      <div className="space-y-6 text-center animate-in fade-in zoom-in duration-500">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 ring-8 ring-emerald-50">
+          <CheckCircle2 className="h-10 w-10" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-xl font-bold text-neutral-900">Pagamento Confirmado!</h3>
+          <p className="text-sm text-neutral-500">
+            Sua assinatura do AMT Dojo Manager foi ativada com sucesso.
+          </p>
+        </div>
+        <p className="text-xs text-neutral-400">Redirecionando em instantes...</p>
+      </div>
+    );
+  }
+
+  if (pixResult) {
     return (
       <div className="space-y-6 text-center animate-in fade-in zoom-in duration-300">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
@@ -66,8 +112,8 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
         </div>
 
         <div className="mx-auto flex aspect-square w-full max-w-[240px] items-center justify-center rounded-xl bg-white p-4 shadow-sm border ring-4 ring-emerald-50">
-          {pixData.qrCodeBase64 ? (
-            <img src={`data:image/png;base64,${pixData.qrCodeBase64}`} alt="QR Code Pix" className="h-full w-full" />
+          {pixResult.qrCodeBase64 ? (
+            <img src={`data:image/png;base64,${pixResult.qrCodeBase64}`} alt="QR Code Pix" className="h-full w-full" />
           ) : (
             <div className="text-xs text-neutral-400">QR Code indisponível</div>
           )}
@@ -77,7 +123,7 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
           <div className="relative">
             <Input 
               readOnly 
-              value={pixData.qrCode} 
+              value={pixResult.qrCodeCopyPaste} 
               className="pr-20 text-xs font-mono bg-neutral-50 border-neutral-200"
             />
             <Button
@@ -91,15 +137,13 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
             </Button>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Button 
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-              onClick={() => window.open(pixData.ticketUrl, "_blank")}
-            >
-              <ExternalLink className="mr-2 h-4 w-4" /> Ver comprovante / Pagar no banco
-            </Button>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
+              <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
+              Aguardando confirmação do pagamento...
+            </div>
             <p className="text-[10px] text-neutral-400">
-              Sua assinatura será ativada automaticamente assim que o pagamento for confirmado.
+              O sistema identifica o pagamento em poucos segundos. Não feche esta tela.
             </p>
           </div>
         </div>
@@ -115,7 +159,7 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
             <div className="flex h-5 w-5 items-center justify-center rounded bg-emerald-100 text-emerald-600">
               <QrCode className="h-3 w-3" />
             </div>
-            Pagamento via Pix Automático
+            Pagamento via PIX (Mensal)
           </div>
         </div>
 
@@ -133,8 +177,7 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
           </div>
           
           <div className="rounded-md bg-emerald-50 p-3 text-[11px] text-emerald-800 border border-emerald-100">
-            <strong>Pix Automático:</strong> Você será redirecionado para autorizar a recorrência. 
-            O valor será cobrado automaticamente da sua conta Mercado Pago ou via QR Code mensal.
+            <strong>Recorrência Manual:</strong> Todos os meses você receberá uma nova cobrança PIX por e-mail e no painel. Seu plano é renovado imediatamente após o pagamento.
           </div>
         </div>
       </div>
@@ -153,10 +196,10 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
       >
         {busy ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Redirecionando…
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando QR Code…
           </>
         ) : (
-          <>Ativar Pix Automático</>
+          <>Gerar QR Code PIX</>
         )}
       </Button>
     </form>
