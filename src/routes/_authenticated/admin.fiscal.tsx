@@ -28,6 +28,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig, fetchCompanyByCnpj } from "@/lib/fiscal/fiscal.functions";
 import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
+import { getFiscalCategorySettings, saveFiscalCategorySetting } from "@/lib/fiscal/automation.functions";
 import { emitNFe } from "@/lib/fiscal/emission.functions";
 import { getOrdersForFiscal } from "@/lib/fiscal/orders.functions";
 import { 
@@ -66,6 +67,8 @@ function FiscalDashboard() {
   const findCnpjFn = useServerFn(fetchCompanyByCnpj);
   const emitNFeFn = useServerFn(emitNFe);
   const fetchOrdersFn = useServerFn(getOrdersForFiscal);
+  const fetchCategorySettings = useServerFn(getFiscalCategorySettings);
+  const saveCatSetting = useServerFn(saveFiscalCategorySetting);
   
   const [fiscalConfig, setFiscalConfig] = useState<any>(null);
   const [isSearchingCnpj, setIsSearchingCnpj] = useState(false);
@@ -98,6 +101,11 @@ function FiscalDashboard() {
     queryKey: ['fiscal-orders'],
     queryFn: () => fetchOrdersFn(),
     enabled: showOrderSelection,
+  });
+
+  const { data: categorySettings, isLoading: catSettingsLoading } = useQuery({
+    queryKey: ['fiscal-category-settings'],
+    queryFn: () => fetchCategorySettings(),
   });
 
   const filteredProducts = useMemo(() => {
@@ -321,13 +329,19 @@ function FiscalDashboard() {
             >
               Emitente
             </TabsTrigger>
-            <TabsTrigger 
-              value="products"
-              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
-            >
-              Produtos
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger 
+                value="products"
+                className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+              >
+                Produtos
+              </TabsTrigger>
+              <TabsTrigger 
+                value="automation"
+                className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+              >
+                Parametrização
+              </TabsTrigger>
+            </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-6 lg:grid-cols-7">
@@ -718,7 +732,8 @@ function FiscalDashboard() {
                           <th className="p-4">Produto</th>
                           <th className="p-4">NCM</th>
                           <th className="p-4">CEST</th>
-                          <th className="p-4">CFOP Padrão</th>
+                          <th className="p-4">CFOP Interno</th>
+                          <th className="p-4">CFOP Interestadual</th>
                           <th className="p-4 text-right">Ações</th>
                         </tr>
                       </thead>
@@ -762,10 +777,18 @@ function FiscalDashboard() {
                               </td>
                               <td className="p-4">
                                 <Input 
-                                  defaultValue={p.cfop || ""} 
+                                  defaultValue={p.cfop_internal || ""} 
                                   placeholder="5102"
                                   className="h-8 w-20 text-xs"
-                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cfop', e.target.value)}
+                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cfop_internal', e.target.value)}
+                                />
+                              </td>
+                              <td className="p-4">
+                                <Input 
+                                  defaultValue={p.cfop_interstate || ""} 
+                                  placeholder="6102"
+                                  className="h-8 w-20 text-xs"
+                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cfop_interstate', e.target.value)}
                                 />
                               </td>
 
@@ -781,6 +804,49 @@ function FiscalDashboard() {
                     </table>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="automation">
+            <Card className="admin-card">
+              <CardHeader>
+                <CardTitle>Parametrização Fiscal por Categoria</CardTitle>
+                <CardDescription>Defina os padrões que serão sugeridos automaticamente no cadastro de produtos.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto rounded-xl border border-neutral-200">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-neutral-50 text-left font-semibold text-neutral-900">
+                        <th className="p-4">Categoria</th>
+                        <th className="p-4">NCM Padrão</th>
+                        <th className="p-4">CFOP Interno</th>
+                        <th className="p-4">CFOP Interst.</th>
+                        <th className="p-4">CST/CSOSN</th>
+                        <th className="p-4 text-right">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100">
+                      {!categorySettings || categorySettings.length === 0 ? (
+                        <tr><td colSpan={6} className="p-8 text-center text-muted-foreground italic">Nenhuma parametrização cadastrada. Utilize o Módulo de Catálogo para propagar dados.</td></tr>
+                      ) : (
+                        categorySettings.map((set: any) => (
+                          <tr key={set.id} className="hover:bg-neutral-50/50">
+                            <td className="p-4 font-medium">{set.store_categories?.name}</td>
+                            <td className="p-4">{set.ncm}</td>
+                            <td className="p-4">{set.cfop_internal}</td>
+                            <td className="p-4">{set.cfop_interstate}</td>
+                            <td className="p-4">{set.cst_csosn || "—"}</td>
+                            <td className="p-4 text-right">
+                              <Button variant="ghost" size="sm" onClick={() => setActiveTab("products")}>Ver Produtos</Button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
