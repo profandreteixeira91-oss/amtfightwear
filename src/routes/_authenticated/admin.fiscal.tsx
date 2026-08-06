@@ -299,14 +299,24 @@ function FiscalDashboard() {
 
           <TabsContent value="invoices">
              <Card className="admin-card">
-               <CardHeader className="flex flex-row items-center justify-between">
+               <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                  <div>
                    <CardTitle>Histórico de Notas</CardTitle>
                    <CardDescription>Gerenciamento completo das notas fiscais.</CardDescription>
                  </div>
-                 <Button variant="outline" size="sm" className="gap-2">
-                   <Download className="h-4 w-4" /> Exportar XMLs
-                 </Button>
+                 <div className="flex gap-2">
+                   <Button 
+                    onClick={() => {
+                      toast.info("Processo de emissão iniciado. Selecione o pedido/orçamento...");
+                    }}
+                    className="gap-2 bg-red-600 hover:bg-red-700"
+                   >
+                     <Plus className="h-4 w-4" /> Nova NF-e
+                   </Button>
+                   <Button variant="outline" size="sm" className="gap-2">
+                     <Download className="h-4 w-4" /> Exportar XMLs
+                   </Button>
+                 </div>
                </CardHeader>
                <CardContent>
                  <div className="rounded-md border">
