@@ -104,7 +104,7 @@ export const startMySubscription = createServerFn({ method: "POST" })
           currency_id: "BRL",
         },
         payment_methods_allowed: {
-          payment_types: [{ id: "credit_card" }, { id: "account_money" }],
+          payment_types: [{ id: "credit_card" }, { id: "account_money" }, { id: "pix" }],
           payment_methods: [],
         },
         notification_url: notification,
@@ -366,7 +366,7 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
           currency_id: "BRL",
         },
         payment_methods_allowed: {
-          payment_types: [{ id: "pix" }],
+          payment_types: [{ id: "pix" }, { id: "credit_card" }, { id: "account_money" }],
           payment_methods: [],
         },
         notification_url: notification,
