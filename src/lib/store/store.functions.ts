@@ -906,7 +906,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: product, error } = await context.supabase
       .from("store_products" as any)
-      .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin") as any
+      .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin")
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
