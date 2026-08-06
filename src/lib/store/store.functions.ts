@@ -645,8 +645,8 @@ export const createStoreOrder = createServerFn({ method: "POST" })
         status: "pending_payment",
         payment_status: "pending",
       })
-      .select("*") as any
-      .single() as any;
+      .select("*")
+      .single();
 
     if (error || !order) throw new Error(error?.message ?? "Erro ao criar pedido");
 
