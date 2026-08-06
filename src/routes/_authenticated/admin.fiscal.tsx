@@ -84,6 +84,12 @@ function FiscalDashboard() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastInvoice, setLastInvoice] = useState<any>(null);
   const [showOrderSelection, setShowOrderSelection] = useState(false);
+
+  useEffect(() => {
+    if (orderId && type) {
+      handleEmitNFe(orderId, type);
+    }
+  }, [orderId, type]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [productSearch, setProductSearch] = useState("");
