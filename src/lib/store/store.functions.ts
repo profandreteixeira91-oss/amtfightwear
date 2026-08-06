@@ -664,9 +664,9 @@ export const getStoreOrder = createServerFn({ method: "GET" })
   .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: order } = await supabaseAdmin.from("store_orders").select("*") as any).eq("id", data.id).maybeSingle();
+    const { data: order } = await supabaseAdmin.from("store_orders").select("*").eq("id", data.id).maybeSingle();
     if (!order) return null;
-    const { data: items } = await supabaseAdmin.from("store_order_items").select("*") as any).eq("order_id", order.id);
+    const { data: items } = await supabaseAdmin.from("store_order_items").select("*").eq("order_id", order.id);
     return { order, items: items ?? [] };
   });
 
