@@ -99,18 +99,21 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
   const fetchAllVariants = async (productIds: string[]) => {
     const out: Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null; sort_order: number; active: boolean }> = [];
     if (productIds.length === 0) return out;
-    for (let from = 0; ; from += PAGE) {
-      const { data, error } = await sb.from("store_product_variants")
+    let from = 0;
+    let keepGoing = true;
+    while (keepGoing) {
+      const res = await sb.from("store_product_variants")
         .select("id, product_id, size, color, option_label, sku, price, sort_order, active")
         .eq("active", true)
         .in("product_id", productIds)
         .order("product_id")
         .order("sort_order")
         .range(from, from + PAGE - 1);
-      if (error) throw error;
-      const rows = data ?? [];
+      if (res.error) throw res.error;
+      const rows = res.data ?? [];
       out.push(...rows);
-      if (rows.length < PAGE) break;
+      keepGoing = rows.length === PAGE;
+      from += PAGE;
     }
     return out;
   };
