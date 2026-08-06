@@ -187,7 +187,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
     // Group quantities by leaf category (subcategoria)
     const qtyByCategory = new Map<string, number>();
     for (const it of data.items) {
-      const p = products.find((pp) => pp.id === it.product_id)!;
+      const p =  (products as any[]).find((pp: any) => pp.id === it.product_id)!;
       const cat = p.category_id ?? "__no_category__";
       qtyByCategory.set(cat, (qtyByCategory.get(cat) ?? 0) + it.quantity);
     }
@@ -206,8 +206,8 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
     let subtotal = 0;
     const orderItems: Array<Record<string, unknown>> = [];
     for (const it of data.items) {
-      const p = products.find((pp) => pp.id === it.product_id)!;
-      const v = it.variant_id ? variants?.find((vv) => vv.id === it.variant_id) ?? null : null;
+      const p =  (products as any[]).find((pp: any) => pp.id === it.product_id)!;
+      const v = it.variant_id ?  (variants as any[]).find((vv: any) => vv.id === it.variant_id) ?? null : null;
       const originalPrice = Number(v?.price ?? p.price);
       const productPct = p.wholesale_discount_percent != null ? Number(p.wholesale_discount_percent) : DEFAULT_PCT;
       const pct = Math.max(0, Math.min(90, productPct));
@@ -415,7 +415,7 @@ export const listStoreCategories = createServerFn({ method: "GET" }).handler(asy
     .order("created_at", { ascending: false })) as any;
 
   const imageByCat = new Map<string, string>();
-  for (const p of prods ?? []) {
+  for (const p of (prods as any[]) ?? []) {
     if (!p.category_id || !p.image_url) continue;
     if (!imageByCat.has(p.category_id)) imageByCat.set(p.category_id, p.image_url);
   }
@@ -577,9 +577,9 @@ export const createStoreOrder = createServerFn({ method: "POST" })
     const orderItems: Array<Record<string, unknown>> = [];
 
     for (const it of productItems) {
-      const p = products?.find((pp) => pp.id === it.product_id);
+      const p =  (products as any[]).find((pp: any) => pp.id === it.product_id);
       if (!p) throw new Error(`Produto ${it.product_id} não encontrado`);
-      const v = it.variant_id ? variants?.find((vv) => vv.id === it.variant_id) : null;
+      const v = it.variant_id ?  (variants as any[]).find((vv: any) => vv.id === it.variant_id) : null;
       const unit_price = Number(v?.price ?? p.price);
       const total_price = unit_price * it.quantity;
       subtotal += total_price;
