@@ -83,7 +83,15 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
             patch.status = "cancelled";
             patch.cancelled_at = new Date().toISOString();
           }
-          if (pre.next_payment_date) patch.current_period_end = pre.next_payment_date;
+          if (pre.status === "authorized") {
+            patch.status = "active";
+            if (pre.next_payment_date) patch.current_period_end = pre.next_payment_date;
+          } else if (pre.status === "paused") {
+            patch.status = "paused";
+          } else if (pre.status === "cancelled") {
+            patch.status = "cancelled";
+            patch.cancelled_at = new Date().toISOString();
+          }
           if (subLocalId) {
             await supabaseAdmin.from("dojo_subscriptions").update(patch as never).eq("id", subLocalId);
           } else {
