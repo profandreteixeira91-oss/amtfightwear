@@ -436,13 +436,13 @@ function AdminProductsPage() {
                       <th className="p-4 w-10">
                         <Checkbox checked={allPageSelected} onCheckedChange={(v) => toggleAllPage(!!v)} />
                       </th>
-                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Produto</th>
-                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-36">Preço Base</th>
-                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-28">Estoque</th>
-                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-24">Status</th>
-                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-24">Destaque</th>
-                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-48">Atacado & Descontos</th>
-                      <th className="p-4 text-right font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-32">Ações</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] min-w-[200px]">Produto</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[160px]">Preço Base</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[100px]">Estoque</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[80px]">Status</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[80px]">Destaque</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[160px]">Atacado & Descontos</th>
+                      <th className="p-4 text-right font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[140px]">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/30">
@@ -483,16 +483,16 @@ function AdminProductsPage() {
                             </div>
                           </td>
                           <td className="p-4">
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 w-[140px]">
                               <div className="relative group/input">
                                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium">R$</span>
                                 <Input
                                   value={priceVal}
                                   onChange={(ev) => setEdit(p.id, "price", ev.target.value)}
-                                  className="h-8 pl-7 text-xs font-mono bg-muted/30 focus:bg-background border-border/40"
+                                  className="h-8 pl-7 text-xs font-mono bg-muted/30 focus:bg-background border-border/40 w-full"
                                 />
                               </div>
-                              <div className="text-[10px] text-muted-foreground pl-1 font-medium italic opacity-70">Anterior: {formatBRL(Number(p.price))}</div>
+                              <div className="text-[10px] text-muted-foreground pl-1 font-medium italic opacity-70 truncate">Anterior: {formatBRL(Number(p.price))}</div>
                             </div>
                           </td>
                           <td className="p-4">
@@ -560,7 +560,7 @@ function AdminProductsPage() {
                             </div>
                           </td>
                           <td className="p-4 text-right">
-                            <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center justify-end gap-1 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                               {dirty && (
                                 <Button size="icon" variant="secondary" onClick={() => saveRow(p.id)} disabled={saving} className="h-8 w-8 rounded-full shadow-sm" title="Salvar Linha">
                                   <Save className="h-3.5 w-3.5" />
