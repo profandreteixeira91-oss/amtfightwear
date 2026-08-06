@@ -1027,7 +1027,7 @@ function StudentsPage() {
                           const firstMod = form.modalities[0]?.modality ?? modalitiesAvail[0] ?? "jiu-jitsu";
                           set("modalities", [
                             ...form.modalities,
-                            { modality: firstMod, belt_id: "", degree: 0 },
+                            { modality: firstMod, belt_id: "", degree: 0, class_ids: [] },
                           ]);
                         }}
                       >
