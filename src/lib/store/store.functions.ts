@@ -311,7 +311,7 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
   // 1) Fetch categories to resolve root -> descendant IDs.
   const { data: allCats } = await sb
     .from("store_categories")
-    .select("id, slug, name, parent_id") as any
+    .select("id, slug, name, parent_id")
     .eq("active", true);
   const cats = allCats ?? [];
   const descendantIds = (rootSlug: string): string[] => {
