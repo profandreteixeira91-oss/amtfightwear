@@ -796,7 +796,7 @@ export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       return { id: data.id };
     }
-    const { data: created, error } = await context.supabase.from("store_categories").insert(data).select("id") as any.single();
+    const { data: created, error } = await context.supabase.from("store_categories").insert(data).select("id").single();
     if (error) throw new Error(error.message);
     return { id: created.id };
   });
