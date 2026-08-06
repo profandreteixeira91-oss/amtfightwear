@@ -59,9 +59,9 @@ function StoreCustomersPage() {
 
   return (
     <PageShell
-      eyebrow="Loja"
-      title="Clientes"
-      description="Todos os clientes que criaram conta, navegaram ou entraram em contato."
+      eyebrow="AMT Fight Wear"
+      title="Clientes da Loja"
+      description="Consumidores que realizaram pedidos ou cadastros diretamente no site da loja (E-commerce)."
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Card>

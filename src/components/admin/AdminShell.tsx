@@ -186,8 +186,8 @@ const NAV: NavGroup[] = [
   {
     label: "Gestão SaaS",
     items: [
-      { title: "Donos de Dojos", url: "/admin/clientes-growth", icon: UsersRound },
-      { title: "Base de Clientes", url: "/admin/clientes", icon: UserSquare2 },
+      { title: "Donos de Dojo (SaaS)", url: "/admin/clientes-growth", icon: UsersRound },
+      { title: "Clientes da Loja (AMT)", url: "/admin/clientes", icon: UserSquare2 },
       { title: "Assinaturas / Financeiro", url: "/admin/dojo", icon: Landmark },
       { title: "Notificações Global", url: "/admin/notificacoes", icon: BellRing },
     ],
