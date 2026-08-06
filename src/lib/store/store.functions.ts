@@ -768,7 +768,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
       .from("store_products" as any)
       .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop_internal, cfop_interstate")
       .order("updated_at", { ascending: false })
-      .limit(500);
+      .limit(500) as any;
     return data ?? [];
   });
 
