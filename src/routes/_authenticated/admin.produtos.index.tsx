@@ -22,10 +22,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatBRL } from "@/lib/store/cart-store";
-import { ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save, Pencil, Trash2, Plus } from "lucide-react";
+import { ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save, Pencil, Trash2, Plus, Search, Filter, MoreHorizontal, Package, AlertCircle, LayoutGrid, Receipt, Settings2, BarChart3, Info } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/")({
   component: AdminProductsPage,
@@ -244,20 +248,26 @@ function AdminProductsPage() {
 
   return (
     <PageShell
-      title="Produtos da loja"
-      description={`${filtered.length} produtos${search ? ` (filtrados de ${data?.length ?? 0})` : ""}`}
+      title="Catálogo de Produtos"
+      description={`${filtered.length} itens encontrados`}
       actions={
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-          <Input
-            placeholder="Buscar produto..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full sm:w-56"
-          />
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Input
+              placeholder="Buscar produtos..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              className="pl-9 bg-muted/50 border-border/40 focus:bg-background transition-all"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Search className="h-4 w-4" />
+            </div>
+          </div>
+          
           <select
             value={categoryFilter}
             onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
-            className="h-10 w-full rounded-md border bg-background px-2 text-sm sm:w-auto sm:min-w-[12rem]"
+            className="h-10 w-full sm:w-48 rounded-md border border-border/40 bg-muted/50 px-3 text-sm focus:bg-background transition-all outline-none"
           >
             <option value="">Todas as categorias</option>
             {(() => {
@@ -284,254 +294,345 @@ function AdminProductsPage() {
               return out;
             })()}
           </select>
-          <div className="flex flex-wrap items-center gap-2">
-            {categoryFilter && (
-              <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter(""); setPage(1); }}>
-                Limpar filtro
-              </Button>
-            )}
-            <Button onClick={() => setCreatingProduct(true)} size="sm">
-              <Plus className="h-4 w-4 mr-1" /> Adicionar
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button onClick={() => setCreatingProduct(true)} size="default" className="flex-1 sm:flex-none shadow-sm shadow-primary/20">
+              <Plus className="h-4 w-4 mr-2" /> Novo Produto
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setManagingCategories(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Categorias
+            <Button variant="outline" size="default" onClick={() => setManagingCategories(true)} className="flex-1 sm:flex-none bg-background/50">
+              <Plus className="h-4 w-4 mr-2" /> Categorias
             </Button>
-            <Link to="/admin/atacado"><Button variant="outline" size="sm">Atacado</Button></Link>
-            <Link to="/admin/produtos/importar"><Button variant="outline" size="sm">Importar</Button></Link>
-            <Link to="/admin/fiscal"><Button variant="secondary" size="sm">Módulo Fiscal</Button></Link>
           </div>
         </div>
       }
     >
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-2">
+        <div className="lg:col-span-3 space-y-6">
+          {/* Quick Stats or Highlights could go here if needed, keeping it clean for now */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4">
+               <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/40 rounded-full border border-border/40 text-xs font-medium">
+                  <span className="w-2 h-2 rounded-full bg-primary" />
+                  {data?.length ?? 0} Produtos Totais
+               </div>
+               {categoryFilter && (
+                 <Button variant="link" size="sm" onClick={() => setCategoryFilter("")} className="h-auto p-0 text-muted-foreground hover:text-primary">
+                   Limpar Filtro
+                 </Button>
+               )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Link to="/admin/produtos/importar"><Button variant="ghost" size="sm" className="text-xs h-8">Importar</Button></Link>
+              <Link to="/admin/atacado"><Button variant="ghost" size="sm" className="text-xs h-8">Regras Atacado</Button></Link>
+              <Link to="/admin/fiscal"><Button variant="ghost" size="sm" className="text-xs h-8 text-primary">Painel Fiscal</Button></Link>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <Card className="border-primary/40 bg-primary/5">
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[auto_repeat(3,minmax(0,1fr))_auto] lg:items-end">
-            <div className="text-sm font-semibold">
-              Edição em massa
-              <div className="text-xs font-normal text-muted-foreground">
-                {selected.size} selecionado(s)
+      <Card className="border-border/40 bg-muted/30 backdrop-blur-sm overflow-hidden shadow-sm">
+        <CardContent className="p-0">
+          <div className="p-4 border-b border-border/40 bg-background/40">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  Ações em Massa
+                  {selected.size > 0 && (
+                    <Badge variant="secondary" className="font-mono text-[10px]">{selected.size} selecionado(s)</Badge>
+                  )}
+                </h3>
+                <p className="text-xs text-muted-foreground">Selecione itens na tabela para aplicar alterações rápidas.</p>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0} className="text-xs">
+                  Selecionar Tudo
+                </Button>
+                {selected.size > 0 && (
+                  <>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      className="text-xs"
+                      onClick={async () => {
+                        if (!confirm(`Excluir ${selected.size} produto(s)?`)) return;
+                        setSaving(true);
+                        for (const id of Array.from(selected)) await deleteProduct({ data: { id } });
+                        setSaving(false);
+                        setSelected(new Set());
+                        toast.success("Excluídos com sucesso");
+                        refresh();
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Excluir
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())} className="text-xs">Limpar</Button>
+                  </>
+                )}
               </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Novo preço (R$)</label>
-              <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-full" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Ajuste % (ex: 10 ou -5)</label>
-              <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-full" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Novo estoque</label>
-              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-full" />
-            </div>
-            <Button onClick={applyBulk} disabled={saving || selected.size === 0} className="w-full sm:w-auto">Aplicar</Button>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0}>
-              Selecionar todos filtrados ({filtered.length})
+          
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <div className="space-y-1.5">
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Novo Preço</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">R$</span>
+                <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="0,00" className="pl-8 h-9 text-sm" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Ajuste Percentual</Label>
+              <div className="relative">
+                <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="ex: 10 ou -5" className="h-9 text-sm pr-7" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">%</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Novo Estoque</Label>
+              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="0" className="h-9 text-sm" />
+            </div>
+            <Button onClick={applyBulk} disabled={saving || selected.size === 0} className="h-9 shadow-sm">
+              {saving ? "Aplicando..." : "Aplicar Alterações"}
             </Button>
-            {selected.size > 0 && (
-              <>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={async () => {
-                    if (!confirm(`Excluir ${selected.size} produto(s) selecionado(s)? Esta ação não pode ser desfeita.`)) return;
-                    setSaving(true);
-                    let ok = 0, fail = 0;
-                    for (const id of Array.from(selected)) {
-                      try { await deleteProduct({ data: { id } }); ok++; }
-                      catch { fail++; }
-                    }
-                    setSaving(false);
-                    setSelected(new Set());
-                    toast.success(`${ok} excluído(s)${fail ? `, ${fail} falha(s)` : ""}`);
-                    refresh();
-                  }}
-                  disabled={saving}
-                >
-                  <Trash2 className="h-3 w-3 mr-1" /> Excluir selecionados
+          </div>
+        </CardContent>
+      </Card>
+
+      <TooltipProvider>
+        <Card className="border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="px-6 py-4 bg-muted/20 border-b border-border/40">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Package className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-bold">Listagem de Produtos</CardTitle>
+                  <p className="text-xs text-muted-foreground">Gerenciamento detalhado de estoque e preços</p>
+                </div>
+              </div>
+              
+              {dirtyCount > 0 && (
+                <Button size="sm" onClick={saveAllDirty} disabled={saving} className="bg-primary hover:bg-primary/90 shadow-sm">
+                  <Save className="mr-2 h-4 w-4" /> Salvar {dirtyCount} alteração(ões)
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
-              </>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
+                <p className="text-sm font-medium">Carregando catálogo...</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-muted/30 border-b border-border/40">
+                      <th className="p-4 w-10">
+                        <Checkbox checked={allPageSelected} onCheckedChange={(v) => toggleAllPage(!!v)} />
+                      </th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Produto</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-36">Preço Base</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-28">Estoque</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-24">Status</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-24">Destaque</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-48">Atacado & Descontos</th>
+                      <th className="p-4 text-right font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-32">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/30">
+                    {pageRows.map((p) => {
+                      const e = edits[p.id];
+                      const priceVal = e?.price ?? String(p.price);
+                      const stockVal = e?.stock ?? String(p.stock);
+                      const dirty = !!e && ((e.price !== undefined && e.price !== String(p.price)) || (e.stock !== undefined && e.stock !== String(p.stock)));
+                      
+                      return (
+                        <tr key={p.id} className={`group hover:bg-muted/40 transition-colors ${dirty ? "bg-primary/5" : ""}`}>
+                          <td className="p-4">
+                            <Checkbox checked={selected.has(p.id)} onCheckedChange={(v) => toggleRow(p.id, !!v)} />
+                          </td>
+                          <td className="p-4 min-w-[200px]">
+                            <div className="flex items-center gap-3">
+                              <div className="relative shrink-0">
+                                {p.image_url ? (
+                                  <img src={p.image_url} alt="" className="h-12 w-12 rounded-lg object-cover border border-border/40 shadow-sm" />
+                                ) : (
+                                  <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center border border-border/40">
+                                    <Package className="h-6 w-6 text-muted-foreground/40" />
+                                  </div>
+                                )}
+                                {dirty && <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" title="Alteração pendente" />}
+                              </div>
+                              <div className="min-w-0">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="font-bold text-neutral-900 truncate max-w-[180px] sm:max-w-[240px] cursor-help">{p.name}</div>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    {p.name}
+                                  </TooltipContent>
+                                </Tooltip>
+                                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-tighter truncate max-w-[150px]">{p.slug}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="space-y-1.5">
+                              <div className="relative group/input">
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium">R$</span>
+                                <Input
+                                  value={priceVal}
+                                  onChange={(ev) => setEdit(p.id, "price", ev.target.value)}
+                                  className="h-8 pl-7 text-xs font-mono bg-muted/30 focus:bg-background border-border/40"
+                                />
+                              </div>
+                              <div className="text-[10px] text-muted-foreground pl-1 font-medium italic opacity-70">Anterior: {formatBRL(Number(p.price))}</div>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <Input
+                              value={stockVal}
+                              onChange={(ev) => setEdit(p.id, "stock", ev.target.value)}
+                              className={`h-8 text-xs font-mono bg-muted/30 focus:bg-background border-border/40 ${Number(stockVal) < 5 ? "text-destructive font-bold" : ""}`}
+                            />
+                            {Number(stockVal) < 5 && Number(stockVal) > 0 && (
+                              <div className="text-[9px] text-destructive font-semibold mt-1 flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" /> Estoque Baixo
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-4 text-center">
+                            <Switch
+                              checked={p.status === "active"}
+                              onCheckedChange={async (v) => {
+                                try { await patchOne(p.id, { status: v ? "active" : "inactive" }); toast.success("Status atualizado"); refresh(); }
+                                catch (err) { toast.error("Erro ao atualizar status"); }
+                              }}
+                              className="mx-auto scale-90"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <Switch
+                              checked={p.featured ?? false}
+                              onCheckedChange={async (v) => {
+                                try { await patchOne(p.id, { featured: v }); toast.success("Destaque atualizado"); refresh(); }
+                                catch (err) { toast.error("Erro ao atualizar destaque"); }
+                              }}
+                              className="mx-auto scale-90"
+                            />
+                          </td>
+                          <td className="p-4">
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="flex items-center gap-3 bg-muted/20 px-2 py-1 rounded-md border border-border/40 w-full justify-center">
+                                <Switch
+                                  checked={(p as any).wholesale_enabled ?? false}
+                                  onCheckedChange={async (v) => {
+                                    try { await patchOne(p.id, { wholesale_enabled: v }); toast.success("Configuração de atacado salva"); refresh(); }
+                                    catch (err) { toast.error("Erro"); }
+                                  }}
+                                  className="scale-75"
+                                />
+                                <div className="relative w-16 group/disc">
+                                  <Input
+                                    type="number"
+                                    min={0}
+                                    max={90}
+                                    placeholder="25"
+                                    defaultValue={(p as any).wholesale_discount_percent ?? ""}
+                                    onBlur={async (ev) => {
+                                      const raw = ev.target.value.trim();
+                                      const next = raw === "" ? null : Number(raw.replace(",", "."));
+                                      if (next !== null && (next < 0 || next > 90)) return toast.error("Desconto 0-90%");
+                                      try { await patchOne(p.id, { wholesale_discount_percent: next }); toast.success("Desconto atualizado"); refresh(); }
+                                      catch (err) { toast.error("Erro"); }
+                                    }}
+                                    className="h-7 text-[10px] pr-4 bg-background border-border/40"
+                                  />
+                                  <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] text-muted-foreground font-bold">%</span>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                              {dirty && (
+                                <Button size="icon" variant="secondary" onClick={() => saveRow(p.id)} disabled={saving} className="h-8 w-8 rounded-full shadow-sm" title="Salvar Linha">
+                                  <Save className="h-3.5 w-3.5" />
+                                </Button>
+                              )}
+                              <Button size="icon" variant="ghost" onClick={() => setEditingId(p.id)} className="h-8 w-8 rounded-full" title="Editar Detalhes">
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10"
+                                    onClick={async () => {
+                                      if (!confirm(`Excluir o produto "${p.name}"?`)) return;
+                                      try {
+                                        setSaving(true);
+                                        await deleteProduct({ data: { id: p.id } });
+                                        toast.success("Excluído");
+                                        refresh();
+                                      } catch (err) { toast.error("Erro ao excluir"); }
+                                      finally { setSaving(false); }
+                                    }}
+                                    disabled={saving}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Excluir permanentemente</TooltipContent>
+                              </Tooltip>
+
+                              {p.slug && (
+                                <a href={`/loja/produto/${p.slug}`} target="_blank" rel="noreferrer" className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-primary/10 text-primary transition-colors" title="Ver no site">
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                
+                {filtered.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-24 text-center px-6">
+                    <div className="bg-muted rounded-full p-6 mb-4">
+                      <Search className="h-10 w-10 text-muted-foreground/30" />
+                    </div>
+                    <h3 className="text-base font-bold text-neutral-900 mb-1">Nenhum produto encontrado</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
+                      {search ? "Tente ajustar seus filtros de busca ou categoria." : "Seu catálogo está vazio. Comece adicionando seu primeiro produto ou importando dados."}
+                    </p>
+                    {search ? (
+                      <Button variant="outline" size="sm" onClick={() => { setSearch(""); setCategoryFilter(""); }}>Limpar Filtros</Button>
+                    ) : (
+                      <Button size="sm" onClick={() => setCreatingProduct(true)}>Adicionar Primeiro Produto</Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+          
+          <div className="px-6 py-4 border-t border-border/40 bg-muted/10">
+            {filtered.length > 0 && (
+              <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
             )}
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Selecione produtos na tabela abaixo (ou use "Selecionar todos filtrados") e informe novo preço, ajuste % ou estoque. Preço absoluto tem prioridade sobre ajuste %.</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
-          <CardTitle>Catálogo</CardTitle>
-          {dirtyCount > 0 && (
-            <Button size="sm" onClick={saveAllDirty} disabled={saving}>
-              <Save className="mr-1 h-3 w-3" /> Salvar {dirtyCount} alteração(ões)
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-sm text-muted-foreground">Carregando...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted text-xs uppercase">
-                  <tr>
-                    <th className="p-2 w-8">
-                      <Checkbox checked={allPageSelected} onCheckedChange={(v) => toggleAllPage(!!v)} />
-                    </th>
-                    <th className="p-2 text-left">Produto</th>
-                    <th className="p-2 text-left w-32">Preço</th>
-                    <th className="p-2 text-left w-24">Estoque</th>
-                    <th className="p-2 text-center w-20">Ativo</th>
-                    <th className="p-2 text-center w-24">Destaque</th>
-                    <th className="p-2 text-center w-40">Atacado / Desc.</th>
-                    <th className="p-2 w-24"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageRows.map((p) => {
-                    const e = edits[p.id];
-                    const priceVal = e?.price ?? String(p.price);
-                    const stockVal = e?.stock ?? String(p.stock);
-                    const dirty = !!e && ((e.price !== undefined && e.price !== String(p.price)) || (e.stock !== undefined && e.stock !== String(p.stock)));
-                    return (
-                      <tr key={p.id} className={`border-b hover:bg-accent/30 ${dirty ? "bg-amber-500/5" : ""}`}>
-                        <td className="p-2">
-                          <Checkbox checked={selected.has(p.id)} onCheckedChange={(v) => toggleRow(p.id, !!v)} />
-                        </td>
-                        <td className="p-2">
-                          <div className="flex items-center gap-2">
-                            {p.image_url && <img src={p.image_url} alt="" className="h-10 w-10 rounded object-cover" />}
-                            <div>
-                              <div className="font-medium">{p.name}</div>
-                              <div className="text-xs text-muted-foreground">{p.slug}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <Input
-                            value={priceVal}
-                            onChange={(ev) => setEdit(p.id, "price", ev.target.value)}
-                            className="h-8 w-28"
-                          />
-                          <div className="text-[10px] text-muted-foreground mt-0.5">{formatBRL(Number(p.price))}</div>
-                        </td>
-                        <td className="p-2">
-                          <Input
-                            value={stockVal}
-                            onChange={(ev) => setEdit(p.id, "stock", ev.target.value)}
-                            className="h-8 w-20"
-                          />
-                        </td>
-                        <td className="p-2 text-center">
-                          <Switch
-                            checked={p.status === "active"}
-                            onCheckedChange={async (v) => {
-                              try { await patchOne(p.id, { status: v ? "active" : "inactive" }); toast.success("Atualizado"); refresh(); }
-                              catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
-                            }}
-                          />
-                        </td>
-                        <td className="p-2 text-center">
-                          <Switch
-                            checked={p.featured ?? false}
-                            onCheckedChange={async (v) => {
-                              try { await patchOne(p.id, { featured: v }); toast.success("Atualizado"); refresh(); }
-                              catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
-                            }}
-                          />
-                        </td>
-                        <td className="p-2">
-                          <div className="flex items-center justify-center gap-2">
-                            <Switch
-                              checked={(p as { wholesale_enabled?: boolean }).wholesale_enabled ?? false}
-                              onCheckedChange={async (v) => {
-                                try { await patchOne(p.id, { wholesale_enabled: v }); toast.success(v ? "Habilitado no atacado" : "Desabilitado do atacado"); refresh(); }
-                                catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
-                              }}
-                            />
-                            <Input
-                              type="number"
-                              min={0}
-                              max={90}
-                              step="0.5"
-                              placeholder="padrão"
-                              defaultValue={(p as { wholesale_discount_percent?: number | null }).wholesale_discount_percent ?? ""}
-                              onBlur={async (ev) => {
-                                const raw = ev.target.value.trim();
-                                const next = raw === "" ? null : Number(raw.replace(",", "."));
-                                const current = (p as { wholesale_discount_percent?: number | null }).wholesale_discount_percent ?? null;
-                                if (next === current) return;
-                                if (next !== null && (!Number.isFinite(next) || next < 0 || next > 90)) return toast.error("Desconto 0-90%");
-                                try { await patchOne(p.id, { wholesale_discount_percent: next }); toast.success("Desconto atualizado"); refresh(); }
-                                catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
-                              }}
-                              className="h-8 w-20 text-xs"
-                              title="Desconto de atacado deste produto (%). Vazio = usa o padrão global."
-                            />
-                            <span className="text-[10px] text-muted-foreground">%</span>
-                          </div>
-                        </td>
-                        <td className="p-2 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {dirty && (
-                              <Button size="sm" variant="secondary" onClick={() => saveRow(p.id)} disabled={saving}>
-                                Salvar
-                              </Button>
-                            )}
-                            <Button size="sm" variant="outline" onClick={() => setEditingId(p.id)}>
-                              <Pencil className="h-3 w-3 mr-1" /> Editar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-destructive hover:text-destructive"
-                              onClick={async () => {
-                                if (!confirm(`Excluir o produto "${p.name}"? Esta ação não pode ser desfeita.`)) return;
-                                try {
-                                  setSaving(true);
-                                  await deleteProduct({ data: { id: p.id } });
-                                  toast.success("Produto excluído");
-                                  setSelected((prev) => { const n = new Set(prev); n.delete(p.id); return n; });
-                                  refresh();
-                                } catch (err) {
-                                  toast.error(err instanceof Error ? err.message : "Erro ao excluir");
-                                } finally {
-                                  setSaving(false);
-                                }
-                              }}
-                              disabled={saving}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                            {p.slug && (
-                              <a href={`/loja/produto/${p.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center text-primary hover:underline">
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            )}
-                          </div>
-                        </td>
-
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              {filtered.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground">
-                  {search ? "Nenhum resultado para a busca." : (<>Nenhum produto ainda. <Link to="/admin/produtos/importar" className="text-primary hover:underline">Importar do site AMT</Link></>)}
-                </div>
-              )}
-
-              {filtered.length > 0 && (
-                <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </Card>
+      </TooltipProvider>
 
       {editingId && (
         <ProductEditDialog
@@ -712,148 +813,239 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Editar produto</DialogTitle>
-        </DialogHeader>
-
-        {isLoading || !data?.product ? (
-          <div className="text-sm text-muted-foreground py-6">Carregando...</div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2">
-                <Label>Nome</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} />
-              </div>
-              <div className="col-span-2">
-                <Label>Slug</Label>
-                <Input value={slug} onChange={(e) => setSlug(e.target.value)} />
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-2xl">
+        <div className="flex flex-col h-[85vh]">
+          <DialogHeader className="p-6 pb-2 border-b border-border/40 bg-muted/20">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/10 rounded-xl">
+                <Settings2 className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <Label>Preço (R$)</Label>
-                <Input value={price} onChange={(e) => setPrice(e.target.value)} />
-              </div>
-              <div>
-                <Label>Preço "de" (R$)</Label>
-                <Input value={compareAt} onChange={(e) => setCompareAt(e.target.value)} placeholder="opcional" />
-              </div>
-              <div>
-                <Label>Estoque</Label>
-                <Input value={stock} onChange={(e) => setStock(e.target.value)} />
+                <DialogTitle className="text-xl font-bold">Editar Produto</DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">Configure detalhes, preços, variações e dados fiscais.</p>
               </div>
             </div>
+          </DialogHeader>
 
-            <div>
-              <Label>Descrição curta</Label>
-              <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} />
-            </div>
-            <div>
-              <Label>Descrição completa</Label>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
-            </div>
-
-            <div className="border rounded-md p-3 space-y-2 bg-muted/30">
-              <div className="font-semibold text-sm">Dados fiscais</div>
-              <p className="text-xs text-muted-foreground">
-                Usados na emissão de notas fiscais. Herdados da categoria por padrão; edite aqui para sobrescrever apenas neste produto.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                <div>
-                  <Label className="text-xs">NCM</Label>
-                  <Input className="h-8" value={ncm} onChange={(e) => setNcm(e.target.value)} placeholder="Ex: 62171000" />
-                </div>
-                <div>
-                  <Label className="text-xs">CEST</Label>
-                  <Input className="h-8" value={cest} onChange={(e) => setCest(e.target.value)} placeholder="Ex: 28.038.00" />
-                </div>
-                <div>
-                  <Label className="text-xs">Origem</Label>
-                  <Input className="h-8" value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="0 - Nacional" />
-                </div>
-                <div>
-                  <Label className="text-xs">CFOP</Label>
-                  <Input className="h-8" value={cfop} onChange={(e) => setCfop(e.target.value)} placeholder="Ex: 5102" />
-                </div>
-                <div>
-                  <Label className="text-xs">Unidade</Label>
-                  <Input className="h-8" value={unidade} onChange={(e) => setUnidade(e.target.value)} placeholder="UN, PC, KG..." />
-                </div>
-                <div>
-                  <Label className="text-xs">GTIN / EAN</Label>
-                  <Input className="h-8" value={gtin} onChange={(e) => setGtin(e.target.value)} placeholder="Código de barras" />
-                </div>
-              </div>
+          <Tabs defaultValue="geral" className="flex-1 flex flex-col min-h-0">
+            <div className="px-6 border-b border-border/40 bg-muted/10">
+              <TabsList className="h-12 bg-transparent p-0 gap-6">
+                <TabsTrigger value="geral" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-xs font-semibold tracking-wide uppercase">
+                  <LayoutGrid className="h-3.5 w-3.5 mr-2" /> Geral
+                </TabsTrigger>
+                <TabsTrigger value="preco" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-xs font-semibold tracking-wide uppercase">
+                  <BarChart3 className="h-3.5 w-3.5 mr-2" /> Preço & Estoque
+                </TabsTrigger>
+                <TabsTrigger value="variacoes" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-xs font-semibold tracking-wide uppercase">
+                  <Package className="h-3.5 w-3.5 mr-2" /> Variações
+                </TabsTrigger>
+                <TabsTrigger value="fiscal" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-xs font-semibold tracking-wide uppercase">
+                  <Receipt className="h-3.5 w-3.5 mr-2" /> Fiscal
+                </TabsTrigger>
+              </TabsList>
             </div>
 
+            <ScrollArea className="flex-1">
+              <div className="p-6">
+                {isLoading || !data?.product ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
+                    <p className="text-sm">Carregando dados do produto...</p>
+                  </div>
+                ) : (
+                  <>
+                    <TabsContent value="geral" className="mt-0 space-y-6 animate-in fade-in-50 duration-300">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nome do Produto</Label>
+                            <Input value={name} onChange={(e) => setName(e.target.value)} className="bg-muted/30 focus:bg-background border-border/40" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">URL Amigável (Slug)</Label>
+                            <Input value={slug} onChange={(e) => setSlug(e.target.value)} className="bg-muted/30 focus:bg-background border-border/40 font-mono text-xs" />
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Descrição Curta</Label>
+                            <Textarea 
+                              value={shortDesc} 
+                              onChange={(e) => setShortDesc(e.target.value)} 
+                              rows={2} 
+                              placeholder="Resumo para listagens..."
+                              className="bg-muted/30 focus:bg-background border-border/40 text-sm resize-none" 
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Descrição Detalhada</Label>
+                            <Textarea 
+                              value={description} 
+                              onChange={(e) => setDescription(e.target.value)} 
+                              rows={5} 
+                              placeholder="Informações técnicas, material, etc..."
+                              className="bg-muted/30 focus:bg-background border-border/40 text-sm" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="text-base">Variações ({variants.length})</Label>
-                <Button size="sm" variant="outline" onClick={addVariant}>
-                  <Plus className="h-3 w-3 mr-1" /> Adicionar variação
-                </Button>
-              </div>
-              {variants.length === 0 ? (
-                <p className="text-xs text-muted-foreground">Nenhuma variação cadastrada.</p>
-              ) : (
-                <div className="space-y-2">
-                  {variants.map((v, i) => (
-                    <div key={v.id ?? `new-${i}`} className="grid grid-cols-12 gap-2 items-end border rounded p-2 bg-muted/30">
-                      <div className="col-span-2">
-                        <Label className="text-xs">Tamanho</Label>
-                        <Input className="h-8" value={v.size ?? ""} onChange={(e) => updateVariant(i, { size: e.target.value })} />
+                    <TabsContent value="preco" className="mt-0 space-y-8 animate-in fade-in-50 duration-300">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Preço de Venda (R$)</Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">R$</span>
+                            <Input value={price} onChange={(e) => setPrice(e.target.value)} className="pl-9 bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Preço Original / "De" (R$)</Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">R$</span>
+                            <Input value={compareAt} onChange={(e) => setCompareAt(e.target.value)} placeholder="0,00" className="pl-9 bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Estoque Geral</Label>
+                          <Input value={stock} onChange={(e) => setStock(e.target.value)} className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
                       </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Cor</Label>
-                        <Input className="h-8" value={v.color ?? ""} onChange={(e) => updateVariant(i, { color: e.target.value })} />
+
+                      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-start gap-4">
+                        <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+                          <Info className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-primary">Dica de Gestão</h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Se o produto possuir variações (tamanhos/cores), o estoque e o preço de cada variação serão usados preferencialmente sobre os valores gerais definidos acima.
+                          </p>
+                        </div>
                       </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">SKU</Label>
-                        <Input className="h-8" value={v.sku ?? ""} onChange={(e) => updateVariant(i, { sku: e.target.value })} />
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Preço</Label>
-                        <Input
-                          className="h-8"
-                          value={v.price != null ? String(v.price) : ""}
-                          onChange={(e) => updateVariant(i, { price: parseNum(e.target.value) })}
-                          placeholder="herda"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Estoque</Label>
-                        <Input
-                          className="h-8"
-                          value={String(v.stock)}
-                          onChange={(e) => {
-                            const n = Number(e.target.value);
-                            updateVariant(i, { stock: Number.isFinite(n) ? n : 0 });
-                          }}
-                        />
-                      </div>
-                      <div className="col-span-1 flex items-center justify-center pb-1">
-                        <Switch checked={v.active} onCheckedChange={(a) => updateVariant(i, { active: a })} />
-                      </div>
-                      <div className="col-span-1 flex items-center justify-end pb-1">
-                        <Button size="icon" variant="ghost" onClick={() => removeVariant(i)}>
-                          <Trash2 className="h-3 w-3 text-destructive" />
+                    </TabsContent>
+
+                    <TabsContent value="variacoes" className="mt-0 space-y-6 animate-in fade-in-50 duration-300">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-sm font-bold">Gerenciar Variações</h3>
+                          <p className="text-[11px] text-muted-foreground">Tamanhos, cores e SKUs específicos.</p>
+                        </div>
+                        <Button size="sm" onClick={addVariant} className="shadow-sm">
+                          <Plus className="h-3.5 w-3.5 mr-2" /> Nova Variação
                         </Button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={saving}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving || isLoading}>
-            <Save className="h-3 w-3 mr-1" /> {saving ? "Salvando..." : "Salvar tudo"}
-          </Button>
-        </DialogFooter>
+                      {variants.length === 0 ? (
+                        <div className="text-center py-12 border-2 border-dashed border-border/40 rounded-2xl bg-muted/20">
+                          <Package className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
+                          <p className="text-sm text-muted-foreground">Este produto não possui variações.</p>
+                          <Button variant="link" size="sm" onClick={addVariant} className="mt-2">Adicionar a primeira</Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {variants.map((v, i) => (
+                            <div key={v.id ?? `new-${i}`} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end p-4 rounded-xl border border-border/40 bg-muted/10 group relative">
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Tamanho</Label>
+                                <Input className="h-8 text-xs bg-background" value={v.size ?? ""} onChange={(e) => updateVariant(i, { size: e.target.value })} placeholder="ex: A2" />
+                              </div>
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Cor</Label>
+                                <Input className="h-8 text-xs bg-background" value={v.color ?? ""} onChange={(e) => updateVariant(i, { color: e.target.value })} placeholder="ex: Branco" />
+                              </div>
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">SKU</Label>
+                                <Input className="h-8 text-[10px] font-mono bg-background uppercase" value={v.sku ?? ""} onChange={(e) => updateVariant(i, { sku: e.target.value })} placeholder="AMT-KIM-A2W" />
+                              </div>
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Preço (R$)</Label>
+                                <Input className="h-8 text-xs font-mono bg-background" value={v.price != null ? String(v.price) : ""} onChange={(e) => updateVariant(i, { price: parseNum(e.target.value) })} placeholder="Herda" />
+                              </div>
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Estoque</Label>
+                                <Input className="h-8 text-xs font-mono bg-background" value={String(v.stock)} onChange={(e) => { const n = Number(e.target.value); updateVariant(i, { stock: Number.isFinite(n) ? n : 0 }); }} />
+                              </div>
+                              <div className="md:col-span-1 flex flex-col items-center justify-center space-y-2 pb-1">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Ativa</Label>
+                                <Switch checked={v.active} onCheckedChange={(a) => updateVariant(i, { active: a })} className="scale-75" />
+                              </div>
+                              <div className="md:col-span-1 flex items-center justify-end pb-1">
+                                <Button size="icon" variant="ghost" onClick={() => removeVariant(i)} className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10">
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="fiscal" className="mt-0 space-y-6 animate-in fade-in-50 duration-300">
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-muted/40 border border-border/40">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Receipt className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold">Parâmetros Fiscais</h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">Esses dados são essenciais para a emissão correta de NF-e e cálculo de impostos.</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">NCM (8 dígitos)</Label>
+                          <Input value={ncm} onChange={(e) => setNcm(e.target.value)} placeholder="62171000" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">CEST (7 dígitos)</Label>
+                          <Input value={cest} onChange={(e) => setCest(e.target.value)} placeholder="28.038.00" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Origem da Mercadoria</Label>
+                          <Input value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="0 - Nacional" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">CFOP Padrão</Label>
+                          <Input value={cfop} onChange={(e) => setCfop(e.target.value)} placeholder="5102" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Unidade Comercial</Label>
+                          <Input value={unidade} onChange={(e) => setUnidade(e.target.value)} placeholder="UN" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">GTIN / EAN-13</Label>
+                          <Input value={gtin} onChange={(e) => setGtin(e.target.value)} placeholder="Código de barras" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </>
+                )}
+              </div>
+            </ScrollArea>
+
+            <DialogFooter className="p-6 border-t border-border/40 bg-muted/20">
+              <div className="flex items-center justify-between w-full">
+                <Button variant="ghost" onClick={onClose} disabled={saving} className="text-muted-foreground hover:text-foreground">Cancelar</Button>
+                <div className="flex items-center gap-3">
+                  <Button onClick={handleSave} disabled={saving || isLoading} className="min-w-[140px] shadow-lg shadow-primary/20">
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2" />
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" /> Salvar Alterações
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </DialogFooter>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -958,60 +1150,90 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Adicionar produto</DialogTitle>
+      <DialogContent className="max-w-xl p-0 overflow-hidden border-none shadow-2xl">
+        <DialogHeader className="p-6 border-b border-border/40 bg-muted/20">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-primary/10 rounded-xl">
+              <Plus className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <DialogTitle className="text-xl font-bold">Novo Produto</DialogTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">Adicione um novo item ao seu catálogo.</p>
+            </div>
+          </div>
         </DialogHeader>
-        <div className="space-y-3">
-          <div>
-            <Label>Nome *</Label>
-            <Input value={name} onChange={(e) => handleName(e.target.value)} />
-          </div>
-          <div>
-            <Label>Slug *</Label>
-            <Input
-              value={slug}
-              onChange={(e) => { setSlug(e.target.value); setSlugTouched(true); }}
-              placeholder="ex: kimono-branco"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Preço (R$) *</Label>
-              <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="199,90" />
+
+        <ScrollArea className="max-h-[70vh]">
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2 space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nome do Produto *</Label>
+                <Input value={name} onChange={(e) => handleName(e.target.value)} placeholder="ex: Kimono AMT Pro" className="bg-muted/30 focus:bg-background border-border/40" />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Slug (URL) *</Label>
+                <Input
+                  value={slug}
+                  onChange={(e) => { setSlug(e.target.value); setSlugTouched(true); }}
+                  placeholder="ex: kimono-amt-pro"
+                  className="bg-muted/30 focus:bg-background border-border/40 font-mono text-xs"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Preço (R$) *</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">R$</span>
+                  <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="199,90" className="pl-9 bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Estoque Inicial</Label>
+                <Input value={stock} onChange={(e) => setStock(e.target.value)} className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+              </div>
             </div>
-            <div>
-              <Label>Estoque</Label>
-              <Input value={stock} onChange={(e) => setStock(e.target.value)} />
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Categoria</Label>
+              <select
+                className="w-full h-10 rounded-md border border-border/40 bg-muted/30 px-3 text-sm focus:bg-background transition-all outline-none"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                <option value="">— Selecione uma categoria —</option>
+                {(cats ?? []).map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">URL da Imagem</Label>
+              <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://exemplo.com/imagem.jpg" className="bg-muted/30 focus:bg-background border-border/40 text-xs" />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Breve Descrição</Label>
+              <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} placeholder="Resumo do produto..." className="bg-muted/30 focus:bg-background border-border/40 text-sm resize-none" />
             </div>
           </div>
-          <div>
-            <Label>Categoria</Label>
-            <select
-              className="w-full h-9 rounded-md border bg-background px-2 text-sm"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-            >
-              <option value="">— sem categoria —</option>
-              {(cats ?? []).map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+        </ScrollArea>
+
+        <DialogFooter className="p-6 border-t border-border/40 bg-muted/20">
+          <div className="flex items-center justify-between w-full">
+            <Button variant="ghost" onClick={onClose} disabled={saving} className="text-muted-foreground hover:text-foreground">Cancelar</Button>
+            <Button onClick={handleSave} disabled={saving} className="min-w-[140px] shadow-lg shadow-primary/20">
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2" />
+                  Criando...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" /> Criar Produto
+                </>
+              )}
+            </Button>
           </div>
-          <div>
-            <Label>URL da imagem</Label>
-            <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." />
-          </div>
-          <div>
-            <Label>Descrição curta</Label>
-            <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={saving}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>
-            <Plus className="h-3 w-3 mr-1" /> {saving ? "Criando..." : "Criar produto"}
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1137,125 +1359,159 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Categorias</DialogTitle>
-        </DialogHeader>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-3 border-r md:pr-4">
-            <div className="font-semibold text-sm">
-              {editing ? "Editar categoria" : "Nova categoria"}
-            </div>
-            <div>
-              <Label>Nome *</Label>
-              <Input value={draft.name} onChange={(e) => handleName(e.target.value)} />
-            </div>
-            <div>
-              <Label>Slug *</Label>
-              <Input value={draft.slug} onChange={(e) => setDraft((d) => ({ ...d, slug: e.target.value }))} />
-            </div>
-            <div>
-              <Label>Descrição</Label>
-              <Textarea value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} rows={2} />
-            </div>
-            <div>
-              <Label>URL da imagem</Label>
-              <Input value={draft.image_url} onChange={(e) => setDraft((d) => ({ ...d, image_url: e.target.value }))} placeholder="https://..." />
-            </div>
-            <div className="grid grid-cols-2 gap-3 items-end">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-2xl">
+        <div className="flex flex-col h-[85vh]">
+          <DialogHeader className="p-6 border-b border-border/40 bg-muted/20">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/10 rounded-xl">
+                <LayoutGrid className="h-5 w-5 text-primary" />
+              </div>
               <div>
-                <Label>Ordem</Label>
-                <Input
-                  type="number"
-                  value={String(draft.sort_order)}
-                  onChange={(e) => setDraft((d) => ({ ...d, sort_order: Number(e.target.value) || 0 }))}
-                />
-              </div>
-              <div className="flex items-center gap-2 pb-2">
-                <Switch checked={draft.active} onCheckedChange={(v) => setDraft((d) => ({ ...d, active: v }))} />
-                <span className="text-sm">Ativa</span>
+                <DialogTitle className="text-xl font-bold">Gestão de Categorias</DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">Organize seu catálogo e configure dados fiscais padrão.</p>
               </div>
             </div>
+          </DialogHeader>
 
-            <div className="border-t pt-3 space-y-2">
-              <div className="font-semibold text-sm">Dados fiscais (padrão da categoria)</div>
-              <p className="text-xs text-muted-foreground">
-                Preencha para usar como padrão em produtos desta categoria. Use "Aplicar em todos os produtos" para sobrescrever os produtos existentes.
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs">NCM</Label>
-                  <Input className="h-8" value={draft.ncm} onChange={(e) => setDraft((d) => ({ ...d, ncm: e.target.value }))} placeholder="Ex: 62171000" />
-                </div>
-                <div>
-                  <Label className="text-xs">CEST</Label>
-                  <Input className="h-8" value={draft.cest} onChange={(e) => setDraft((d) => ({ ...d, cest: e.target.value }))} placeholder="Ex: 28.038.00" />
-                </div>
-                <div>
-                  <Label className="text-xs">Origem</Label>
-                  <Input className="h-8" value={draft.origem} onChange={(e) => setDraft((d) => ({ ...d, origem: e.target.value }))} placeholder="0 - Nacional" />
-                </div>
-                <div>
-                  <Label className="text-xs">CFOP</Label>
-                  <Input className="h-8" value={draft.cfop} onChange={(e) => setDraft((d) => ({ ...d, cfop: e.target.value }))} placeholder="Ex: 5102" />
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-xs">Unidade</Label>
-                  <Input className="h-8" value={draft.unidade} onChange={(e) => setDraft((d) => ({ ...d, unidade: e.target.value }))} placeholder="UN, PC, KG..." />
-                </div>
-              </div>
-              {editing && (
-                <Button variant="outline" size="sm" onClick={applyToProducts} disabled={applying} className="w-full">
-                  {applying ? "Aplicando..." : "Aplicar em todos os produtos"}
+          <div className="flex-1 flex min-h-0">
+            {/* Sidebar: Lista de Categorias */}
+            <div className="w-1/3 border-r border-border/40 bg-muted/5 flex flex-col">
+              <div className="p-4 border-b border-border/40 bg-muted/10 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Categorias</span>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDraft(emptyCatDraft())} title="Nova Categoria">
+                  <Plus className="h-4 w-4" />
                 </Button>
-              )}
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="p-2 space-y-1">
+                  {isLoading ? (
+                    <div className="p-4 text-center text-xs text-muted-foreground">Carregando...</div>
+                  ) : (data ?? []).length === 0 ? (
+                    <div className="p-4 text-center text-xs text-muted-foreground italic">Nenhuma categoria.</div>
+                  ) : (
+                    (data ?? []).map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => startEdit(c)}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all flex items-center justify-between group ${
+                          draft.id === c.id ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" : "hover:bg-muted"
+                        }`}
+                      >
+                        <span className="truncate pr-2 font-medium">{c.name}</span>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Trash2 
+                            className={`h-3.5 w-3.5 ${draft.id === c.id ? "text-primary-foreground/70" : "text-destructive hover:text-destructive"}`}
+                            onClick={(e) => { e.stopPropagation(); remove(c.id); }}
+                          />
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={save} disabled={saving} className="flex-1">
-                <Save className="h-3 w-3 mr-1" />
-                {saving ? "Salvando..." : editing ? "Salvar alterações" : "Criar categoria"}
-              </Button>
-              {editing && (
-                <Button variant="ghost" onClick={() => setDraft(emptyCatDraft())}>Cancelar</Button>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="font-semibold text-sm">Categorias existentes</div>
-            {isLoading ? (
-              <div className="text-sm text-muted-foreground">Carregando...</div>
-            ) : (data ?? []).length === 0 ? (
-              <div className="text-sm text-muted-foreground">Nenhuma categoria ainda.</div>
-            ) : (
-              <div className="space-y-1 max-h-[420px] overflow-y-auto">
-                {(data ?? []).map((c) => (
-                  <div key={c.id} className="flex items-center gap-2 border rounded p-2 text-sm">
-                    {c.image_url && <img src={c.image_url} alt="" className="h-8 w-8 rounded object-cover" />}
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{c.name}</div>
-                      <div className="text-xs text-muted-foreground truncate">
-                        /{c.slug} · ordem {c.sort_order} {!c.active && "· inativa"}
+            {/* Main: Formulário de Edição */}
+            <div className="flex-1 flex flex-col bg-background">
+              <ScrollArea className="flex-1">
+                <div className="p-6 space-y-8">
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-sm font-bold flex items-center gap-2 mb-4">
+                        <Info className="h-4 w-4 text-primary" />
+                        Informações Gerais
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Nome da Categoria *</Label>
+                          <Input value={draft.name} onChange={(e) => handleName(e.target.value)} className="bg-muted/30 focus:bg-background h-9" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Slug (URL)</Label>
+                          <Input value={draft.slug} onChange={(e) => setDraft((d) => ({ ...d, slug: e.target.value }))} className="bg-muted/30 focus:bg-background h-9 font-mono text-xs" />
+                        </div>
+                        <div className="md:col-span-2 space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Descrição</Label>
+                          <Textarea value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} rows={2} className="bg-muted/30 focus:bg-background text-sm resize-none" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">URL da Imagem</Label>
+                          <Input value={draft.image_url} onChange={(e) => setDraft((d) => ({ ...d, image_url: e.target.value }))} placeholder="https://..." className="bg-muted/30 focus:bg-background h-9 text-xs" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase font-bold text-muted-foreground">Ordem</Label>
+                            <Input type="number" value={String(draft.sort_order)} onChange={(e) => setDraft((d) => ({ ...d, sort_order: Number(e.target.value) || 0 }))} className="bg-muted/30 focus:bg-background h-9" />
+                          </div>
+                          <div className="flex flex-col justify-end pb-1.5 space-y-2">
+                             <Label className="text-[10px] uppercase font-bold text-muted-foreground">Status</Label>
+                             <div className="flex items-center gap-2">
+                                <Switch checked={draft.active} onCheckedChange={(v) => setDraft((d) => ({ ...d, active: v }))} className="scale-90" />
+                                <span className="text-xs font-medium">{draft.active ? "Ativa" : "Inativa"}</span>
+                             </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <Button size="icon" variant="ghost" onClick={() => startEdit(c)}>
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => remove(c.id)}>
-                      <Trash2 className="h-3 w-3 text-destructive" />
-                    </Button>
+
+                    <div className="pt-4 border-t border-border/40">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-bold flex items-center gap-2">
+                          <Receipt className="h-4 w-4 text-primary" />
+                          Dados Fiscais Padrão
+                        </h3>
+                        {editing && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={applyToProducts} disabled={applying} className="h-8 text-[10px] font-bold uppercase tracking-tight">
+                                  {applying ? "Aplicando..." : "Propagar para Produtos"}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p>Aplica NCM, CEST e outros dados desta categoria em todos os produtos vinculados a ela.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">NCM</Label>
+                          <Input value={draft.ncm} onChange={(e) => setDraft((d) => ({ ...d, ncm: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">CEST</Label>
+                          <Input value={draft.cest} onChange={(e) => setDraft((d) => ({ ...d, cest: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Origem</Label>
+                          <Input value={draft.origem} onChange={(e) => setDraft((d) => ({ ...d, origem: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">CFOP</Label>
+                          <Input value={draft.cfop} onChange={(e) => setDraft((d) => ({ ...d, cfop: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Unidade</Label>
+                          <Input value={draft.unidade} onChange={(e) => setDraft((d) => ({ ...d, unidade: e.target.value }))} className="bg-muted/30 h-8 text-xs font-mono" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
+              </ScrollArea>
+
+              <div className="p-6 border-t border-border/40 bg-muted/20 flex items-center justify-end gap-3">
+                <Button variant="ghost" onClick={onClose} disabled={saving}>Fechar</Button>
+                <Button onClick={save} disabled={saving} className="min-w-[120px] shadow-lg shadow-primary/20">
+                  {saving ? "Salvando..." : (editing ? "Atualizar Categoria" : "Criar Categoria")}
+                </Button>
               </div>
-            )}
+            </div>
           </div>
         </div>
-
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Fechar</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
