@@ -298,6 +298,7 @@ function AdminProductsPage() {
             </Button>
             <Link to="/admin/atacado"><Button variant="outline" size="sm">Atacado</Button></Link>
             <Link to="/admin/produtos/importar"><Button variant="outline" size="sm">Importar</Button></Link>
+            <Link to="/admin/fiscal"><Button variant="secondary" size="sm">Módulo Fiscal</Button></Link>
           </div>
         </div>
       }
