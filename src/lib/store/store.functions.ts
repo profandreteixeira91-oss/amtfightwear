@@ -155,9 +155,9 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
 
 
     // Read admin-controlled wholesale settings.
-    const { data: settingsRow } = (await supabaseAdmin
+    const { data: settingsRow } = await supabaseAdmin
       .from("app_settings")
-      .select("value") as any
+      .select("value")
       .eq("key", "wholesale_settings")
       .maybeSingle();
     const settings = normalizeWholesaleSettings(settingsRow?.value);
