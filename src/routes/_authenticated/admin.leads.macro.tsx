@@ -502,7 +502,7 @@ function MacroPage() {
       actions={
         <>
           <Button asChild variant="outline" size="sm">
-            <Link to="/admin/leads" search={{ q: "", pipeline_stage: "all" }}><ArrowLeft className="mr-2 h-4 w-4" />Leads</Link>
+            <Link to="/admin/leads" search={{ focus: "" }}><ArrowLeft className="mr-2 h-4 w-4" />Leads</Link>
           </Button>
           {extensionReady ? (
             <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
