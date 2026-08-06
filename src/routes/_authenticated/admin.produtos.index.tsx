@@ -398,177 +398,239 @@ function AdminProductsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
-          <CardTitle>Catálogo</CardTitle>
-          {dirtyCount > 0 && (
-            <Button size="sm" onClick={saveAllDirty} disabled={saving}>
-              <Save className="mr-1 h-3 w-3" /> Salvar {dirtyCount} alteração(ões)
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-sm text-muted-foreground">Carregando...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted text-xs uppercase">
-                  <tr>
-                    <th className="p-2 w-8">
-                      <Checkbox checked={allPageSelected} onCheckedChange={(v) => toggleAllPage(!!v)} />
-                    </th>
-                    <th className="p-2 text-left">Produto</th>
-                    <th className="p-2 text-left w-32">Preço</th>
-                    <th className="p-2 text-left w-24">Estoque</th>
-                    <th className="p-2 text-center w-20">Ativo</th>
-                    <th className="p-2 text-center w-24">Destaque</th>
-                    <th className="p-2 text-center w-40">Atacado / Desc.</th>
-                    <th className="p-2 w-24"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageRows.map((p) => {
-                    const e = edits[p.id];
-                    const priceVal = e?.price ?? String(p.price);
-                    const stockVal = e?.stock ?? String(p.stock);
-                    const dirty = !!e && ((e.price !== undefined && e.price !== String(p.price)) || (e.stock !== undefined && e.stock !== String(p.stock)));
-                    return (
-                      <tr key={p.id} className={`border-b hover:bg-accent/30 ${dirty ? "bg-amber-500/5" : ""}`}>
-                        <td className="p-2">
-                          <Checkbox checked={selected.has(p.id)} onCheckedChange={(v) => toggleRow(p.id, !!v)} />
-                        </td>
-                        <td className="p-2">
-                          <div className="flex items-center gap-2">
-                            {p.image_url && <img src={p.image_url} alt="" className="h-10 w-10 rounded object-cover" />}
-                            <div>
-                              <div className="font-medium">{p.name}</div>
-                              <div className="text-xs text-muted-foreground">{p.slug}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <Input
-                            value={priceVal}
-                            onChange={(ev) => setEdit(p.id, "price", ev.target.value)}
-                            className="h-8 w-28"
-                          />
-                          <div className="text-[10px] text-muted-foreground mt-0.5">{formatBRL(Number(p.price))}</div>
-                        </td>
-                        <td className="p-2">
-                          <Input
-                            value={stockVal}
-                            onChange={(ev) => setEdit(p.id, "stock", ev.target.value)}
-                            className="h-8 w-20"
-                          />
-                        </td>
-                        <td className="p-2 text-center">
-                          <Switch
-                            checked={p.status === "active"}
-                            onCheckedChange={async (v) => {
-                              try { await patchOne(p.id, { status: v ? "active" : "inactive" }); toast.success("Atualizado"); refresh(); }
-                              catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
-                            }}
-                          />
-                        </td>
-                        <td className="p-2 text-center">
-                          <Switch
-                            checked={p.featured ?? false}
-                            onCheckedChange={async (v) => {
-                              try { await patchOne(p.id, { featured: v }); toast.success("Atualizado"); refresh(); }
-                              catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
-                            }}
-                          />
-                        </td>
-                        <td className="p-2">
-                          <div className="flex items-center justify-center gap-2">
-                            <Switch
-                              checked={(p as { wholesale_enabled?: boolean }).wholesale_enabled ?? false}
-                              onCheckedChange={async (v) => {
-                                try { await patchOne(p.id, { wholesale_enabled: v }); toast.success(v ? "Habilitado no atacado" : "Desabilitado do atacado"); refresh(); }
-                                catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
-                              }}
-                            />
-                            <Input
-                              type="number"
-                              min={0}
-                              max={90}
-                              step="0.5"
-                              placeholder="padrão"
-                              defaultValue={(p as { wholesale_discount_percent?: number | null }).wholesale_discount_percent ?? ""}
-                              onBlur={async (ev) => {
-                                const raw = ev.target.value.trim();
-                                const next = raw === "" ? null : Number(raw.replace(",", "."));
-                                const current = (p as { wholesale_discount_percent?: number | null }).wholesale_discount_percent ?? null;
-                                if (next === current) return;
-                                if (next !== null && (!Number.isFinite(next) || next < 0 || next > 90)) return toast.error("Desconto 0-90%");
-                                try { await patchOne(p.id, { wholesale_discount_percent: next }); toast.success("Desconto atualizado"); refresh(); }
-                                catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
-                              }}
-                              className="h-8 w-20 text-xs"
-                              title="Desconto de atacado deste produto (%). Vazio = usa o padrão global."
-                            />
-                            <span className="text-[10px] text-muted-foreground">%</span>
-                          </div>
-                        </td>
-                        <td className="p-2 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {dirty && (
-                              <Button size="sm" variant="secondary" onClick={() => saveRow(p.id)} disabled={saving}>
-                                Salvar
-                              </Button>
-                            )}
-                            <Button size="sm" variant="outline" onClick={() => setEditingId(p.id)}>
-                              <Pencil className="h-3 w-3 mr-1" /> Editar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-destructive hover:text-destructive"
-                              onClick={async () => {
-                                if (!confirm(`Excluir o produto "${p.name}"? Esta ação não pode ser desfeita.`)) return;
-                                try {
-                                  setSaving(true);
-                                  await deleteProduct({ data: { id: p.id } });
-                                  toast.success("Produto excluído");
-                                  setSelected((prev) => { const n = new Set(prev); n.delete(p.id); return n; });
-                                  refresh();
-                                } catch (err) {
-                                  toast.error(err instanceof Error ? err.message : "Erro ao excluir");
-                                } finally {
-                                  setSaving(false);
-                                }
-                              }}
-                              disabled={saving}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                            {p.slug && (
-                              <a href={`/loja/produto/${p.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center text-primary hover:underline">
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            )}
-                          </div>
-                        </td>
-
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              {filtered.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground">
-                  {search ? "Nenhum resultado para a busca." : (<>Nenhum produto ainda. <Link to="/admin/produtos/importar" className="text-primary hover:underline">Importar do site AMT</Link></>)}
+      <TooltipProvider>
+        <Card className="border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="px-6 py-4 bg-muted/20 border-b border-border/40">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Package className="h-5 w-5 text-primary" />
                 </div>
-              )}
-
-              {filtered.length > 0 && (
-                <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+                <div>
+                  <CardTitle className="text-lg font-bold">Listagem de Produtos</CardTitle>
+                  <p className="text-xs text-muted-foreground">Gerenciamento detalhado de estoque e preços</p>
+                </div>
+              </div>
+              
+              {dirtyCount > 0 && (
+                <Button size="sm" onClick={saveAllDirty} disabled={saving} className="bg-primary hover:bg-primary/90 shadow-sm">
+                  <Save className="mr-2 h-4 w-4" /> Salvar {dirtyCount} alteração(ões)
+                </Button>
               )}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="p-0">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
+                <p className="text-sm font-medium">Carregando catálogo...</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-muted/30 border-b border-border/40">
+                      <th className="p-4 w-10">
+                        <Checkbox checked={allPageSelected} onCheckedChange={(v) => toggleAllPage(!!v)} />
+                      </th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Produto</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-36">Preço Base</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-28">Estoque</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-24">Status</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-24">Destaque</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-48">Atacado & Descontos</th>
+                      <th className="p-4 text-right font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-32">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/30">
+                    {pageRows.map((p) => {
+                      const e = edits[p.id];
+                      const priceVal = e?.price ?? String(p.price);
+                      const stockVal = e?.stock ?? String(p.stock);
+                      const dirty = !!e && ((e.price !== undefined && e.price !== String(p.price)) || (e.stock !== undefined && e.stock !== String(p.stock)));
+                      
+                      return (
+                        <tr key={p.id} className={`group hover:bg-muted/40 transition-colors ${dirty ? "bg-primary/5" : ""}`}>
+                          <td className="p-4">
+                            <Checkbox checked={selected.has(p.id)} onCheckedChange={(v) => toggleRow(p.id, !!v)} />
+                          </td>
+                          <td className="p-4 min-w-[200px]">
+                            <div className="flex items-center gap-3">
+                              <div className="relative shrink-0">
+                                {p.image_url ? (
+                                  <img src={p.image_url} alt="" className="h-12 w-12 rounded-lg object-cover border border-border/40 shadow-sm" />
+                                ) : (
+                                  <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center border border-border/40">
+                                    <Package className="h-6 w-6 text-muted-foreground/40" />
+                                  </div>
+                                )}
+                                {dirty && <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" title="Alteração pendente" />}
+                              </div>
+                              <div className="min-w-0">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="font-bold text-neutral-900 truncate max-w-[180px] sm:max-w-[240px] cursor-help">{p.name}</div>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    {p.name}
+                                  </TooltipContent>
+                                </Tooltip>
+                                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-tighter truncate max-w-[150px]">{p.slug}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="space-y-1.5">
+                              <div className="relative group/input">
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium">R$</span>
+                                <Input
+                                  value={priceVal}
+                                  onChange={(ev) => setEdit(p.id, "price", ev.target.value)}
+                                  className="h-8 pl-7 text-xs font-mono bg-muted/30 focus:bg-background border-border/40"
+                                />
+                              </div>
+                              <div className="text-[10px] text-muted-foreground pl-1 font-medium italic opacity-70">Anterior: {formatBRL(Number(p.price))}</div>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <Input
+                              value={stockVal}
+                              onChange={(ev) => setEdit(p.id, "stock", ev.target.value)}
+                              className={`h-8 text-xs font-mono bg-muted/30 focus:bg-background border-border/40 ${Number(stockVal) < 5 ? "text-destructive font-bold" : ""}`}
+                            />
+                            {Number(stockVal) < 5 && Number(stockVal) > 0 && (
+                              <div className="text-[9px] text-destructive font-semibold mt-1 flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" /> Estoque Baixo
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-4 text-center">
+                            <Switch
+                              checked={p.status === "active"}
+                              onCheckedChange={async (v) => {
+                                try { await patchOne(p.id, { status: v ? "active" : "inactive" }); toast.success("Status atualizado"); refresh(); }
+                                catch (err) { toast.error("Erro ao atualizar status"); }
+                              }}
+                              className="mx-auto scale-90"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <Switch
+                              checked={p.featured ?? false}
+                              onCheckedChange={async (v) => {
+                                try { await patchOne(p.id, { featured: v }); toast.success("Destaque atualizado"); refresh(); }
+                                catch (err) { toast.error("Erro ao atualizar destaque"); }
+                              }}
+                              className="mx-auto scale-90"
+                            />
+                          </td>
+                          <td className="p-4">
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="flex items-center gap-3 bg-muted/20 px-2 py-1 rounded-md border border-border/40 w-full justify-center">
+                                <Switch
+                                  checked={(p as any).wholesale_enabled ?? false}
+                                  onCheckedChange={async (v) => {
+                                    try { await patchOne(p.id, { wholesale_enabled: v }); toast.success("Configuração de atacado salva"); refresh(); }
+                                    catch (err) { toast.error("Erro"); }
+                                  }}
+                                  className="scale-75"
+                                />
+                                <div className="relative w-16 group/disc">
+                                  <Input
+                                    type="number"
+                                    min={0}
+                                    max={90}
+                                    placeholder="25"
+                                    defaultValue={(p as any).wholesale_discount_percent ?? ""}
+                                    onBlur={async (ev) => {
+                                      const raw = ev.target.value.trim();
+                                      const next = raw === "" ? null : Number(raw.replace(",", "."));
+                                      if (next !== null && (next < 0 || next > 90)) return toast.error("Desconto 0-90%");
+                                      try { await patchOne(p.id, { wholesale_discount_percent: next }); toast.success("Desconto atualizado"); refresh(); }
+                                      catch (err) { toast.error("Erro"); }
+                                    }}
+                                    className="h-7 text-[10px] pr-4 bg-background border-border/40"
+                                  />
+                                  <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] text-muted-foreground font-bold">%</span>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                              {dirty && (
+                                <Button size="icon" variant="secondary" onClick={() => saveRow(p.id)} disabled={saving} className="h-8 w-8 rounded-full shadow-sm" title="Salvar Linha">
+                                  <Save className="h-3.5 w-3.5" />
+                                </Button>
+                              )}
+                              <Button size="icon" variant="ghost" onClick={() => setEditingId(p.id)} className="h-8 w-8 rounded-full" title="Editar Detalhes">
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10"
+                                    onClick={async () => {
+                                      if (!confirm(`Excluir o produto "${p.name}"?`)) return;
+                                      try {
+                                        setSaving(true);
+                                        await deleteProduct({ data: { id: p.id } });
+                                        toast.success("Excluído");
+                                        refresh();
+                                      } catch (err) { toast.error("Erro ao excluir"); }
+                                      finally { setSaving(false); }
+                                    }}
+                                    disabled={saving}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Excluir permanentemente</TooltipContent>
+                              </Tooltip>
+
+                              {p.slug && (
+                                <a href={`/loja/produto/${p.slug}`} target="_blank" rel="noreferrer" className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-primary/10 text-primary transition-colors" title="Ver no site">
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                
+                {filtered.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-24 text-center px-6">
+                    <div className="bg-muted rounded-full p-6 mb-4">
+                      <Search className="h-10 w-10 text-muted-foreground/30" />
+                    </div>
+                    <h3 className="text-base font-bold text-neutral-900 mb-1">Nenhum produto encontrado</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
+                      {search ? "Tente ajustar seus filtros de busca ou categoria." : "Seu catálogo está vazio. Comece adicionando seu primeiro produto ou importando dados."}
+                    </p>
+                    {search ? (
+                      <Button variant="outline" size="sm" onClick={() => { setSearch(""); setCategoryFilter(""); }}>Limpar Filtros</Button>
+                    ) : (
+                      <Button size="sm" onClick={() => setCreatingProduct(true)}>Adicionar Primeiro Produto</Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+          
+          <div className="px-6 py-4 border-t border-border/40 bg-muted/10">
+            {filtered.length > 0 && (
+              <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+            )}
+          </div>
+        </Card>
+      </TooltipProvider>
 
       {editingId && (
         <ProductEditDialog
