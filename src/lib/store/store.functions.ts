@@ -714,7 +714,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
       .from("store_orders")
       .update(patch)
       .eq("id", data.id)
-      .select("id, order_number, status, payment_status, total, customer_name") as any
+      .select("id, order_number, status, payment_status, total, customer_name")
       .single();
     if (error) throw new Error(error.message);
 
