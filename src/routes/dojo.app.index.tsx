@@ -216,7 +216,7 @@ function HeroHeader({
           <div className="mt-2 flex items-center gap-3 md:gap-4">
             <Link
               to="/dojo/app/account"
-              search={{ tab: "profile" }}
+              search={{}}
               className="relative shrink-0 group"
               aria-label="Editar logotipo em Minha conta"
               title={academyName ?? "Minha conta"}
