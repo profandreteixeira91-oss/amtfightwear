@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Arquivo em anexo
+ * Execute esta instrucao no projeto: Faça a auditoria na janela apresentada pela imagem abaixo e faça com que os botões funcionem 100%
  *
  * Implemente as regras deste documento.
  *
