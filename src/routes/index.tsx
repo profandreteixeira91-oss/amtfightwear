@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/saas/suporte corrija a rota desta página, está levando para as configurações de notificações
+ * Execute esta instrucao no projeto: Faça a auditoria do módulo /fiscal , leia o módulo, identifique dependências, faça todo o procedimento e corrija o erro apresentado na imagem enviada
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
