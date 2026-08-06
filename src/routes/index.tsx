@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // O erro back_url para pagamento em cartão de crédito (subscription) também acontece
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/subscription o código QR para o pix automático deve ser gerado dentro da própria página, e não no mercado pago
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
