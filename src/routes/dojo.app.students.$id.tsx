@@ -1296,8 +1296,8 @@ function StudentDetail() {
                       return (
                         <Link
                           key={row.id}
-                          to="/dojo/app/schedule/$id"
-                          params={{ id: cls.id }}
+                          to="/dojo/app/schedule"
+                          search={{ studentId: id }}
                           className="group rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition hover:border-red-300 hover:shadow-md"
                         >
                           <div className="flex items-start gap-3">

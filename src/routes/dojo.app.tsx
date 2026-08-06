@@ -558,7 +558,7 @@ function DojoLayoutInner({
               <DropdownMenuSeparator />
               <TrialDropdownCard />
               <DropdownMenuItem asChild>
-                <Link to="/dojo/app/account" className="flex items-center gap-2">
+                <Link to="/dojo/app/account" search={{}} className="flex items-center gap-2">
                   <UserCircle className="mr-2 h-4 w-4" />
                   <span className="flex-1">Minha conta</span>
                   <AccountTrialInline />
