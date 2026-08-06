@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getFiscalStatus, getFiscalInvoices, uploadCertificate } from "@/lib/fiscal/fiscal.functions";
+import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig } from "@/lib/fiscal/fiscal.functions";
 import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -48,9 +48,11 @@ function FiscalDashboard() {
   const uploadCertFn = useServerFn(uploadCertificate);
   const fetchProducts = useServerFn(getProductsWithFiscal);
   const updateProdFiscal = useServerFn(updateProductFiscal);
+  const saveConfigFn = useServerFn(saveFiscalConfig);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [productSearch, setProductSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: status, isLoading: statusLoading } = useQuery({
     queryKey: ['fiscal-status'],
@@ -150,11 +152,18 @@ function FiscalDashboard() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button className="w-full gap-2 rounded-full bg-red-600 shadow-sm transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] sm:w-auto">
+                <Button 
+                  onClick={() => setActiveTab("invoices")}
+                  className="w-full gap-2 rounded-full bg-red-600 shadow-sm transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
+                >
                   <Plus className="h-4 w-4" />
                   Emitir Nota (NF-e)
                 </Button>
-                <Button variant="outline" className="w-full gap-2 rounded-full bg-white/70 backdrop-blur sm:w-auto">
+                <Button 
+                  onClick={() => setActiveTab("config")}
+                  variant="outline" 
+                  className="w-full gap-2 rounded-full bg-white/70 backdrop-blur sm:w-auto"
+                >
                   <Settings className="h-4 w-4" />
                   Configurações
                 </Button>
@@ -198,7 +207,7 @@ function FiscalDashboard() {
         </div>
 
         {/* Conteúdo Principal */}
-        <Tabs defaultValue="overview" className="w-full space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
           <TabsList className="admin-surface flex h-auto w-full flex-wrap justify-start gap-1 border p-1 sm:inline-flex">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="invoices">Notas Emitidas</TabsTrigger>
@@ -290,14 +299,24 @@ function FiscalDashboard() {
 
           <TabsContent value="invoices">
              <Card className="admin-card">
-               <CardHeader className="flex flex-row items-center justify-between">
+               <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                  <div>
                    <CardTitle>Histórico de Notas</CardTitle>
                    <CardDescription>Gerenciamento completo das notas fiscais.</CardDescription>
                  </div>
-                 <Button variant="outline" size="sm" className="gap-2">
-                   <Download className="h-4 w-4" /> Exportar XMLs
-                 </Button>
+                 <div className="flex gap-2">
+                   <Button 
+                    onClick={() => {
+                      toast.info("Processo de emissão iniciado. Selecione o pedido/orçamento...");
+                    }}
+                    className="gap-2 bg-red-600 hover:bg-red-700"
+                   >
+                     <Plus className="h-4 w-4" /> Nova NF-e
+                   </Button>
+                   <Button variant="outline" size="sm" className="gap-2">
+                     <Download className="h-4 w-4" /> Exportar XMLs
+                   </Button>
+                 </div>
                </CardHeader>
                <CardContent>
                  <div className="rounded-md border">
@@ -374,6 +393,114 @@ function FiscalDashboard() {
                  </div>
                </CardContent>
              </Card>
+          </TabsContent>
+
+          <TabsContent value="config">
+            <Card className="admin-card">
+              <CardHeader>
+                <CardTitle>Configurações Fiscais</CardTitle>
+                <CardDescription>Defina os parâmetros do emitente para emissão de notas.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    const data = {
+                      razao_social: formData.get("razao_social") as string,
+                      cnpj: formData.get("cnpj") as string,
+                      inscricao_estadual: formData.get("inscricao_estadual") as string,
+                      regime_tributario: Number(formData.get("regime_tributario")),
+                      environment: formData.get("environment") as 'homologacao' | 'producao',
+                      address: {
+                        street: formData.get("address_street") as string,
+                        number: formData.get("address_number") as string,
+                        neighborhood: formData.get("address_neighborhood") as string,
+                        city: formData.get("address_city_name") as string,
+                        state: formData.get("address_state") as string,
+                        zip: formData.get("address_zip") as string,
+                        city_code: formData.get("address_city_code") as string,
+                      }
+                    };
+                    
+                    toast.promise(saveConfigFn({ data }), {
+                      loading: 'Salvando configurações...',
+                      success: () => {
+                        queryClient.invalidateQueries({ queryKey: ['fiscal-status'] });
+                        return 'Configurações salvas!';
+                      },
+                      error: (err) => `Erro: ${err.message}`
+                    });
+                  }}
+                  className="grid gap-6 md:grid-cols-2"
+                >
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Razão Social</label>
+                      <Input name="razao_social" defaultValue={status?.issuer_name !== "Não configurado" ? status?.issuer_name : ""} required />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">CNPJ</label>
+                      <Input name="cnpj" placeholder="00.000.000/0000-00" required />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Inscrição Estadual</label>
+                      <Input name="inscricao_estadual" required />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Ambiente SEFAZ</label>
+                      <select name="environment" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" defaultValue={status?.environment}>
+                        <option value="homologacao">Homologação (Testes)</option>
+                        <option value="producao">Produção</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 gap-2">
+                      <div className="col-span-3 space-y-2">
+                        <label className="text-sm font-medium">Endereço</label>
+                        <Input name="address_street" placeholder="Rua / Av" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Nº</label>
+                        <Input name="address_number" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Cidade</label>
+                        <Input name="address_city_name" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Código IBGE Cidade</label>
+                        <Input name="address_city_code" placeholder="Ex: 3550308" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="col-span-2 space-y-2">
+                        <label className="text-sm font-medium">Bairro</label>
+                        <Input name="address_neighborhood" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">UF</label>
+                        <Input name="address_state" maxLength={2} placeholder="SP" required />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">CEP</label>
+                      <Input name="address_zip" placeholder="00000-000" required />
+                    </div>
+                  </div>
+                  
+                  <div className="md:col-span-2 flex justify-end gap-3 pt-4 border-t">
+                    <Button type="submit" className="bg-red-600 hover:bg-red-700">
+                      Salvar Configurações
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="products">
