@@ -255,7 +255,7 @@ function AnnouncementsWidget({ items }: { items: any[] }) {
             <span className="ml-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">{unread}</span>
           )}
         </h2>
-        <Link to="/app/announcements" search={{ open: "" }} className="text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
+        <Link to="/app/announcements" search={{ open: "", filter: "all" }} className="text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
           Ver todos
         </Link>
       </div>
