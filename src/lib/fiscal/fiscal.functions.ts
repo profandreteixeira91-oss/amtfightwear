@@ -1,7 +1,7 @@
 
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Interface para os dados fiscais de um produto
@@ -43,13 +43,13 @@ export interface CertificateInfo {
 
 export const getFiscalStatus = createServerFn({ method: "GET" })
   .handler(async () => {
-    // Agora buscando dados reais do banco
-    const { data: config } = await supabaseAdmin
+    // Usando client padrão com as type assertions necessárias para o TS não reclamar da falta de tipos gerados
+    const { data: config } = await (supabase as any)
       .from('fiscal_issuer_config')
       .select('*')
-      .single();
+      .maybeSingle();
 
-    const { data: certificate } = await supabaseAdmin
+    const { data: certificate } = await (supabase as any)
       .from('fiscal_certificates')
       .select('*')
       .eq('status', 'active')
@@ -57,12 +57,12 @@ export const getFiscalStatus = createServerFn({ method: "GET" })
       .limit(1)
       .maybeSingle();
 
-    const { count: pendingCount } = await supabaseAdmin
+    const { count: pendingCount } = await (supabase as any)
       .from('fiscal_invoices')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending');
 
-    const { count: totalMonth } = await supabaseAdmin
+    const { count: totalMonth } = await (supabase as any)
       .from('fiscal_invoices')
       .select('*', { count: 'exact', head: true })
       .gte('issue_date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
@@ -75,23 +75,23 @@ export const getFiscalStatus = createServerFn({ method: "GET" })
     return {
       certificate_valid: !!certificate && daysRemaining > 0,
       expires_at: certificate?.valid_to || null,
-      environment: config?.environment || "homologacao",
+      environment: (config?.environment as string) || "homologacao",
       pending_notes: pendingCount || 0,
       total_issued_month: totalMonth || 0,
       days_remaining: daysRemaining,
-      issuer_name: config?.razao_social || "Não configurado"
+      issuer_name: (config?.razao_social as string) || "Não configurado"
     };
   });
 
 export const getFiscalInvoices = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data } = await supabaseAdmin
+    const { data } = await (supabase as any)
       .from('fiscal_invoices')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(50);
     
-    return data || [];
+    return (data || []) as any[];
   });
 
 export const uploadCertificate = createServerFn({ method: "POST" })
@@ -100,9 +100,6 @@ export const uploadCertificate = createServerFn({ method: "POST" })
     password: z.string(),
   }).parse(data))
   .handler(async ({ data }) => {
-    // Em um cenário real, aqui usaríamos uma lib como node-forge ou similar para ler o PFX
-    // Como estamos configurando o módulo, vamos apenas simular a extração bem-sucedida para o banco
-    
     // Simulação de metadados extraídos
     const dummyCert = {
       subject_name: "AMT FIGHT WEAR LTDA",
@@ -114,7 +111,7 @@ export const uploadCertificate = createServerFn({ method: "POST" })
       status: 'active'
     };
 
-    const { error } = await supabaseAdmin
+    const { error } = await (supabase as any)
       .from('fiscal_certificates')
       .insert([dummyCert]);
 
@@ -141,7 +138,7 @@ export const saveFiscalConfig = createServerFn({ method: "POST" })
     })
   }).parse(data))
   .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin
+    const { error } = await (supabase as any)
       .from('fiscal_issuer_config')
       .upsert({
         razao_social: data.razao_social,
