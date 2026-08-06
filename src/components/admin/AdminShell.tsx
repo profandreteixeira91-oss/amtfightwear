@@ -96,15 +96,20 @@ import { cn } from "@/lib/utils";
 export function AdminShell({
   title,
   children,
+  hideLayoutOnLoad = false,
 }: {
   title?: string;
   children: React.ReactNode;
+  hideLayoutOnLoad?: boolean;
 }) {
   return (
-    <OwnerOnly>
-      {() => (
+    <OwnerOnly showLoading={!hideLayoutOnLoad}>
+      {({ loading }) => (
         <SidebarProvider defaultOpen>
-          <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground">
+          <div className={cn(
+            "admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground transition-opacity duration-300",
+            (loading && hideLayoutOnLoad) ? "opacity-0" : "opacity-100"
+          )}>
             <AdminSidebar />
             <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
               <AdminTopbar title={title} />

@@ -121,7 +121,7 @@ function FiscalDashboard() {
 
 
   return (
-    <AdminShell title="Módulo Fiscal">
+    <AdminShell title="Módulo Fiscal" hideLayoutOnLoad>
       <div className="w-full space-y-10 p-6 md:p-10">
         {/* Hero */}
         <section className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-gradient-to-br from-white via-white to-neutral-50 p-8 shadow-sm md:p-10">
