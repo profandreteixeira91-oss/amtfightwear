@@ -323,7 +323,7 @@ function AdminTopbar({ title }: { title?: string }) {
           <IconAction icon={Inbox} label="Mensagens" to="/admin/atendimento" />
           <IconAction icon={Bell} label="Notificações" to="/admin/notificacoes" dot />
           <IconAction icon={GraduationCap} label="Tutorial guiado" to="/dojo/app/tutorial" />
-          <IconAction icon={LifeBuoy} label="Ajuda" to="/admin/configuracoes" />
+          <IconAction icon={LifeBuoy} label="Ajuda / Suporte" to="/admin/saas/suporte" />
 
           <ThemeToggle />
           <EnvironmentBadge />
