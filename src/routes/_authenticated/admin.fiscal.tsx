@@ -63,6 +63,7 @@ export const Route = createFileRoute("/_authenticated/admin/fiscal")({
 });
 
 function FiscalDashboard() {
+  const { orderId, type } = Route.useSearch();
   const queryClient = useQueryClient();
   const fetchStatus = useServerFn(getFiscalStatus);
   const fetchInvoices = useServerFn(getFiscalInvoices);
