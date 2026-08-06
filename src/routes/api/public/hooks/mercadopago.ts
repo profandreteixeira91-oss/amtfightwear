@@ -158,6 +158,20 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           const { createOrderNotification } = await import("@/lib/store/notifications.server");
           await createOrderNotification(updatedOrderId, "paid");
         }
+        
+        // Fluxo 1.5: Assinatura SaaS do Dojo Manager via PIX
+        const isDojoSubPix = String(orderId ?? "").startsWith("dojo_sub_pix:");
+        if (isDojoSubPix && status === "approved") {
+          const subId = String(orderId).slice("dojo_sub_pix:".length);
+          const nextMonth = new Date();
+          nextMonth.setMonth(nextMonth.getMonth() + 1);
+          await supabaseAdmin.from("dojo_subscriptions").update({
+            status: "active",
+            current_period_end: nextMonth.toISOString(),
+            last_event: payment,
+          } as never).eq("id", subId);
+          return new Response("ok");
+        }
 
         // Fluxo 2: mensalidades do Dojo Manager (dojo_invoices) — SPLIT
         const isDojoInvoice = String(orderId ?? "").startsWith("dojo_invoice:");
