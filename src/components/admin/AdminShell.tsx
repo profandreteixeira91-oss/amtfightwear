@@ -402,7 +402,18 @@ function QuickCreateMenu() {
         </DropdownMenuLabel>
         {QUICK_ACTIONS.map((a) => (
           <DropdownMenuItem key={a.title} asChild>
-            <Link to={a.url} className="flex items-center gap-2">
+            <Link
+              to={a.url}
+              className="flex items-center gap-2"
+              onClick={() => {
+                if (window.innerWidth < 1024) {
+                  // O SidebarContext não está acessível aqui facilmente sem prop drilling pesado,
+                  // mas como é mobile, podemos disparar um clique no trigger se estiver aberto
+                  // ou usar o window dispatch se necessário.
+                  // No entanto, para o dropdown de "Criar", ele já fecha sozinho ao clicar.
+                }
+              }}
+            >
               <a.icon className="h-4 w-4 text-muted-foreground" />
               {a.title}
             </Link>

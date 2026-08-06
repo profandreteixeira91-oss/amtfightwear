@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://preview--bright-spark-echo.lovable.app/dojo/app/classes o filtro de iniciais deve sempre aparecer de A a Z, sem cortar nenhuma letra durante a rolagem
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: /admin para dispositivos móveis - a sidebar deve fechar ao tocar em algum item do menu
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
