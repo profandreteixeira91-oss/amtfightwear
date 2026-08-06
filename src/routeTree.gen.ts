@@ -185,6 +185,7 @@ import { Route as AuthenticatedAdminMarketingRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminLojaRouteImport } from './routes/_authenticated/admin.loja'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
 import { Route as AuthenticatedAdminInstagramRouteImport } from './routes/_authenticated/admin.instagram'
+import { Route as AuthenticatedAdminFiscalRouteImport } from './routes/_authenticated/admin.fiscal'
 import { Route as AuthenticatedAdminEnvioRouteImport } from './routes/_authenticated/admin.envio'
 import { Route as AuthenticatedAdminDojoRouteImport } from './routes/_authenticated/admin.dojo'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
@@ -1258,6 +1259,12 @@ const AuthenticatedAdminInstagramRoute =
     path: '/instagram',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminFiscalRoute =
+  AuthenticatedAdminFiscalRouteImport.update({
+    id: '/fiscal',
+    path: '/fiscal',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminEnvioRoute = AuthenticatedAdminEnvioRouteImport.update({
   id: '/envio',
   path: '/envio',
@@ -2129,6 +2136,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
+  '/admin/fiscal': typeof AuthenticatedAdminFiscalRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
@@ -2439,6 +2447,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
+  '/admin/fiscal': typeof AuthenticatedAdminFiscalRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
@@ -2748,6 +2757,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/_authenticated/admin/envio': typeof AuthenticatedAdminEnvioRoute
+  '/_authenticated/admin/fiscal': typeof AuthenticatedAdminFiscalRoute
   '/_authenticated/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/loja': typeof AuthenticatedAdminLojaRoute
@@ -3068,6 +3078,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dojo'
     | '/admin/envio'
+    | '/admin/fiscal'
     | '/admin/instagram'
     | '/admin/logs'
     | '/admin/loja'
@@ -3378,6 +3389,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dojo'
     | '/admin/envio'
+    | '/admin/fiscal'
     | '/admin/logs'
     | '/admin/loja'
     | '/admin/notificacoes'
@@ -3686,6 +3698,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/dojo'
     | '/_authenticated/admin/envio'
+    | '/_authenticated/admin/fiscal'
     | '/_authenticated/admin/instagram'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/loja'
@@ -5251,6 +5264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminInstagramRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/fiscal': {
+      id: '/_authenticated/admin/fiscal'
+      path: '/fiscal'
+      fullPath: '/admin/fiscal'
+      preLoaderRoute: typeof AuthenticatedAdminFiscalRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/envio': {
       id: '/_authenticated/admin/envio'
       path: '/envio'
@@ -6415,6 +6435,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminDojoRoute: typeof AuthenticatedAdminDojoRoute
   AuthenticatedAdminEnvioRoute: typeof AuthenticatedAdminEnvioRoute
+  AuthenticatedAdminFiscalRoute: typeof AuthenticatedAdminFiscalRoute
   AuthenticatedAdminInstagramRoute: typeof AuthenticatedAdminInstagramRouteWithChildren
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminLojaRoute: typeof AuthenticatedAdminLojaRoute
@@ -6457,6 +6478,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAdminDojoRoute: AuthenticatedAdminDojoRoute,
   AuthenticatedAdminEnvioRoute: AuthenticatedAdminEnvioRoute,
+  AuthenticatedAdminFiscalRoute: AuthenticatedAdminFiscalRoute,
   AuthenticatedAdminInstagramRoute:
     AuthenticatedAdminInstagramRouteWithChildren,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
@@ -7209,3 +7231,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -52,10 +52,10 @@ export const getFiscalStatus = createServerFn({ method: "GET" })
   });
 
 export const uploadCertificate = createServerFn({ method: "POST" })
-  .input(z.object({
+  .validator((data: unknown) => z.object({
     file_base64: z.string(),
     password: z.string(),
-  }))
+  }).parse(data))
   .handler(async ({ data }) => {
     // Lógica para descriptografar, validar e armazenar o certificado no Vault do Lovable Cloud
     console.log("Recebido certificado para processamento seguro");
