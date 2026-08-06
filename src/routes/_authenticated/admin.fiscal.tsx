@@ -76,91 +76,79 @@ function FiscalDashboard() {
 
   return (
     <AdminShell title="Módulo Fiscal">
-      <div className="mx-auto w-full max-w-7xl space-y-8 px-0 sm:px-4 lg:px-6">
-        {/* Header com Ações Rápidas */}
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
-              Módulo Fiscal
-            </h1>
-            <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-              Gestão centralizada de notas fiscais, certificado digital A1 e conformidade tributária para o ecossistema AMT.
-            </p>
+      <div className="mx-auto max-w-[1400px] space-y-10 p-6 md:p-10">
+        {/* Hero */}
+        <section className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-gradient-to-br from-white via-white to-neutral-50 p-8 shadow-sm md:p-10">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gradient-to-br from-red-500/20 to-red-700/10 blur-3xl"
+          />
+          
+          <div className="relative flex flex-col gap-6">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-neutral-200/80 bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-600 shadow-sm backdrop-blur">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-70" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-600" />
+              </span>
+              Central AMT · Fiscal & Compliance
+            </div>
+
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl space-y-3">
+                <h1 className="text-3xl font-bold tracking-tight text-neutral-900 md:text-5xl">
+                  Módulo Fiscal
+                </h1>
+                <p className="text-sm leading-relaxed text-neutral-500 md:text-base">
+                  Gestão centralizada de notas fiscais, certificado digital A1 e conformidade tributária para o ecossistema AMT.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Button className="w-full gap-2 rounded-full bg-red-600 shadow-sm transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] sm:w-auto">
+                  <Plus className="h-4 w-4" />
+                  Emitir Nota (NF-e)
+                </Button>
+                <Button variant="outline" className="w-full gap-2 rounded-full bg-white/70 backdrop-blur sm:w-auto">
+                  <Settings className="h-4 w-4" />
+                  Configurações
+                </Button>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button className="w-full gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] sm:w-auto">
-              <Plus className="h-4 w-4" />
-              Emitir Nota (NF-e)
-            </Button>
-            <Button variant="outline" className="w-full gap-2 bg-background sm:w-auto">
-              <Settings className="h-4 w-4" />
-              Configurações
-            </Button>
-          </div>
-        </div>
+        </section>
 
         {/* KPIs */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="admin-card border-l-4 border-l-emerald-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Emitidas (Mês)</CardTitle>
-              <Send className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {statusLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
-                <>
-                  <div className="text-2xl font-bold">{status?.total_issued_month || 0}</div>
-                  <p className="text-xs text-muted-foreground">Notas autorizadas no período atual</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-          <Card className="admin-card border-l-4 border-l-amber-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pendentes / Rejeitadas</CardTitle>
-              <AlertCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {statusLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
-                <>
-                  <div className="text-2xl font-bold">{status?.pending_notes || 0}</div>
-                  <p className="text-xs text-muted-foreground">Necessitam atenção imediata</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-          <Card className="admin-card border-l-4 border-l-blue-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ambiente</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {statusLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
-                <>
-                  <div className="text-2xl font-bold capitalize">{status?.environment || '---'}</div>
-                  <p className="text-xs text-muted-foreground">Sefaz {status?.environment === 'producao' ? 'Produção' : 'Homologação'}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-          <Card className="admin-card border-l-4 border-l-primary">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Certificado A1</CardTitle>
-              <ShieldCheck className={`h-4 w-4 ${status?.certificate_valid ? 'text-emerald-500' : 'text-red-500'}`} />
-            </CardHeader>
-            <CardContent>
-              {statusLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
-                <>
-                  <div className="text-2xl font-bold">{status?.certificate_valid ? 'Válido' : 'Inativo'}</div>
-                  <p className={`text-xs font-medium ${status?.days_remaining && status.days_remaining < 30 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                    {status?.expires_at 
-                      ? `Expira em ${status.days_remaining} dias` 
-                      : 'Não configurado'}
-                  </p>
-                </>
-              )}
-            </CardContent>
-          </Card>
+          <KpiCard
+            tone="emerald"
+            icon={Send}
+            hint="Emitidas (Mês)"
+            value={statusLoading ? "—" : (status?.total_issued_month || 0).toString()}
+            label="Notas autorizadas no período atual"
+          />
+          <KpiCard
+            tone="amber"
+            icon={AlertCircle}
+            hint="Pendentes / Rejeitadas"
+            value={statusLoading ? "—" : (status?.pending_notes || 0).toString()}
+            label="Necessitam atenção imediata"
+          />
+          <KpiCard
+            tone="slate"
+            icon={BarChart3}
+            hint="Ambiente"
+            value={statusLoading ? "—" : status?.environment || "---"}
+            label={`Sefaz ${status?.environment === 'producao' ? 'Produção' : 'Homologação'}`}
+          />
+          <KpiCard
+            tone={status?.certificate_valid ? "emerald" : "red"}
+            icon={ShieldCheck}
+            hint="Certificado A1"
+            value={statusLoading ? "—" : (status?.certificate_valid ? 'Válido' : 'Inativo')}
+            label={status?.expires_at 
+              ? `Expira em ${status.days_remaining} dias` 
+              : 'Não configurado'}
+          />
         </div>
 
         {/* Conteúdo Principal */}
@@ -360,4 +348,40 @@ function FiscalDashboard() {
     </AdminShell>
   );
 }
+
+function KpiCard({
+  value,
+  label,
+  icon: Icon,
+  hint,
+  tone = "neutral",
+}: {
+  value: string;
+  label: string;
+  icon: any;
+  hint: string;
+  tone?: "red" | "amber" | "emerald" | "slate" | "neutral";
+}) {
+  const tones = {
+    red: "border-l-red-500 text-red-600 bg-red-50/30",
+    amber: "border-l-amber-500 text-amber-600 bg-amber-50/30",
+    emerald: "border-l-emerald-500 text-emerald-600 bg-emerald-50/30",
+    slate: "border-l-slate-500 text-slate-600 bg-slate-50/30",
+    neutral: "border-l-neutral-300 text-neutral-600 bg-neutral-50/30",
+  };
+
+  return (
+    <Card className={`overflow-hidden border-l-4 shadow-sm transition-all hover:shadow-md ${tones[tone]}`}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <p className="text-[10px] font-bold uppercase tracking-wider opacity-70">{hint}</p>
+        <Icon className="h-4 w-4 opacity-70" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold text-neutral-900">{value}</div>
+        <p className="mt-1 text-xs text-neutral-500 leading-tight">{label}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 
