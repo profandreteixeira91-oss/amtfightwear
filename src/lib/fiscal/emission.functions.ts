@@ -31,7 +31,7 @@ export const emitNFe = createServerFn({ method: "POST" })
 
       const { data: items } = await s
         .from('store_order_items')
-        .select('*, products:store_products(ncm, cest, cfop_internal, cfop_interstate)')
+        .select('*, products:products(ncm, cest, cfop_internal, cfop_interstate)')
         .eq('order_id', data.orderId);
       
       orderItems = (items as any[]) || [];
@@ -56,7 +56,7 @@ export const emitNFe = createServerFn({ method: "POST" })
       
       for (const item of items as any[]) {
         const { data: prod } = await s
-          .from('store_products' as any)
+          .from('products' as any)
           .select('ncm, cest, cfop_internal, cfop_interstate')
           .eq('id', item.product_id)
           .maybeSingle();
