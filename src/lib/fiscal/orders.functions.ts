@@ -7,31 +7,31 @@ export const getOrdersForFiscal = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const s = context.supabase;
     
-    // Fetch orders that don't have an invoice yet (or let user select any)
-    // Fetch orders
+    // Fetch orders from store_orders
     const { data: orders, error: ordersError } = await s
-      .from('orders')
-      .select('id, total, status, placed_at, order_number, customers(full_name)')
-      .order('placed_at', { ascending: false })
-      .limit(20);
+      .from('store_orders')
+      .select('id, total, status, created_at, order_number, customer_name')
+      .order('created_at', { ascending: false })
+      .limit(50);
     
-    // Fetch quotes (orçamentos) to include as potential orders for emission
+    // Fetch quotes (orçamentos) from store_quotes
     const { data: quotes, error: quotesError } = await s
       .from('store_quotes')
       .select('id, total, status, created_at, quote_number, customer_name')
-      .eq('status', 'accepted') // Only accepted quotes should be invoiced
+      .eq('status', 'accepted')
       .order('created_at', { ascending: false })
-      .limit(20);
+      .limit(50);
     
-    if (ordersError) throw new Error(ordersError.message);
+    if (ordersError && ordersError.code !== 'PGRST116') console.error('Orders error:', ordersError);
+    if (quotesError && quotesError.code !== 'PGRST116') console.error('Quotes error:', quotesError);
     
     const formattedOrders = (orders || []).map((o: any) => ({
       id: o.id,
       type: 'order',
       number: o.order_number || o.id.slice(0, 8),
-      customer: o.customers?.full_name || 'Consumidor',
+      customer: o.customer_name || 'Consumidor',
       total: Number(o.total),
-      date: o.placed_at
+      date: o.created_at
     }));
 
     const formattedQuotes = (quotes || []).map((q: any) => ({
