@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Vamos fazer essa customização via API passo a passo, habilitando cartão de crédito e pix automático como formas de pagamento
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Agora vamos atualizar o design da página de checkout do mercado pago baseado exatamente no design do dojo manager
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";

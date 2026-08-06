@@ -7,6 +7,16 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const MP_BASE = "https://api.mercadopago.com";
 
+/**
+ * Customização visual do Checkout do Mercado Pago.
+ * Nota: A API de preapproval (assinaturas) tem suporte limitado a temas comparada ao Checkout Pro (preferences),
+ * mas podemos definir cores e logo nas configurações da aplicação no painel MP ou via API quando disponível.
+ */
+const MP_DESIGN_CONFIG = {
+  main_color: "#DC2626", // Vermelho Dojo (primary)
+  logo: "https://amtfightwear.com.br/amt-logo-red.png", // URL absoluta do logo
+};
+
 export const PLAN_AMOUNT = 99.9;
 export const TRIAL_DAYS = 14;
 
@@ -102,6 +112,11 @@ export const startMySubscription = createServerFn({ method: "POST" })
           frequency_type: "months",
           transaction_amount: PLAN_AMOUNT,
           currency_id: "BRL",
+        },
+        // Customização visual baseada no design do Dojo Manager
+        theme: {
+          elements_color: MP_DESIGN_CONFIG.main_color,
+          header_color: "#000000",
         },
         payment_methods_allowed: {
           payment_types: [{ id: "credit_card" }, { id: "account_money" }, { id: "pix" }],
@@ -364,6 +379,10 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
           frequency_type: "months",
           transaction_amount: PLAN_AMOUNT,
           currency_id: "BRL",
+        },
+        theme: {
+          elements_color: MP_DESIGN_CONFIG.main_color,
+          header_color: "#000000",
         },
         payment_methods_allowed: {
           payment_types: [{ id: "pix" }, { id: "credit_card" }, { id: "account_money" }],
