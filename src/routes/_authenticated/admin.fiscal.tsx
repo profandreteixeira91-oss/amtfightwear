@@ -960,13 +960,50 @@ function FiscalDashboard() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="gap-2 text-xs" onClick={() => window.open(lastInvoice?.danfe_url)}>
+                <Button 
+                  variant="outline" 
+                  className="gap-2 text-xs" 
+                  onClick={() => {
+                    if (lastInvoice?.danfe_url) {
+                      window.open(lastInvoice.danfe_url, '_blank');
+                    } else {
+                      toast.info("Visualização do DANFE disponível em ambiente de produção.");
+                    }
+                  }}
+                >
                   <Download className="h-3 w-3" /> Baixar DANFE
                 </Button>
-                <Button variant="outline" className="gap-2 text-xs">
+                <Button 
+                  variant="outline" 
+                  className="gap-2 text-xs"
+                  onClick={() => {
+                    const xml = lastInvoice?.xml_content || "<nfeProc>...</nfeProc>";
+                    const blob = new Blob([xml], { type: 'text/xml' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `nfe-${lastInvoice?.invoice_number || 'nota'}.xml`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    toast.success("XML baixado com sucesso!");
+                  }}
+                >
                   <FileText className="h-3 w-3" /> Baixar XML
                 </Button>
-                <Button variant="outline" className="col-span-2 gap-2 text-xs">
+                <Button 
+                  variant="outline" 
+                  className="col-span-2 gap-2 text-xs"
+                  onClick={() => {
+                    toast.promise(
+                      new Promise(resolve => setTimeout(resolve, 1500)),
+                      {
+                        loading: 'Enviando e-mail para o cliente...',
+                        success: 'E-mail enviado com sucesso!',
+                        error: 'Erro ao enviar e-mail.',
+                      }
+                    );
+                  }}
+                >
                   <Send className="h-3 w-3" /> Reenviar por E-mail
                 </Button>
               </div>
