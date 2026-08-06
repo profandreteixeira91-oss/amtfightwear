@@ -9725,6 +9725,174 @@ export type Database = {
         }
         Relationships: []
       }
+      fiscal_certificates: {
+        Row: {
+          cnpj: string
+          created_at: string | null
+          id: string
+          issuer_name: string
+          owner_id: string
+          serial_number: string
+          status: string | null
+          subject_name: string
+          valid_from: string
+          valid_to: string
+        }
+        Insert: {
+          cnpj: string
+          created_at?: string | null
+          id?: string
+          issuer_name: string
+          owner_id: string
+          serial_number: string
+          status?: string | null
+          subject_name: string
+          valid_from: string
+          valid_to: string
+        }
+        Update: {
+          cnpj?: string
+          created_at?: string | null
+          id?: string
+          issuer_name?: string
+          owner_id?: string
+          serial_number?: string
+          status?: string | null
+          subject_name?: string
+          valid_from?: string
+          valid_to?: string
+        }
+        Relationships: []
+      }
+      fiscal_invoices: {
+        Row: {
+          access_key: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          invoice_number: number
+          issue_date: string | null
+          order_id: string | null
+          owner_id: string
+          protocol: string | null
+          recipient_document: string
+          recipient_name: string
+          series: number
+          status: Database["public"]["Enums"]["invoice_status"] | null
+          total_amount: number
+          updated_at: string | null
+          xml_content: string | null
+        }
+        Insert: {
+          access_key?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          invoice_number: number
+          issue_date?: string | null
+          order_id?: string | null
+          owner_id: string
+          protocol?: string | null
+          recipient_document: string
+          recipient_name: string
+          series: number
+          status?: Database["public"]["Enums"]["invoice_status"] | null
+          total_amount: number
+          updated_at?: string | null
+          xml_content?: string | null
+        }
+        Update: {
+          access_key?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          invoice_number?: number
+          issue_date?: string | null
+          order_id?: string | null
+          owner_id?: string
+          protocol?: string | null
+          recipient_document?: string
+          recipient_name?: string
+          series?: number
+          status?: Database["public"]["Enums"]["invoice_status"] | null
+          total_amount?: number
+          updated_at?: string | null
+          xml_content?: string | null
+        }
+        Relationships: []
+      }
+      fiscal_issuer_config: {
+        Row: {
+          address_city_code: string
+          address_city_name: string
+          address_complement: string | null
+          address_neighborhood: string
+          address_number: string
+          address_state: string
+          address_street: string
+          address_zip: string
+          cnpj: string
+          created_at: string | null
+          environment: string | null
+          id: string
+          inscricao_estadual: string
+          inscricao_municipal: string | null
+          last_nfe_number: number | null
+          last_nfe_series: number | null
+          nome_fantasia: string | null
+          owner_id: string
+          razao_social: string
+          regime_tributario: number
+          updated_at: string | null
+        }
+        Insert: {
+          address_city_code: string
+          address_city_name: string
+          address_complement?: string | null
+          address_neighborhood: string
+          address_number: string
+          address_state: string
+          address_street: string
+          address_zip: string
+          cnpj: string
+          created_at?: string | null
+          environment?: string | null
+          id?: string
+          inscricao_estadual: string
+          inscricao_municipal?: string | null
+          last_nfe_number?: number | null
+          last_nfe_series?: number | null
+          nome_fantasia?: string | null
+          owner_id: string
+          razao_social: string
+          regime_tributario: number
+          updated_at?: string | null
+        }
+        Update: {
+          address_city_code?: string
+          address_city_name?: string
+          address_complement?: string | null
+          address_neighborhood?: string
+          address_number?: string
+          address_state?: string
+          address_street?: string
+          address_zip?: string
+          cnpj?: string
+          created_at?: string | null
+          environment?: string | null
+          id?: string
+          inscricao_estadual?: string
+          inscricao_municipal?: string | null
+          last_nfe_number?: number | null
+          last_nfe_series?: number | null
+          nome_fantasia?: string | null
+          owner_id?: string
+          razao_social?: string
+          regime_tributario?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ig_accounts: {
         Row: {
           account_type: string | null
@@ -13267,6 +13435,14 @@ export type Database = {
         | "rejected"
         | "visitor"
         | "new_student"
+      invoice_status:
+        | "draft"
+        | "pending"
+        | "authorized"
+        | "rejected"
+        | "cancelled"
+        | "denied"
+        | "error"
       macro_dm_queue_status:
         | "waiting"
         | "preparing"
@@ -13491,6 +13667,15 @@ export const Constants = {
         "rejected",
         "visitor",
         "new_student",
+      ],
+      invoice_status: [
+        "draft",
+        "pending",
+        "authorized",
+        "rejected",
+        "cancelled",
+        "denied",
+        "error",
       ],
       macro_dm_queue_status: [
         "waiting",
