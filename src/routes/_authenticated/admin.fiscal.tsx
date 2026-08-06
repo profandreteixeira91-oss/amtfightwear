@@ -153,7 +153,7 @@ function FiscalDashboard() {
   };
 
 
-  const handleEmitNFe = async (orderId: string) => {
+  const handleEmitNFe = async (orderId: string, type: 'order' | 'quote' = 'order') => {
     setIsEmitting(true);
     setShowOrderSelection(false);
     try {
@@ -172,7 +172,7 @@ function FiscalDashboard() {
       setEmissionStep("Transmitindo para a SEFAZ...");
       await new Promise(r => setTimeout(r, 1200));
 
-      const result = await emitNFeFn({ data: { orderId } });
+      const result = await emitNFeFn({ data: { orderId, type } });
       
       setEmissionStep("Processando retorno da SEFAZ...");
       await new Promise(r => setTimeout(r, 500));
