@@ -640,10 +640,11 @@ function FiscalDashboard() {
                           name="cnpj" 
                           placeholder="00.000.000/0000-00" 
                           required 
-                          defaultValue={fiscalConfig?.cnpj || ""}
+                          value={fiscalConfig?.cnpj || ""}
+                          onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, cnpj: e.target.value }))}
                           onBlur={async (e) => {
                             const cnpj = e.target.value.replace(/\D/g, "");
-                            if (cnpj.length === 14) {
+                            if (cnpj.length === 14 && !status?.config) {
                               setIsSearchingCnpj(true);
                               try {
                                 const result = await findCnpjFn({ data: { cnpj } });
