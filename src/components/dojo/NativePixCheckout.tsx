@@ -131,8 +131,8 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
           </div>
           
           <div className="rounded-md bg-emerald-50 p-3 text-[11px] text-emerald-800 border border-emerald-100">
-            <strong>Recorrência:</strong> Ao pagar o Pix inicial, sua assinatura é ativada. 
-            Próximas cobranças serão enviadas por e-mail mensalmente para renovação.
+            <strong>Pix Automático:</strong> Você será redirecionado para autorizar a recorrência. 
+            O valor será cobrado automaticamente da sua conta Mercado Pago ou via QR Code mensal.
           </div>
         </div>
       </div>
