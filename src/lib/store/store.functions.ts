@@ -972,7 +972,7 @@ export const adminListStoreCategories = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("store_categories")
-      .select("id, slug, name, description, image_url, sort_order, active, parent_id, ncm, cest, origem, cfop, unidade") as any
+      .select("id, slug, name, description, image_url, sort_order, active, parent_id, ncm, cest, origem, cfop, unidade")
       .order("sort_order");
     if (error) throw new Error(error.message);
     return data ?? [];
