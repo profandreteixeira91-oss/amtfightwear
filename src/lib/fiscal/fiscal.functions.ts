@@ -156,3 +156,38 @@ export const saveFiscalConfig = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { success: true };
   });
+
+export const fetchCompanyByCnpj = createServerFn({ method: "GET" })
+  .validator((data: unknown) => z.object({ cnpj: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const cleanCnpj = data.cnpj.replace(/\D/g, "");
+    if (cleanCnpj.length !== 14) throw new Error("CNPJ inválido");
+
+    try {
+      const response = await fetch(`https://publica.cnpj.ws/cnpj/${cleanCnpj}`);
+      if (!response.ok) {
+        if (response.status === 429) throw new Error("Muitas requisições. Tente novamente em alguns segundos.");
+        throw new Error("Não foi possível encontrar dados para este CNPJ.");
+      }
+      
+      const body = await response.json();
+      
+      return {
+        razao_social: body.razao_social,
+        cnpj: body.cnpj,
+        inscricao_estadual: body.estabelecimento?.inscricoes_estaduais?.[0]?.inscricao_estadual || "",
+        address: {
+          street: `${body.estabelecimento.tipo_logradouro} ${body.estabelecimento.logradouro}`,
+          number: body.estabelecimento.numero,
+          neighborhood: body.estabelecimento.bairro,
+          city: body.estabelecimento.cidade.nome,
+          state: body.estabelecimento.estado.sigla,
+          zip: body.estabelecimento.cep,
+          city_code: body.estabelecimento.cidade.ibge_id?.toString() || "",
+        }
+      };
+    } catch (err: any) {
+      console.error("CNPJ Lookup Error:", err);
+      throw new Error(err.message || "Erro ao buscar dados do CNPJ");
+    }
+  });
