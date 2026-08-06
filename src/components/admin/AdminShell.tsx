@@ -342,6 +342,13 @@ function IconAction({
   dot?: boolean;
   className?: string;
 }) {
+  const { isMobile, setOpen } = useSidebar();
+
+  const handleClick = () => {
+    if (onClick) onClick();
+    if (isMobile && setOpen) setOpen(false);
+  };
+
   const inner = (
     <span className="relative grid h-10 w-10 place-items-center transition-transform hover:scale-105 active:scale-95">
       <Icon className="h-[18px] w-[18px]" />
@@ -357,9 +364,10 @@ function IconAction({
           <Link
             to={to}
             aria-label={label}
+            onClick={handleClick}
             className={cn(
               "rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-              "hidden sm:inline-flex",
+              !className?.includes("lg:hidden") && "hidden sm:inline-flex",
               className,
             )}
           >
@@ -369,7 +377,7 @@ function IconAction({
           <button
             type="button"
             aria-label={label}
-            onClick={onClick}
+            onClick={handleClick}
             className={cn(
               "rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
               className,
@@ -402,7 +410,18 @@ function QuickCreateMenu() {
         </DropdownMenuLabel>
         {QUICK_ACTIONS.map((a) => (
           <DropdownMenuItem key={a.title} asChild>
-            <Link to={a.url} className="flex items-center gap-2">
+            <Link
+              to={a.url}
+              className="flex items-center gap-2"
+              onClick={() => {
+                if (window.innerWidth < 1024) {
+                  // O SidebarContext não está acessível aqui facilmente sem prop drilling pesado,
+                  // mas como é mobile, podemos disparar um clique no trigger se estiver aberto
+                  // ou usar o window dispatch se necessário.
+                  // No entanto, para o dropdown de "Criar", ele já fecha sozinho ao clicar.
+                }
+              }}
+            >
               <a.icon className="h-4 w-4 text-muted-foreground" />
               {a.title}
             </Link>
