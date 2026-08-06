@@ -70,7 +70,8 @@ export const getFiscalStatus = createServerFn({ method: "GET" })
       pending_notes: pendingCount || 0,
       total_issued_month: totalMonth || 0,
       days_remaining: daysRemaining,
-      issuer_name: (config?.razao_social as string) || "Não configurado"
+      issuer_name: (config?.razao_social as string) || "Não configurado",
+      config: config || null
     };
   });
 

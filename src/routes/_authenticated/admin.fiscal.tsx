@@ -85,12 +85,6 @@ function FiscalDashboard() {
   const [lastInvoice, setLastInvoice] = useState<any>(null);
   const [showOrderSelection, setShowOrderSelection] = useState(false);
 
-  useEffect(() => {
-    if (orderId && type) {
-      handleEmitNFe(orderId, type);
-    }
-  }, [orderId, type]);
-  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [productSearch, setProductSearch] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
@@ -99,6 +93,35 @@ function FiscalDashboard() {
     queryKey: ['fiscal-status'],
     queryFn: () => fetchStatus(),
   });
+
+  useEffect(() => {
+    if (orderId && type) {
+      handleEmitNFe(orderId, type);
+    }
+  }, [orderId, type]);
+
+  useEffect(() => {
+    if (status?.config && !fiscalConfig) {
+      const config = status.config;
+      setFiscalConfig({
+        razao_social: config.razao_social,
+        cnpj: config.cnpj,
+        inscricao_estadual: config.inscricao_estadual,
+        regime_tributario: config.regime_tributario,
+        environment: config.environment,
+        address: {
+          street: config.address_street,
+          number: config.address_number,
+          neighborhood: config.address_neighborhood,
+          city: config.address_city_name,
+          state: config.address_state,
+          zip: config.address_zip,
+          city_code: config.address_city_code,
+        }
+      });
+    }
+  }, [status, fiscalConfig]);
+  
 
   const { data: invoices, isLoading: invoicesLoading } = useQuery({
     queryKey: ['fiscal-invoices'],
@@ -529,19 +552,38 @@ function FiscalDashboard() {
                   className="rounded-xl border-2 border-dashed p-6 text-center transition-colors hover:border-primary/50 sm:p-12 cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
                  >
-                    {uploadMutation.isPending ? (
-                      <div className="flex flex-col items-center gap-4">
-                        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                        <p className="text-sm font-medium">Enviando e validando certificado...</p>
-                      </div>
-                    ) : (
-                      <>
-                        <ShieldCheck className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
-                        <h3 className="mt-4 text-sm font-semibold">Upload de Certificado (.pfx / .p12)</h3>
-                        <p className="mt-1 text-xs text-muted-foreground">O arquivo será criptografado e armazenado com segurança.</p>
-                        <Button variant="outline" className="mt-4">Selecionar Arquivo</Button>
-                      </>
-                    )}
+                     {uploadMutation.isPending ? (
+                       <div className="flex flex-col items-center gap-4">
+                         <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                         <p className="text-sm font-medium">Enviando e validando certificado...</p>
+                       </div>
+                     ) : status?.certificate_valid ? (
+                       <div className="flex flex-col items-center gap-2">
+                         <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
+                         <h3 className="text-sm font-semibold text-emerald-700">Certificado A1 Configurado</h3>
+                         <p className="text-xs text-muted-foreground">
+                           Válido até {status.expires_at ? format(new Date(status.expires_at), "dd/MM/yyyy") : '---'}
+                         </p>
+                         <Button 
+                           variant="ghost" 
+                           size="sm" 
+                           className="mt-2 text-xs text-muted-foreground hover:text-red-600"
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             fileInputRef.current?.click();
+                           }}
+                         >
+                           Substituir Certificado
+                         </Button>
+                       </div>
+                     ) : (
+                       <>
+                         <ShieldCheck className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+                         <h3 className="mt-4 text-sm font-semibold">Upload de Certificado (.pfx / .p12)</h3>
+                         <p className="mt-1 text-xs text-muted-foreground">O arquivo será criptografado e armazenado com segurança.</p>
+                         <Button variant="outline" className="mt-4">Selecionar Arquivo</Button>
+                       </>
+                     )}
                  </div>
                </CardContent>
              </Card>
@@ -551,7 +593,11 @@ function FiscalDashboard() {
             <Card className="admin-card">
               <CardHeader>
                 <CardTitle>Configurações Fiscais</CardTitle>
-                <CardDescription>Defina os parâmetros do emitente para emissão de notas.</CardDescription>
+                <CardDescription>
+                  {status?.config 
+                    ? "Informações do emitente salvas no sistema." 
+                    : "Defina os parâmetros do emitente para emissão de notas."}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form 
@@ -594,10 +640,11 @@ function FiscalDashboard() {
                           name="cnpj" 
                           placeholder="00.000.000/0000-00" 
                           required 
-                          defaultValue={fiscalConfig?.cnpj || ""}
+                          value={fiscalConfig?.cnpj || ""}
+                          onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, cnpj: e.target.value }))}
                           onBlur={async (e) => {
                             const cnpj = e.target.value.replace(/\D/g, "");
-                            if (cnpj.length === 14) {
+                            if (cnpj.length === 14 && !status?.config) {
                               setIsSearchingCnpj(true);
                               try {
                                 const result = await findCnpjFn({ data: { cnpj } });
@@ -619,7 +666,7 @@ function FiscalDashboard() {
                       <label className="text-sm font-medium">Razão Social</label>
                       <Input 
                         name="razao_social" 
-                        value={fiscalConfig?.razao_social || (status?.issuer_name !== "Não configurado" ? status?.issuer_name : "")} 
+                        value={fiscalConfig?.razao_social || ""} 
                         onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, razao_social: e.target.value }))}
                         required 
                       />
@@ -635,7 +682,12 @@ function FiscalDashboard() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Ambiente SEFAZ</label>
-                      <select name="environment" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" defaultValue={status?.environment}>
+                      <select 
+                        name="environment" 
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+                        value={fiscalConfig?.environment || status?.environment || "homologacao"}
+                        onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, environment: e.target.value }))}
+                      >
                         <option value="homologacao">Homologação (Testes)</option>
                         <option value="producao">Produção</option>
                       </select>
