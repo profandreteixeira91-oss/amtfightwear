@@ -436,13 +436,13 @@ function AdminProductsPage() {
                       <th className="p-4 w-10">
                         <Checkbox checked={allPageSelected} onCheckedChange={(v) => toggleAllPage(!!v)} />
                       </th>
-                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Produto</th>
-                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-36">Preço Base</th>
-                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-28">Estoque</th>
-                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-24">Status</th>
-                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-24">Destaque</th>
-                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-48">Atacado & Descontos</th>
-                      <th className="p-4 text-right font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-32">Ações</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] min-w-[200px]">Produto</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[160px]">Preço Base</th>
+                      <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[100px]">Estoque</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[80px]">Status</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[80px]">Destaque</th>
+                      <th className="p-4 text-center font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[160px]">Atacado & Descontos</th>
+                      <th className="p-4 text-right font-semibold text-muted-foreground uppercase tracking-wider text-[10px] w-[140px]">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/30">
