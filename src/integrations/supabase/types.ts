@@ -9775,6 +9775,7 @@ export type Database = {
           order_id: string | null
           owner_id: string
           protocol: string | null
+          quote_id: string | null
           recipient_document: string
           recipient_name: string
           series: number
@@ -9793,6 +9794,7 @@ export type Database = {
           order_id?: string | null
           owner_id: string
           protocol?: string | null
+          quote_id?: string | null
           recipient_document: string
           recipient_name: string
           series: number
@@ -9811,6 +9813,7 @@ export type Database = {
           order_id?: string | null
           owner_id?: string
           protocol?: string | null
+          quote_id?: string | null
           recipient_document?: string
           recipient_name?: string
           series?: number
@@ -9819,7 +9822,15 @@ export type Database = {
           updated_at?: string | null
           xml_content?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "store_quotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fiscal_issuer_config: {
         Row: {
