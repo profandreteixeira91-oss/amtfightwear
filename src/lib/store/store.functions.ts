@@ -1018,7 +1018,7 @@ export const adminCreateStoreProduct = createServerFn({ method: "POST" })
       .select("id" as any)
       .single();
     if (error) throw new Error(error.message);
-    return { id: created.id };
+    return { id: (created as any).id };
   });
 
 export const adminDeleteStoreProduct = createServerFn({ method: "POST" })
