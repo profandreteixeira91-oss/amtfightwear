@@ -47,6 +47,12 @@ import { useRef, useState, useMemo } from "react";
 
 
 export const Route = createFileRoute("/_authenticated/admin/fiscal")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      orderId: search.orderId as string | undefined,
+      type: search.type as "order" | "quote" | undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Módulo Fiscal — Central AMT" },
