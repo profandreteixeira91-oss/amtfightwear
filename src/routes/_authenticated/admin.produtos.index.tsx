@@ -214,7 +214,7 @@ function AdminProductsPage() {
 
   const applyBulk = async () => {
     if (selected.size === 0) return toast.error("Selecione produtos");
-    const rows = (data ?? []).filter((p) => selected.has(p.id));
+    const rows = ((data as any[]) ?? []).filter((p) => selected.has(p.id));
     const priceAbs = bulkPrice.trim() ? Number(bulkPrice.replace(",", ".")) : null;
     const pricePct = bulkPricePct.trim() ? Number(bulkPricePct.replace(",", ".")) : null;
     const stockAbs = bulkStock.trim() ? Number(bulkStock) : null;
