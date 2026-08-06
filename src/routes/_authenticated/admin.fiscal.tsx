@@ -207,7 +207,7 @@ function FiscalDashboard() {
         </div>
 
         {/* Conteúdo Principal */}
-        <Tabs defaultValue="overview" className="w-full space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
           <TabsList className="admin-surface flex h-auto w-full flex-wrap justify-start gap-1 border p-1 sm:inline-flex">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="invoices">Notas Emitidas</TabsTrigger>
