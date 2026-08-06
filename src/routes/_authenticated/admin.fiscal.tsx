@@ -95,6 +95,7 @@ function FiscalDashboard() {
             <TabsTrigger value="invoices">Notas Emitidas</TabsTrigger>
             <TabsTrigger value="certificate">Certificado Digital</TabsTrigger>
             <TabsTrigger value="config">Configuração Fiscal</TabsTrigger>
+            <TabsTrigger value="products">Produtos</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -183,6 +184,18 @@ function FiscalDashboard() {
                     <p className="mt-1 text-xs text-muted-foreground">O arquivo será criptografado e armazenado com segurança.</p>
                     <Button variant="outline" className="mt-4">Selecionar Arquivo</Button>
                  </div>
+               </CardContent>
+             </Card>
+          </TabsContent>
+
+          <TabsContent value="products">
+             <Card className="admin-card">
+               <CardHeader>
+                 <CardTitle>Dados Fiscais dos Produtos</CardTitle>
+                 <CardDescription>Configure NCM, CEST e impostos para faturamento.</CardDescription>
+               </CardHeader>
+               <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground italic">
+                 Lista de produtos com campos fiscais (NCM, CEST, CFOP) aparecerá aqui para edição em massa.
                </CardContent>
              </Card>
           </TabsContent>
