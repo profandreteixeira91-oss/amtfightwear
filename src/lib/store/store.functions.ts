@@ -479,18 +479,17 @@ export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: product } = await sb.from("store_products"  as any).select("*")  as any).eq("slug", data.slug).eq("status", "active").maybeSingle();
+    const { data: product } = (await sb.from("store_products" as any).select("*").eq("slug", data.slug).eq("status", "active").maybeSingle()) as any;
     if (!product) return { product: null, images: [], variants: [], related: [], category: null };
-    const [imagesR, variantsR, categoryR] = await Promise.all([
-      (await 
-      sb.from("store_product_images").select("*")  as any).eq("product_id", product.id).order("sort_order"),
-      sb.from("store_product_variants").select("*")  as any).eq("product_id", product.id).eq("active", true).order("sort_order"),
+    const [imagesR, variantsR, categoryR] = (await Promise.all([
+      sb.from("store_product_images").select("*").eq("product_id", product.id).order("sort_order"),
+      sb.from("store_product_variants").select("*").eq("product_id", product.id).eq("active", true).order("sort_order"),
       product.category_id
-        ? sb.from("store_categories").select("id, slug, name")  as any).eq("id", product.category_id).maybeSingle()
+        ? sb.from("store_categories").select("id, slug, name").eq("id", product.category_id).maybeSingle()
         : Promise.resolve({ data: null }),
-    ]);
+    ])) as any[];
     const { data: related } = product.category_id
-      ? await sb.from("store_products"  as any).select("id, name, slug, price, compare_at_price, image_url")  as any).eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)
+      ? (await sb.from("store_products" as any).select("id, name, slug, price, compare_at_price, image_url").eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)) as any
       : { data: [] };
     return {
       product,
