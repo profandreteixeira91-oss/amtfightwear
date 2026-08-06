@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Verifique este erro em /subscription do dojo manager
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Troque o pagamento de pix recorrente por pix automático em /subscription, o pix deverá cobrar mensalmente o valor do plano de forma automática
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";

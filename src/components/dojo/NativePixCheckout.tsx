@@ -16,7 +16,7 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
   const subscribePix = useServerFn(subscribeWithPix);
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState(defaultEmail ?? "");
-  const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string; ticketUrl: string } | null>(null);
+  const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string; ticketUrl: string } | null>(null); // Mantido por compatibilidade de tipo se necessário, mas não mais usado no fluxo principal
   const [copied, setCopied] = useState(false);
 
   async function handlePix(e: React.FormEvent) {
@@ -28,8 +28,11 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
     setBusy(true);
     try {
       const res = await subscribePix({ data: { payerEmail: email } });
-      setPixData(res);
-      toast.success("QR Code Pix gerado!");
+      if (res.initPoint) {
+        window.location.href = res.initPoint;
+      } else {
+        toast.error("URL de checkout indisponível");
+      }
     } catch (err: any) {
       toast.error(err?.message ?? "Falha ao gerar Pix");
     } finally {
@@ -128,8 +131,8 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
           </div>
           
           <div className="rounded-md bg-emerald-50 p-3 text-[11px] text-emerald-800 border border-emerald-100">
-            <strong>Recorrência:</strong> Ao pagar o Pix inicial, sua assinatura é ativada. 
-            Próximas cobranças serão enviadas por e-mail mensalmente para renovação.
+            <strong>Pix Automático:</strong> Você será redirecionado para autorizar a recorrência. 
+            O valor será cobrado automaticamente da sua conta Mercado Pago ou via QR Code mensal.
           </div>
         </div>
       </div>
@@ -148,10 +151,10 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
       >
         {busy ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando Pix…
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Redirecionando…
           </>
         ) : (
-          <>Gerar QR Code Pix</>
+          <>Ativar Pix Automático</>
         )}
       </Button>
     </form>

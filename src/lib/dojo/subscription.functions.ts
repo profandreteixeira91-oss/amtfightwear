@@ -336,40 +336,45 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
 
     const notification = "https://amtfightwear.com.br/api/public/hooks/mercadopago";
 
-    // Criamos um pagamento via PIX para o primeiro mês.
-    // O sistema de recorrência local/webhook cuidará de notificar o usuário para pagar o próximo.
-    const payment = await mpAmt<any>("/v1/payments", {
+    // Criamos uma assinatura (preapproval) específica para PIX.
+    // Isso habilita o fluxo de Pix Automático onde o MP gerencia a recorrência.
+    const preapproval = await mpAmt<any>("/preapproval", {
       method: "POST",
       body: JSON.stringify({
-        transaction_amount: PLAN_AMOUNT,
-        description: "Mensalidade AMT Dojo Manager (PIX)",
-        payment_method_id: "pix",
-        payer: {
-          email: data.payerEmail,
-        },
+        reason: "AMT Dojo Manager — Assinatura mensal (Pix Automático)",
         external_reference: `dojo_sub_pix:${sub.id}`,
+        payer_email: data.payerEmail,
+        status: "pending",
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: "months",
+          transaction_amount: PLAN_AMOUNT,
+          currency_id: "BRL",
+        },
+        payment_methods_allowed: {
+          payment_types: [{ id: "pix" }],
+          payment_methods: [],
+        },
         notification_url: notification,
       }),
     });
 
-    const pixData = payment.point_of_interaction?.transaction_data;
+    const patch: Record<string, any> = {
+      mp_preapproval_id: String(preapproval.id),
+      last_event: preapproval,
+    };
+    if (preapproval.status === "authorized") patch.status = "active";
+    else if (preapproval.status === "pending") patch.status = "pending";
+    if (preapproval.next_payment_date) patch.current_period_end = preapproval.next_payment_date;
 
     await context.supabase
       .from("dojo_subscriptions")
-      .update({
-        mp_pix_id: String(payment.id),
-        mp_pix_qr_code: pixData?.qr_code,
-        mp_pix_qr_code_base64: pixData?.qr_code_base64,
-        mp_pix_ticket_url: pixData?.ticket_url,
-        last_event: payment,
-      } as never)
+      .update(patch as never)
       .eq("id", sub.id);
 
     return {
-      id: String(payment.id),
-      qrCode: pixData?.qr_code,
-      qrCodeBase64: pixData?.qr_code_base64,
-      ticketUrl: pixData?.ticket_url,
+      id: String(preapproval.id),
+      initPoint: preapproval.init_point ?? preapproval.sandbox_init_point,
     };
   });
 
