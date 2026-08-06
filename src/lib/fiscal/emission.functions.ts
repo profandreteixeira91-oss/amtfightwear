@@ -77,6 +77,16 @@ export const emitNFe = createServerFn({ method: "POST" })
 
     if (invoiceError) throw new Error("Erro ao salvar nota fiscal: " + invoiceError.message);
 
+    // 15. Update stock and financial status (Simulated/Placeholder)
+    // Update order status to 'invoiced'
+    await s
+      .from('orders')
+      .update({ status: 'invoiced' })
+      .eq('id', data.orderId);
+
+    // 17. Send email (Simulated/Placeholder)
+    console.log(`Email enviado para ${customer?.email || 'cliente'} com a NF-e ${invoiceNumber}`);
+
     // Update issuer last number
     await s
       .from('fiscal_issuer_config')
