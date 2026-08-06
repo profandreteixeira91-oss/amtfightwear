@@ -342,13 +342,13 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
     sb.from("products").select(productSel).limit(200) as any,
     sb.from("products").select(productSel).order("created_at", { ascending: false }).limit(12) as any,
     bjjBeltIds.length
-      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60) as any
+      ? sb.from("products").select(productSel).in("category_id", bjjBeltIds).limit(60) as any
       : Promise.resolve({ data: [] as any[] }),
     judoBeltIds.length
-      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60) as any
+      ? sb.from("products").select(productSel).in("category_id", judoBeltIds).limit(60) as any
       : Promise.resolve({ data: [] as any[] }),
     kimonoIds.length
-      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24) as any
+      ? sb.from("products").select(productSel).in("category_id", kimonoIds).limit(24) as any
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
