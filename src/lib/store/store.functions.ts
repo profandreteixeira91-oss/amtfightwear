@@ -1001,11 +1001,19 @@ export const adminCreateStoreProduct = createServerFn({ method: "POST" })
       image_url: z.string().optional().nullable(),
       status: z.string().default("active"),
       featured: z.boolean().default(false),
+      ncm: z.string().optional().nullable(),
+      cest: z.string().optional().nullable(),
+      origem: z.string().optional().nullable(),
+      cfop_internal: z.string().optional().nullable(),
+      cfop_interstate: z.string().optional().nullable(),
+      unit_commercial: z.string().optional().nullable(),
+      unit_taxable: z.string().optional().nullable(),
+      unidade: z.string().optional().nullable(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
     const { data: created, error } = await context.supabase
-      .from("products")
+      .from("store_products" as any)
       .insert(data)
       .select("id")
       .single();
