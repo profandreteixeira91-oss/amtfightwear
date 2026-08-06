@@ -380,6 +380,10 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
           transaction_amount: PLAN_AMOUNT,
           currency_id: "BRL",
         },
+        theme: {
+          elements_color: MP_DESIGN_CONFIG.main_color,
+          header_color: "#000000",
+        },
         payment_methods_allowed: {
           payment_types: [{ id: "pix" }, { id: "credit_card" }, { id: "account_money" }],
           payment_methods: [],
