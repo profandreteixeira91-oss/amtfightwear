@@ -1,5 +1,8 @@
 /**
- * Execute esta instrucao no projeto: verifique este erro e corrija de forma definitiva, sem alterar mais nada além do necessário
+ * Execute esta instrucao no projeto: # Investigação Completa e Correção Definitiva – Catálogo exibe 0 produtos enquanto a Loja possui produtos ativos
+ * 
+ * ## Objetivo
+ * O módulo Catálogo do sistema AMT Fight Wear está exibindo 0 produtos, porém a loja pública continua exibindo normalmente todos os produtos.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
