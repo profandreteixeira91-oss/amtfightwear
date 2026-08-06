@@ -765,11 +765,17 @@ export const adminDeleteStoreOrder = createServerFn({ method: "POST" })
 export const adminListStoreProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase
+    const { data, error } = await context.supabase
       .from("products")
-      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop_internal, cfop_interstate")
+      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop, cest, origem")
       .order("updated_at", { ascending: false })
-      .limit(500) as any;
+      .limit(1000) as any;
+    
+    if (error) {
+      console.error("[adminListStoreProducts] error:", error);
+      throw new Error(error.message);
+    }
+    
     return data ?? [];
   });
 
