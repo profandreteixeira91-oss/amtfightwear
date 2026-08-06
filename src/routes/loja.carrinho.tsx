@@ -261,7 +261,7 @@ function CartPage() {
                           {formatBRL(i.unit_price)} <span className="opacity-60">un.</span>
                         </div>
 
-                        <div className="mt-auto flex items-end justify-between gap-3 pt-3">
+                        <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-3">
                           <div className="inline-flex items-center rounded-full border bg-background">
                             <button
                               type="button"
