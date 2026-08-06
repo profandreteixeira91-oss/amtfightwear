@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/carrinho corrija o overflow desta página
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: A pãgina de checkout do mercado pago continua apresentando somente cartão de crédito como forma de pagamento e sem as cores do dojo manager, investigue e corrija de forma definitiva, sem afetar o funcionamento de outros ambientes do sistema
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
