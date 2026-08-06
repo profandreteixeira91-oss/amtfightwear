@@ -115,7 +115,7 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
     return out;
   };
   const [cats, prodsRes] = await Promise.all([
-    sb.from("store_categories").select("id, slug, name, parent_id") as any).eq("active", true).order("sort_order"),
+    sb.from("store_categories").select("id, slug, name, parent_id").eq("active", true).order("sort_order"),
     sb.from("store_products" as any)
       .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description, wholesale_discount_percent") as any
       .eq("status", "active")
