@@ -32,7 +32,7 @@ type Timeline = { id: string; event_type: string; title: string; created_at: str
 type Company = Record<string, unknown> & { id: string; name: string; pipeline_stage: string; score: number };
 
 function LeadDetailPage() {
-  const { id } = useParams({ from: "/_authenticated/prospect/$id" });
+  const { id } = useParams({ from: "/_authenticated/admin/leads/$id" });
   const qc = useQueryClient();
   const getFn = useServerFn(getLead);
   const updateFn = useServerFn(updateLead);
