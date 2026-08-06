@@ -593,7 +593,11 @@ function FiscalDashboard() {
             <Card className="admin-card">
               <CardHeader>
                 <CardTitle>Configurações Fiscais</CardTitle>
-                <CardDescription>Defina os parâmetros do emitente para emissão de notas.</CardDescription>
+                <CardDescription>
+                  {status?.config 
+                    ? "Informações do emitente salvas no sistema." 
+                    : "Defina os parâmetros do emitente para emissão de notas."}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form 
