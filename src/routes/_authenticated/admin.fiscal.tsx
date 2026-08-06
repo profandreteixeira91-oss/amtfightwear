@@ -11,19 +11,25 @@ import {
   XCircle,
   Plus,
   Loader2,
-  Download
+  Download,
+  Search,
+  CheckCircle2,
+  Package
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getFiscalStatus, getFiscalInvoices, uploadCertificate } from "@/lib/fiscal/fiscal.functions";
+import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import { useRef } from "react";
+import { useRef, useState, useMemo } from "react";
+
 
 export const Route = createFileRoute("/_authenticated/admin/fiscal")({
   head: () => ({
@@ -40,7 +46,11 @@ function FiscalDashboard() {
   const fetchStatus = useServerFn(getFiscalStatus);
   const fetchInvoices = useServerFn(getFiscalInvoices);
   const uploadCertFn = useServerFn(uploadCertificate);
+  const fetchProducts = useServerFn(getProductsWithFiscal);
+  const updateProdFiscal = useServerFn(updateProductFiscal);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [productSearch, setProductSearch] = useState("");
 
   const { data: status, isLoading: statusLoading } = useQuery({
     queryKey: ['fiscal-status'],
@@ -51,6 +61,35 @@ function FiscalDashboard() {
     queryKey: ['fiscal-invoices'],
     queryFn: () => fetchInvoices(),
   });
+
+  const { data: products, isLoading: productsLoading } = useQuery({
+    queryKey: ['fiscal-products'],
+    queryFn: () => fetchProducts(),
+  });
+
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    return products.filter((p: any) => 
+      p.name.toLowerCase().includes(productSearch.toLowerCase())
+    );
+  }, [products, productSearch]);
+
+  const updateProductMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string, field: string, value: any }) => {
+      return updateProdFiscal({ data: { id, [field]: value } });
+    },
+    onSuccess: () => {
+      toast.success("Dados fiscais atualizados!");
+      queryClient.invalidateQueries({ queryKey: ['fiscal-products'] });
+    },
+    onError: (err) => {
+      toast.error("Erro ao atualizar: " + err.message);
+    }
+  });
+
+  const handleProductFiscalUpdate = (id: string, field: string, value: string) => {
+    updateProductMutation.mutate({ id, field, value });
+  };
 
   const uploadMutation = useMutation({
     mutationFn: async ({ file, password }: { file: File, password: string }) => {
@@ -79,6 +118,7 @@ function FiscalDashboard() {
     
     uploadMutation.mutate({ file, password });
   };
+
 
   return (
     <AdminShell title="Módulo Fiscal">
@@ -337,18 +377,94 @@ function FiscalDashboard() {
           </TabsContent>
 
           <TabsContent value="products">
-             <Card className="admin-card">
-               <CardHeader>
-                 <CardTitle>Dados Fiscais dos Produtos</CardTitle>
-                 <CardDescription>Configure NCM, CEST e impostos para faturamento.</CardDescription>
-               </CardHeader>
-               <CardContent>
-                 <p className="text-center p-12 text-muted-foreground italic">
-                   Integração com o catálogo de produtos para edição em massa dos campos fiscais está sendo processada.
-                 </p>
-               </CardContent>
-             </Card>
+            <Card className="admin-card">
+              <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <CardTitle>Dados Fiscais dos Produtos</CardTitle>
+                  <CardDescription>Configure NCM, CEST e impostos para faturamento.</CardDescription>
+                </div>
+                <div className="relative w-full sm:w-72">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input 
+                    placeholder="Buscar produto..." 
+                    className="pl-10"
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                {productsLoading ? (
+                  <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                ) : (
+                  <div className="overflow-x-auto rounded-xl border border-neutral-200">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b bg-neutral-50 text-left font-semibold text-neutral-900">
+                          <th className="p-4">Produto</th>
+                          <th className="p-4">NCM</th>
+                          <th className="p-4">CEST</th>
+                          <th className="p-4">CFOP Padrão</th>
+                          <th className="p-4 text-right">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100">
+                        {filteredProducts?.length === 0 ? (
+                          <tr><td colSpan={5} className="p-12 text-center text-muted-foreground italic">Nenhum produto encontrado.</td></tr>
+                        ) : (
+                          filteredProducts?.map((p: any) => (
+                            <tr key={p.id} className="group transition-colors hover:bg-neutral-50/50">
+                              <td className="p-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
+                                    <Package className="h-5 w-5" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-neutral-900">{p.name}</p>
+                                    <p className="text-xs text-neutral-500">R$ {Number(p.price).toLocaleString('pt-BR')}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                <Input 
+                                  defaultValue={p.ncm || ""} 
+                                  placeholder="0000.00.00"
+                                  className="h-8 w-28 text-xs"
+                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'ncm', e.target.value)}
+                                />
+                              </td>
+                              <td className="p-4">
+                                <Input 
+                                  defaultValue={p.cest || ""} 
+                                  placeholder="00.000.00"
+                                  className="h-8 w-28 text-xs"
+                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cest', e.target.value)}
+                                />
+                              </td>
+                              <td className="p-4">
+                                <Input 
+                                  defaultValue={p.cfop_default || ""} 
+                                  placeholder="5102"
+                                  className="h-8 w-20 text-xs"
+                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cfop_default', e.target.value)}
+                                />
+                              </td>
+                              <td className="p-4 text-right">
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
+
         </Tabs>
       </div>
     </AdminShell>
