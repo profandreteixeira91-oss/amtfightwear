@@ -347,7 +347,7 @@ function AdminProductsPage() {
               </div>
               
               <div className="flex flex-wrap items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0} className="text-xs">
+                <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p: any) => p.id)))} disabled={filtered.length === 0} className="text-xs">
                   Selecionar Tudo
                 </Button>
                 {selected.size > 0 && (
