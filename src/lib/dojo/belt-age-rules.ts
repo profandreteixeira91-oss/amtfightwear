@@ -16,6 +16,7 @@ function canonicalize(name: string): string {
 
 const KIDS_CANON = new Set(
   [
+    "Branca",
     "Cinza com Branco",
     "Cinza",
     "Cinza com Preto",
@@ -36,6 +37,7 @@ const ADULT_CANON = new Set(
 );
 
 const KIDS_SEQUENCE = [
+  "Branca",
   "Cinza com Branco",
   "Cinza",
   "Cinza com Preto",
@@ -146,12 +148,13 @@ export function suggestNextBelt(params: {
     b.id === current.belt.id || canonicalize(b.name) === currentCanonical,
   );
 
-  // Um aluno infantil que ainda está na faixa branca entra na primeira faixa
-  // infantil, independentemente do grau registrado na branca.
+  // Lógica de transição automática de branca para cinza desabilitada para permitir graus na branca
+  /*
   if (category === "kids" && currentCanonical === canonicalize("Branca")) {
     const firstKidsBelt = inModality[0];
     return { beltId: firstKidsBelt.id, degree: 0 };
   }
+  */
 
   // O limite cadastrado na faixa carregada da lista é a fonte principal.
   // O objeto da graduação atual pode ser antigo/incompleto, então só o usamos
