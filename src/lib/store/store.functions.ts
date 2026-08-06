@@ -436,7 +436,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
   .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: category } = await sb.from("store_categories").select("*") as any).eq("slug", data.slug).eq("active", true).maybeSingle();
+    const { data: category } = await sb.from("store_categories").select("*").eq("slug", data.slug).eq("active", true).maybeSingle();
     if (!category) return { category: null, products: [] };
 
     // Include products from this category AND all descendant categories,
