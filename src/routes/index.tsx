@@ -1,9 +1,5 @@
 /**
- * Execute esta instrucao no projeto: admin/fiscal
- * Corrija este card
- * passe o titulo para a linha superior ocupando a largura total do card
- * o subtitulo deve também ocupar a largura total do card
- * os botões ficam abaixo do subtitulo
+ * Execute esta instrucao no projeto: verifique este erro e corrija de forma definitiva, sem alterar mais nada além do necessário
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
