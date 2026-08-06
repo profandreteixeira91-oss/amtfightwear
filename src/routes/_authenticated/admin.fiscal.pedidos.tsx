@@ -204,7 +204,7 @@ function FiscalOrdersPage() {
           </CardContent>
         </Card>
       </div>
-    </AdminShell>
+    
   );
 }
 
