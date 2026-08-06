@@ -765,7 +765,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
-      .from("products")
+      .from("products" as any)
       .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop_internal, cfop_interstate")
       .order("updated_at", { ascending: false })
       .limit(500);
@@ -868,7 +868,10 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
         ncm: z.string().optional().nullable(),
         cest: z.string().optional().nullable(),
         origem: z.string().optional().nullable(),
-        cfop: z.string().optional().nullable(),
+        cfop_internal: z.string().optional().nullable(),
+        cfop_interstate: z.string().optional().nullable(),
+        unit_commercial: z.string().optional().nullable(),
+        unit_taxable: z.string().optional().nullable(),
         unidade: z.string().optional().nullable(),
         gtin: z.string().optional().nullable(),
       }),
@@ -902,7 +905,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: product, error } = await context.supabase
-      .from("products")
+      .from("products" as any)
       .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin")
       .eq("id", data.id)
       .maybeSingle();
