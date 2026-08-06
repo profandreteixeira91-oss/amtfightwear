@@ -552,40 +552,40 @@ function FiscalDashboard() {
                   className="rounded-xl border-2 border-dashed p-6 text-center transition-colors hover:border-primary/50 sm:p-12 cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
                  >
-                    {uploadMutation.isPending ? (
-                      <div className="flex flex-col items-center gap-4">
-                        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                        <p className="text-sm font-medium">Enviando e validando certificado...</p>
-                      </div>
-                     status?.certificate_valid ? (
-                      <>
-                        <div className="flex flex-col items-center gap-2">
-                          <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
-                          <h3 className="text-sm font-semibold text-emerald-700">Certificado A1 Configurado</h3>
-                          <p className="text-xs text-muted-foreground">
-                            Válido até {status.expires_at ? format(new Date(status.expires_at), "dd/MM/yyyy") : '---'}
-                          </p>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="mt-2 text-xs text-muted-foreground hover:text-red-600"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              fileInputRef.current?.click();
-                            }}
-                          >
-                            Substituir Certificado
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <ShieldCheck className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
-                        <h3 className="mt-4 text-sm font-semibold">Upload de Certificado (.pfx / .p12)</h3>
-                        <p className="mt-1 text-xs text-muted-foreground">O arquivo será criptografado e armazenado com segurança.</p>
-                        <Button variant="outline" className="mt-4">Selecionar Arquivo</Button>
-                      </>
-                    )}
+                     uploadMutation.isPending ? (
+                       <div className="flex flex-col items-center gap-4">
+                         <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                         <p className="text-sm font-medium">Enviando e validando certificado...</p>
+                       </div>
+                     ) : status?.certificate_valid ? (
+                       <>
+                         <div className="flex flex-col items-center gap-2">
+                           <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
+                           <h3 className="text-sm font-semibold text-emerald-700">Certificado A1 Configurado</h3>
+                           <p className="text-xs text-muted-foreground">
+                             Válido até {status.expires_at ? format(new Date(status.expires_at), "dd/MM/yyyy") : '---'}
+                           </p>
+                           <Button 
+                             variant="ghost" 
+                             size="sm" 
+                             className="mt-2 text-xs text-muted-foreground hover:text-red-600"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               fileInputRef.current?.click();
+                             }}
+                           >
+                             Substituir Certificado
+                           </Button>
+                         </div>
+                       </>
+                     ) : (
+                       <>
+                         <ShieldCheck className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+                         <h3 className="mt-4 text-sm font-semibold">Upload de Certificado (.pfx / .p12)</h3>
+                         <p className="mt-1 text-xs text-muted-foreground">O arquivo será criptografado e armazenado com segurança.</p>
+                         <Button variant="outline" className="mt-4">Selecionar Arquivo</Button>
+                       </>
+                     )}
                  </div>
                </CardContent>
              </Card>
