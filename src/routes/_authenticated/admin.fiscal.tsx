@@ -26,6 +26,12 @@ import { toast } from "sonner";
 import { useRef } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/fiscal")({
+  head: () => ({
+    meta: [
+      { title: "Módulo Fiscal — Central AMT" },
+      { name: "description", content: "Gestão de notas fiscais, certificados e conformidade tributária." }
+    ]
+  }),
   component: FiscalDashboard,
 });
 
