@@ -25,9 +25,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatBRL } from "@/lib/store/cart-store";
-import { ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save, Pencil, Trash2, Plus, Search, Filter, MoreHorizontal, Package, AlertCircle } from "lucide-react";
+import { ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save, Pencil, Trash2, Plus, Search, Filter, MoreHorizontal, Package, AlertCircle, LayoutGrid, Receipt, Settings2, BarChart3, Info } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/")({
   component: AdminProductsPage,
