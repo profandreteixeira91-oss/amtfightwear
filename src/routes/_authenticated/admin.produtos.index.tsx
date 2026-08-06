@@ -1150,60 +1150,90 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Adicionar produto</DialogTitle>
+      <DialogContent className="max-w-xl p-0 overflow-hidden border-none shadow-2xl">
+        <DialogHeader className="p-6 border-b border-border/40 bg-muted/20">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-primary/10 rounded-xl">
+              <Plus className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <DialogTitle className="text-xl font-bold">Novo Produto</DialogTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">Adicione um novo item ao seu catálogo.</p>
+            </div>
+          </div>
         </DialogHeader>
-        <div className="space-y-3">
-          <div>
-            <Label>Nome *</Label>
-            <Input value={name} onChange={(e) => handleName(e.target.value)} />
-          </div>
-          <div>
-            <Label>Slug *</Label>
-            <Input
-              value={slug}
-              onChange={(e) => { setSlug(e.target.value); setSlugTouched(true); }}
-              placeholder="ex: kimono-branco"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Preço (R$) *</Label>
-              <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="199,90" />
+
+        <ScrollArea className="max-h-[70vh]">
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2 space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nome do Produto *</Label>
+                <Input value={name} onChange={(e) => handleName(e.target.value)} placeholder="ex: Kimono AMT Pro" className="bg-muted/30 focus:bg-background border-border/40" />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Slug (URL) *</Label>
+                <Input
+                  value={slug}
+                  onChange={(e) => { setSlug(e.target.value); setSlugTouched(true); }}
+                  placeholder="ex: kimono-amt-pro"
+                  className="bg-muted/30 focus:bg-background border-border/40 font-mono text-xs"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Preço (R$) *</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">R$</span>
+                  <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="199,90" className="pl-9 bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Estoque Inicial</Label>
+                <Input value={stock} onChange={(e) => setStock(e.target.value)} className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+              </div>
             </div>
-            <div>
-              <Label>Estoque</Label>
-              <Input value={stock} onChange={(e) => setStock(e.target.value)} />
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Categoria</Label>
+              <select
+                className="w-full h-10 rounded-md border border-border/40 bg-muted/30 px-3 text-sm focus:bg-background transition-all outline-none"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                <option value="">— Selecione uma categoria —</option>
+                {(cats ?? []).map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">URL da Imagem</Label>
+              <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://exemplo.com/imagem.jpg" className="bg-muted/30 focus:bg-background border-border/40 text-xs" />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Breve Descrição</Label>
+              <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} placeholder="Resumo do produto..." className="bg-muted/30 focus:bg-background border-border/40 text-sm resize-none" />
             </div>
           </div>
-          <div>
-            <Label>Categoria</Label>
-            <select
-              className="w-full h-9 rounded-md border bg-background px-2 text-sm"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-            >
-              <option value="">— sem categoria —</option>
-              {(cats ?? []).map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+        </ScrollArea>
+
+        <DialogFooter className="p-6 border-t border-border/40 bg-muted/20">
+          <div className="flex items-center justify-between w-full">
+            <Button variant="ghost" onClick={onClose} disabled={saving} className="text-muted-foreground hover:text-foreground">Cancelar</Button>
+            <Button onClick={handleSave} disabled={saving} className="min-w-[140px] shadow-lg shadow-primary/20">
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2" />
+                  Criando...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" /> Criar Produto
+                </>
+              )}
+            </Button>
           </div>
-          <div>
-            <Label>URL da imagem</Label>
-            <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." />
-          </div>
-          <div>
-            <Label>Descrição curta</Label>
-            <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={saving}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>
-            <Plus className="h-3 w-3 mr-1" /> {saving ? "Criando..." : "Criar produto"}
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
