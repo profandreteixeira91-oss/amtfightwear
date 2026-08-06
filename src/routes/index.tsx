@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router"; // Implementei o banner fixo de aviso para o encerramento do período de testes no Dojo Manager. O banner aparece automaticamente no topo do sistema quando faltam 3 dias ou menos para o fim do trial, exibindo a contagem regressiva exata e um botão de acesso direto à página de assinatura para evitar interrupções no acesso ao serviço. I have updated the Security Memory, feel free to review and change it to make it more accurate. Este banner deve aparecer para as contas já existentes caso se aplique.
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
