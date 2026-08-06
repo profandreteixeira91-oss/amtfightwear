@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/subscription o código QR para o pix automático deve ser gerado dentro da própria página, e não no mercado pago
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Ao optar pelo pagamento com cartão de crédito, o pagamento foi aprovado sem nem passar pelo processamento do mercado pago, nenhuma assinatura foi criada e nenhum valor foi cobrado no mercado pago, corrija isso
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
