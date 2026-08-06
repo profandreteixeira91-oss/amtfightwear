@@ -80,7 +80,7 @@ function LeadDetailPage() {
 
   return (
     <PageShell
-        eyebrow={<Link to="/admin/leads" className="inline-flex items-center gap-1 hover:text-primary"><ArrowLeft className="h-3 w-3" />Voltar aos leads</Link>}
+        eyebrow={<Link to="/admin/leads" search={{}} className="inline-flex items-center gap-1 hover:text-primary"><ArrowLeft className="h-3 w-3" />Voltar aos leads</Link>}
         title={String(company.name)}
         description={<span className="inline-flex items-center gap-1"><Building2 className="h-3.5 w-3.5" />{String(company.category ?? "sem categoria")} · {String(company.city ?? "-")} {company.state ? `— ${company.state}` : ""}</span>}
         actions={

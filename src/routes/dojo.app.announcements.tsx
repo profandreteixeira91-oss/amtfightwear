@@ -300,7 +300,7 @@ function AnnouncementsAdmin() {
       <ReadReportDialog id={showReport} onClose={() => setShowReport(null)} />
 
       <div className="pt-4 text-center">
-        <Link to="/app/announcements" className="text-xs text-muted-foreground underline underline-offset-4 hover:text-red-600">
+        <Link to="/app/announcements" search={{}} className="text-xs text-muted-foreground underline underline-offset-4 hover:text-red-600">
           Visualizar como o aluno vê →
         </Link>
       </div>

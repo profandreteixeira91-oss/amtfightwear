@@ -189,7 +189,7 @@ function SessionsList() {
                     </Badge>
                   )}
                   <div className="flex gap-1.5 ml-2">
-                    <Link to="/dojo.app.evaluations.sessions.$id" params={{ id: s.id }}>
+                    <Link to="/dojo/app/evaluations/sessions/$id" params={{ id: s.id }}>
                       <Button size="sm" variant="outline" className="h-9 w-9 p-0 border-white/10 bg-white/5 hover:bg-white/10 sm:w-auto sm:px-3">
                         <Play className="h-3.5 w-3.5 sm:mr-1.5" /> <span className="hidden sm:inline">Abrir</span>
                       </Button>

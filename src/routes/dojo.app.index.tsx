@@ -216,6 +216,7 @@ function HeroHeader({
           <div className="mt-2 flex items-center gap-3 md:gap-4">
             <Link
               to="/dojo/app/account"
+              search={{}}
               className="relative shrink-0 group"
               aria-label="Editar logotipo em Minha conta"
               title={academyName ?? "Minha conta"}
@@ -561,7 +562,7 @@ function DojoDashboard() {
             eyebrow="AMT Pay"
             title="Carteira"
             action={
-              <Link to="/dojo/app/wallet" className="text-[11px] font-semibold text-primary hover:underline">
+              <Link to="/dojo/app/sales" className="text-[11px] font-semibold text-primary hover:underline">
                 Sacar
               </Link>
             }

@@ -9,18 +9,71 @@ import {
   ShieldCheck, 
   BarChart3, 
   XCircle,
-  Plus
+  Plus,
+  Loader2,
+  Download
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getFiscalStatus, getFiscalInvoices, uploadCertificate } from "@/lib/fiscal/fiscal.functions";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+import { useRef } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/fiscal")({
   component: FiscalDashboard,
 });
 
 function FiscalDashboard() {
+  const queryClient = useQueryClient();
+  const fetchStatus = useServerFn(getFiscalStatus);
+  const fetchInvoices = useServerFn(getFiscalInvoices);
+  const uploadCertFn = useServerFn(uploadCertificate);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: status, isLoading: statusLoading } = useQuery({
+    queryKey: ['fiscal-status'],
+    queryFn: () => fetchStatus(),
+  });
+
+  const { data: invoices, isLoading: invoicesLoading } = useQuery({
+    queryKey: ['fiscal-invoices'],
+    queryFn: () => fetchInvoices(),
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async ({ file, password }: { file: File, password: string }) => {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.readAsDataURL(file);
+      });
+      return uploadCertFn({ data: { file_base64: base64, password } });
+    },
+    onSuccess: () => {
+      toast.success("Certificado enviado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ['fiscal-status'] });
+    },
+    onError: (err) => {
+      toast.error("Erro ao enviar certificado: " + err.message);
+    }
+  });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const password = window.prompt("Digite a senha do certificado:");
+    if (password === null) return;
+    
+    uploadMutation.mutate({ file, password });
+  };
+
   return (
     <AdminShell title="Módulo Fiscal">
       <div className="mx-auto w-full max-w-7xl space-y-8 px-0 sm:px-4 lg:px-6">
@@ -54,8 +107,12 @@ function FiscalDashboard() {
               <Send className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">124</div>
-              <p className="text-xs text-muted-foreground">+12% em relação ao mês anterior</p>
+              {statusLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+                <>
+                  <div className="text-2xl font-bold">{status?.total_issued_month || 0}</div>
+                  <p className="text-xs text-muted-foreground">Notas autorizadas no período atual</p>
+                </>
+              )}
             </CardContent>
           </Card>
           <Card className="admin-card border-l-4 border-l-amber-500">
@@ -64,28 +121,44 @@ function FiscalDashboard() {
               <AlertCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-muted-foreground">Necessitam atenção imediata</p>
+              {statusLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+                <>
+                  <div className="text-2xl font-bold">{status?.pending_notes || 0}</div>
+                  <p className="text-xs text-muted-foreground">Necessitam atenção imediata</p>
+                </>
+              )}
             </CardContent>
           </Card>
           <Card className="admin-card border-l-4 border-l-blue-500">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Faturamento Fiscal</CardTitle>
+              <CardTitle className="text-sm font-medium">Ambiente</CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">R$ 45.230,00</div>
-              <p className="text-xs text-muted-foreground">Baseado em notas autorizadas</p>
+              {statusLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+                <>
+                  <div className="text-2xl font-bold capitalize">{status?.environment || '---'}</div>
+                  <p className="text-xs text-muted-foreground">Sefaz {status?.environment === 'producao' ? 'Produção' : 'Homologação'}</p>
+                </>
+              )}
             </CardContent>
           </Card>
           <Card className="admin-card border-l-4 border-l-primary">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Certificado A1</CardTitle>
-              <ShieldCheck className="h-4 w-4 text-emerald-500" />
+              <ShieldCheck className={`h-4 w-4 ${status?.certificate_valid ? 'text-emerald-500' : 'text-red-500'}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Válido</div>
-              <p className="text-xs text-muted-foreground text-emerald-600 font-medium">Expira em 245 dias</p>
+              {statusLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+                <>
+                  <div className="text-2xl font-bold">{status?.certificate_valid ? 'Válido' : 'Inativo'}</div>
+                  <p className={`text-xs font-medium ${status?.days_remaining && status.days_remaining < 30 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    {status?.expires_at 
+                      ? `Expira em ${status.days_remaining} dias` 
+                      : 'Não configurado'}
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -109,52 +182,72 @@ function FiscalDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="group flex flex-col gap-3 border-b pb-4 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 transition-colors group-hover:bg-emerald-500/20">
-                            <FileText className="h-5 w-5" />
+                    {invoicesLoading ? (
+                      <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+                    ) : invoices?.length === 0 ? (
+                      <div className="p-8 text-center text-muted-foreground italic">Nenhuma nota emitida ainda.</div>
+                    ) : (
+                      invoices?.map((inv: any) => (
+                        <div key={inv.id} className="group flex flex-col gap-3 border-b pb-4 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`rounded-xl p-2.5 transition-colors ${
+                              inv.status === 'authorized' ? 'bg-emerald-500/10 text-emerald-600' : 
+                              inv.status === 'rejected' ? 'bg-red-500/10 text-red-600' : 'bg-muted text-muted-foreground'
+                            }`}>
+                              <FileText className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold leading-none text-foreground">NF-e #{inv.invoice_number}</p>
+                              <p className="mt-1 text-xs text-muted-foreground">Destinatário: {inv.recipient_name} • <span className="font-medium text-foreground/80">R$ {Number(inv.total_amount).toLocaleString('pt-BR')}</span></p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-semibold leading-none text-foreground">NF-e #000{145 + i}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">Cliente: João Silva • <span className="font-medium text-foreground/80">R$ 450,00</span></p>
+                          <div className="flex flex-row items-center justify-between gap-4 sm:flex-col sm:items-end sm:gap-1.5">
+                            <Badge variant="outline" className={`capitalize ${
+                              inv.status === 'authorized' ? 'bg-emerald-500/10 text-emerald-700 border-emerald-200/50' : 
+                              inv.status === 'rejected' ? 'bg-red-500/10 text-red-700 border-red-200/50' : ''
+                            } px-2 py-0`}>
+                              {inv.status}
+                            </Badge>
+                            <span className="text-[10px] font-medium text-muted-foreground">
+                              {format(new Date(inv.issue_date), "dd/MM 'às' HH:mm", { locale: ptBR })}
+                            </span>
                           </div>
                         </div>
-                        <div className="flex flex-row items-center justify-between gap-4 sm:flex-col sm:items-end sm:gap-1.5">
-                          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 border-emerald-200/50 px-2 py-0">Autorizada</Badge>
-                          <span className="text-[10px] font-medium text-muted-foreground">Hoje, 14:20</span>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="order-1 lg:col-span-3 lg:order-2 admin-card">
                 <CardHeader>
-                  <CardTitle>Alertas e Eventos</CardTitle>
-                  <CardDescription>Notificações importantes do sistema fiscal.</CardDescription>
+                  <CardTitle>Dados do Emitente</CardTitle>
+                  <CardDescription>Informações atuais da empresa configurada.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex gap-4 rounded-lg p-3 transition-colors hover:bg-muted/50">
-                      <div className="mt-0.5 shrink-0 rounded-xl bg-amber-500/10 p-2.5 text-amber-600">
-                        <AlertCircle className="h-5 w-5" />
+                      <div className="mt-0.5 shrink-0 rounded-xl bg-primary/10 p-2.5 text-primary">
+                        <ShieldCheck className="h-5 w-5" />
                       </div>
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold leading-none text-foreground">NF-e #000148 Rejeitada</p>
-                        <p className="text-xs leading-relaxed text-muted-foreground">Erro: CNPJ do destinatário inválido. Verifique o cadastro do cliente para reemissão.</p>
+                        <p className="text-sm font-semibold leading-none text-foreground">{status?.issuer_name}</p>
+                        <p className="text-xs leading-relaxed text-muted-foreground">Razão Social cadastrada no sistema.</p>
                       </div>
                     </div>
-                    <div className="flex gap-4 rounded-lg p-3 transition-colors hover:bg-muted/50">
-                      <div className="mt-0.5 shrink-0 rounded-xl bg-blue-500/10 p-2.5 text-blue-600">
-                        <Settings className="h-5 w-5" />
+                    {status?.certificate_valid && (
+                      <div className="flex gap-4 rounded-lg p-3 transition-colors hover:bg-muted/50">
+                        <div className="mt-0.5 shrink-0 rounded-xl bg-blue-500/10 p-2.5 text-blue-600">
+                          <History className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold leading-none text-foreground">Vencimento Certificado</p>
+                          <p className="text-xs leading-relaxed text-muted-foreground">
+                            Válido até {status.expires_at ? format(new Date(status.expires_at), "dd/MM/yyyy") : '---'}
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold leading-none text-foreground">Atualização de NT 2024.001</p>
-                        <p className="text-xs leading-relaxed text-muted-foreground">O sistema já está 100% compatível com as novas regras da SEFAZ publicadas hoje.</p>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -163,12 +256,52 @@ function FiscalDashboard() {
 
           <TabsContent value="invoices">
              <Card className="admin-card">
-               <CardHeader>
-                 <CardTitle>Histórico de Notas</CardTitle>
-                 <CardDescription>Filtre e gerencie todas as notas fiscais do sistema.</CardDescription>
+               <CardHeader className="flex flex-row items-center justify-between">
+                 <div>
+                   <CardTitle>Histórico de Notas</CardTitle>
+                   <CardDescription>Gerenciamento completo das notas fiscais.</CardDescription>
+                 </div>
+                 <Button variant="outline" size="sm" className="gap-2">
+                   <Download className="h-4 w-4" /> Exportar XMLs
+                 </Button>
                </CardHeader>
-               <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground italic">
-                 Lista de notas fiscais (NF-e, NFC-e, NFS-e) aparecerá aqui.
+               <CardContent>
+                 <div className="rounded-md border">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b bg-muted/50 text-left font-medium">
+                          <th className="p-4">Número</th>
+                          <th className="p-4">Destinatário</th>
+                          <th className="p-4">Valor</th>
+                          <th className="p-4">Data</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4 text-right">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {invoices?.length === 0 ? (
+                          <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">Nenhuma nota encontrada.</td></tr>
+                        ) : (
+                          invoices?.map((inv: any) => (
+                            <tr key={inv.id} className="border-b transition-colors hover:bg-muted/30">
+                              <td className="p-4 font-medium">#{inv.invoice_number}</td>
+                              <td className="p-4">{inv.recipient_name}</td>
+                              <td className="p-4">R$ {Number(inv.total_amount).toLocaleString('pt-BR')}</td>
+                              <td className="p-4 text-muted-foreground">{format(new Date(inv.issue_date), "dd/MM/yyyy HH:mm")}</td>
+                              <td className="p-4">
+                                <Badge variant="outline" className={inv.status === 'authorized' ? 'text-emerald-600' : ''}>
+                                  {inv.status}
+                                </Badge>
+                              </td>
+                              <td className="p-4 text-right">
+                                <Button variant="ghost" size="sm">Ver DANFE</Button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                 </div>
                </CardContent>
              </Card>
           </TabsContent>
@@ -180,11 +313,30 @@ function FiscalDashboard() {
                  <CardDescription>Faça o upload e gerencie seu certificado digital para emissão.</CardDescription>
                </CardHeader>
                <CardContent className="space-y-4">
-                 <div className="rounded-xl border-2 border-dashed p-6 text-center transition-colors hover:border-primary/50 sm:p-12">
-                    <ShieldCheck className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
-                    <h3 className="mt-4 text-sm font-semibold">Upload de Certificado (.pfx / .p12)</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">O arquivo será criptografado e armazenado com segurança.</p>
-                    <Button variant="outline" className="mt-4">Selecionar Arquivo</Button>
+                 <input 
+                    type="file" 
+                    accept=".pfx,.p12" 
+                    className="hidden" 
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                  />
+                 <div 
+                  className="rounded-xl border-2 border-dashed p-6 text-center transition-colors hover:border-primary/50 sm:p-12 cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                 >
+                    {uploadMutation.isPending ? (
+                      <div className="flex flex-col items-center gap-4">
+                        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                        <p className="text-sm font-medium">Enviando e validando certificado...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <ShieldCheck className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+                        <h3 className="mt-4 text-sm font-semibold">Upload de Certificado (.pfx / .p12)</h3>
+                        <p className="mt-1 text-xs text-muted-foreground">O arquivo será criptografado e armazenado com segurança.</p>
+                        <Button variant="outline" className="mt-4">Selecionar Arquivo</Button>
+                      </>
+                    )}
                  </div>
                </CardContent>
              </Card>
@@ -196,8 +348,10 @@ function FiscalDashboard() {
                  <CardTitle>Dados Fiscais dos Produtos</CardTitle>
                  <CardDescription>Configure NCM, CEST e impostos para faturamento.</CardDescription>
                </CardHeader>
-               <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground italic">
-                 Lista de produtos com campos fiscais (NCM, CEST, CFOP) aparecerá aqui para edição em massa.
+               <CardContent>
+                 <p className="text-center p-12 text-muted-foreground italic">
+                   Integração com o catálogo de produtos para edição em massa dos campos fiscais está sendo processada.
+                 </p>
                </CardContent>
              </Card>
           </TabsContent>
@@ -206,3 +360,4 @@ function FiscalDashboard() {
     </AdminShell>
   );
 }
+
