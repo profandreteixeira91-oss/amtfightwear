@@ -736,18 +736,30 @@ function FiscalDashboard() {
                                   <div>
                                     <p className="font-medium text-neutral-900">{p.name}</p>
                                     <p className="text-xs text-neutral-500">R$ {Number(p.price).toLocaleString('pt-BR')}</p>
+                                    {p.store_categories?.ncm && !p.ncm && (
+                                      <Badge variant="outline" className="mt-1 text-[9px] bg-blue-50 text-blue-600 border-blue-100">
+                                        Sincronizado da Categoria
+                                      </Badge>
+                                    )}
                                   </div>
                                 </div>
                               </td>
                               <td className="p-4">
                                 <Input 
                                   defaultValue={p.ncm || ""} 
-                                  placeholder="0000.00.00"
-                                  className="h-8 w-28 text-xs"
+                                  placeholder={p.store_categories?.ncm || "0000.00.00"}
+                                  className={cn("h-8 w-28 text-xs", !p.ncm && p.store_categories?.ncm && "border-blue-200 bg-blue-50/30")}
                                   onBlur={(e) => handleProductFiscalUpdate(p.id, 'ncm', e.target.value)}
                                 />
                               </td>
                               <td className="p-4">
+                                <Input 
+                                  defaultValue={p.cest || ""} 
+                                  placeholder={p.store_categories?.cest || "00.000.00"}
+                                  className={cn("h-8 w-28 text-xs", !p.cest && p.store_categories?.cest && "border-blue-200 bg-blue-50/30")}
+                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cest', e.target.value)}
+                                />
+                              </td>
                                 <Input 
                                   defaultValue={p.cest || ""} 
                                   placeholder="00.000.00"
