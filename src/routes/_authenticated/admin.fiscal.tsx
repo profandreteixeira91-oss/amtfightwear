@@ -856,10 +856,15 @@ function FiscalDashboard() {
                     <div 
                       key={order.id} 
                       className="flex items-center justify-between p-4 border rounded-xl hover:bg-neutral-50 transition-colors cursor-pointer group"
-                      onClick={() => handleEmitNFe(order.id)}
+                      onClick={() => handleEmitNFe(order.id, order.type)}
                     >
-                      <div>
-                        <p className="font-bold text-neutral-900">Pedido #{order.number}</p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-neutral-900">{order.number}</p>
+                          <Badge variant="outline" className="text-[10px] h-4 px-1.5 uppercase font-medium">
+                            {order.type === 'quote' ? 'Orçamento' : 'Pedido'}
+                          </Badge>
+                        </div>
                         <p className="text-xs text-neutral-500">{order.customer} • {new Date(order.date).toLocaleDateString('pt-BR')}</p>
                       </div>
                       <div className="text-right flex items-center gap-3">
