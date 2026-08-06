@@ -90,6 +90,28 @@ function FiscalDashboard() {
       handleEmitNFe(orderId, type);
     }
   }, [orderId, type]);
+
+  useEffect(() => {
+    if (status?.config && !fiscalConfig) {
+      const config = status.config;
+      setFiscalConfig({
+        razao_social: config.razao_social,
+        cnpj: config.cnpj,
+        inscricao_estadual: config.inscricao_estadual,
+        regime_tributario: config.regime_tributario,
+        environment: config.environment,
+        address: {
+          street: config.address_street,
+          number: config.address_number,
+          neighborhood: config.address_neighborhood,
+          city: config.address_city_name,
+          state: config.address_state,
+          zip: config.address_zip,
+          city_code: config.address_city_code,
+        }
+      });
+    }
+  }, [status, fiscalConfig]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [productSearch, setProductSearch] = useState("");
