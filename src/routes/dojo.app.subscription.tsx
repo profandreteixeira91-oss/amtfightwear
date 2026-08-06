@@ -9,16 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { NativeCardCheckout } from "@/components/dojo/NativeCardCheckout";
-import { NativePixCheckout } from "@/components/dojo/NativePixCheckout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  getMySubscription,
-  cancelMySubscription,
-  syncMySubscription,
-  PLAN_AMOUNT,
-  TRIAL_DAYS,
-} from "@/lib/dojo/subscription.functions";
+import { startMySubscription, getMySubscription, cancelMySubscription, syncMySubscription, PLAN_AMOUNT, TRIAL_DAYS } from "@/lib/dojo/subscription.functions";
 
 export const Route = createFileRoute("/dojo/app/subscription")({
   head: () => ({ meta: [{ title: "Assinatura — AMT Dojo Manager" }] }),
