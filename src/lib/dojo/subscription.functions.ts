@@ -114,12 +114,18 @@ export const startMySubscription = createServerFn({ method: "POST" })
           currency_id: "BRL",
         },
         // Customização visual baseada no design do Dojo Manager
+        // Nota: O preapproval aceita theme para o init_point.
         theme: {
           elements_color: MP_DESIGN_CONFIG.main_color,
           header_color: "#000000",
         },
         payment_methods_allowed: {
-          payment_types: [{ id: "credit_card" }, { id: "account_money" }, { id: "pix" }],
+          payment_types: [
+            { id: "credit_card" },
+            { id: "account_money" },
+            { id: "pix" },
+            { id: "bank_transfer" } // Algumas recorrências Pix caem aqui no MP
+          ],
           payment_methods: [],
         },
         notification_url: notification,
@@ -385,7 +391,12 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
           header_color: "#000000",
         },
         payment_methods_allowed: {
-          payment_types: [{ id: "pix" }, { id: "credit_card" }, { id: "account_money" }],
+          payment_types: [
+            { id: "pix" },
+            { id: "bank_transfer" },
+            { id: "credit_card" },
+            { id: "account_money" }
+          ],
           payment_methods: [],
         },
         notification_url: notification,
