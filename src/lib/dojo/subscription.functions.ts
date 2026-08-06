@@ -389,6 +389,7 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
     return {
       id: String(preapproval.id),
       initPoint: preapproval.init_point ?? preapproval.sandbox_init_point,
+      qrCode: preapproval.payment_methods_allowed?.payment_types?.[0]?.id === "pix" ? preapproval.id : null, // MP preapproval não retorna QR direto no POST
     };
   });
 

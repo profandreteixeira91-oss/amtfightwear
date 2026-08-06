@@ -29,9 +29,11 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
     try {
       const res = await subscribePix({ data: { payerEmail: email } });
       if (res.initPoint) {
+        // Para Pix Automático (preapproval), o MP exige que o usuário autorize no site deles
+        // pois não é um Pix comum, é uma autorização de débito recorrente.
         window.location.href = res.initPoint;
       } else {
-        toast.error("URL de checkout indisponível");
+        toast.error("URL de autorização indisponível");
       }
     } catch (err: any) {
       toast.error(err?.message ?? "Falha ao gerar Pix");
