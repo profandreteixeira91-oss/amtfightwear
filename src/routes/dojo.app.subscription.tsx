@@ -44,7 +44,7 @@ function SubscriptionPage() {
     queryFn: () => get({}),
   });
   const [busy, setBusy] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
+  const startSubscription = useServerFn(startMySubscription);
   const [ownerEmail, setOwnerEmail] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -137,10 +137,24 @@ function SubscriptionPage() {
           )}
 
           <div className="flex flex-wrap gap-2 pt-2">
-            {canActivate && !showCheckout && (
+            {canActivate && (
               <Button
-                onClick={() => setShowCheckout(true)}
-                disabled={isLoading}
+                onClick={async () => {
+                  setBusy(true);
+                  try {
+                    const res = await startSubscription({});
+                    if (res.init_point) {
+                      window.location.href = res.init_point;
+                    } else {
+                      toast.error("URL de checkout não disponível");
+                    }
+                  } catch (e: any) {
+                    toast.error(e?.message ?? "Falha ao iniciar assinatura");
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+                disabled={isLoading || busy}
                 className="bg-red-600 hover:bg-red-700"
               >
                 <CreditCard className="mr-2 h-4 w-4" />
@@ -156,48 +170,6 @@ function SubscriptionPage() {
         </CardContent>
       </Card>
 
-      {showCheckout && canActivate && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Finalizar assinatura</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="card" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="card">Cartão de Crédito</TabsTrigger>
-                <TabsTrigger value="pix">PIX Automático</TabsTrigger>
-              </TabsList>
-              <TabsContent value="card">
-                <NativeCardCheckout
-                  defaultEmail={ownerEmail}
-                  onSuccess={async () => {
-                    setShowCheckout(false);
-                    await qc.invalidateQueries({ queryKey: ["dojo", "subscription"] });
-                  }}
-                />
-              </TabsContent>
-              <TabsContent value="pix">
-                <NativePixCheckout
-                  defaultEmail={ownerEmail}
-                  onSuccess={async () => {
-                    // Pix costuma ser assíncrono ou mostrar QR code primeiro
-                    // Não fechamos imediatamente se o componente estiver mostrando o QR code
-                  }}
-                />
-              </TabsContent>
-            </Tabs>
-            <div className="pt-3 text-center">
-              <button
-                type="button"
-                className="text-xs text-neutral-500 underline"
-                onClick={() => setShowCheckout(false)}
-              >
-                Cancelar
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
