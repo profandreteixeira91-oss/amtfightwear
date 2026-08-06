@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
  * Interface para os dados fiscais de um produto
@@ -41,8 +41,9 @@ export interface CertificateInfo {
 }
 
 export const getFiscalStatus = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const s = supabase as any;
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const s = context.supabase;
     
     const { data: config } = await s
       .from('fiscal_issuer_config')
@@ -84,8 +85,9 @@ export const getFiscalStatus = createServerFn({ method: "GET" })
   });
 
 export const getFiscalInvoices = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const s = supabase as any;
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const s = context.supabase;
     const { data } = await s
       .from('fiscal_invoices')
       .select('*')
@@ -96,13 +98,15 @@ export const getFiscalInvoices = createServerFn({ method: "GET" })
   });
 
 export const uploadCertificate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({
     file_base64: z.string(),
     password: z.string(),
   }).parse(data))
-  .handler(async ({ data }) => {
-    const s = supabase as any;
+  .handler(async ({ data, context }) => {
+    const s = context.supabase;
     const dummyCert = {
+      owner_id: context.userId,
       subject_name: "AMT FIGHT WEAR LTDA",
       issuer_name: "AC CERTISIGN RFB G5",
       serial_number: "7239182391283",
@@ -122,6 +126,7 @@ export const uploadCertificate = createServerFn({ method: "POST" })
   });
 
 export const saveFiscalConfig = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({
     razao_social: z.string(),
     cnpj: z.string(),
@@ -138,11 +143,12 @@ export const saveFiscalConfig = createServerFn({ method: "POST" })
       city_code: z.string(),
     })
   }).parse(data))
-  .handler(async ({ data }) => {
-    const s = supabase as any;
+  .handler(async ({ data, context }) => {
+    const s = context.supabase;
     const { error } = await s
       .from('fiscal_issuer_config')
       .upsert({
+        owner_id: context.userId,
         razao_social: data.razao_social,
         cnpj: data.cnpj,
         inscricao_estadual: data.inscricao_estadual,
