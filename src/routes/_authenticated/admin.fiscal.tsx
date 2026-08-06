@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getFiscalStatus, getFiscalInvoices, uploadCertificate } from "@/lib/fiscal/fiscal.functions";
+import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig } from "@/lib/fiscal/fiscal.functions";
 import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
