@@ -1165,7 +1165,7 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
       if (suggestion) {
         setFiscalData(suggestion);
         toast.info("Sugestão fiscal aplicada para esta categoria", {
-          description: `NCM: ${suggestion.ncm} | CFOP: ${suggestion.cfop_internal}`,
+          description: `NCM: ${(suggestion as any).ncm} | CFOP: ${(suggestion as any).cfop_internal}`,
         });
       }
     } catch (err) {
