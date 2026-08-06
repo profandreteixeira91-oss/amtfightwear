@@ -908,7 +908,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
       .from("store_products" as any)
       .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin")
       .eq("id", data.id)
-      .maybeSingle();
+      .maybeSingle() as any;
     if (error) throw new Error(error.message);
     const { data: variants } = await context.supabase
       .from("store_product_variants")
