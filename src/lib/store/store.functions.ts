@@ -155,39 +155,35 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
 
 
     // Read admin-controlled wholesale settings.
+    // Read admin-controlled wholesale settings.
     const { data: settingsRow } = await supabaseAdmin
       .from("app_settings")
       .select("value")
       .eq("key", "wholesale_settings")
       .maybeSingle();
     const settings = normalizeWholesaleSettings(settingsRow?.value);
-    const PAGE = 24;
-    const from = ((data.page || 1) - 1) * PAGE;
-    const sb = supabaseAdmin;
-    const productSel = "id, name, slug, price, compare_at_price, image_url, category_id, wholesale_enabled, wholesale_discount_percent, ncm, cfop_internal";
-    const [productsR, categoriesR] = await Promise.all([
-      sb.from("store_products" as any)
-        .select(productSel)
-        .eq("status", "active")
-        .eq("wholesale_enabled", true)
-        .order("name")
-        .range(from, from + PAGE - 1),
-      sb.from("store_categories").select("id, name, slug").eq("active", true),
+    if (!settings.enabled) throw new Error("Vendas no atacado estão desativadas no momento.");
+    const MIN_QTY = settings.min_qty_per_subcategory;
+    const DEFAULT_PCT = settings.default_discount_percent;
+
+    const productIds = [...new Set(data.items.map((i) => i.product_id))];
+    const variantIds = [...new Set(data.items.map((i) => i.variant_id).filter((v): v is string => !!v))];
+    const [{ data: products }, { data: variants }] = await Promise.all([
+      supabaseAdmin
+        .from("store_products" as any)
+        .select("id, name, price, image_url, category_id, wholesale_enabled, wholesale_discount_percent")
+        .in("id", productIds),
+      variantIds.length
+        ? supabaseAdmin.from("store_product_variants").select("id, product_id, size, color, option_label, sku, price").in("id", variantIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null }> }),
     ]);
-    const products = (productsR.data as any[]) || [];
-    const categories = (categoriesR.data as any[]) || [];
-    const productIds = products.map((p) => p.id);
-    const variants: any[] = [];
-    if (productIds.length > 0) {
-      const { data, error } = await sb.from("store_product_variants")
-        .select("id, product_id, size, color, option_label, sku, price, sort_order, active")
-        .eq("active", true)
-        .in("product_id", productIds)
-        .order("product_id")
-        .order("sort_order");
-      if (!error && data) variants.push(...data);
+    if (!products || products.length !== productIds.length) {
+      throw new Error("Um ou mais produtos não foram encontrados");
     }
-    return { products, variants, categories, settings };
+    const disabled = (products as any[]).filter((p) => !p.wholesale_enabled);
+    if (disabled.length > 0) {
+      throw new Error(`Produtos fora do atacado no pedido: ${disabled.map((p) => p.name).join(", ")}`);
+    }
 
     // Group quantities by leaf category (subcategoria)
     const qtyByCategory = new Map<string, number>();
