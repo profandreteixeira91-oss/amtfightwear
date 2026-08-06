@@ -272,7 +272,8 @@ function StudentDetail() {
   );
 
   if (isChildRoute) return <Outlet />;
-  if (q.isLoading || !q.data || !s) return <LoadingState />;
+  if (q.isLoading) return <LoadingState />;
+  if (!q.data || !s) return <div className="p-8 text-center text-destructive">Aluno não encontrado ou dados inválidos.</div>;
 
 
   const openCancelDialog = () => setCancelDialog({ open: true, mode: "cancel", frozen_until: "" });
