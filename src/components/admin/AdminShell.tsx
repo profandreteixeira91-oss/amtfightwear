@@ -341,7 +341,14 @@ function IconAction({
   onClick?: () => void;
   dot?: boolean;
   className?: string;
+  isMobile?: boolean;
+  setOpen?: (open: boolean) => void;
 }) {
+  const handleClick = () => {
+    if (onClick) onClick();
+    if (isMobile && setOpen) setOpen(false);
+  };
+
   const inner = (
     <span className="relative grid h-10 w-10 place-items-center transition-transform hover:scale-105 active:scale-95">
       <Icon className="h-[18px] w-[18px]" />
@@ -357,9 +364,10 @@ function IconAction({
           <Link
             to={to}
             aria-label={label}
+            onClick={handleClick}
             className={cn(
               "rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-              "hidden sm:inline-flex",
+              !className?.includes("lg:hidden") && "hidden sm:inline-flex",
               className,
             )}
           >
@@ -369,7 +377,7 @@ function IconAction({
           <button
             type="button"
             aria-label={label}
-            onClick={onClick}
+            onClick={handleClick}
             className={cn(
               "rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
               className,
