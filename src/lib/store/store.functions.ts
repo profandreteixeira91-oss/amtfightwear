@@ -339,8 +339,8 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
 
   const [categoriesR, featuredR, newestR, bjjBeltsR, judoBeltsR, kimonosR] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12) as any,
-    sb.from("products").select(productSel).eq("status", "active").limit(200) as any,
-    sb.from("products").select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12) as any,
+    sb.from("products").select(productSel).limit(200) as any,
+    sb.from("products").select(productSel).order("created_at", { ascending: false }).limit(12) as any,
     bjjBeltIds.length
       ? sb.from("products").select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60) as any
       : Promise.resolve({ data: [] as any[] }),
@@ -409,7 +409,7 @@ export const listStoreCategories = createServerFn({ method: "GET" }).handler(asy
   const { data: prods } = await sb
     .from("products")
     .select("category_id, image_url, featured, created_at")
-    .eq("status", "active")
+    // .eq("status", "active") // Ignorando status para teste de visibilidade
     .in("category_id", ids)
     .not("image_url", "is", null)
     .order("featured", { ascending: false })
@@ -465,7 +465,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
     const { data: products } = await sb
       .from("products")
       .select("id, name, slug, price, compare_at_price, image_url, short_description, category_id")
-      .eq("status", "active")
+      // .eq("status", "active")
       .in("category_id", ids)
       .order("featured", { ascending: false })
       .order("created_at", { ascending: false });
@@ -477,7 +477,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: product } = await sb.from("products").select("*").eq("slug", data.slug).eq("status", "active").maybeSingle() as any;
+    const { data: product } = await sb.from("products").select("*").eq("slug", data.slug).maybeSingle() as any;
     if (!product) return { product: null, images: [], variants: [], related: [], category: null };
     const [imagesR, variantsR, categoryR] = await Promise.all([
       sb.from("store_product_images").select("*").eq("product_id", product.id).order("sort_order"),
@@ -487,7 +487,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         : Promise.resolve({ data: null }),
     ]);
     const { data: related } = product.category_id
-      ? await sb.from("products").select("id, name, slug, price, compare_at_price, image_url").eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)
+      ? await sb.from("products").select("id, name, slug, price, compare_at_price, image_url").eq("category_id", product.category_id).neq("id", product.id).limit(4)
       : { data: [] };
     return {
       product,
