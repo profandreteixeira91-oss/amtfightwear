@@ -204,6 +204,9 @@ function FiscalDashboard() {
         toast.success("NF-e autorizada com sucesso!");
         queryClient.invalidateQueries({ queryKey: ['fiscal-invoices'] });
         queryClient.invalidateQueries({ queryKey: ['fiscal-status'] });
+        queryClient.invalidateQueries({ queryKey: ['fiscal-billing-orders'] });
+        // Clear search params
+        window.history.replaceState({}, '', window.location.pathname);
       }
     } catch (err: any) {
       toast.error("Erro na emissão: " + err.message);
