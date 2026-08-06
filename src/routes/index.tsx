@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Agora vamos atualizar o design da página de checkout do mercado pago baseado exatamente no design do dojo manager
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Fluxo em dojo subscription - dono do dojo clica em ativar assinatura e é levado para a página de checkout customizada do mercado pago, onde ele escolhe pix automático ou cartão de crédito, preenche os dados e finaliza a assinatura
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
