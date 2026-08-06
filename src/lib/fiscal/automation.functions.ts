@@ -6,10 +6,10 @@ export const getFiscalCategorySettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
-      .from('fiscal_category_settings')
+      .from('fiscal_category_settings' as any)
       .select('*, store_categories(name)');
     if (error) throw new Error(error.message);
-    return data;
+    return data as any[];
   });
 
 export const saveFiscalCategorySetting = createServerFn({ method: "POST" })
@@ -27,7 +27,7 @@ export const saveFiscalCategorySetting = createServerFn({ method: "POST" })
   }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
-      .from('fiscal_category_settings')
+      .from('fiscal_category_settings' as any)
       .upsert({
         ...data,
         updated_at: new Date().toISOString()
@@ -36,7 +36,7 @@ export const saveFiscalCategorySetting = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     // Log auditoria
-    await context.supabase.from('fiscal_audit_logs').insert({
+    await context.supabase.from('fiscal_audit_logs' as any).insert({
       user_id: context.userId,
       resource_type: 'category_settings',
       resource_id: data.category_id,
@@ -52,7 +52,7 @@ export const getFiscalSuggestion = createServerFn({ method: "GET" })
   .validator((data: any) => z.object({ category_id: z.string() }).parse(data))
   .handler(async ({ data, context }) => {
     const { data: settings } = await context.supabase
-      .from('fiscal_category_settings')
+      .from('fiscal_category_settings' as any)
       .select('*')
       .eq('category_id', data.category_id)
       .maybeSingle();
