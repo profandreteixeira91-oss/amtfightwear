@@ -566,11 +566,11 @@ export const createStoreOrder = createServerFn({ method: "POST" })
 
     const productIds = [...new Set(productItems.map((i) => i.product_id))];
     const { data: products } = productIds.length
-      ? await supabaseAdmin.from("store_products" as any).select("id, name, price, image_url") as any).in("id", productIds)
+      ? await supabaseAdmin.from("store_products" as any).select("id, name, price, image_url").in("id", productIds)
       : { data: [] };
     const variantIds = productItems.map((i) => i.variant_id).filter(Boolean) as string[];
     const { data: variants } = variantIds.length
-      ? await supabaseAdmin.from("store_product_variants").select("*") as any).in("id", variantIds)
+      ? await supabaseAdmin.from("store_product_variants").select("*").in("id", variantIds)
       : { data: [] };
 
     let subtotal = 0;
