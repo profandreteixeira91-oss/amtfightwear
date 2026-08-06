@@ -28,6 +28,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig, fetchCompanyByCnpj } from "@/lib/fiscal/fiscal.functions";
 import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
+import { emitNFe } from "@/lib/fiscal/emission.functions";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter 
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -53,9 +63,15 @@ function FiscalDashboard() {
   const updateProdFiscal = useServerFn(updateProductFiscal);
   const saveConfigFn = useServerFn(saveFiscalConfig);
   const findCnpjFn = useServerFn(fetchCompanyByCnpj);
+  const emitNFeFn = useServerFn(emitNFe);
   
   const [fiscalConfig, setFiscalConfig] = useState<any>(null);
   const [isSearchingCnpj, setIsSearchingCnpj] = useState(false);
+  const [isEmitting, setIsEmitting] = useState(false);
+  const [emissionStep, setEmissionStep] = useState<string>("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [lastInvoice, setLastInvoice] = useState<any>(null);
+  const [showOrderSelection, setShowOrderSelection] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [productSearch, setProductSearch] = useState("");
@@ -129,6 +145,45 @@ function FiscalDashboard() {
   };
 
 
+  const handleEmitNFe = async (orderId: string) => {
+    setIsEmitting(true);
+    setShowOrderSelection(false);
+    try {
+      setEmissionStep("Validando permissões e certificado...");
+      await new Promise(r => setTimeout(r, 800));
+      
+      setEmissionStep("Buscando dados do pedido e produtos...");
+      await new Promise(r => setTimeout(r, 800));
+
+      setEmissionStep("Gerando XML da NF-e...");
+      await new Promise(r => setTimeout(r, 800));
+
+      setEmissionStep("Assinando XML com certificado A1...");
+      await new Promise(r => setTimeout(r, 800));
+
+      setEmissionStep("Transmitindo para a SEFAZ...");
+      await new Promise(r => setTimeout(r, 1200));
+
+      const result = await emitNFeFn({ data: { orderId } });
+      
+      setEmissionStep("Processando retorno da SEFAZ...");
+      await new Promise(r => setTimeout(r, 500));
+
+      if (result.success) {
+        setLastInvoice(result.invoice);
+        setShowSuccessModal(true);
+        toast.success("NF-e autorizada com sucesso!");
+        queryClient.invalidateQueries({ queryKey: ['fiscal-invoices'] });
+        queryClient.invalidateQueries({ queryKey: ['fiscal-status'] });
+      }
+    } catch (err: any) {
+      toast.error("Erro na emissão: " + err.message);
+    } finally {
+      setIsEmitting(false);
+      setEmissionStep("");
+    }
+  };
+
   return (
     <AdminShell title="Módulo Fiscal" hideLayoutOnLoad>
       <div className="w-full space-y-10 p-6 md:p-8 lg:p-10 bg-neutral-50/30 min-h-screen">
@@ -169,11 +224,21 @@ function FiscalDashboard() {
 
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <Button 
-                  onClick={() => setActiveTab("invoices")}
+                  onClick={() => setShowOrderSelection(true)}
+                  disabled={isEmitting}
                   className="h-14 w-full gap-3 rounded-2xl bg-red-600 px-8 text-base font-semibold shadow-[0_10px_20px_-5px_rgba(220,38,38,0.3)] transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
                 >
-                  <Plus className="h-5 w-5" />
-                  Emitir NF-e
+                  {isEmitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      {emissionStep || "Processando..."}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-5 w-5" />
+                      Emitir NF-e
+                    </>
+                  )}
                 </Button>
                 <Button 
                   onClick={() => setActiveTab("config")}
@@ -346,14 +411,14 @@ function FiscalDashboard() {
                    <CardDescription>Gerenciamento completo das notas fiscais.</CardDescription>
                  </div>
                  <div className="flex gap-2">
-                   <Button 
-                    onClick={() => {
-                      toast.info("Processo de emissão iniciado. Selecione o pedido/orçamento...");
-                    }}
-                    className="gap-2 bg-red-600 hover:bg-red-700"
-                   >
-                     <Plus className="h-4 w-4" /> Nova NF-e
-                   </Button>
+                    <Button 
+                     onClick={() => setShowOrderSelection(true)}
+                     disabled={isEmitting}
+                     className="gap-2 bg-red-600 hover:bg-red-700"
+                    >
+                      {isEmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                      {isEmitting ? "Emitindo..." : "Nova NF-e"}
+                    </Button>
                    <Button variant="outline" size="sm" className="gap-2">
                      <Download className="h-4 w-4" /> Exportar XMLs
                    </Button>
@@ -709,6 +774,100 @@ function FiscalDashboard() {
           </TabsContent>
 
         </Tabs>
+
+        {/* Modal de Sucesso da Emissão */}
+        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+              <DialogTitle className="text-center text-xl font-bold">NF-e Autorizada!</DialogTitle>
+              <DialogDescription className="text-center">
+                A nota fiscal foi processada e autorizada com sucesso pela SEFAZ.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="rounded-lg bg-neutral-50 p-4 space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Número / Série:</span>
+                  <span className="font-bold text-neutral-900">{lastInvoice?.invoice_number} / {lastInvoice?.series}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Protocolo:</span>
+                  <span className="font-mono text-neutral-700">{lastInvoice?.protocol}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-neutral-500">Chave de Acesso:</span>
+                  <p className="font-mono text-[10px] break-all bg-white p-2 border rounded">{lastInvoice?.access_key}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="gap-2 text-xs" onClick={() => window.open(lastInvoice?.danfe_url)}>
+                  <Download className="h-3 w-3" /> Baixar DANFE
+                </Button>
+                <Button variant="outline" className="gap-2 text-xs">
+                  <FileText className="h-3 w-3" /> Baixar XML
+                </Button>
+                <Button variant="outline" className="col-span-2 gap-2 text-xs">
+                  <Send className="h-3 w-3" /> Reenviar por E-mail
+                </Button>
+              </div>
+            </div>
+            
+            <DialogFooter className="sm:justify-center">
+              <Button onClick={() => {
+                setShowSuccessModal(false);
+                setActiveTab("invoices");
+              }} className="w-full bg-neutral-900">
+                Ir para Notas Emitidas
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Seleção de Pedido */}
+        <Dialog open={showOrderSelection} onOpenChange={setShowOrderSelection}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Selecionar Pedido para Emissão</DialogTitle>
+              <DialogDescription>
+                Selecione um pedido finalizado para gerar a nota fiscal eletrônica.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <ScrollArea className="h-[300px] pr-4">
+              <div className="space-y-3 py-2">
+                {/* 
+                  Aqui buscaríamos os pedidos reais do banco. 
+                  Por agora, simulamos uma lista para o usuário selecionar.
+                */}
+                {[
+                  { id: "e8b7d9a1-7c5b-4e3a-9f2d-1a2b3c4d5e6f", number: "1001", customer: "João Silva", total: 450.90, date: "2026-08-05" },
+                  { id: "a1b2c3d4-e5f6-4a3b-2c1d-0e9f8a7b6c5d", number: "1002", customer: "Academia Gracie Barra", total: 2890.00, date: "2026-08-06" },
+                  { id: "f1e2d3c4-b5a6-4c3d-2e1f-0d9c8b7a6e5f", number: "1003", customer: "Maria Oliveira", total: 125.00, date: "2026-08-06" },
+                ].map(order => (
+                  <div 
+                    key={order.id} 
+                    className="flex items-center justify-between p-4 border rounded-xl hover:bg-neutral-50 transition-colors cursor-pointer group"
+                    onClick={() => handleEmitNFe(order.id)}
+                  >
+                    <div>
+                      <p className="font-bold text-neutral-900">Pedido #{order.number}</p>
+                      <p className="text-xs text-neutral-500">{order.customer} • {new Date(order.date).toLocaleDateString('pt-BR')}</p>
+                    </div>
+                    <div className="text-right flex items-center gap-3">
+                      <p className="font-semibold text-neutral-900">R$ {order.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <ArrowRight className="h-4 w-4 text-neutral-300 group-hover:text-red-600 transition-colors" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminShell>
   );
