@@ -497,7 +497,6 @@ function FiscalDashboard() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-4 gap-2">
                       <div className="col-span-3 space-y-2">
-                      <div className="col-span-3 space-y-2">
                         <label className="text-sm font-medium">Endereço</label>
                         <Input 
                           name="address_street" 
