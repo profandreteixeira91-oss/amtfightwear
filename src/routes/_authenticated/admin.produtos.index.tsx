@@ -483,16 +483,16 @@ function AdminProductsPage() {
                             </div>
                           </td>
                           <td className="p-4">
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 w-[140px]">
                               <div className="relative group/input">
                                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium">R$</span>
                                 <Input
                                   value={priceVal}
                                   onChange={(ev) => setEdit(p.id, "price", ev.target.value)}
-                                  className="h-8 pl-7 text-xs font-mono bg-muted/30 focus:bg-background border-border/40"
+                                  className="h-8 pl-7 text-xs font-mono bg-muted/30 focus:bg-background border-border/40 w-full"
                                 />
                               </div>
-                              <div className="text-[10px] text-muted-foreground pl-1 font-medium italic opacity-70">Anterior: {formatBRL(Number(p.price))}</div>
+                              <div className="text-[10px] text-muted-foreground pl-1 font-medium italic opacity-70 truncate">Anterior: {formatBRL(Number(p.price))}</div>
                             </div>
                           </td>
                           <td className="p-4">
