@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: /admin para dispositivos móveis - a sidebar deve fechar ao tocar em algum item do menu
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: dojo/app/students/daadca27-297b-4b09-8ec1-660dc2657826 ao clicar em editar > dojo, a escolha da opção turma deve ficar salva e aparecer no seletor sempre, permita também a escolha de mais de uma turma para uma única modalidade através de checkbox
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";

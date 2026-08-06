@@ -195,18 +195,28 @@ async function attachCurrentBeltsByModality(
 ): Promise<any[]> {
   if (!students || students.length === 0) return students ?? [];
   const ids = students.map((s) => s.id);
-  const { data: grads } = await supabase
-    .from("dojo_graduations")
-    .select("student_id, degree, graduation_date, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality,sort_order,visual,variants)")
-    .in("student_id", ids)
-    .order("graduation_date", { ascending: false });
-  const byStudent = new Map<string, Map<string, any>>();
-  for (const g of grads ?? []) {
+  
+  const [gradsRes, classStudentsRes] = await Promise.all([
+    supabase
+      .from("dojo_graduations")
+      .select("student_id, degree, graduation_date, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality,sort_order,visual,variants)")
+      .in("student_id", ids)
+      .order("graduation_date", { ascending: false }),
+    supabase
+      .from("dojo_class_students")
+      .select("student_id, class_id, dojo_classes(modality)")
+      .in("student_id", ids)
+  ]);
+
+  const grads = gradsRes.data ?? [];
+  const classStudents = classStudentsRes.data ?? [];
+
+  const byStudentGrads = new Map<string, Map<string, any>>();
+  for (const g of grads) {
     if (!g.belt) continue;
     const modality = (g.belt as any).modality ?? "jiu-jitsu";
-    let m = byStudent.get(g.student_id);
-    if (!m) { m = new Map(); byStudent.set(g.student_id, m); }
-    // First occurrence wins because rows are ordered by graduation_date DESC.
+    let m = byStudentGrads.get(g.student_id);
+    if (!m) { m = new Map(); byStudentGrads.set(g.student_id, m); }
     if (!m.has(modality)) {
       m.set(modality, {
         modality,
@@ -216,10 +226,41 @@ async function attachCurrentBeltsByModality(
       });
     }
   }
-  return students.map((s) => ({
-    ...s,
-    current_belts: Array.from((byStudent.get(s.id) ?? new Map()).values()),
-  }));
+
+  const byStudentClasses = new Map<string, Map<string, string[]>>();
+  for (const cs of classStudents) {
+    const mod = (cs.dojo_classes as any)?.modality ?? "jiu-jitsu";
+    let m = byStudentClasses.get(cs.student_id);
+    if (!m) { m = new Map(); byStudentClasses.set(cs.student_id, m); }
+    let cls = m.get(mod);
+    if (!cls) { cls = []; m.set(mod, cls); }
+    cls.push(cs.class_id);
+  }
+
+  return students.map((s) => {
+    const studentGrads = byStudentGrads.get(s.id) ?? new Map();
+    const studentClasses = byStudentClasses.get(s.id) ?? new Map();
+    
+    // We want to combine these. For every modality that has either a belt or a class, we want an entry.
+    const combined = new Map<string, any>();
+    
+    // Fill from grads
+    for (const [mod, g] of studentGrads.entries()) {
+      combined.set(mod, { ...g, class_ids: studentClasses.get(mod) ?? [] });
+    }
+    
+    // Fill remaining from classes (rare case: has class but no graduation yet)
+    for (const [mod, cls] of studentClasses.entries()) {
+      if (!combined.has(mod)) {
+        combined.set(mod, { modality: mod, belt: null, degree: 0, class_ids: cls });
+      }
+    }
+
+    return {
+      ...s,
+      current_belts: Array.from(combined.values()),
+    };
+  });
 }
 
 export const listDojoStudents = createServerFn({ method: "GET" })
@@ -241,22 +282,47 @@ export const getDojoStudent = createServerFn({ method: "GET" })
     const { data: student, error } = await context.supabase
       .from("dojo_students").select("*").eq("id", data.id).single();
     if (error) throw new Error(error.message);
-    const [grads, enrolls, invoices, certs, photos] = await Promise.all([
+    const [grads, enrolls, invoices, certs, photos, classStudentsRes] = await Promise.all([
       context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality,sort_order,visual,variants)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
       context.supabase.from("dojo_certificates").select("*, template:dojo_certificate_templates(*), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name))").eq("student_id", data.id).order("issued_at", { ascending: false }),
       context.supabase.from("dojo_student_reference_photos").select("*").eq("student_id", data.id),
+      context.supabase.from("dojo_class_students").select("class_id, dojo_classes(modality)").eq("student_id", data.id),
     ]);
+    
+    // Classes by modality
+    const classIdsByMod = new Map<string, string[]>();
+    for (const cs of classStudentsRes.data ?? []) {
+      const mod = (cs.dojo_classes as any)?.modality ?? "jiu-jitsu";
+      let list = classIdsByMod.get(mod);
+      if (!list) { list = []; classIdsByMod.set(mod, list); }
+      list.push(cs.class_id);
+    }
+
     // Derive current belt per modality from ordered graduations (latest per modality wins).
     const currentByModality = new Map<string, any>();
     for (const g of grads.data ?? []) {
       if (!g.belt) continue;
       const mod = (g.belt as any).modality ?? "jiu-jitsu";
       if (!currentByModality.has(mod)) {
-        currentByModality.set(mod, { modality: mod, belt: g.belt, degree: g.degree ?? 0, graduation_date: g.graduation_date });
+        currentByModality.set(mod, { 
+          modality: mod, 
+          belt: g.belt, 
+          degree: g.degree ?? 0, 
+          graduation_date: g.graduation_date,
+          class_ids: classIdsByMod.get(mod) ?? []
+        });
       }
     }
+    
+    // Add modalities that only have classes
+    for (const [mod, cls] of classIdsByMod.entries()) {
+      if (!currentByModality.has(mod)) {
+        currentByModality.set(mod, { modality: mod, belt: null, degree: 0, class_ids: cls });
+      }
+    }
+
     return {
       student,
       graduations: grads.data ?? [],

@@ -14,7 +14,7 @@ import {
   bulkImportDojoStudents,
   addDojoGraduation,
 } from "@/lib/dojo/dojo.functions";
-import { addClassStudent, listClasses } from "@/lib/dojo/schedule.functions";
+import { addClassStudent, listClasses, syncStudentClasses } from "@/lib/dojo/schedule.functions";
 import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
@@ -91,7 +91,7 @@ type StudentForm = {
   unit_id: string | null;
   current_belt_id: string | null;
   current_degree: number | string;
-  modalities: Array<{ modality: string; belt_id: string; degree: number; class_id?: string | null }>;
+  modalities: Array<{ modality: string; belt_id: string; degree: number; class_ids?: string[] }>;
   status: "active" | "inactive" | "frozen";
   notes: string;
   photo_url: string | null;
@@ -172,7 +172,7 @@ function StudentsPage() {
   const bulkImportFn = useServerFn(bulkImportDojoStudents);
   const addGradFn = useServerFn(addDojoGraduation);
   const listClassesFn = useServerFn(listClasses);
-  const addClassStudentFn = useServerFn(addClassStudent);
+  const syncClassesFn = useServerFn(syncStudentClasses);
   const { data: branding } = useDojoBranding();
   const [importOpen, setImportOpen] = useState(false);
   const [importRows, setImportRows] = useState<ParsedStudentRow[]>([]);
@@ -316,11 +316,12 @@ function StudentsPage() {
     const modalities: StudentForm["modalities"] = [];
     const cbs = Array.isArray(s.current_belts) ? s.current_belts : [];
     for (const cb of cbs) {
-      if (!cb?.belt?.id) continue;
+      if (!cb?.belt?.id && (!cb?.class_ids || cb.class_ids.length === 0)) continue;
       modalities.push({
         modality: cb.modality ?? cb.belt?.modality ?? "jiu-jitsu",
-        belt_id: cb.belt.id,
+        belt_id: cb.belt?.id ?? "",
         degree: Number(cb.degree ?? 0),
+        class_ids: cb.class_ids ?? [],
       });
     }
     if (modalities.length === 0 && s.current_belt_id) {
@@ -328,6 +329,7 @@ function StudentsPage() {
         modality: s.belt?.modality ?? "jiu-jitsu",
         belt_id: s.current_belt_id,
         degree: Number(s.current_degree ?? 0),
+        class_ids: [],
       });
     }
 
@@ -426,11 +428,11 @@ function StudentsPage() {
       if (studentId) {
         // --- Registrar na Turma ---
         for (const m of validMods) {
-          if (m.class_id) {
+          if (m.class_ids && m.class_ids.length > 0) {
             try {
-              await addClassStudentFn({ data: { class_id: m.class_id, student_id: studentId } });
+              await syncClassesFn({ data: { student_id: studentId, class_ids: m.class_ids, modality: m.modality } });
             } catch (e: any) {
-              console.error("Erro ao matricular na turma:", e);
+              console.error("Erro ao sincronizar turmas:", e);
               // Não bloqueia o resto do salvamento
             }
           }
@@ -1025,7 +1027,7 @@ function StudentsPage() {
                           const firstMod = form.modalities[0]?.modality ?? modalitiesAvail[0] ?? "jiu-jitsu";
                           set("modalities", [
                             ...form.modalities,
-                            { modality: firstMod, belt_id: "", degree: 0 },
+                            { modality: firstMod, belt_id: "", degree: 0, class_ids: [] },
                           ]);
                         }}
                       >
@@ -1068,19 +1070,33 @@ function StudentsPage() {
                             </select>
                           </div>
                           <div className="md:col-span-3">
-                            <label className="text-[11px] text-muted-foreground">Turma</label>
-                            <select
-                              className="border rounded p-2 bg-background w-full"
-                              value={m.class_id ?? ""}
-                              onChange={(e) => update({ class_id: e.target.value || null })}
-                            >
-                              <option value="">— Sem turma —</option>
+                            <label className="text-[11px] text-muted-foreground">Turmas</label>
+                            <div className="flex flex-col gap-1 max-h-[120px] overflow-y-auto border rounded p-2 bg-background">
                               {((classes.data ?? []) as any[])
                                 .filter((c) => c.modality === m.modality)
-                                .map((c) => (
-                                  <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                            </select>
+                                .map((c) => {
+                                  const isSelected = (m.class_ids ?? []).includes(c.id);
+                                  return (
+                                    <label key={c.id} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/50 p-1 rounded">
+                                      <Checkbox
+                                        checked={isSelected}
+                                        onCheckedChange={(checked) => {
+                                          const current = m.class_ids ?? [];
+                                          if (checked) {
+                                            update({ class_ids: [...current, c.id] });
+                                          } else {
+                                            update({ class_ids: current.filter(id => id !== c.id) });
+                                          }
+                                        }}
+                                      />
+                                      <span className="truncate" title={c.name}>{c.name}</span>
+                                    </label>
+                                  );
+                                })}
+                              {((classes.data ?? []) as any[]).filter((c) => c.modality === m.modality).length === 0 && (
+                                <span className="text-[10px] text-muted-foreground italic">Nenhuma turma para {m.modality}</span>
+                              )}
+                            </div>
                           </div>
                           <div className="md:col-span-3">
                             <label className="text-[11px] text-muted-foreground">Graduação atual</label>

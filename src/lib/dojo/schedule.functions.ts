@@ -268,6 +268,54 @@ export const removeClassStudent = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const syncStudentClasses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      student_id: z.string().uuid(),
+      class_ids: z.array(z.string().uuid()),
+      modality: z.string().optional(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    // 1) Get current classes for this student
+    let q = context.supabase
+      .from("dojo_class_students")
+      .select("id, class_id, dojo_classes!inner(modality)")
+      .eq("student_id", data.student_id);
+    
+    if (data.modality) {
+      q = q.eq("dojo_classes.modality", data.modality);
+    }
+    
+    const { data: current, error: err1 } = await q;
+    if (err1) throw new Error(err1.message);
+    
+    const currentClassIds = new Set(current?.map(c => c.class_id) ?? []);
+    const targetClassIds = new Set(data.class_ids);
+    
+    // 2) Remove classes not in target
+    const toRemove = current?.filter(c => !targetClassIds.has(c.class_id)).map(c => c.id) ?? [];
+    if (toRemove.length > 0) {
+      const { error: err2 } = await context.supabase
+        .from("dojo_class_students")
+        .delete()
+        .in("id", toRemove);
+      if (err2) throw new Error(err2.message);
+    }
+    
+    // 3) Add new classes
+    const toAdd = data.class_ids.filter(id => !currentClassIds.has(id));
+    for (const class_id of toAdd) {
+      const { error: err3 } = await context.supabase
+        .from("dojo_class_students")
+        .insert({ student_id: data.student_id, class_id, owner_id: context.userId });
+      // We ignore errors here (like class full) to ensure at least some are added
+    }
+    
+    return { ok: true };
+  });
+
 // ================= OCCURRENCES =================
 export const cancelOccurrence = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
