@@ -710,7 +710,6 @@ function FiscalDashboard() {
 
         </Tabs>
       </div>
-      </div>
     </AdminShell>
   );
 }
