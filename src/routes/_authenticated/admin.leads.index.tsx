@@ -42,6 +42,8 @@ export const Route = createFileRoute("/_authenticated/admin/leads/")({
   head: () => ({ meta: [{ title: "Leads — Prospect Engine" }] }),
   validateSearch: (s: Record<string, unknown>) => ({
     focus: typeof s.focus === "string" ? s.focus : undefined,
+    q: typeof s.q === "string" ? s.q : undefined,
+    pipeline_stage: typeof s.pipeline_stage === "string" ? s.pipeline_stage : undefined,
   }),
   component: LeadsPage,
 });

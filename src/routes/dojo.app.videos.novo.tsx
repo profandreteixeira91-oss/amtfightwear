@@ -19,7 +19,7 @@ import { uploadVideoFile, probeVideoDuration } from "@/components/dojo/videos/up
 
 export const Route = createFileRoute("/dojo/app/videos/novo")({
   head: () => ({ meta: [{ title: "Novo vídeo — AMT Dojo Manager" }] }),
-  validateSearch: (s: Record<string, unknown>) => ({ id: (s.id as string | undefined) ?? undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ id: (s.id as string | undefined) ?? undefined, step: s.step ? Number(s.step) : undefined }),
   component: VideoEditor,
 });
 

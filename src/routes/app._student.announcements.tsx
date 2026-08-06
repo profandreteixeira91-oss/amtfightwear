@@ -12,7 +12,7 @@ import {
 
 export const Route = createFileRoute("/app/_student/announcements")({
   head: () => ({ meta: [{ title: "Quadro de Avisos — Portal do Aluno" }] }),
-  validateSearch: (s: Record<string, unknown>) => ({ open: typeof s.open === "string" ? s.open : undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ open: typeof s.open === "string" ? s.open : undefined, filter: typeof s.filter === "string" ? s.filter : undefined }),
   component: MyAnnouncements,
 });
 
