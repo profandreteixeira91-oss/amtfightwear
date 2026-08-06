@@ -316,11 +316,12 @@ function StudentsPage() {
     const modalities: StudentForm["modalities"] = [];
     const cbs = Array.isArray(s.current_belts) ? s.current_belts : [];
     for (const cb of cbs) {
-      if (!cb?.belt?.id) continue;
+      if (!cb?.belt?.id && (!cb?.class_ids || cb.class_ids.length === 0)) continue;
       modalities.push({
         modality: cb.modality ?? cb.belt?.modality ?? "jiu-jitsu",
-        belt_id: cb.belt.id,
+        belt_id: cb.belt?.id ?? "",
         degree: Number(cb.degree ?? 0),
+        class_ids: cb.class_ids ?? [],
       });
     }
     if (modalities.length === 0 && s.current_belt_id) {
@@ -328,6 +329,7 @@ function StudentsPage() {
         modality: s.belt?.modality ?? "jiu-jitsu",
         belt_id: s.current_belt_id,
         degree: Number(s.current_degree ?? 0),
+        class_ids: [],
       });
     }
 
