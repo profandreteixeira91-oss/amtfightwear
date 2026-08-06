@@ -170,10 +170,10 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
     const [{ data: products }, { data: variants }] = await Promise.all([
       supabaseAdmin
         .from("store_products" as any)
-        .select("id, name, price, image_url, category_id, wholesale_enabled, wholesale_discount_percent") as any
+        .select("id, name, price, image_url, category_id, wholesale_enabled, wholesale_discount_percent")
         .in("id", productIds),
       variantIds.length
-        ? supabaseAdmin.from("store_product_variants").select("id, product_id, size, color, option_label, sku, price") as any).in("id", variantIds)
+        ? supabaseAdmin.from("store_product_variants").select("id, product_id, size, color, option_label, sku, price").in("id", variantIds)
         : Promise.resolve({ data: [] as Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null }> }),
     ]);
     if (!products || products.length !== productIds.length) {
