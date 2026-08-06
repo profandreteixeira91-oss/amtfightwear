@@ -21,8 +21,9 @@ export const PLAN_AMOUNT = 99.9;
 export const TRIAL_DAYS = 14;
 
 async function mpAmt<T = any>(path: string, init?: RequestInit): Promise<T> {
-  const key = process.env.MERCADOPAGO_ACCESS_TOKEN;
-  if (!key) throw new Error("MERCADOPAGO_ACCESS_TOKEN da AMT não configurada");
+  // Prioriza a conta comercial da AMT Fight Wear para assinaturas do sistema
+  const key = process.env.STORE_MERCADOPAGO_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN;
+  if (!key) throw new Error("MERCADOPAGO_ACCESS_TOKEN (comercial ou pessoal) não configurada");
 
   // Headers base
   const headers: Record<string, string> = {
@@ -149,7 +150,7 @@ export const startMySubscription = createServerFn({ method: "POST" })
 export const getMpPublicKey = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
-    const key = process.env.MERCADOPAGO_PUBLIC_KEY;
+    const key = process.env.STORE_MERCADOPAGO_PUBLIC_KEY || process.env.MERCADOPAGO_PUBLIC_KEY;
     if (!key) throw new Error("MERCADOPAGO_PUBLIC_KEY não configurada");
     return { publicKey: key };
   });

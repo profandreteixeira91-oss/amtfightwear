@@ -68,9 +68,10 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
         // FLUXO A: Assinaturas SaaS (Preapproval) — token AMT
         // ============================================================
         if (String(type).includes("preapproval") || String(type).includes("subscription")) {
-          if (!accessToken) return new Response("ok");
+          const token = storeAccessToken || accessToken;
+          if (!token) return new Response("ok");
           const res = await fetch(`https://api.mercadopago.com/preapproval/${paymentId}`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
+            headers: { Authorization: `Bearer ${token}` },
           });
           if (!res.ok) return new Response("ok");
           const pre = await res.json();
