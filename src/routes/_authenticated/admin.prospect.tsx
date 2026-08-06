@@ -42,7 +42,7 @@ function ProspectDashboardPage() {
         actions={
           <>
             <Button asChild variant="outline" size="sm">
-              <Link to="/admin/leads" search={{ q: "", pipeline_stage: "all" }}><Users className="mr-2 h-4 w-4" />Leads</Link>
+              <Link to="/admin/leads" search={{ focus: "" }}><Users className="mr-2 h-4 w-4" />Leads</Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/admin/leads/busca"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
