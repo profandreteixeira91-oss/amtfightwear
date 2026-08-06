@@ -560,7 +560,7 @@ function AdminProductsPage() {
                             </div>
                           </td>
                           <td className="p-4 text-right">
-                            <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center justify-end gap-1 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                               {dirty && (
                                 <Button size="icon" variant="secondary" onClick={() => saveRow(p.id)} disabled={saving} className="h-8 w-8 rounded-full shadow-sm" title="Salvar Linha">
                                   <Save className="h-3.5 w-3.5" />
