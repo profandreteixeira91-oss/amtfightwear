@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Responda: ~E possível customizar a pãgina de checkout do próprio mercado pago?
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: Vamos fazer essa customização via API passo a passo, habilitando cartão de crédito e pix automático como formas de pagamento
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
