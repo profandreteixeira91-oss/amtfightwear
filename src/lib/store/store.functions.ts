@@ -486,7 +486,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         : Promise.resolve({ data: null }),
     ]);
     const { data: related } = product.category_id
-      ? await sb.from("store_products" as any).select("id, name, slug, price, compare_at_price, image_url") as any).eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)
+      ? await sb.from("store_products" as any).select("id, name, slug, price, compare_at_price, image_url").eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)
       : { data: [] };
     return {
       product,
