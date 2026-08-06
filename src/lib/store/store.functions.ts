@@ -700,7 +700,7 @@ export const cancelStoreOrder = createServerFn({ method: "POST" })
 export const adminListOrders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.from("store_orders").select("*") as any.order("created_at", { ascending: false }).limit(200);
+    const { data } = await context.supabase.from("store_orders").select("*").order("created_at", { ascending: false }).limit(200);
     return data ?? [];
   });
 
