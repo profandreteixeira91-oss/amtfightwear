@@ -873,8 +873,7 @@ function FiscalDashboard() {
             </ScrollArea>
           </DialogContent>
         </Dialog>
-      </div>
-    </>
+    </div>
   );
 }
 
