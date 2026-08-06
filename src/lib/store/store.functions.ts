@@ -338,18 +338,18 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
   const productSel = "id, name, slug, price, compare_at_price, image_url, category_id";
 
   const [categories, featured, newest, bjjBelts, judoBelts, kimonos] = await Promise.all([
-    sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12),
-    sb.from("store_products" as any).select(productSel).eq("status", "active").limit(200),
-    sb.from("store_products" as any).select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12),
+    sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12) as any,
+    sb.from("store_products" as any).select(productSel).eq("status", "active").limit(200) as any,
+    sb.from("store_products" as any).select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12) as any,
     bjjBeltIds.length
-      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60)
-      : Promise.resolve({ data: [] as never[] }),
+      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60) as any
+      : Promise.resolve({ data: [] as any[] }),
     judoBeltIds.length
-      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60)
-      : Promise.resolve({ data: [] as never[] }),
+      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60) as any
+      : Promise.resolve({ data: [] as any[] }),
     kimonoIds.length
-      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24)
-      : Promise.resolve({ data: [] as never[] }),
+      ? sb.from("store_products" as any).select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24) as any
+      : Promise.resolve({ data: [] as any[] }),
   ]);
 
   // Daily-seeded shuffle for BJJ belts so the picks rotate once per day.
