@@ -51,6 +51,7 @@ export const getMySubscription = createServerFn({ method: "GET" })
           currency: "BRL",
           status: "trialing",
           trial_ends_at: trialEnd,
+          current_period_end: null, // Garante que começa nulo até o primeiro pagamento
         } as never)
         .select("*")
         .maybeSingle();
