@@ -51,7 +51,7 @@ function normalizeWholesaleSettings(raw: unknown): WholesaleSettings {
 }
 
 async function readWholesaleSettings(sb: ReturnType<typeof publicClient>): Promise<WholesaleSettings> {
-  const { data } = await sb.from("app_settings").select("value") as any.eq("key", "wholesale_settings").maybeSingle();
+  const { data } = (await sb.from("app_settings").select("value") as any).eq("key", "wholesale_settings").maybeSingle();
   return normalizeWholesaleSettings(data?.value);
 }
 
@@ -115,7 +115,7 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
     return out;
   };
   const [cats, prodsRes] = await Promise.all([
-    sb.from("store_categories").select("id, slug, name, parent_id") as any.eq("active", true).order("sort_order"),
+    sb.from("store_categories").select("id, slug, name, parent_id") as any).eq("active", true).order("sort_order"),
     sb.from("store_products" as any)
       .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description, wholesale_discount_percent") as any
       .eq("status", "active")
@@ -123,7 +123,7 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
       .order("name"),
   ]);
   const prods = (prodsRes.data as any[]) ?? [];
-  const variants = await fetchAllVariants(prods.map((p) => p.id));
+  const variants = await fetchAllVariants(prods.map((p: any) => p.id));
   return { categories: cats.data ?? [], products: prods, variants, settings };
 });
 
@@ -155,7 +155,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
 
 
     // Read admin-controlled wholesale settings.
-    const { data: settingsRow } = await supabaseAdmin
+    const { data: settingsRow } = (await supabaseAdmin
       .from("app_settings")
       .select("value") as any
       .eq("key", "wholesale_settings")
@@ -337,17 +337,17 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
   const productSel = "id, name, slug, price, compare_at_price, image_url, category_id";
 
   const [categories, featured, newest, bjjBelts, judoBelts, kimonos] = await Promise.all([
-    sb.from("store_categories").select("id, slug, name, image_url, sort_order") as any.eq("active", true).order("sort_order").limit(12),
-    sb.from("store_products" as any).select(productSel) as any.eq("status", "active").limit(200),
-    sb.from("store_products" as any).select(productSel) as any.eq("status", "active").order("created_at", { ascending: false }).limit(12),
+    sb.from("store_categories").select("id, slug, name, image_url, sort_order") as any).eq("active", true).order("sort_order").limit(12),
+    sb.from("store_products" as any).select(productSel) as any).eq("status", "active").limit(200),
+    sb.from("store_products" as any).select(productSel) as any).eq("status", "active").order("created_at", { ascending: false }).limit(12),
     bjjBeltIds.length
-      ? sb.from("store_products" as any).select(productSel) as any.eq("status", "active").in("category_id", bjjBeltIds).limit(60)
+      ? sb.from("store_products" as any).select(productSel) as any).eq("status", "active").in("category_id", bjjBeltIds).limit(60)
       : Promise.resolve({ data: [] as never[] }),
     judoBeltIds.length
-      ? sb.from("store_products" as any).select(productSel) as any.eq("status", "active").in("category_id", judoBeltIds).limit(60)
+      ? sb.from("store_products" as any).select(productSel) as any).eq("status", "active").in("category_id", judoBeltIds).limit(60)
       : Promise.resolve({ data: [] as never[] }),
     kimonoIds.length
-      ? sb.from("store_products" as any).select(productSel) as any.eq("status", "active").in("category_id", kimonoIds).limit(24)
+      ? sb.from("store_products" as any).select(productSel) as any).eq("status", "active").in("category_id", kimonoIds).limit(24)
       : Promise.resolve({ data: [] as never[] }),
   ]);
 
@@ -380,7 +380,7 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
 
 export const listStoreCategories = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
-  const { data } = await sb.from("store_categories").select("id, slug, name, image_url, description, sort_order, parent_id") as any.eq("active", true).order("sort_order");
+  const { data } = (await sb.from("store_categories").select("id, slug, name, image_url, description, sort_order, parent_id") as any).eq("active", true).order("sort_order");
   const cats = data ?? [];
   if (cats.length === 0) return [] as Array<(typeof cats)[number] & { preview_image: string | null }>;
 
@@ -436,7 +436,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
   .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: category } = await sb.from("store_categories").select("*") as any.eq("slug", data.slug).eq("active", true).maybeSingle();
+    const { data: category } = await sb.from("store_categories").select("*") as any).eq("slug", data.slug).eq("active", true).maybeSingle();
     if (!category) return { category: null, products: [] };
 
     // Include products from this category AND all descendant categories,
@@ -476,17 +476,17 @@ export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: product } = await sb.from("store_products" as any).select("*") as any.eq("slug", data.slug).eq("status", "active").maybeSingle();
+    const { data: product } = await sb.from("store_products" as any).select("*") as any).eq("slug", data.slug).eq("status", "active").maybeSingle();
     if (!product) return { product: null, images: [], variants: [], related: [], category: null };
     const [imagesR, variantsR, categoryR] = await Promise.all([
-      sb.from("store_product_images").select("*") as any.eq("product_id", product.id).order("sort_order"),
-      sb.from("store_product_variants").select("*") as any.eq("product_id", product.id).eq("active", true).order("sort_order"),
+      sb.from("store_product_images").select("*") as any).eq("product_id", product.id).order("sort_order"),
+      sb.from("store_product_variants").select("*") as any).eq("product_id", product.id).eq("active", true).order("sort_order"),
       product.category_id
-        ? sb.from("store_categories").select("id, slug, name") as any.eq("id", product.category_id).maybeSingle()
+        ? sb.from("store_categories").select("id, slug, name") as any).eq("id", product.category_id).maybeSingle()
         : Promise.resolve({ data: null }),
     ]);
     const { data: related } = product.category_id
-      ? await sb.from("store_products" as any).select("id, name, slug, price, compare_at_price, image_url") as any.eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)
+      ? await sb.from("store_products" as any).select("id, name, slug, price, compare_at_price, image_url") as any).eq("status", "active").eq("category_id", product.category_id).neq("id", product.id).limit(4)
       : { data: [] };
     return {
       product,
@@ -664,9 +664,9 @@ export const getStoreOrder = createServerFn({ method: "GET" })
   .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: order } = await supabaseAdmin.from("store_orders").select("*") as any.eq("id", data.id).maybeSingle();
+    const { data: order } = await supabaseAdmin.from("store_orders").select("*") as any).eq("id", data.id).maybeSingle();
     if (!order) return null;
-    const { data: items } = await supabaseAdmin.from("store_order_items").select("*") as any.eq("order_id", order.id);
+    const { data: items } = await supabaseAdmin.from("store_order_items").select("*") as any).eq("order_id", order.id);
     return { order, items: items ?? [] };
   });
 
@@ -674,7 +674,7 @@ export const cancelStoreOrder = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: order } = await supabaseAdmin.from("store_orders").select("id, status, payment_status") as any.eq("id", data.id).maybeSingle();
+    const { data: order } = await supabaseAdmin.from("store_orders").select("id, status, payment_status") as any).eq("id", data.id).maybeSingle();
     if (!order) throw new Error("Pedido não encontrado.");
     const allowed = ["pending_payment", "pending", "failed"];
     if (!allowed.includes(String(order.status ?? "").toLowerCase())) {
