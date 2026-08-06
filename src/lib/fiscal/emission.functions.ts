@@ -31,7 +31,7 @@ export const emitNFe = createServerFn({ method: "POST" })
 
       const { data: items } = await s
         .from('store_order_items')
-        .select('*, products:products(ncm, cest, cfop_internal, cfop_interstate)')
+        .select('*, products:products(ncm, cest, cfop)')
         .eq('order_id', data.orderId);
       
       orderItems = (items as any[]) || [];
@@ -57,7 +57,7 @@ export const emitNFe = createServerFn({ method: "POST" })
       for (const item of items as any[]) {
         const { data: prod } = await s
           .from('products' as any)
-          .select('ncm, cest, cfop_internal, cfop_interstate')
+          .select('ncm, cest, cfop')
           .eq('id', item.product_id)
           .maybeSingle();
         
@@ -105,11 +105,9 @@ export const emitNFe = createServerFn({ method: "POST" })
     for (const item of orderItems) {
       if (!item.products?.ncm) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem NCM preenchido.`);
       
-      const cfop = (customerState === issuerState) 
-        ? item.products?.cfop_internal 
-        : item.products?.cfop_interstate;
+      const cfop = item.products?.cfop;
       
-      if (!cfop) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem CFOP configurado para operação ${(customerState === issuerState) ? 'interna' : 'interestadual'}.`);
+      if (!cfop) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem CFOP configurado.`);
     }
 
     const { data: invoice, error: invoiceError } = await s

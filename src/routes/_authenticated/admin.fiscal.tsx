@@ -280,7 +280,7 @@ function FiscalDashboard() {
                 <Button 
                   onClick={() => setShowOrderSelection(true)}
                   disabled={isEmitting}
-                  className="h-14 gap-3 rounded-2xl bg-red-600 px-8 text-base font-semibold shadow-[0_10px_20px_-5px_rgba(220,38,38,0.3)] transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
+                  className="h-14 gap-3 rounded-2xl bg-red-600 px-8 text-base font-semibold shadow-[0_10px_20px_-5px_rgba(220,38,38,0.3)] transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] w-full"
                 >
                   {isEmitting ? (
                     <>
