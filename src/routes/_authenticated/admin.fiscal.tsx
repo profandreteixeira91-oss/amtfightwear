@@ -48,9 +48,11 @@ function FiscalDashboard() {
   const uploadCertFn = useServerFn(uploadCertificate);
   const fetchProducts = useServerFn(getProductsWithFiscal);
   const updateProdFiscal = useServerFn(updateProductFiscal);
+  const saveConfigFn = useServerFn(saveFiscalConfig);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [productSearch, setProductSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: status, isLoading: statusLoading } = useQuery({
     queryKey: ['fiscal-status'],
