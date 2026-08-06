@@ -14,6 +14,7 @@ import {
   adminApplyCategoryFiscalToProducts,
 } from "@/lib/store/store.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { getFiscalSuggestion } from "@/lib/fiscal/automation.functions";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -103,8 +104,8 @@ function AdminProductsPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const rows = data ?? [];
-    return rows.filter((p) => {
+    const rows = (data as any) ?? [];
+    return rows.filter((p: any) => {
       if (allowedCategoryIds && !(p.category_id && allowedCategoryIds.has(p.category_id))) return false;
       if (!q) return true;
       const tokens = q.split(/\s+/).filter(Boolean);
@@ -134,7 +135,7 @@ function AdminProductsPage() {
   const toggleAllPage = (v: boolean) => {
     setSelected((prev) => {
       const n = new Set(prev);
-      for (const p of pageRows) {
+      for (const p of (pageRows as any[])) {
         if (v) n.add(p.id);
         else n.delete(p.id);
       }
@@ -142,7 +143,7 @@ function AdminProductsPage() {
     });
   };
 
-  const allPageSelected = pageRows.length > 0 && pageRows.every((p) => selected.has(p.id));
+  const allPageSelected = pageRows.length > 0 && pageRows.every((p: any) => selected.has(p.id));
 
   const patchOne = async (id: string, patch: Record<string, unknown>) => {
     await update({ data: { id, patch } });
@@ -445,7 +446,7 @@ function AdminProductsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/30">
-                    {pageRows.map((p) => {
+                    {pageRows.map((p: any) => {
                       const e = edits[p.id];
                       const priceVal = e?.price ?? String(p.price);
                       const stockVal = e?.stock ?? String(p.stock);
@@ -1100,6 +1101,7 @@ function slugify(s: string) {
 function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
   const create = useServerFn(adminCreateStoreProduct);
   const listCats = useServerFn(adminListStoreCategories);
+  const getSuggestion = useServerFn(getFiscalSuggestion);
   const { data: cats } = useQuery({ queryKey: ["admin", "store", "categories"], queryFn: () => listCats({}) });
 
   const [name, setName] = useState("");
@@ -1110,6 +1112,7 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
   const [categoryId, setCategoryId] = useState<string>("");
   const [shortDesc, setShortDesc] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [fiscalData, setFiscalData] = useState<any>({});
   const [saving, setSaving] = useState(false);
 
   const handleName = (v: string) => {
@@ -1137,14 +1140,36 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
           image_url: imageUrl || null,
           status: "active",
           featured: false,
+          ncm: fiscalData.ncm || null,
+          cest: fiscalData.cest || null,
+          cfop_internal: fiscalData.cfop_internal || null,
+          cfop_interstate: fiscalData.cfop_interstate || null,
+          unit_commercial: fiscalData.unit_commercial || 'UN',
+          unit_taxable: fiscalData.unit_taxable || 'UN',
         },
       });
-      toast.success("Produto criado");
+      toast.success("Produto criado com automação fiscal");
       onCreated(id);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao criar");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const onCategoryChange = async (cid: string) => {
+    setCategoryId(cid);
+    if (!cid) return;
+    try {
+      const suggestion = await getSuggestion({ data: { category_id: cid } });
+      if (suggestion) {
+        setFiscalData(suggestion);
+        toast.info("Sugestão fiscal aplicada para esta categoria", {
+          description: `NCM: ${suggestion.ncm} | CFOP: ${suggestion.cfop_internal}`,
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao buscar sugestão fiscal", err);
     }
   };
 
@@ -1197,7 +1222,7 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
               <select
                 className="w-full h-10 rounded-md border border-border/40 bg-muted/30 px-3 text-sm focus:bg-background transition-all outline-none"
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
+                onChange={(e) => onCategoryChange(e.target.value)}
               >
                 <option value="">— Selecione uma categoria —</option>
                 {(cats ?? []).map((c) => (
@@ -1215,6 +1240,32 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
               <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Breve Descrição</Label>
               <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} placeholder="Resumo do produto..." className="bg-muted/30 focus:bg-background border-border/40 text-sm resize-none" />
             </div>
+
+            {fiscalData.ncm && (
+              <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-3">
+                <div className="flex items-center gap-2 text-blue-700 font-bold text-[10px] uppercase tracking-wider">
+                  <Receipt className="h-3.5 w-3.5" /> Automação Fiscal Ativa
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-[9px] uppercase text-blue-600/70 font-bold">NCM Sugerido</Label>
+                    <Input 
+                      value={fiscalData.ncm || ""} 
+                      onChange={(e) => setFiscalData({...fiscalData, ncm: e.target.value})}
+                      className="h-8 text-xs bg-white/50 border-blue-200" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[9px] uppercase text-blue-600/70 font-bold">CFOP Interno</Label>
+                    <Input 
+                      value={fiscalData.cfop_internal || ""} 
+                      onChange={(e) => setFiscalData({...fiscalData, cfop_internal: e.target.value})}
+                      className="h-8 text-xs bg-white/50 border-blue-200" 
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 

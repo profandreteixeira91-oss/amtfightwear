@@ -35,7 +35,7 @@ export function CartUpsell({ subtotal }: { subtotal: number }) {
 
   const suggestions = useMemo<Suggestion[]>(() => {
     if (!data) return [];
-    const pool = [...(data.featured ?? []), ...(data.newest ?? []), ...(data.bjjBelts ?? [])];
+    const pool = [...(data as any).featured ?? [], ...(data as any).newest ?? [], ...(data as any).bjjBelts ?? []]; //(data.featured ?? []), ...(data.newest ?? []), ...(data.bjjBelts ?? [])];
     const inCart = new Set(items.map((i) => i.product_id));
     const seen = new Set<string>();
     const unique: Suggestion[] = [];
