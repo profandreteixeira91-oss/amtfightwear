@@ -9,26 +9,69 @@ export const emitNFe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({
     orderId: z.string().uuid(),
+    type: z.enum(['order', 'quote']).default('order'),
   }).parse(data))
   .handler(async ({ data, context }) => {
     const s = context.supabase;
     const userId = context.userId;
 
-    // 1. Fetch order data
-    const { data: order, error: orderError } = await s
-      .from('orders')
-      .select('*, order_items(*, products(*))')
-      .eq('id', data.orderId)
-      .single();
-    
-    if (orderError || !order) throw new Error("Pedido não encontrado");
+    let orderData: any;
+    let customerData: any;
+    let orderItems: any[] = [];
 
-    // Fetch customer data to get name and document
-    const { data: customer } = await s
-      .from('customers')
-      .select('*')
-      .eq('id', order.customer_id || '')
-      .maybeSingle();
+    if (data.type === 'order') {
+      // 1. Fetch order data
+      const { data: order, error: orderError } = await s
+        .from('orders')
+        .select('*, order_items(*, products(*))')
+        .eq('id', data.orderId)
+        .single();
+      
+      if (orderError || !order) throw new Error("Pedido não encontrado");
+      orderData = order;
+      orderItems = order.order_items || [];
+
+      // Fetch customer data
+      const { data: customer } = await s
+        .from('customers')
+        .select('*')
+        .eq('id', order.customer_id || '')
+        .maybeSingle();
+      customerData = customer;
+    } else {
+      // 1. Fetch quote data
+      const { data: quote, error: quoteError } = await s
+        .from('store_quotes')
+        .select('*')
+        .eq('id', data.orderId)
+        .single();
+      
+      if (quoteError || !quote) throw new Error("Orçamento não encontrado");
+      orderData = quote;
+      
+      // Map quote items to standard format
+      const items = Array.isArray(quote.items) ? quote.items : [];
+      
+      // For quotes, we need to fetch NCM/CEST from products table since it's just a JSON in store_quotes
+      for (const item of items as any[]) {
+        const { data: prod } = await s
+          .from('products')
+          .select('ncm, cest, cfop')
+          .eq('id', item.product_id)
+          .maybeSingle();
+        
+        orderItems.push({
+          ...item,
+          products: prod || {}
+        });
+      }
+
+      customerData = {
+        full_name: quote.customer_name,
+        email: quote.customer_email,
+        document: quote.customer_document
+      };
+    }
 
     // 3. Validate issuer config
     const { data: config } = await s
@@ -60,13 +103,14 @@ export const emitNFe = createServerFn({ method: "POST" })
       .from('fiscal_invoices')
       .insert({
         owner_id: userId,
-        order_id: data.orderId,
+        order_id: data.type === 'order' ? data.orderId : null,
+        quote_id: data.type === 'quote' ? data.orderId : null,
         invoice_number: invoiceNumber,
         series: series,
         access_key: accessKey,
-        recipient_name: customer?.full_name || 'Cliente Consumidor',
-        recipient_document: '000.000.000-00', // Default placeholder if missing
-        total_amount: order.total,
+        recipient_name: customerData?.full_name || 'Cliente Consumidor',
+        recipient_document: customerData?.document || '000.000.000-00',
+        total_amount: orderData.total,
         status: 'authorized',
         issue_date: new Date().toISOString(),
         xml_content: '<nfeProc>...</nfeProc>',
@@ -77,15 +121,21 @@ export const emitNFe = createServerFn({ method: "POST" })
 
     if (invoiceError) throw new Error("Erro ao salvar nota fiscal: " + invoiceError.message);
 
-    // 15. Update stock and financial status (Simulated/Placeholder)
-    // Update order status to 'invoiced'
-    await s
-      .from('orders')
-      .update({ status: 'invoiced' })
-      .eq('id', data.orderId);
+    // 15. Update status
+    if (data.type === 'order') {
+      await s
+        .from('orders')
+        .update({ status: 'invoiced' })
+        .eq('id', data.orderId);
+    } else {
+      await s
+        .from('store_quotes')
+        .update({ status: 'invoiced' })
+        .eq('id', data.orderId);
+    }
 
     // 17. Send email (Simulated/Placeholder)
-    console.log(`Email enviado para ${customer?.email || 'cliente'} com a NF-e ${invoiceNumber}`);
+    console.log(`Email enviado para ${customerData?.email || 'cliente'} com a NF-e ${invoiceNumber}`);
 
     // Update issuer last number
     await s

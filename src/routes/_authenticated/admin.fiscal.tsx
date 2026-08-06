@@ -153,7 +153,7 @@ function FiscalDashboard() {
   };
 
 
-  const handleEmitNFe = async (orderId: string) => {
+  const handleEmitNFe = async (orderId: string, type: 'order' | 'quote' = 'order') => {
     setIsEmitting(true);
     setShowOrderSelection(false);
     try {
@@ -172,7 +172,7 @@ function FiscalDashboard() {
       setEmissionStep("Transmitindo para a SEFAZ...");
       await new Promise(r => setTimeout(r, 1200));
 
-      const result = await emitNFeFn({ data: { orderId } });
+      const result = await emitNFeFn({ data: { orderId, type } });
       
       setEmissionStep("Processando retorno da SEFAZ...");
       await new Promise(r => setTimeout(r, 500));
@@ -736,22 +736,27 @@ function FiscalDashboard() {
                                   <div>
                                     <p className="font-medium text-neutral-900">{p.name}</p>
                                     <p className="text-xs text-neutral-500">R$ {Number(p.price).toLocaleString('pt-BR')}</p>
+                                    {p.store_categories?.ncm && !p.ncm && (
+                                      <Badge variant="outline" className="mt-1 text-[9px] bg-blue-50 text-blue-600 border-blue-100">
+                                        Sincronizado da Categoria
+                                      </Badge>
+                                    )}
                                   </div>
                                 </div>
                               </td>
                               <td className="p-4">
                                 <Input 
                                   defaultValue={p.ncm || ""} 
-                                  placeholder="0000.00.00"
-                                  className="h-8 w-28 text-xs"
+                                  placeholder={p.store_categories?.ncm || "0000.00.00"}
+                                  className={cn("h-8 w-28 text-xs", !p.ncm && p.store_categories?.ncm && "border-blue-200 bg-blue-50/30")}
                                   onBlur={(e) => handleProductFiscalUpdate(p.id, 'ncm', e.target.value)}
                                 />
                               </td>
                               <td className="p-4">
                                 <Input 
                                   defaultValue={p.cest || ""} 
-                                  placeholder="00.000.00"
-                                  className="h-8 w-28 text-xs"
+                                  placeholder={p.store_categories?.cest || "00.000.00"}
+                                  className={cn("h-8 w-28 text-xs", !p.cest && p.store_categories?.cest && "border-blue-200 bg-blue-50/30")}
                                   onBlur={(e) => handleProductFiscalUpdate(p.id, 'cest', e.target.value)}
                                 />
                               </td>
@@ -852,14 +857,19 @@ function FiscalDashboard() {
                 ) : !pendingOrders || pendingOrders.length === 0 ? (
                   <div className="p-8 text-center text-muted-foreground italic">Nenhum pedido recente encontrado.</div>
                 ) : (
-                  pendingOrders.map(order => (
+                  pendingOrders.map((order: any) => (
                     <div 
                       key={order.id} 
                       className="flex items-center justify-between p-4 border rounded-xl hover:bg-neutral-50 transition-colors cursor-pointer group"
-                      onClick={() => handleEmitNFe(order.id)}
+                      onClick={() => handleEmitNFe(order.id, order.type as any)}
                     >
-                      <div>
-                        <p className="font-bold text-neutral-900">Pedido #{order.number}</p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-neutral-900">{order.number}</p>
+                          <Badge variant="outline" className="text-[10px] h-4 px-1.5 uppercase font-medium">
+                            {order.type === 'quote' ? 'Orçamento' : 'Pedido'}
+                          </Badge>
+                        </div>
                         <p className="text-xs text-neutral-500">{order.customer} • {new Date(order.date).toLocaleDateString('pt-BR')}</p>
                       </div>
                       <div className="text-right flex items-center gap-3">

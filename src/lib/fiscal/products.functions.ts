@@ -7,10 +7,14 @@ export const getProductsWithFiscal = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("products")
-      .select("id, name, price, category_id, ncm, cest, cfop")
+      .select("id, name, price, category_id, ncm, cest, cfop, store_categories(ncm, cest)")
       .order("name");
     if (error) throw new Error(error.message);
-    return data;
+    return (data || []).map((p: any) => ({
+      ...p,
+      ncm: p.ncm || p.store_categories?.ncm,
+      cest: p.cest || p.store_categories?.cest
+    }));
   });
 
 export const updateProductFiscal = createServerFn({ method: "POST" })
