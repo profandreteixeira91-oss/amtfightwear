@@ -165,7 +165,7 @@ function SubscriptionPage() {
             <Tabs defaultValue="card" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="card">Cartão de Crédito</TabsTrigger>
-                <TabsTrigger value="pix">PIX Recorrente</TabsTrigger>
+                <TabsTrigger value="pix">PIX Automático</TabsTrigger>
               </TabsList>
               <TabsContent value="card">
                 <NativeCardCheckout

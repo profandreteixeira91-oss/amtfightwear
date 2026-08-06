@@ -338,12 +338,16 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
 
     // Criamos uma assinatura (preapproval) específica para PIX.
     // Isso habilita o fluxo de Pix Automático onde o MP gerencia a recorrência.
+    const origin = "https://dojomanager.amtfightwear.com.br";
+    const backUrl = `${origin}/dojo/app/subscription`;
+
     const preapproval = await mpAmt<any>("/preapproval", {
       method: "POST",
       body: JSON.stringify({
         reason: "AMT Dojo Manager — Assinatura mensal (Pix Automático)",
         external_reference: `dojo_sub_pix:${sub.id}`,
         payer_email: data.payerEmail,
+        back_url: backUrl,
         status: "pending",
         auto_recurring: {
           frequency: 1,
