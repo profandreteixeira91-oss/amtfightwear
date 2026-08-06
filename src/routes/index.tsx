@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: corrija este erro no módulo fiscal e ajuste novamente os cards que desconfiguraram
+ * Execute esta instrucao no projeto: Os produtos aparecem no site mas ainda não aparecem em catálogo, corrija de forma definitiva
  * Módulo de Emissão de Nota Fiscal Eletrônica (NF-e e NFS-e) com Certificado Digital A1
  * Implementado em /admin/fiscal
  */
