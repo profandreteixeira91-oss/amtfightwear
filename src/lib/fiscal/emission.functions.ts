@@ -56,7 +56,7 @@ export const emitNFe = createServerFn({ method: "POST" })
       for (const item of items as any[]) {
         const { data: prod } = await s
           .from('products')
-          .select('ncm, cest, cfop')
+          .select('ncm, cest, cfop_internal, cfop_interstate')
           .eq('id', item.product_id)
           .maybeSingle();
         
@@ -96,8 +96,24 @@ export const emitNFe = createServerFn({ method: "POST" })
 
     const invoiceNumber = (config.last_nfe_number || 0) + 1;
     const series = config.last_nfe_series || 1;
+    
+    // Identificar UF para CFOP automático
+    const issuerState = config.address_state || 'SP';
+    const customerState = customerData?.address_state || 'SP'; // Fallback ou busca no customerData
+    
     const accessKey = `352608${config.cnpj.replace(/\D/g, '')}55001${String(invoiceNumber).padStart(9, '0')}1${Math.floor(10000000 + Math.random() * 90000000)}`;
     
+    // Validar campos obrigatórios antes da emissão
+    for (const item of orderItems) {
+      if (!item.products?.ncm) throw new Error(`Produto ${item.product_name || 'sem nome'} está sem NCM preenchido.`);
+      
+      const cfop = (customerState === issuerState) 
+        ? item.products?.cfop_internal 
+        : item.products?.cfop_interstate;
+      
+      if (!cfop) throw new Error(`Produto ${item.product_name || 'sem nome'} está sem CFOP configurado para operação ${(customerState === issuerState) ? 'interna' : 'interestadual'}.`);
+    }
+
     // Simulate processing steps
     const { data: invoice, error: invoiceError } = await s
       .from('fiscal_invoices')
