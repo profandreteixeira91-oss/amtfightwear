@@ -682,7 +682,12 @@ function FiscalDashboard() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Ambiente SEFAZ</label>
-                      <select name="environment" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" defaultValue={status?.environment}>
+                      <select 
+                        name="environment" 
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+                        value={fiscalConfig?.environment || status?.environment || "homologacao"}
+                        onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, environment: e.target.value }))}
+                      >
                         <option value="homologacao">Homologação (Testes)</option>
                         <option value="producao">Produção</option>
                       </select>
