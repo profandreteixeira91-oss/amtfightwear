@@ -282,22 +282,47 @@ export const getDojoStudent = createServerFn({ method: "GET" })
     const { data: student, error } = await context.supabase
       .from("dojo_students").select("*").eq("id", data.id).single();
     if (error) throw new Error(error.message);
-    const [grads, enrolls, invoices, certs, photos] = await Promise.all([
+    const [grads, enrolls, invoices, certs, photos, classStudentsRes] = await Promise.all([
       context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality,sort_order,visual,variants)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
       context.supabase.from("dojo_certificates").select("*, template:dojo_certificate_templates(*), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name))").eq("student_id", data.id).order("issued_at", { ascending: false }),
       context.supabase.from("dojo_student_reference_photos").select("*").eq("student_id", data.id),
+      context.supabase.from("dojo_class_students").select("class_id, dojo_classes(modality)").eq("student_id", data.id),
     ]);
+    
+    // Classes by modality
+    const classIdsByMod = new Map<string, string[]>();
+    for (const cs of classStudentsRes.data ?? []) {
+      const mod = (cs.dojo_classes as any)?.modality ?? "jiu-jitsu";
+      let list = classIdsByMod.get(mod);
+      if (!list) { list = []; classIdsByMod.set(mod, list); }
+      list.push(cs.class_id);
+    }
+
     // Derive current belt per modality from ordered graduations (latest per modality wins).
     const currentByModality = new Map<string, any>();
     for (const g of grads.data ?? []) {
       if (!g.belt) continue;
       const mod = (g.belt as any).modality ?? "jiu-jitsu";
       if (!currentByModality.has(mod)) {
-        currentByModality.set(mod, { modality: mod, belt: g.belt, degree: g.degree ?? 0, graduation_date: g.graduation_date });
+        currentByModality.set(mod, { 
+          modality: mod, 
+          belt: g.belt, 
+          degree: g.degree ?? 0, 
+          graduation_date: g.graduation_date,
+          class_ids: classIdsByMod.get(mod) ?? []
+        });
       }
     }
+    
+    // Add modalities that only have classes
+    for (const [mod, cls] of classIdsByMod.entries()) {
+      if (!currentByModality.has(mod)) {
+        currentByModality.set(mod, { modality: mod, belt: null, degree: 0, class_ids: cls });
+      }
+    }
+
     return {
       student,
       graduations: grads.data ?? [],
