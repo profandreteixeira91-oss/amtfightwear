@@ -315,7 +315,7 @@ function QualifiedPage() {
         description={`${total} leads enriquecidos e prontos para abordagem. Envie e-mail ou abra o Instagram com a mensagem pré-pronta.`}
         actions={
           <Button asChild size="sm" variant="outline">
-            <Link to="/admin/leads" search={{}}>
+            <Link to="/admin/leads" search={{ q: "", pipeline_stage: "all" }}>
               Ver todos os leads
             </Link>
           </Button>
@@ -369,7 +369,7 @@ function QualifiedPage() {
             </div>
           ) : rows.length === 0 ? (
             <div className="p-10 text-center text-sm text-muted-foreground">
-              Nenhum potencial cliente ainda. Enriqueça leads em <Link to="/admin/leads" search={{}} className="text-primary underline">Leads</Link> para vê-los aqui.
+              Nenhum potencial cliente ainda. Enriqueça leads em <Link to="/admin/leads" search={{ q: "", pipeline_stage: "all" }} className="text-primary underline">Leads</Link> para vê-los aqui.
             </div>
           ) : (
             <Table>
