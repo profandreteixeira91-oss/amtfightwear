@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { NativeCardCheckout } from "@/components/dojo/NativeCardCheckout";
+import { NativePixCheckout } from "@/components/dojo/NativePixCheckout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   getMySubscription,
   cancelMySubscription,
@@ -160,13 +162,30 @@ function SubscriptionPage() {
             <CardTitle className="text-base">Finalizar assinatura</CardTitle>
           </CardHeader>
           <CardContent>
-            <NativeCardCheckout
-              defaultEmail={ownerEmail}
-              onSuccess={async () => {
-                setShowCheckout(false);
-                await qc.invalidateQueries({ queryKey: ["dojo", "subscription"] });
-              }}
-            />
+            <Tabs defaultValue="card" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="card">Cartão de Crédito</TabsTrigger>
+                <TabsTrigger value="pix">PIX Recorrente</TabsTrigger>
+              </TabsList>
+              <TabsContent value="card">
+                <NativeCardCheckout
+                  defaultEmail={ownerEmail}
+                  onSuccess={async () => {
+                    setShowCheckout(false);
+                    await qc.invalidateQueries({ queryKey: ["dojo", "subscription"] });
+                  }}
+                />
+              </TabsContent>
+              <TabsContent value="pix">
+                <NativePixCheckout
+                  defaultEmail={ownerEmail}
+                  onSuccess={async () => {
+                    // Pix costuma ser assíncrono ou mostrar QR code primeiro
+                    // Não fechamos imediatamente se o componente estiver mostrando o QR code
+                  }}
+                />
+              </TabsContent>
+            </Tabs>
             <div className="pt-3 text-center">
               <button
                 type="button"
