@@ -557,7 +557,7 @@ function FiscalDashboard() {
                         <Loader2 className="h-12 w-12 animate-spin text-primary" />
                         <p className="text-sm font-medium">Enviando e validando certificado...</p>
                       </div>
-                    ) : (
+                     status?.certificate_valid ? (
                       <>
                         <div className="flex flex-col items-center gap-2">
                           <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
