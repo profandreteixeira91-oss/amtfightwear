@@ -130,7 +130,8 @@ function FiscalDashboard() {
 
 
   return (
-    <div className="w-full space-y-10 p-6 md:p-8 lg:p-10 bg-neutral-50/30 min-h-screen">
+    <AdminShell title="Módulo Fiscal" hideLayoutOnLoad>
+      <div className="w-full space-y-10 p-6 md:p-8 lg:p-10 bg-neutral-50/30 min-h-screen">
         {/* Hero Section - Premium Design */}
         <section className="relative overflow-hidden rounded-[2.5rem] border border-neutral-200/60 bg-white p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:p-14">
           <div
@@ -709,7 +710,8 @@ function FiscalDashboard() {
 
         </Tabs>
       </div>
-    </div>
+      </div>
+    </AdminShell>
   );
 }
 
