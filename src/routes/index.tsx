@@ -1,3 +1,7 @@
+/**
+ * Módulo de Emissão de Nota Fiscal Eletrônica (NF-e e NFS-e) com Certificado Digital A1
+ * Implementado em /admin/fiscal
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
