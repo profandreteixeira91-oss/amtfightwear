@@ -813,148 +813,239 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Editar produto</DialogTitle>
-        </DialogHeader>
-
-        {isLoading || !data?.product ? (
-          <div className="text-sm text-muted-foreground py-6">Carregando...</div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2">
-                <Label>Nome</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} />
-              </div>
-              <div className="col-span-2">
-                <Label>Slug</Label>
-                <Input value={slug} onChange={(e) => setSlug(e.target.value)} />
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-2xl">
+        <div className="flex flex-col h-[85vh]">
+          <DialogHeader className="p-6 pb-2 border-b border-border/40 bg-muted/20">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/10 rounded-xl">
+                <Settings2 className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <Label>Preço (R$)</Label>
-                <Input value={price} onChange={(e) => setPrice(e.target.value)} />
-              </div>
-              <div>
-                <Label>Preço "de" (R$)</Label>
-                <Input value={compareAt} onChange={(e) => setCompareAt(e.target.value)} placeholder="opcional" />
-              </div>
-              <div>
-                <Label>Estoque</Label>
-                <Input value={stock} onChange={(e) => setStock(e.target.value)} />
+                <DialogTitle className="text-xl font-bold">Editar Produto</DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">Configure detalhes, preços, variações e dados fiscais.</p>
               </div>
             </div>
+          </DialogHeader>
 
-            <div>
-              <Label>Descrição curta</Label>
-              <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} />
-            </div>
-            <div>
-              <Label>Descrição completa</Label>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
-            </div>
-
-            <div className="border rounded-md p-3 space-y-2 bg-muted/30">
-              <div className="font-semibold text-sm">Dados fiscais</div>
-              <p className="text-xs text-muted-foreground">
-                Usados na emissão de notas fiscais. Herdados da categoria por padrão; edite aqui para sobrescrever apenas neste produto.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                <div>
-                  <Label className="text-xs">NCM</Label>
-                  <Input className="h-8" value={ncm} onChange={(e) => setNcm(e.target.value)} placeholder="Ex: 62171000" />
-                </div>
-                <div>
-                  <Label className="text-xs">CEST</Label>
-                  <Input className="h-8" value={cest} onChange={(e) => setCest(e.target.value)} placeholder="Ex: 28.038.00" />
-                </div>
-                <div>
-                  <Label className="text-xs">Origem</Label>
-                  <Input className="h-8" value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="0 - Nacional" />
-                </div>
-                <div>
-                  <Label className="text-xs">CFOP</Label>
-                  <Input className="h-8" value={cfop} onChange={(e) => setCfop(e.target.value)} placeholder="Ex: 5102" />
-                </div>
-                <div>
-                  <Label className="text-xs">Unidade</Label>
-                  <Input className="h-8" value={unidade} onChange={(e) => setUnidade(e.target.value)} placeholder="UN, PC, KG..." />
-                </div>
-                <div>
-                  <Label className="text-xs">GTIN / EAN</Label>
-                  <Input className="h-8" value={gtin} onChange={(e) => setGtin(e.target.value)} placeholder="Código de barras" />
-                </div>
-              </div>
+          <Tabs defaultValue="geral" className="flex-1 flex flex-col min-h-0">
+            <div className="px-6 border-b border-border/40 bg-muted/10">
+              <TabsList className="h-12 bg-transparent p-0 gap-6">
+                <TabsTrigger value="geral" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-xs font-semibold tracking-wide uppercase">
+                  <LayoutGrid className="h-3.5 w-3.5 mr-2" /> Geral
+                </TabsTrigger>
+                <TabsTrigger value="preco" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-xs font-semibold tracking-wide uppercase">
+                  <BarChart3 className="h-3.5 w-3.5 mr-2" /> Preço & Estoque
+                </TabsTrigger>
+                <TabsTrigger value="variacoes" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-xs font-semibold tracking-wide uppercase">
+                  <Package className="h-3.5 w-3.5 mr-2" /> Variações
+                </TabsTrigger>
+                <TabsTrigger value="fiscal" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-xs font-semibold tracking-wide uppercase">
+                  <Receipt className="h-3.5 w-3.5 mr-2" /> Fiscal
+                </TabsTrigger>
+              </TabsList>
             </div>
 
+            <ScrollArea className="flex-1">
+              <div className="p-6">
+                {isLoading || !data?.product ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
+                    <p className="text-sm">Carregando dados do produto...</p>
+                  </div>
+                ) : (
+                  <>
+                    <TabsContent value="geral" className="mt-0 space-y-6 animate-in fade-in-50 duration-300">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nome do Produto</Label>
+                            <Input value={name} onChange={(e) => setName(e.target.value)} className="bg-muted/30 focus:bg-background border-border/40" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">URL Amigável (Slug)</Label>
+                            <Input value={slug} onChange={(e) => setSlug(e.target.value)} className="bg-muted/30 focus:bg-background border-border/40 font-mono text-xs" />
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Descrição Curta</Label>
+                            <Textarea 
+                              value={shortDesc} 
+                              onChange={(e) => setShortDesc(e.target.value)} 
+                              rows={2} 
+                              placeholder="Resumo para listagens..."
+                              className="bg-muted/30 focus:bg-background border-border/40 text-sm resize-none" 
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Descrição Detalhada</Label>
+                            <Textarea 
+                              value={description} 
+                              onChange={(e) => setDescription(e.target.value)} 
+                              rows={5} 
+                              placeholder="Informações técnicas, material, etc..."
+                              className="bg-muted/30 focus:bg-background border-border/40 text-sm" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="text-base">Variações ({variants.length})</Label>
-                <Button size="sm" variant="outline" onClick={addVariant}>
-                  <Plus className="h-3 w-3 mr-1" /> Adicionar variação
-                </Button>
-              </div>
-              {variants.length === 0 ? (
-                <p className="text-xs text-muted-foreground">Nenhuma variação cadastrada.</p>
-              ) : (
-                <div className="space-y-2">
-                  {variants.map((v, i) => (
-                    <div key={v.id ?? `new-${i}`} className="grid grid-cols-12 gap-2 items-end border rounded p-2 bg-muted/30">
-                      <div className="col-span-2">
-                        <Label className="text-xs">Tamanho</Label>
-                        <Input className="h-8" value={v.size ?? ""} onChange={(e) => updateVariant(i, { size: e.target.value })} />
+                    <TabsContent value="preco" className="mt-0 space-y-8 animate-in fade-in-50 duration-300">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Preço de Venda (R$)</Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">R$</span>
+                            <Input value={price} onChange={(e) => setPrice(e.target.value)} className="pl-9 bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Preço Original / "De" (R$)</Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">R$</span>
+                            <Input value={compareAt} onChange={(e) => setCompareAt(e.target.value)} placeholder="0,00" className="pl-9 bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Estoque Geral</Label>
+                          <Input value={stock} onChange={(e) => setStock(e.target.value)} className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
                       </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Cor</Label>
-                        <Input className="h-8" value={v.color ?? ""} onChange={(e) => updateVariant(i, { color: e.target.value })} />
+
+                      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-start gap-4">
+                        <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+                          <Info className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-primary">Dica de Gestão</h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Se o produto possuir variações (tamanhos/cores), o estoque e o preço de cada variação serão usados preferencialmente sobre os valores gerais definidos acima.
+                          </p>
+                        </div>
                       </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">SKU</Label>
-                        <Input className="h-8" value={v.sku ?? ""} onChange={(e) => updateVariant(i, { sku: e.target.value })} />
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Preço</Label>
-                        <Input
-                          className="h-8"
-                          value={v.price != null ? String(v.price) : ""}
-                          onChange={(e) => updateVariant(i, { price: parseNum(e.target.value) })}
-                          placeholder="herda"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Estoque</Label>
-                        <Input
-                          className="h-8"
-                          value={String(v.stock)}
-                          onChange={(e) => {
-                            const n = Number(e.target.value);
-                            updateVariant(i, { stock: Number.isFinite(n) ? n : 0 });
-                          }}
-                        />
-                      </div>
-                      <div className="col-span-1 flex items-center justify-center pb-1">
-                        <Switch checked={v.active} onCheckedChange={(a) => updateVariant(i, { active: a })} />
-                      </div>
-                      <div className="col-span-1 flex items-center justify-end pb-1">
-                        <Button size="icon" variant="ghost" onClick={() => removeVariant(i)}>
-                          <Trash2 className="h-3 w-3 text-destructive" />
+                    </TabsContent>
+
+                    <TabsContent value="variacoes" className="mt-0 space-y-6 animate-in fade-in-50 duration-300">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-sm font-bold">Gerenciar Variações</h3>
+                          <p className="text-[11px] text-muted-foreground">Tamanhos, cores e SKUs específicos.</p>
+                        </div>
+                        <Button size="sm" onClick={addVariant} className="shadow-sm">
+                          <Plus className="h-3.5 w-3.5 mr-2" /> Nova Variação
                         </Button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={saving}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving || isLoading}>
-            <Save className="h-3 w-3 mr-1" /> {saving ? "Salvando..." : "Salvar tudo"}
-          </Button>
-        </DialogFooter>
+                      {variants.length === 0 ? (
+                        <div className="text-center py-12 border-2 border-dashed border-border/40 rounded-2xl bg-muted/20">
+                          <Package className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
+                          <p className="text-sm text-muted-foreground">Este produto não possui variações.</p>
+                          <Button variant="link" size="sm" onClick={addVariant} className="mt-2">Adicionar a primeira</Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {variants.map((v, i) => (
+                            <div key={v.id ?? `new-${i}`} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end p-4 rounded-xl border border-border/40 bg-muted/10 group relative">
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Tamanho</Label>
+                                <Input className="h-8 text-xs bg-background" value={v.size ?? ""} onChange={(e) => updateVariant(i, { size: e.target.value })} placeholder="ex: A2" />
+                              </div>
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Cor</Label>
+                                <Input className="h-8 text-xs bg-background" value={v.color ?? ""} onChange={(e) => updateVariant(i, { color: e.target.value })} placeholder="ex: Branco" />
+                              </div>
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">SKU</Label>
+                                <Input className="h-8 text-[10px] font-mono bg-background uppercase" value={v.sku ?? ""} onChange={(e) => updateVariant(i, { sku: e.target.value })} placeholder="AMT-KIM-A2W" />
+                              </div>
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Preço (R$)</Label>
+                                <Input className="h-8 text-xs font-mono bg-background" value={v.price != null ? String(v.price) : ""} onChange={(e) => updateVariant(i, { price: parseNum(e.target.value) })} placeholder="Herda" />
+                              </div>
+                              <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Estoque</Label>
+                                <Input className="h-8 text-xs font-mono bg-background" value={String(v.stock)} onChange={(e) => { const n = Number(e.target.value); updateVariant(i, { stock: Number.isFinite(n) ? n : 0 }); }} />
+                              </div>
+                              <div className="md:col-span-1 flex flex-col items-center justify-center space-y-2 pb-1">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Ativa</Label>
+                                <Switch checked={v.active} onCheckedChange={(a) => updateVariant(i, { active: a })} className="scale-75" />
+                              </div>
+                              <div className="md:col-span-1 flex items-center justify-end pb-1">
+                                <Button size="icon" variant="ghost" onClick={() => removeVariant(i)} className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10">
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="fiscal" className="mt-0 space-y-6 animate-in fade-in-50 duration-300">
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-muted/40 border border-border/40">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Receipt className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold">Parâmetros Fiscais</h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">Esses dados são essenciais para a emissão correta de NF-e e cálculo de impostos.</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">NCM (8 dígitos)</Label>
+                          <Input value={ncm} onChange={(e) => setNcm(e.target.value)} placeholder="62171000" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">CEST (7 dígitos)</Label>
+                          <Input value={cest} onChange={(e) => setCest(e.target.value)} placeholder="28.038.00" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Origem da Mercadoria</Label>
+                          <Input value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="0 - Nacional" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">CFOP Padrão</Label>
+                          <Input value={cfop} onChange={(e) => setCfop(e.target.value)} placeholder="5102" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Unidade Comercial</Label>
+                          <Input value={unidade} onChange={(e) => setUnidade(e.target.value)} placeholder="UN" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">GTIN / EAN-13</Label>
+                          <Input value={gtin} onChange={(e) => setGtin(e.target.value)} placeholder="Código de barras" className="bg-muted/30 focus:bg-background border-border/40 font-mono" />
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </>
+                )}
+              </div>
+            </ScrollArea>
+
+            <DialogFooter className="p-6 border-t border-border/40 bg-muted/20">
+              <div className="flex items-center justify-between w-full">
+                <Button variant="ghost" onClick={onClose} disabled={saving} className="text-muted-foreground hover:text-foreground">Cancelar</Button>
+                <div className="flex items-center gap-3">
+                  <Button onClick={handleSave} disabled={saving || isLoading} className="min-w-[140px] shadow-lg shadow-primary/20">
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2" />
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" /> Salvar Alterações
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </DialogFooter>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );
