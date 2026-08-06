@@ -133,3 +133,31 @@ export function TrialDropdownCard() {
     </Link>
   );
 }
+
+export function TrialBanner() {
+  const trial = useTrial();
+  if (!trial) return null;
+  const { days, urgent } = trial;
+  
+  // Só mostramos o banner fixo no topo se estiver nos últimos 3 dias
+  if (!urgent) return null;
+
+  return (
+    <div className="bg-destructive text-destructive-foreground px-4 py-2 text-center text-xs font-semibold shadow-sm animate-in fade-in slide-in-from-top duration-500 sticky top-0 z-[60]">
+      <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+        <div className="flex items-center gap-1.5">
+          <Clock className="h-3.5 w-3.5" />
+          <span>
+            Seu período de testes termina em {days} {days === 1 ? "dia" : "dias"}.
+          </span>
+        </div>
+        <Link 
+          to="/dojo/app/subscription"
+          className="bg-white text-destructive px-3 py-1 rounded-full hover:bg-white/90 transition-colors shadow-sm"
+        >
+          Assinar Agora
+        </Link>
+      </div>
+    </div>
+  );
+}
