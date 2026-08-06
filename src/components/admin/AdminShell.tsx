@@ -180,7 +180,8 @@ const NAV: NavGroup[] = [
       { title: "Calc. de Faixas", url: "/admin/produtos/faixa-calc", icon: Calculator },
       { title: "Atacado", url: "/admin/atacado", icon: Boxes },
       { title: "Logística / Envio", url: "/admin/envio", icon: Truck },
-      { title: "Config. Fiscal", url: "/admin/produtos/tamanhos", icon: Ruler },
+      { title: "Fiscal & Certificado", url: "/admin/fiscal", icon: FileText },
+      { title: "Config. Fiscal Antiga", url: "/admin/produtos/tamanhos", icon: Ruler },
     ],
   },
   {
