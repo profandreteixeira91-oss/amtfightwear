@@ -98,7 +98,7 @@ function VideosLibrary() {
               </Link>
             </Button>
             <Button asChild className="flex-1 md:flex-none h-9 text-xs bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400 px-3">
-              <Link to="/dojo/app/videos/novo" search={{}}>
+              <Link to="/dojo/app/videos/novo" search={{ step: "1" }}>
                 <Plus className="mr-2 h-3.5 w-3.5" />
                 <span className="truncate">Novo Vídeo</span>
               </Link>
@@ -216,7 +216,7 @@ function VideosLibrary() {
           <h3 className="relative mt-4 font-display text-xl font-black tracking-tight">Sua biblioteca está vazia</h3>
           <p className="relative mt-1 text-sm text-neutral-300">Publique seu primeiro vídeo para os alunos da academia.</p>
           <Button asChild className="relative mt-5 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
-            <Link to="/dojo/app/videos/novo" search={{}}>
+            <Link to="/dojo/app/videos/novo" search={{ step: "1" }}>
               <Plus className="mr-2 h-4 w-4" /> Novo Vídeo
             </Link>
           </Button>

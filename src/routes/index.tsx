@@ -44,10 +44,10 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "AMT Fight Wear | Kimonos, Faixas e Roupas de Treino" },
-      { name: "description", content: "Kimonos, faixas, rashguards e roupas de treino direto da fábrica. Frete grátis acima de R$ 399, até 10x sem juros e envio para todo o Brasil." },
-      { property: "og:title", content: "AMT Fight Wear | Feito para quem treina de verdade" },
-      { property: "og:description", content: "Kimonos, faixas e equipamentos direto da fábrica com alta performance e envio para todo o Brasil." },
+      { title: "AMT Fight Wear | Equipamentos Premium para Artes Marciais" },
+      { name: "description", content: "Kimonos, faixas e equipamentos direto da fábrica. Conheça também o AMT Dojo Manager para sua academia." },
+      { property: "og:title", content: "AMT Fight Wear | Premium Fight Gear" },
+      { property: "og:description", content: "Equipamentos de alta performance e gestão completa para dojos." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://amtfightwear.com.br/" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -62,20 +62,9 @@ export const Route = createFileRoute("/")({
         url: "https://amtfightwear.com.br/",
         logo: "https://amtfightwear.com.br/icon-512.png",
         image: "https://amtfightwear.com.br/icon-512.png",
-        description:
-          "E-commerce oficial da AMT Fight Wear: kimonos, faixas, rash guards e acessórios para artes marciais, com fabricação própria.",
+        description: "Equipamentos premium e gestão para artes marciais.",
         areaServed: "BR",
         currenciesAccepted: "BRL",
-        sameAs: ["https://www.instagram.com/amtfightwear"],
-        contactPoint: [
-          {
-            "@type": "ContactPoint",
-            contactType: "customer service",
-            telephone: "+55-82-92001-6732",
-            availableLanguage: ["Portuguese"],
-            areaServed: "BR",
-          },
-        ],
       }),
     }],
   }),

@@ -107,8 +107,8 @@ export function AdminShell({
           <AdminSidebar />
           <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
             <AdminTopbar title={title} />
-            <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 transition-all duration-500 ease-in-out sm:p-8 lg:p-10">
-              <div className="mx-auto w-full max-w-[1600px] break-words animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 transition-all duration-500 ease-in-out sm:p-6 lg:p-8">
+              <div className="w-full break-words animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {children}
               </div>
             </main>
