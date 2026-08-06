@@ -443,12 +443,13 @@ function FiscalDashboard() {
                               </td>
                               <td className="p-4">
                                 <Input 
-                                  defaultValue={p.cfop_default || ""} 
+                                  defaultValue={p.cfop || ""} 
                                   placeholder="5102"
                                   className="h-8 w-20 text-xs"
-                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cfop_default', e.target.value)}
+                                  onBlur={(e) => handleProductFiscalUpdate(p.id, 'cfop', e.target.value)}
                                 />
                               </td>
+
                               <td className="p-4 text-right">
                                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                                   <CheckCircle2 className="h-4 w-4 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
