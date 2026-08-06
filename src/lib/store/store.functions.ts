@@ -101,7 +101,7 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
     if (productIds.length === 0) return out;
     for (let from = 0; ; from += PAGE) {
       const { data, error } = await sb.from("store_product_variants")
-        .select("id, product_id, size, color, option_label, sku, price, sort_order, active") as any
+        .select("id, product_id, size, color, option_label, sku, price, sort_order, active")
         .eq("active", true)
         .in("product_id", productIds)
         .order("product_id")
