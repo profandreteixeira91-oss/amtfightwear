@@ -151,10 +151,10 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
       >
         {busy ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando Pix…
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Redirecionando…
           </>
         ) : (
-          <>Gerar QR Code Pix</>
+          <>Ativar Pix Automático</>
         )}
       </Button>
     </form>
