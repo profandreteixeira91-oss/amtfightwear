@@ -29,6 +29,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig, fetchCompanyByCnpj } from "@/lib/fiscal/fiscal.functions";
 import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
 import { emitNFe } from "@/lib/fiscal/emission.functions";
+import { getOrdersForFiscal } from "@/lib/fiscal/orders.functions";
 import { 
   Dialog, 
   DialogContent, 
@@ -64,6 +65,7 @@ function FiscalDashboard() {
   const saveConfigFn = useServerFn(saveFiscalConfig);
   const findCnpjFn = useServerFn(fetchCompanyByCnpj);
   const emitNFeFn = useServerFn(emitNFe);
+  const fetchOrdersFn = useServerFn(getOrdersForFiscal);
   
   const [fiscalConfig, setFiscalConfig] = useState<any>(null);
   const [isSearchingCnpj, setIsSearchingCnpj] = useState(false);
@@ -90,6 +92,12 @@ function FiscalDashboard() {
   const { data: products, isLoading: productsLoading } = useQuery({
     queryKey: ['fiscal-products'],
     queryFn: () => fetchProducts(),
+  });
+
+  const { data: pendingOrders, isLoading: ordersLoading } = useQuery({
+    queryKey: ['fiscal-orders'],
+    queryFn: () => fetchOrdersFn(),
+    enabled: showOrderSelection,
   });
 
   const filteredProducts = useMemo(() => {
@@ -838,32 +846,30 @@ function FiscalDashboard() {
               </DialogDescription>
             </DialogHeader>
             
-            <ScrollArea className="h-[300px] pr-4">
+            <ScrollArea className="h-[400px] pr-4">
               <div className="space-y-3 py-2">
-                {/* 
-                  Aqui buscaríamos os pedidos reais do banco. 
-                  Por agora, simulamos uma lista para o usuário selecionar.
-                */}
-                {[
-                  { id: "e8b7d9a1-7c5b-4e3a-9f2d-1a2b3c4d5e6f", number: "1001", customer: "João Silva", total: 450.90, date: "2026-08-05" },
-                  { id: "a1b2c3d4-e5f6-4a3b-2c1d-0e9f8a7b6c5d", number: "1002", customer: "Academia Gracie Barra", total: 2890.00, date: "2026-08-06" },
-                  { id: "f1e2d3c4-b5a6-4c3d-2e1f-0d9c8b7a6e5f", number: "1003", customer: "Maria Oliveira", total: 125.00, date: "2026-08-06" },
-                ].map(order => (
-                  <div 
-                    key={order.id} 
-                    className="flex items-center justify-between p-4 border rounded-xl hover:bg-neutral-50 transition-colors cursor-pointer group"
-                    onClick={() => handleEmitNFe(order.id)}
-                  >
-                    <div>
-                      <p className="font-bold text-neutral-900">Pedido #{order.number}</p>
-                      <p className="text-xs text-neutral-500">{order.customer} • {new Date(order.date).toLocaleDateString('pt-BR')}</p>
+                {ordersLoading ? (
+                  <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+                ) : !pendingOrders || pendingOrders.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground italic">Nenhum pedido recente encontrado.</div>
+                ) : (
+                  pendingOrders.map(order => (
+                    <div 
+                      key={order.id} 
+                      className="flex items-center justify-between p-4 border rounded-xl hover:bg-neutral-50 transition-colors cursor-pointer group"
+                      onClick={() => handleEmitNFe(order.id)}
+                    >
+                      <div>
+                        <p className="font-bold text-neutral-900">Pedido #{order.number}</p>
+                        <p className="text-xs text-neutral-500">{order.customer} • {new Date(order.date).toLocaleDateString('pt-BR')}</p>
+                      </div>
+                      <div className="text-right flex items-center gap-3">
+                        <p className="font-semibold text-neutral-900">R$ {order.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        <ArrowRight className="h-4 w-4 text-neutral-300 group-hover:text-red-600 transition-colors" />
+                      </div>
                     </div>
-                    <div className="text-right flex items-center gap-3">
-                      <p className="font-semibold text-neutral-900">R$ {order.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                      <ArrowRight className="h-4 w-4 text-neutral-300 group-hover:text-red-600 transition-colors" />
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </ScrollArea>
           </DialogContent>
