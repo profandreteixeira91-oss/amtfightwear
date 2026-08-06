@@ -85,6 +85,15 @@ function FiscalDashboard() {
   const [lastInvoice, setLastInvoice] = useState<any>(null);
   const [showOrderSelection, setShowOrderSelection] = useState(false);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [productSearch, setProductSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const { data: status, isLoading: statusLoading } = useQuery({
+    queryKey: ['fiscal-status'],
+    queryFn: () => fetchStatus(),
+  });
+
   useEffect(() => {
     if (orderId && type) {
       handleEmitNFe(orderId, type);
