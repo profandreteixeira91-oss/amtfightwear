@@ -113,7 +113,7 @@ export function NativePixCheckout({ defaultEmail, onSuccess }: Props) {
             <div className="flex h-5 w-5 items-center justify-center rounded bg-emerald-100 text-emerald-600">
               <QrCode className="h-3 w-3" />
             </div>
-            Pagamento via Pix
+            Pagamento via Pix Automático
           </div>
         </div>
 
