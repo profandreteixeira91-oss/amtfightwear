@@ -102,19 +102,21 @@ export function AdminShell({
 }) {
   return (
     <OwnerOnly>
-      <SidebarProvider defaultOpen>
-        <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground">
-          <AdminSidebar />
-          <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-            <AdminTopbar title={title} />
-            <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 transition-all duration-500 ease-in-out sm:p-6 lg:p-8">
-              <div className="w-full break-words animate-in fade-in slide-in-from-bottom-2 duration-500">
-                {children}
-              </div>
-            </main>
+      {() => (
+        <SidebarProvider defaultOpen>
+          <div className="admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground">
+            <AdminSidebar />
+            <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+              <AdminTopbar title={title} />
+              <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 transition-all duration-500 ease-in-out sm:p-6 lg:p-8">
+                <div className="w-full break-words animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  {children}
+                </div>
+              </main>
+            </div>
           </div>
-        </div>
-      </SidebarProvider>
+        </SidebarProvider>
+      )}
     </OwnerOnly>
   );
 }

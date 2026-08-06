@@ -29,22 +29,26 @@ export function OwnerOnly({
   children,
   description,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode | ((state: ReturnType<typeof useIsOwner>) => React.ReactNode);
   description?: string;
 }) {
-  const { loading, isOwner, email } = useIsOwner();
+  const state = useIsOwner();
+  const { loading, isOwner, email } = state;
 
   if (loading) {
     return (
-      <div className="grid min-h-[50vh] place-items-center text-neutral-500">
-        Verificando permissão…
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm font-medium text-muted-foreground">Verificando permissão…</p>
+        </div>
       </div>
     );
   }
 
   if (!isOwner) {
     return (
-      <div className="grid min-h-[70vh] place-items-center p-6">
+      <div className="grid min-h-screen place-items-center bg-background p-6">
         <div className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-8 text-center shadow-xl">
           <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-red-50 text-red-600">
             <ShieldAlert className="h-7 w-7" />
@@ -71,5 +75,5 @@ export function OwnerOnly({
     );
   }
 
-  return <>{children}</>;
+  return <>{typeof children === 'function' ? children(state) : children}</>;
 }
