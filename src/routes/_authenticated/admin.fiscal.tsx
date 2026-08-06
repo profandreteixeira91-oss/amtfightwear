@@ -666,7 +666,7 @@ function FiscalDashboard() {
                       <label className="text-sm font-medium">Razão Social</label>
                       <Input 
                         name="razao_social" 
-                        value={fiscalConfig?.razao_social || (status?.issuer_name !== "Não configurado" ? status?.issuer_name : "")} 
+                        value={fiscalConfig?.razao_social || ""} 
                         onChange={(e) => setFiscalConfig((prev: any) => ({ ...prev, razao_social: e.target.value }))}
                         required 
                       />
