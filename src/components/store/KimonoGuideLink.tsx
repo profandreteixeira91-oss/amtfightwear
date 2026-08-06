@@ -84,7 +84,7 @@ export function KimonoGuideCallout({
 
   return (
     <div
-      className={`flex flex-col gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 ${className}`}
+      className={`flex flex-col gap-4 overflow-hidden rounded-2xl border border-primary/25 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 ${className}`}
     >
       <div className="flex items-start gap-3">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">

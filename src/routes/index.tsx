@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://www.mercadopago.com.br/checkout/v1/subscription/redirect/6fa560c2-c405-49d8-a130-95c1506de004/payment-option-form/?preference-id=1196802511-0d39f1b4-d7c9-4cb0-bd30-5b3d4eee911e&router-request-id=73f1f048-d9ba-46df-8d86-897bf627a0cb&p=8ac9d7b16b5facdffe2ddfefde7b979e a página que aparece não é customizada e apenas aparece a opção de cartão de crédito, sem pix automático
+import { createFileRoute, Link } from "@tanstack/react-router"; // Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/carrinho corrija o overflow desta página
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
