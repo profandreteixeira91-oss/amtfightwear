@@ -62,7 +62,7 @@ function FiscalOrdersPage() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-              <Link to="/admin/fiscal" search={{}} className="hover:text-foreground transition-colors">Fiscal</Link>
+              <Link to="/admin/fiscal" search={{ orderId: undefined, type: undefined }} className="hover:text-foreground transition-colors">Fiscal</Link>
               <ChevronRight className="h-4 w-4" />
               <span className="text-foreground font-medium">Pedidos para Faturamento</span>
             </div>
