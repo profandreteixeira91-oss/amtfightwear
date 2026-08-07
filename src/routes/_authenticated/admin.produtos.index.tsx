@@ -566,7 +566,15 @@ function AdminProductsPage() {
                                   <Save className="h-3.5 w-3.5" />
                                 </Button>
                               )}
-                              <Button size="icon" variant="ghost" onClick={() => setEditingId(p.id)} className="h-8 w-8 rounded-full" title="Editar Detalhes">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onMouseEnter={() => prefetchProduct(p.id)}
+                                onFocus={() => prefetchProduct(p.id)}
+                                onClick={() => { prefetchProduct(p.id); setEditingId(p.id); }}
+                                className="h-8 w-8 rounded-full"
+                                title="Editar Detalhes"
+                              >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
                               
