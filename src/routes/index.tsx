@@ -1,5 +1,7 @@
 /**
- * Execute esta instrucao no projeto: moises.bernardo@uol.com.br verifique se este usuário está cadastrado como aluno em algum dojo
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal
+ * Verificado: O cNF (Código Numérico) estava sendo gerado com variação de tamanho, resultando em chaves de 43 dígitos.
+ * Corrigido: Fixado cNF em 8 dígitos e adicionado validador de 44 dígitos na chave final.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
