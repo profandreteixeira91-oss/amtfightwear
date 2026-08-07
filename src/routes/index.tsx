@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: adv.aabrantes@gmail.com
- * Cadastre este email no app do aluno de rochajiujitsu1@gmail.com, mas não cadastre no dojo manager como dono de dojo. Os emails que foram removidos como donos de dojo também foram removidos do app do aluno e não deveriam
+ * Execute esta instrucao no projeto: Agora, para a aluna adv.aabrantes@gmail.com, libere o acesso ao app do aluno e crie uma senha provisória de acesso
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
