@@ -64,6 +64,19 @@ function AdminProductsPage() {
     queryClient.invalidateQueries({ queryKey: ["store"] });
   };
 
+  // Pré-carrega os dados completos do produto (detalhes + variações) assim que
+  // o usuário passa o mouse/foco no botão de editar, para que o diálogo abra
+  // já com os dados em cache em vez de esperar o round-trip do servidor.
+  const getProductPrefetch = useServerFn(adminGetStoreProduct);
+  const prefetchProduct = (id: string) => {
+    queryClient.prefetchQuery({
+      queryKey: ["admin", "store", "product", id],
+      queryFn: () => getProductPrefetch({ data: { id } }),
+      staleTime: PRODUCT_STALE_TIME,
+      gcTime: PRODUCT_GC_TIME,
+    });
+  };
+
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [page, setPage] = useState(1);
