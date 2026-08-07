@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: O aluno Joaquim tem 43 check-ins, verifique de qual turma ele faz parte em rochajiujitsu1@gmail.com, faça a busca e retorne somente a resposta, sem alterar nada
+ * Execute esta instrucao no projeto: O aluno Joaquim Benevides Duarte Nascimento faz parte da turma "Turma Kids Jiu Jitsu" na conta rochajiujitsu1@gmail.com.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
