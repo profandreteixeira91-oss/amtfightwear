@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Verifique qual dos arquivos em anexo ainda não foi implementado, os que foram implementados ignore, os que ainda não foram, faça a implementação
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal
+ * Ao clicar em histórico de notas, faça uma auditoria e verifique o botão ver danfe que deveria abrir o PDF da nf-e gerada
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
