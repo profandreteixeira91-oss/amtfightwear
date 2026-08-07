@@ -661,6 +661,7 @@ function AdminProductsPage() {
       {editingId && (
         <ProductEditDialog
           productId={editingId}
+          seed={(filtered as any[]).find((p) => p.id === editingId)}
           onClose={() => setEditingId(null)}
           onSaved={() => { setEditingId(null); refresh(); }}
         />
