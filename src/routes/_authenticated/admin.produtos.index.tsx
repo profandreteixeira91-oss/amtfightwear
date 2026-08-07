@@ -791,6 +791,9 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
   };
 
   const handleSave = async () => {
+    // Impede salvar com o formulário apenas semeado pela listagem: campos como
+    // descrição/GTIN ainda não chegaram e seriam gravados vazios.
+    if (isLoading || !data?.product) return toast.error("Aguarde o carregamento completo do produto");
     const priceNum = parseNum(price);
     const stockNum = Number(stock);
     if (priceNum === null || priceNum < 0) return toast.error("Preço inválido");
