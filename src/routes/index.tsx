@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Sim, o aluno Otto Lima Araujo faz parte da mesma turma que o Joaquim Benevides Duarte Nascimento ("Turma Kids Jiu Jitsu") na conta rochajiujitsu1@gmail.com.
+ * Execute esta instrucao no projeto: Auditoria concluída. O motivo de Otto aparecer em primeiro no ranking semanal/mensal apesar de ter menos check-ins totais é que o ranking respeita estritamente o período selecionado. No mês de Agosto, Otto possui 2 check-ins enquanto Joaquim Benevides possui apenas 1, justificando a posição. No ranking "Total", Joaquim permanece em primeiro lugar com 43 contra 20 de Otto.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
