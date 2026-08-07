@@ -436,7 +436,17 @@ function FiscalDashboard() {
                                 )}
                                 {inv.status === 'error' && (
                                   <p className="text-[10px] font-medium text-amber-600 bg-amber-50/50 p-1 rounded mt-1 border border-amber-100">
-                                    Aviso: NF-e INEXISTENTE na base nacional. Consulte no site da SEFAZ de origem.
+                                    Aviso: NF-e INEXISTENTE na base nacional ou falha na transmissão. Verifique os dados do emitente e destinatário.
+                                  </p>
+                                )}
+                                {inv.status === 'pending' && (
+                                  <p className="text-[10px] font-medium text-blue-600 bg-blue-50/50 p-1 rounded mt-1 border border-blue-100">
+                                    Nota em processamento ou aguardando integração com provedor.
+                                  </p>
+                                )}
+                                {inv.error_message && (
+                                  <p className="text-[10px] text-red-600 italic">
+                                    Erro: {inv.error_message}
                                   </p>
                                 )}
                               </div>
