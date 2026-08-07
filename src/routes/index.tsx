@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal a chave de acesso da NF-E continua com 43 caracteres, faça uma auditoria e corrija definitivamente. Habilite a opção de baixar a nota gerada em PDF
+ * Execute esta instrucao no projeto: adv.aabrantes@gmail.com
+ * Cadastre este email no app do aluno de rochajiujitsu1@gmail.com, mas não cadastre no dojo manager como dono de dojo. Os emails que foram removidos como donos de dojo também foram removidos do app do aluno e não deveriam
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
