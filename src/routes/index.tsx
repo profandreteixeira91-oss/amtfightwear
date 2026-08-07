@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Veja na imagem abaixo que os alunos aparecem como donos de dojos, remova-os dessa lista
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal a chave de acesso da NF-E continua com 43 caracteres, faça uma auditoria e corrija definitivamente. Habilite a opção de baixar a nota gerada em PDF
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";

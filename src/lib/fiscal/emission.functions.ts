@@ -102,8 +102,8 @@ export const emitNFe = createServerFn({ method: "POST" })
     
     // accessKey must be exactly 44 digits for a valid NF-e
     // Composition: cUF(2) + AAMM(4) + CNPJ(14) + mod(2) + serie(3) + nNF(9) + tpEmis(1) + cNF(8) + cDV(1)
-    const cUF = "35"; // SP code as default, should eventually come from config.address_city_code prefix or mapping
-    const AAMM = new Date().toISOString().substring(2, 4) + new Date().toISOString().substring(5, 7);
+    const cUF = "35"; // SP code
+    const AAMM = now.getFullYear().toString().substring(2, 4) + (now.getMonth() + 1).toString().padStart(2, '0');
     const cnpj = config.cnpj.replace(/\D/g, '').padStart(14, '0');
     const mod = "55";
     const serie = String(series).padStart(3, '0');
