@@ -10,6 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter 
+} from "@/components/ui/dialog";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
 import { PasswordInput } from "@/components/auth/PasswordInput";
@@ -44,6 +52,8 @@ function DojoAuthPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [showStudentConflict, setShowStudentConflict] = useState(false);
+  const [conflictDojoName, setConflictDojoName] = useState("");
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
@@ -161,16 +171,17 @@ function DojoAuthPage() {
       });
       return;
     }
-    // E-mails já cadastrados como aluno não podem abrir conta de dono.
+    // E-mails já cadastrados como aluno não podem abrir conta de dono sem consentimento.
     const { data: studentByEmail } = await supabase
       .from("dojo_students")
-      .select("id")
+      .select("id, dojo_profiles(name)")
       .eq("email", email.trim().toLowerCase())
-      .limit(1);
-    if (studentByEmail && studentByEmail.length > 0) {
-      toast.error("E-mail de aluno", {
-        description: "Este e-mail está vinculado a uma matrícula. Use o App do Aluno em /app.",
-      });
+      .limit(1)
+      .maybeSingle();
+
+    if (studentByEmail) {
+      setConflictDojoName((studentByEmail.dojo_profiles as any)?.name || "um dojo");
+      setShowStudentConflict(true);
       return;
     }
     // E-mails cadastrados como membro de equipe não podem se auto-registrar:
@@ -243,6 +254,25 @@ function DojoAuthPage() {
   }
 
   const isSignup = mode === "signup";
+
+  const handleSignUpDirect = async () => {
+    setShowStudentConflict(false);
+    setLoading(true);
+    const { error, data } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dojo/auth`,
+        data: { full_name: name, account_type: "dojo_manager" },
+      },
+    });
+    setLoading(false);
+    if (error) return toast.error("Falha ao criar conta", { description: error.message });
+    if (data.user) {
+      toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
+      window.location.assign("/dojo/app");
+    }
+  };
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-white text-[#111111]">
@@ -445,6 +475,52 @@ function DojoAuthPage() {
           </p>
         </motion.div>
       </main>
+
+      {/* Modal de Conflito de Aluno */}
+      <Dialog open={showStudentConflict} onOpenChange={setShowStudentConflict}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <UserIcon className="h-6 w-6 text-[#C1121F]" />
+              Identificamos seu e-mail
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-base leading-relaxed text-[#111111]/80">
+              Você já possui um cadastro de aluno no dojo <span className="font-bold text-[#111111]">{conflictDojoName}</span>.
+              <br /><br />
+              O que você deseja fazer agora?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-4">
+            <Button 
+              onClick={() => window.location.assign("/app")}
+              className="h-auto flex-col items-start gap-1 p-4 bg-white border-black/10 text-[#111111] hover:bg-neutral-50 hover:border-black/20"
+              variant="outline"
+            >
+              <div className="font-bold">Acessar App do Aluno</div>
+              <div className="text-xs text-[#111111]/60 font-normal">Acompanhar meus treinos e graduações neste dojo.</div>
+            </Button>
+            
+            <div className="relative my-2">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-black/5" /></div>
+              <div className="relative flex justify-center text-[10px] uppercase tracking-widest text-[#111111]/40"><span className="bg-white px-2">Ou</span></div>
+            </div>
+
+            <Button 
+              onClick={handleSignUpDirect}
+              className="h-auto flex-col items-start gap-1 p-4 bg-white border-black/10 text-[#111111] hover:bg-neutral-50 hover:border-black/20"
+              variant="outline"
+            >
+              <div className="font-bold">Cadastrar meu próprio Dojo</div>
+              <div className="text-xs text-[#111111]/60 font-normal">Criar um novo dojo como instrutor (sem vínculo com o anterior).</div>
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowStudentConflict(false)} className="w-full text-[#111111]/60">
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
