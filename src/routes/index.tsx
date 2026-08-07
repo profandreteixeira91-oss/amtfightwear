@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal
- * A chave de acesso gerada no sistema para copiar é inválida, a mesma deve ter 44 dígitos, faça a auditoria e verifique corretamente
+ * Execute esta instrucao no projeto: moises.bernardo@uol.com.br verifique se este usuário está cadastrado como aluno em algum dojo
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
