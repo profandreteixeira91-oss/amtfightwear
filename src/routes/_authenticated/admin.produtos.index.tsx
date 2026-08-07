@@ -701,6 +701,7 @@ type VariantDraft = {
 
 function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: string; seed?: any; onClose: () => void; onSaved: () => void }) {
   const getProduct = useServerFn(adminGetStoreProduct);
+  const getVariants = useServerFn(adminGetStoreProductVariants);
   const updateProduct = useServerFn(adminUpdateStoreProduct);
   const saveVariants = useServerFn(adminSaveVariants);
 
@@ -709,6 +710,19 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
     queryFn: () => getProduct({ data: { id: productId } }),
     staleTime: PRODUCT_STALE_TIME,
     gcTime: PRODUCT_GC_TIME,
+    refetchOnWindowFocus: false,
+  });
+
+  // Variações em requisição própria: a aba carrega em paralelo e o salvamento
+  // dos campos do produto nunca fica bloqueado por ela.
+  const variantsQuery = useQuery({
+    queryKey: ["admin", "store", "product", productId, "variants"],
+    queryFn: () => getVariants({ data: { id: productId } }),
+    staleTime: PRODUCT_STALE_TIME,
+    gcTime: PRODUCT_GC_TIME,
+    refetchOnWindowFocus: false,
+    // Aproveita as variações já vindas no detalhe, se ele resolveu primeiro.
+    initialData: data?.variants ? { variants: data.variants } : undefined,
   });
 
   // Semeia o formulário com o registro já carregado na listagem, para que o
@@ -730,8 +744,15 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
   const [unidade, setUnidade] = useState("");
   const [gtin, setGtin] = useState("");
 
+  // Hidrata os campos uma única vez por produto — refetches em segundo plano
+  // não podem descartar edições em andamento.
+  const hydratedProduct = useRef<string | null>(null);
+  const hydratedVariants = useRef<string | null>(null);
+
   useEffect(() => {
     if (!data?.product) return;
+    if (hydratedProduct.current === productId) return;
+    hydratedProduct.current = productId;
     const p = data.product;
     setName(p.name ?? "");
     setSlug(p.slug ?? "");
@@ -746,8 +767,15 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
     setCfop((p as { cfop?: string | null }).cfop ?? "");
     setUnidade((p as { unidade?: string | null }).unidade ?? "");
     setGtin((p as { gtin?: string | null }).gtin ?? "");
+  }, [data, productId]);
+
+  useEffect(() => {
+    const rows = variantsQuery.data?.variants;
+    if (!rows) return;
+    if (hydratedVariants.current === productId) return;
+    hydratedVariants.current = productId;
     setVariants(
-      (data.variants ?? []).map((v) => ({
+      rows.map((v: any) => ({
         id: v.id,
         size: v.size,
         color: v.color,
@@ -762,7 +790,10 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
       })),
     );
     setDeletedIds([]);
-  }, [data]);
+  }, [variantsQuery.data, productId]);
+
+  const variantsReady = !!variantsQuery.data?.variants;
+
 
   const updateVariant = (i: number, patch: Partial<VariantDraft>) => {
     setVariants((prev) => prev.map((v, idx) => (idx === i ? { ...v, ...patch } : v)));
