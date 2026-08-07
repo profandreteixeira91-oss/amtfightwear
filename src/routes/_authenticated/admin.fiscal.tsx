@@ -522,7 +522,26 @@ function FiscalDashboard() {
                                 </Badge>
                               </td>
                               <td className="p-4 text-right">
-                                <Button variant="ghost" size="sm">Ver DANFE</Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    if (inv.danfe_url) {
+                                      window.open(inv.danfe_url, '_blank');
+                                    } else if (inv.status === 'authorized') {
+                                      // Simulação/Fallback para ambiente de testes/demonstração
+                                      toast.info("Visualização do DANFE disponível em ambiente de produção.");
+                                      // Se houver uma chave de acesso, poderíamos abrir um site de consulta pública
+                                      if (inv.access_key) {
+                                        window.open(`https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=`, '_blank');
+                                      }
+                                    } else {
+                                      toast.error("DANFE não disponível para notas não autorizadas.");
+                                    }
+                                  }}
+                                >
+                                  Ver DANFE
+                                </Button>
                               </td>
                             </tr>
                           ))
