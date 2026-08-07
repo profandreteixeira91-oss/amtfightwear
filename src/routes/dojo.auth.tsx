@@ -110,16 +110,16 @@ function DojoAuthPage() {
         // Se for um novo cadastro ou login sem vínculo, permitimos o fluxo de dojo_manager
         // APENAS se não houver conflito de aluno (já validado acima).
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        if (currentUser) {
-           await supabaseAdmin
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData.user) {
+          await supabaseAdmin
             .from("dojo_users")
             .upsert({
-              auth_user_id: currentUser.id,
-              owner_id: currentUser.id,
+              auth_user_id: userData.user.id,
+              owner_id: userData.user.id,
               role: "owner",
-              email: currentUser.email,
-              name: currentUser.user_metadata?.full_name || name
+              email: userData.user.email,
+              name: userData.user.user_metadata?.full_name || name
             }, { onConflict: "auth_user_id, owner_id" });
         }
 
