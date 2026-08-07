@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Responda: Na conta rochajiujitsu1@gmail.com, qual é o aluno com mais check-ins na turma Kids, faça essa busca e retorne com a resposta, apenas responda e não altere nada
+ * Execute esta instrucao no projeto: O aluno Otto Lima Araujo é o aluno com mais check-ins na turma Kids na conta rochajiujitsu1@gmail.com, com um total de 20 check-ins.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
