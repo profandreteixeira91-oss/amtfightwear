@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: O aluno Joaquim Benevides Duarte Nascimento faz parte da turma "Turma Kids Jiu Jitsu" na conta rochajiujitsu1@gmail.com.
+ * Execute esta instrucao no projeto: O aluno Otto Lima Araujo faz parte da mesma turma do Joaquim Benevides? Faça a busca e retorne apenas a resposta, sem alterar nada
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
