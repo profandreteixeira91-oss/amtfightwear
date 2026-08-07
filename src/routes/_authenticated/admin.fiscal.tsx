@@ -412,19 +412,42 @@ function FiscalDashboard() {
                           <div className="flex items-center gap-4">
                             <div className={`rounded-xl p-2.5 transition-colors ${
                               inv.status === 'authorized' ? 'bg-emerald-500/10 text-emerald-600' : 
-                              inv.status === 'rejected' ? 'bg-red-500/10 text-red-600' : 'bg-muted text-muted-foreground'
+                              inv.status === 'rejected' ? 'bg-red-500/10 text-red-600' : 
+                              inv.status === 'error' ? 'bg-amber-500/10 text-amber-600' :
+                              'bg-muted text-muted-foreground'
                             }`}>
                               <FileText className="h-5 w-5" />
                             </div>
                             <div>
-                              <p className="text-sm font-semibold leading-none text-foreground">NF-e #{inv.invoice_number}</p>
-                              <p className="mt-1 text-xs text-muted-foreground">Destinatário: {inv.recipient_name} • <span className="font-medium text-foreground/80">R$ {Number(inv.total_amount).toLocaleString('pt-BR')}</span></p>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-neutral-900">NF-e #{inv.invoice_number}</span>
+                                {inv.status === 'error' && (
+                                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px]">
+                                    Erro Sefaz
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <p className="text-xs text-neutral-500 line-clamp-1">{inv.recipient_name} • R$ {Number(inv.total_amount).toLocaleString('pt-BR')}</p>
+                                {inv.access_key && (
+                                  <p className="font-mono text-[10px] text-neutral-400">
+                                    Chave: {inv.access_key}
+                                  </p>
+                                )}
+                                {inv.status === 'error' && (
+                                  <p className="text-[10px] font-medium text-amber-600 bg-amber-50/50 p-1 rounded mt-1 border border-amber-100">
+                                    Aviso: NF-e INEXISTENTE na base nacional. Consulte no site da SEFAZ de origem.
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </div>
                           <div className="flex flex-row items-center justify-between gap-4 sm:flex-col sm:items-end sm:gap-1.5">
                             <Badge variant="outline" className={`capitalize ${
                               inv.status === 'authorized' ? 'bg-emerald-500/10 text-emerald-700 border-emerald-200/50' : 
-                              inv.status === 'rejected' ? 'bg-red-500/10 text-red-700 border-red-200/50' : ''
+                              inv.status === 'rejected' ? 'bg-red-500/10 text-red-700 border-red-200/50' : 
+                              inv.status === 'error' ? 'bg-amber-500/10 text-amber-700 border-amber-200/50' :
+                              ''
                             } px-2 py-0`}>
                               {inv.status}
                             </Badge>
