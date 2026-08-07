@@ -1,6 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Implementação de fluxo: Se algum aluno registrado em algum dojo tentar se cadastrar pelo auth do dojo manager, abra uma mensagem informando que o aluno já é cadastrado em um certo dojo e abra duas opções\nFazer cadastro no app do aluno (redirecionar para a página correta)\nCadastrar meu próprio dojo (um dojo novo com o e-mail do aluno, sem nenhum vínculo com o dojo do qual o aluno faz parte)
-
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal
+ * Ao clicar em ver danfe sou redirecionado para a página de consulta da nota fiscal eletronica, habilite a visualização da chave de acesso das notas emitidas ou abra a página de consulta da nota fiscal eletronica já com o número da nota fiscal selecionada
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
