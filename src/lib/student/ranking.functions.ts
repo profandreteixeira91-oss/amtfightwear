@@ -147,11 +147,10 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .eq("owner_id", me.owner_id);
     if (stErr) throw new Error(stErr.message);
 
-    // 7) Check-ins restritos à turma selecionada
+    // 7) Check-ins (mesma lógica do admin: reflete o total exibido na ficha do aluno)
     let attQuery = supabaseAdmin
       .from("dojo_attendance")
       .select("student_id")
-      .eq("class_id", effectiveClassId)
       .in("student_id", studentIds);
     if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
     if (untilIso) attQuery = attQuery.lt("checked_in_at", untilIso);
