@@ -32,12 +32,16 @@ export const emitNFe = createServerFn({ method: "POST" })
       if (orderError || !order) throw new Error("Pedido não encontrado");
       orderData = order;
 
-      const { data: items } = await s
+      // Sem embed products(...): os dados fiscais são resolvidos depois,
+      // direto do catálogo (produto -> categoria -> padrão).
+      const { data: items, error: itemsError } = await s
         .from('store_order_items')
-        .select('*, products:products(ncm, cest, cfop)')
+        .select('*')
         .eq('order_id', data.orderId);
-      
+
+      if (itemsError) throw new Error("Erro ao ler itens do pedido: " + itemsError.message);
       orderItems = (items as any[]) || [];
+
 
       customerData = {
         full_name: order.customer_name,
