@@ -876,7 +876,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
 
             <ScrollArea className="flex-1">
               <div className="p-6">
-                {isLoading || !data?.product ? (
+                {(isLoading || !data?.product) && !seed ? (
                   <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
                     <p className="text-sm">Carregando dados do produto...</p>
