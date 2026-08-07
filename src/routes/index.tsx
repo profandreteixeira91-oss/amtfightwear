@@ -1,5 +1,20 @@
 /**
- * Execute esta instrucao no projeto: /admin/fiscal > analise por qual sistema as notas estão sendo geradas, ao consultar na secretaria da fazenda do meu estado, a nota não está sendo encontrada e é inexistente na base nacional
+ * Execute esta instrucao no projeto: # AUDITORIA CRÍTICA — NF-e NÃO LOCALIZADA NA SEFAZ / PORTAL NACIONAL
+ *
+ * ## MÓDULO: AMT Fight Wear → `/admin/fiscal`
+ *
+ * ## PROBLEMA: As notas fiscais apresentadas como autorizadas não estão sendo encontradas na consulta oficial da NF-e (Portal Nacional ou SEFAZ). Identificada chave de 43 dígitos (deve ter 44). Falha provável no fluxo de transmissão, retorno ou persistência.
+ *
+ * ## OBJETIVO: AUDITORIA COMPLETA E CORREÇÃO DO FLUXO DE EMISSÃO.
+ * 1. Mapear fluxo (Pedido -> XML -> Assinatura -> SEFAZ -> Retorno -> Banco).
+ * 2. Verificar transmissão real (provedor, API, Web Service, Certificado, CNPJ).
+ * 3. Diferenciar Produção vs Homologação claramente.
+ * 4. Auditar resposta da SEFAZ (status, protocolo, chave real de 44 dígitos).
+ * 5. Corrigir lógica: "AUTORIZADA" somente com confirmação positiva da SEFAZ.
+ * 6. Validar Chave de Acesso (44 dígitos, extraída do XML/Retorno, sem preenchimento artificial).
+ * 7. Armazenar evidência: Protocolo, XML Autorizado, Data/Hora.
+ * 8. Implementar reconciliação fiscal e tratamento de timeout (AGUARDANDO_CONSULTA).
+ * 9. Auditar registros antigos e impedir alteração manual de dados fiscais via frontend.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
