@@ -1,6 +1,11 @@
 /**
- * Execute esta instrucao no projeto: rochajiujitsu1@gmail.com
-Verifique quantos check-ins o aluno Joaquim Benevides Duarte Nascimento tem no total, no ano e no mês e verifique a sua posição no ranking
+ * Execute esta instrucao no projeto: Verifique o fluxo de ranking e sua exibição no dojo manager e no app do aluno, em cada filtro deve prevalecer a quantidade total de check-ins referentes ao período
+Fluxo
+Exemplo > aluno Joaquim 
+Total de Check-Ins : 43
+No ano: 43
+Mês: 1
+Se este for o aluno com mais check-ins no ranking total de sua turma, ele deve aparecer em primeiro lugar no total, e a lógica segue para ano, mês e semana
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
