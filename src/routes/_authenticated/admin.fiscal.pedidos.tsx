@@ -62,7 +62,7 @@ function FiscalOrdersPage() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-              <Link to="/admin/fiscal" search={{}} className="hover:text-foreground transition-colors">Fiscal</Link>
+              <Link to="/admin/fiscal" search={{ orderId: undefined, type: undefined }} className="hover:text-foreground transition-colors">Fiscal</Link>
               <ChevronRight className="h-4 w-4" />
               <span className="text-foreground font-medium">Pedidos para Faturamento</span>
             </div>
@@ -190,7 +190,7 @@ function FiscalOrdersPage() {
                         </td>
                         <td className="px-6 py-5 text-right">
                           <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-neutral-100 text-neutral-400 hover:text-red-600 rounded-full transition-colors" asChild>
-                            <Link to={`/admin/fiscal`} search={{ orderId: o.id, type: o.type === "store_order" ? "order" : "quote", tab: "nfe" }}>
+                            <Link to="/admin/fiscal" search={{ orderId: o.id, type: o.type === "store_order" ? "order" : "quote" }}>
                               <ChevronRight className="h-5 w-5" />
                             </Link>
                           </Button>

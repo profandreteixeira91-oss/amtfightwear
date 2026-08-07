@@ -10,19 +10,31 @@ export const getProductsWithFiscal = createServerFn({ method: "GET" })
     const [prodRes, catRes] = await Promise.all([
       context.supabase
         .from("products" as any)
-        .select("id, name, price, category_id, ncm, cest, cfop_internal, cfop_interstate, unit_commercial, unit_taxable")
+        .select("id, name, price, category_id, ncm, cest, cfop, origem, unidade, cfop_internal, cfop_interstate, unit_commercial, unit_taxable")
         .order("name"),
-      context.supabase.from("store_categories" as any).select("id, name"),
+      context.supabase.from("store_categories" as any).select("id, name, ncm, cest, cfop, origem, unidade"),
     ]);
     if (prodRes.error) throw new Error(prodRes.error.message);
-    const catMap = new Map<string, string>(
-      ((catRes.data as any[]) || []).map((c: any) => [c.id, c.name]),
+    if (catRes.error) throw new Error(catRes.error.message);
+    const catMap = new Map<string, any>(
+      ((catRes.data as any[]) || []).map((c: any) => [c.id, c]),
     );
-    return ((prodRes.data as any[]) || []).map((p: any) => ({
-      ...p,
-      store_categories: p.category_id ? { name: catMap.get(p.category_id) ?? null } : null,
-      category_name: p.category_id ? catMap.get(p.category_id) ?? null : null,
-    }));
+    return ((prodRes.data as any[]) || []).map((p: any) => {
+      const cat = p.category_id ? catMap.get(p.category_id) : null;
+      return {
+        ...p,
+        // Herança visível na UI: o produto herda o fiscal da categoria quando vazio.
+        store_categories: cat
+          ? { name: cat.name, ncm: cat.ncm, cest: cat.cest, cfop: cat.cfop, origem: cat.origem, unidade: cat.unidade }
+          : null,
+        category_name: cat?.name ?? null,
+        effective_ncm: p.ncm || cat?.ncm || null,
+        effective_cest: p.cest || cat?.cest || null,
+        effective_cfop_internal: p.cfop_internal || p.cfop || cat?.cfop || "5102",
+        effective_cfop_interstate: p.cfop_interstate || "6102",
+      };
+    });
+
   });
 
 

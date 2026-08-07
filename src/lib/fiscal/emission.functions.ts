@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { resolveItemsFiscal } from "./fiscal-resolve.server";
+
+
 
 /**
  * Service to handle the full NF-e emission flow
@@ -29,12 +32,16 @@ export const emitNFe = createServerFn({ method: "POST" })
       if (orderError || !order) throw new Error("Pedido não encontrado");
       orderData = order;
 
-      const { data: items } = await s
+      // Sem embed products(...): os dados fiscais são resolvidos depois,
+      // direto do catálogo (produto -> categoria -> padrão).
+      const { data: items, error: itemsError } = await s
         .from('store_order_items')
-        .select('*, products:products(ncm, cest, cfop)')
+        .select('*')
         .eq('order_id', data.orderId);
-      
+
+      if (itemsError) throw new Error("Erro ao ler itens do pedido: " + itemsError.message);
       orderItems = (items as any[]) || [];
+
 
       customerData = {
         full_name: order.customer_name,
@@ -53,19 +60,8 @@ export const emitNFe = createServerFn({ method: "POST" })
       orderData = quote;
       
       const items = Array.isArray(quote.items) ? quote.items : [];
-      
-      for (const item of items as any[]) {
-        const { data: prod } = await s
-          .from('products' as any)
-          .select('ncm, cest, cfop')
-          .eq('id', item.product_id)
-          .maybeSingle();
-        
-        orderItems.push({
-          ...item,
-          products: prod || {}
-        });
-      }
+      orderItems = (items as any[]).map((item) => ({ ...item }));
+
 
       customerData = {
         full_name: quote.customer_name,
@@ -132,13 +128,18 @@ export const emitNFe = createServerFn({ method: "POST" })
     
     const accessKey = partialKey + cDV;
     
-    for (const item of orderItems) {
-      if (!item.products?.ncm) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem NCM preenchido.`);
-      
-      const cfop = item.products?.cfop;
-      
-      if (!cfop) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem CFOP configurado.`);
+    // Dados fiscais vêm do catálogo: produto -> categoria -> padrão nacional.
+    // Somente o NCM bloqueia a emissão quando não existe em nenhum nível.
+    const { missingNcm } = await resolveItemsFiscal(s, orderItems, {
+      interstate: customerState !== issuerState,
+    });
+
+    if (missingNcm.length > 0) {
+      throw new Error(
+        `NCM não encontrado no catálogo para: ${missingNcm.join(", ")}. Preencha o NCM no produto ou na categoria em Catálogo > Fiscal.`,
+      );
     }
+
 
     const { data: invoice, error: invoiceError } = await s
       .from('fiscal_invoices')
