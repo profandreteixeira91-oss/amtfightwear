@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Ocorrido: O ranking do dojo manager estava considerando todos os check-ins do aluno no período, enquanto o app do aluno filtrava apenas pela turma selecionada. Corrigi a lógica no app do aluno para refletir o comportamento do admin: o ranking de uma turma agora mostra o total de presenças de cada aluno no período (independente da turma onde o check-in ocorreu), garantindo paridade total entre as interfaces.
+ * Execute esta instrucao no projeto: /admin/fiscal > analise por qual sistema as notas estão sendo geradas, ao consultar na secretaria da fazenda do meu estado, a nota não está sendo encontrada e é inexistente na base nacional
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
