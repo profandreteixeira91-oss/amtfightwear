@@ -326,7 +326,7 @@ function AdminProductsPage() {
             <div className="flex items-center gap-2">
               <Link to="/admin/produtos/importar"><Button variant="ghost" size="sm" className="text-xs h-8">Importar</Button></Link>
               <Link to="/admin/atacado"><Button variant="ghost" size="sm" className="text-xs h-8">Regras Atacado</Button></Link>
-              <Link to="/admin/fiscal"><Button variant="ghost" size="sm" className="text-xs h-8 text-primary">Painel Fiscal</Button></Link>
+              <Link to="/admin/fiscal" search={{}}><Button variant="ghost" size="sm" className="text-xs h-8 text-primary">Painel Fiscal</Button></Link>
             </div>
           </div>
         </div>

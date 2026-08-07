@@ -80,8 +80,58 @@ function DojoAuthPage() {
       } catch {
         // Se a checagem falhar, seguimos sem bloquear para não travar o dono.
       }
-      // Apenas marca como dojo_manager se o gate não bloqueou
-      await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
+      // Hardening: Contas de aluno não podem acessar o Dojo Manager sob nenhuma circunstância.
+      const { data: dojoUser, error: duErr } = await supabase
+        .from("dojo_users")
+        .select("id, role, owner_id")
+        .eq("auth_user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (duErr || !dojoUser) {
+        // Se não é admin, verifica se é aluno tentando entrar no painel administrativo
+        const { data: studentAccount } = await supabase
+          .from("student_accounts")
+          .select("id")
+          .eq("auth_user_id", userId)
+          .maybeSingle();
+
+        if (studentAccount) {
+          await supabase.auth.signOut();
+          redirected = false;
+          setChecking(false);
+          toast.error("Acesso negado", {
+            description: "Alunos devem utilizar o Aplicativo do Aluno.",
+          });
+          window.location.replace("/app");
+          return;
+        }
+
+        // Se for um novo cadastro ou login sem vínculo, permitimos o fluxo de dojo_manager
+        // APENAS se não houver conflito de aluno (já validado acima).
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData.user) {
+          await supabaseAdmin
+            .from("dojo_users")
+            .upsert({
+              auth_user_id: userData.user.id,
+              owner_id: userData.user.id,
+              role: "owner",
+              email: userData.user.email,
+              name: userData.user.user_metadata?.full_name || name
+            }, { onConflict: "auth_user_id, owner_id" });
+        }
+
+        await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
+      } else {
+        // Pega os dados do usuário atual para verificar metadados
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser && currentUser.user_metadata?.account_type !== "dojo_manager") {
+          await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
+        }
+      }
+      
       const target = await resolveDestination(userId, search.redirect);
       window.location.replace(target);
     };
@@ -208,6 +258,18 @@ function DojoAuthPage() {
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.user) {
+      // Registra o novo dono na tabela de contexto administrativo
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("dojo_users")
+        .insert({
+          auth_user_id: data.user.id,
+          owner_id: data.user.id,
+          role: "owner",
+          email: data.user.email,
+          name: name
+        });
+
       toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
       window.location.assign("/dojo/app");
     }
@@ -269,6 +331,18 @@ function DojoAuthPage() {
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.user) {
+      // Registra o novo dono na tabela de contexto administrativo
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("dojo_users")
+        .insert({
+          auth_user_id: data.user.id,
+          owner_id: data.user.id,
+          role: "owner",
+          email: data.user.email,
+          name: name
+        });
+
       toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
       window.location.assign("/dojo/app");
     }

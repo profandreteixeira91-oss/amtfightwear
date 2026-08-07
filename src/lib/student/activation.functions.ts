@@ -124,6 +124,20 @@ export const activateStudentAccount = createServerFn({ method: "POST" })
         .update({ user_id: userId })
         .in("id", toLinkIds);
       if (linkErr) throw new Error(linkErr.message);
+
+      // CRÍTICO: Cria o student_account para estabelecer o contexto de aluno
+      const studentAccounts = toLinkIds.map(sid => ({
+        auth_user_id: userId,
+        student_id: sid,
+        email: data.email,
+        first_access_at: new Date().toISOString()
+      }));
+
+      const { error: accErr } = await supabaseAdmin
+        .from("student_accounts")
+        .upsert(studentAccounts, { onConflict: 'auth_user_id, student_id' });
+      
+      if (accErr) console.error("Erro ao criar student_account:", accErr);
     }
 
     return { ok: true as const };

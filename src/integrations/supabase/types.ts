@@ -9026,6 +9026,42 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_users: {
+        Row: {
+          auth_user_id: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          owner_id: string
+          role: Database["public"]["Enums"]["dojo_user_role"]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          owner_id: string
+          role?: Database["public"]["Enums"]["dojo_user_role"]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          owner_id?: string
+          role?: Database["public"]["Enums"]["dojo_user_role"]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_video_categories: {
         Row: {
           color: string | null
@@ -13058,6 +13094,50 @@ export type Database = {
         }
         Relationships: []
       }
+      student_accounts: {
+        Row: {
+          auth_user_id: string
+          created_at: string
+          email: string | null
+          first_access_at: string | null
+          id: string
+          last_login_at: string | null
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id: string
+          created_at?: string
+          email?: string | null
+          first_access_at?: string | null
+          id?: string
+          last_login_at?: string | null
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string
+          created_at?: string
+          email?: string | null
+          first_access_at?: string | null
+          id?: string
+          last_login_at?: string | null
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_accounts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -13440,6 +13520,7 @@ export type Database = {
         | "fpjjb"
         | "fjjsp"
         | "other"
+      dojo_user_role: "owner" | "admin" | "teacher"
       face_detection_status:
         | "pending"
         | "confirmed"
@@ -13672,6 +13753,7 @@ export const Constants = {
         "fjjsp",
         "other",
       ],
+      dojo_user_role: ["owner", "admin", "teacher"],
       face_detection_status: [
         "pending",
         "confirmed",
