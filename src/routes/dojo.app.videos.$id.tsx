@@ -78,7 +78,7 @@ function VideoPage() {
   async function handleDuplicate() {
     const row = await duplicateVideo({ data: { id } });
     qc.invalidateQueries({ queryKey: ["dojo-videos"] });
-    nav({ to: "/dojo/app/videos/novo", search: { id: (row as any).id } });
+    nav({ to: "/dojo/app/videos/novo", search: { id: (row as any).id, step: undefined } });
   }
   async function handleArchive() {
     await archiveVideo({ data: { id, archive: v?.status !== "archived" } });
@@ -146,7 +146,7 @@ function VideoPage() {
             <span className="truncate">{v.status === "archived" ? "Restaurar" : "Arquivar"}</span>
           </Button>
           <Button asChild size="sm" className="flex-1 sm:flex-none">
-            <Link to="/dojo/app/videos/novo" search={{ id }}>
+            <Link to="/dojo/app/videos/novo" search={{ id, step: undefined }}>
               <Edit className="mr-2 h-4 w-4" />
               <span className="truncate">Editar</span>
             </Link>

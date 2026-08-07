@@ -80,8 +80,40 @@ function DojoAuthPage() {
       } catch {
         // Se a checagem falhar, seguimos sem bloquear para não travar o dono.
       }
-      // Apenas marca como dojo_manager se o gate não bloqueou
-      await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
+      // Hardening: Contas de aluno não podem acessar o Dojo Manager sob nenhuma circunstância.
+      const { data: dojoUser, error: duErr } = await supabase
+        .from("dojo_users")
+        .select("id, role, owner_id")
+        .eq("auth_user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (duErr || !dojoUser) {
+        // Se não é admin, verifica se é aluno tentando entrar no painel administrativo
+        const { data: studentAccount } = await supabase
+          .from("student_accounts")
+          .select("id")
+          .eq("auth_user_id", userId)
+          .maybeSingle();
+
+        if (studentAccount) {
+          await supabase.auth.signOut();
+          redirected = false;
+          setChecking(false);
+          toast.error("Acesso negado", {
+            description: "Alunos devem utilizar o Aplicativo do Aluno.",
+          });
+          window.location.replace("/app");
+          return;
+        }
+
+        // Se for um novo cadastro ou login sem vínculo, permitimos o fluxo de dojo_manager
+        // APENAS se não houver conflito de aluno (já validado acima).
+        await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
+      } else if (user.user_metadata?.account_type !== "dojo_manager") {
+        await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
+      }
+      
       const target = await resolveDestination(userId, search.redirect);
       window.location.replace(target);
     };
