@@ -128,10 +128,12 @@ function FiscalDashboard() {
     queryFn: () => fetchInvoices(),
   });
 
-  const { data: products, isLoading: productsLoading } = useQuery({
+  const { data: products, isLoading: productsLoading, error: productsError } = useQuery({
     queryKey: ['fiscal-products'],
     queryFn: () => fetchProducts(),
+    retry: 1,
   });
+
 
   const { data: pendingOrders, isLoading: ordersLoading } = useQuery({
     queryKey: ['fiscal-orders'],
