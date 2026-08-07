@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos
- * Ao clicar em editar produtos, as informações demoram demais para carregar, verifique o motivo através de uma auditoria e aplique as correções necessárias
+ * Execute esta instrucao no projeto: Verifique qual dos arquivos em anexo ainda não foi implementado, os que foram implementados ignore, os que ainda não foram, faça a implementação
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
