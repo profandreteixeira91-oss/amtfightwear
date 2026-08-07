@@ -911,7 +911,12 @@ function FiscalDashboard() {
               <CardContent>
                 {productsLoading ? (
                   <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                ) : productsError ? (
+                  <div className="p-12 text-center text-sm text-red-600">
+                    Erro ao carregar produtos: {(productsError as Error).message}
+                  </div>
                 ) : (
+
                   <div className="overflow-x-auto rounded-xl border border-neutral-200">
                     <table className="w-full text-sm">
                       <thead>
