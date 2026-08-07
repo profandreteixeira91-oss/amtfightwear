@@ -1,7 +1,7 @@
 /**
- * Execute esta instrucao no projeto: rochajiujitsu1@gmail.com
- * Qual aluno pertencente a turma kids é o aluno com mais check-ins realizados?
+ * Execute esta instrucao no projeto: O aluno Otto Lima Araujo é o aluno com mais check-ins na turma Kids na conta rochajiujitsu1@gmail.com, com um total de 20 check-ins.
  */
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
