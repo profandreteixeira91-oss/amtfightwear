@@ -100,7 +100,31 @@ export const emitNFe = createServerFn({ method: "POST" })
     const issuerState = config.address_state || 'SP';
     const customerState = customerData?.address_state || 'SP';
     
-    const accessKey = `352608${config.cnpj.replace(/\D/g, '')}55001${String(invoiceNumber).padStart(9, '0')}1${Math.floor(10000000 + Math.random() * 90000000)}`;
+    // accessKey must be exactly 44 digits for a valid NF-e
+    // Composition: cUF(2) + AAMM(4) + CNPJ(14) + mod(2) + serie(3) + nNF(9) + tpEmis(1) + cNF(8) + cDV(1)
+    const cUF = "35"; // SP code as default, should eventually come from config.address_city_code prefix or mapping
+    const AAMM = new Date().toISOString().substring(2, 4) + new Date().toISOString().substring(5, 7);
+    const cnpj = config.cnpj.replace(/\D/g, '').padStart(14, '0');
+    const mod = "55";
+    const serie = String(series).padStart(3, '0');
+    const nNF = String(invoiceNumber).padStart(9, '0');
+    const tpEmis = "1"; // Normal emission
+    const cNF = Math.floor(10000000 + Math.random() * 90000000).toString();
+    
+    // Partial key to calculate check digit
+    const partialKey = cUF + AAMM + cnpj + mod + serie + nNF + tpEmis + cNF;
+    
+    // Simple modulo 11 for cDV (simplified for this mock/logic)
+    let sum = 0;
+    let weight = 2;
+    for (let i = partialKey.length - 1; i >= 0; i--) {
+      sum += parseInt(partialKey[i]) * weight;
+      weight = weight === 9 ? 2 : weight + 1;
+    }
+    const remainder = sum % 11;
+    const cDV = (remainder === 0 || remainder === 1) ? "0" : (11 - remainder).toString();
+    
+    const accessKey = partialKey + cDV;
     
     for (const item of orderItems) {
       if (!item.products?.ncm) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem NCM preenchido.`);
