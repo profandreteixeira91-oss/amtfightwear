@@ -57,6 +57,12 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     const { data: authPage, error: authError } = authResult;
     if (authError) throw new Error(`Não foi possível listar as contas: ${authError.message}`);
 
+    const { data: studentsList } = await supabaseAdmin
+      .from("dojo_students")
+      .select("email")
+      .not("email", "is", null);
+    const studentEmails = new Set((studentsList ?? []).map((s: any) => s.email));
+
     const knownDojoOwners = new Set<string>([
       ...(academiesRes.data ?? []).map((academy) => academy.owner_id),
       ...(subsRes.data ?? []).map((subscription) => subscription.owner_id),
@@ -66,7 +72,8 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
         (knownDojoOwners.has(user.id) ||
         user.user_metadata?.account_type === "dojo_manager") &&
         user.email !== "igor.reboredo@gmail.com" &&
-        user.email !== "profandreteixeira91@gmail.com"
+        user.email !== "profandreteixeira91@gmail.com" &&
+        !studentEmails.has(user.email!)
     );
     const ownerIds = authUsers.map((user) => user.id);
     if (ownerIds.length === 0) return [] as DojoAccountRow[];
