@@ -509,7 +509,7 @@ function FiscalDashboard() {
                              // Cria um blob de texto simples contendo a lista de chaves e conteúdos (simulado)
                              const exportContent = invoices
                                .filter(inv => inv.status === 'authorized')
-                               .map(inv => `Nota: ${inv.invoice_number}\nChave: ${inv.access_key}\nXML: ${inv.xml_content}\n${"-".repeat(20)}`)
+                               .map(inv => `Nota: ${inv.invoice_number}\nChave: ${inv.access_key}\nLink DANFE: ${inv.danfe_url || 'https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx'}\nXML: ${inv.xml_content}\n${"-".repeat(20)}`)
                                .join("\n\n");
                              
                              const blob = new Blob([exportContent], { type: 'text/plain' });

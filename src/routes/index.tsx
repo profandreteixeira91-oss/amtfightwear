@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos clicar em editar produto ainda está com o carregamento lento, faça uma auditoria no módulo catálogo e aplique as correções necessárias para que o carregamento seja rápido
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal
+ * A chave de acesso gerada no sistema para copiar é inválida, a mesma deve ter 44 dígitos, faça a auditoria e verifique corretamente
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
