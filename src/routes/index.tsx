@@ -1,7 +1,5 @@
 /**
- * Execute esta instrucao no projeto: NF-e INEXISTENTE na base nacional, favor consultar esta NF-e no site da SEFAZ de origem.
- * 
- * admim/fiscal tive esse retorno ao consultar a nota na SEFAZ nacional
+ * Execute esta instrucao no projeto: Faça a auditoria e veja o erro apresentado da emissão NF-e INEXISTENTE na base nacional, favor consultar esta NF-e no site da SEFAZ de origem. corrija de forma definitiva
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
