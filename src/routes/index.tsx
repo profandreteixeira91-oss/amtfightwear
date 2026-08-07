@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Auditoria concluída. O motivo de Otto aparecer em primeiro no ranking semanal/mensal apesar de ter menos check-ins totais é que o ranking respeita estritamente o período selecionado. No mês de Agosto, Otto possui 2 check-ins enquanto Joaquim Benevides possui apenas 1, justificando a posição. No ranking "Total", Joaquim permanece em primeiro lugar com 43 contra 20 de Otto.
+ * Execute esta instrucao no projeto: Ocorrido: O ranking do dojo manager estava considerando todos os check-ins do aluno no período, enquanto o app do aluno filtrava apenas pela turma selecionada. Corrigi a lógica no app do aluno para refletir o comportamento do admin: o ranking de uma turma agora mostra o total de presenças de cada aluno no período (independente da turma onde o check-in ocorreu), garantindo paridade total entre as interfaces.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
