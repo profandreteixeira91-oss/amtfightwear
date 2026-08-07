@@ -60,19 +60,8 @@ export const emitNFe = createServerFn({ method: "POST" })
       orderData = quote;
       
       const items = Array.isArray(quote.items) ? quote.items : [];
-      
-      for (const item of items as any[]) {
-        const { data: prod } = await s
-          .from('products' as any)
-          .select('ncm, cest, cfop')
-          .eq('id', item.product_id)
-          .maybeSingle();
-        
-        orderItems.push({
-          ...item,
-          products: prod || {}
-        });
-      }
+      orderItems = (items as any[]).map((item) => ({ ...item }));
+
 
       customerData = {
         full_name: quote.customer_name,
