@@ -129,11 +129,14 @@ function DojoAuthPage() {
         .limit(1);
 
       // Verificação dupla: por user_id e também por e-mail para cobrir importações manuais
-      const { data: studentByEmail } = await supabase
-        .from("dojo_students")
-        .select("id")
-        .eq("email", signInData.user.email?.trim().toLowerCase())
-        .limit(1);
+      const userEmail = signInData.user.email?.trim().toLowerCase();
+      const { data: studentByEmail } = userEmail 
+        ? await supabase
+            .from("dojo_students")
+            .select("id")
+            .eq("email", userEmail)
+            .limit(1)
+        : { data: null };
 
       if ((studentRows && studentRows.length > 0) || (studentByEmail && studentByEmail.length > 0)) {
         await supabase.auth.signOut();
