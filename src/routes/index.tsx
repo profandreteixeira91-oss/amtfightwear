@@ -1,7 +1,8 @@
 /**
- * Execute esta instrucao no projeto: arquivo em anexo
+ * Execute esta instrucao no projeto: mfvbb11@gmail.com
+ * adv.aabrantes@gmail.com
  *
- * Implemente as regras deste documento.
+ * Verifique por onde estes cadastros foram feitos, aparecem em /admin no dojo manager
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
