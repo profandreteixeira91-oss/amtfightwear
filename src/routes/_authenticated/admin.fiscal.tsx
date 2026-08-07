@@ -30,6 +30,7 @@ import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig
 import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
 import { getFiscalCategorySettings, saveFiscalCategorySetting } from "@/lib/fiscal/automation.functions";
 import { emitNFe } from "@/lib/fiscal/emission.functions";
+import { reconcileFakeInvoices } from "@/lib/fiscal/reconciliation.functions";
 import { getOrdersForFiscal } from "@/lib/fiscal/orders.functions";
 import { 
   Dialog, 
@@ -74,6 +75,7 @@ function FiscalDashboard() {
   const findCnpjFn = useServerFn(fetchCompanyByCnpj);
   const emitNFeFn = useServerFn(emitNFe);
   const fetchOrdersFn = useServerFn(getOrdersForFiscal);
+  const runReconciliation = useServerFn(reconcileFakeInvoices);
   const fetchCategorySettings = useServerFn(getFiscalCategorySettings);
   const saveCatSetting = useServerFn(saveFiscalCategorySetting);
   
@@ -312,6 +314,22 @@ function FiscalDashboard() {
                 >
                   <Settings className="h-5 w-5" />
                   Emitente
+                </Button>
+                <Button 
+                  onClick={async () => {
+                    if (window.confirm("Deseja invalidar notas geradas pelo simulador anterior? Isso marcará como 'erro' notas sem transmissão real.")) {
+                      toast.promise(runReconciliation(), {
+                        loading: 'Auditando base de dados...',
+                        success: (res: any) => `${res.count} notas fictícias foram invalidadas.`,
+                        error: 'Erro na auditoria.'
+                      });
+                    }
+                  }}
+                  variant="ghost" 
+                  className="h-14 w-full gap-3 rounded-2xl border-neutral-200 px-8 text-base font-semibold text-amber-600 hover:text-amber-700 hover:bg-amber-50 sm:w-auto"
+                >
+                  <AlertCircle className="h-5 w-5" />
+                  Audit
                 </Button>
               </div>
             </div>
