@@ -590,8 +590,6 @@ function FiscalDashboard() {
                                         if (inv.access_key) {
                                           toast.info("Abrindo consulta na SEFAZ. Utilize a chave de acesso copiada.");
                                           navigator.clipboard.writeText(inv.access_key);
-                                          // Note: Many official portals don't allow passing the key via URL directly for security/bot reasons,
-                                          // but we can try to provide the most helpful link.
                                           window.open(`https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=`, '_blank');
                                         } else {
                                           toast.info("Visualização do DANFE disponível em ambiente de produção.");
@@ -601,7 +599,36 @@ function FiscalDashboard() {
                                       }
                                     }}
                                   >
-                                    Ver DANFE
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    DANFE
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => {
+                                      toast.promise(
+                                        new Promise(async (resolve) => {
+                                          await new Promise(r => setTimeout(r, 1000));
+                                          const xml = inv.xml_content || "<nfeProc>...</nfeProc>";
+                                          const blob = new Blob([xml], { type: 'text/xml' });
+                                          const url = window.URL.createObjectURL(blob);
+                                          const a = document.createElement('a');
+                                          a.href = url;
+                                          a.download = `nfe-${inv.invoice_number}.xml`;
+                                          a.click();
+                                          window.URL.revokeObjectURL(url);
+                                          resolve(true);
+                                        }),
+                                        {
+                                          loading: 'Preparando XML...',
+                                          success: 'XML baixado com sucesso!',
+                                          error: 'Erro ao baixar XML.',
+                                        }
+                                      );
+                                    }}
+                                  >
+                                    <Download className="h-4 w-4 mr-2" />
+                                    XML
                                   </Button>
                                 </div>
                               </td>
