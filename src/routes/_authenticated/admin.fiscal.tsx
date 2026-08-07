@@ -348,7 +348,7 @@ function FiscalDashboard() {
             value={statusLoading ? "—" : (status?.certificate_valid ? 'Válido' : 'Inativo')}
             label={status?.expires_at 
               ? `Expira em ${status.days_remaining} dias` 
-              : 'Nenhum certificado carregado'}
+              : 'Auditando transmissão real'}
           />
         </div>
 
