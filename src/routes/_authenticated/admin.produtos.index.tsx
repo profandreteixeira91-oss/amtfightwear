@@ -825,7 +825,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
   const handleSave = async () => {
     // Impede salvar com o formulário apenas semeado pela listagem: campos como
     // descrição/GTIN ainda não chegaram e seriam gravados vazios.
-    if (isLoading || !data?.product) return toast.error("Aguarde o carregamento completo do produto");
+    if (!data?.product) return toast.error("Aguarde o carregamento dos dados do produto");
     const priceNum = parseNum(price);
     const stockNum = Number(stock);
     if (priceNum === null || priceNum < 0) return toast.error("Preço inválido");
@@ -851,6 +851,10 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
       };
       await updateProduct({ data: { id: productId, patch } });
 
+      // Só grava variações se elas realmente chegaram do servidor: caso a aba
+      // ainda esteja carregando, os campos do produto são salvos sem apagar
+      // as variações existentes.
+      if (variantsReady) {
       const cleanedVariants = variants.map((v, idx) => ({
         id: v.id,
         size: v.size?.trim() || null,
@@ -865,6 +869,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
         active: v.active,
       }));
       await saveVariants({ data: { product_id: productId, variants: cleanedVariants, deleted_ids: deletedIds } });
+      }
 
       toast.success("Produto atualizado");
       onSaved();
@@ -1001,10 +1006,17 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
                         </Button>
                       </div>
 
-                      {isLoading || !data?.product ? (
+                      {!variantsReady && variantsQuery.isLoading ? (
                         <div className="flex items-center justify-center gap-3 py-12 text-muted-foreground">
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
                           <p className="text-sm">Carregando variações...</p>
+                        </div>
+                      ) : variantsQuery.error && !variantsReady ? (
+                        <div className="py-12 text-center text-sm text-destructive">
+                          Erro ao carregar variações: {(variantsQuery.error as Error).message}
+                          <div className="mt-3">
+                            <Button size="sm" variant="outline" onClick={() => variantsQuery.refetch()}>Tentar novamente</Button>
+                          </div>
                         </div>
                       ) : variants.length === 0 ? (
                         <div className="text-center py-12 border-2 border-dashed border-border/40 rounded-2xl bg-muted/20">
@@ -1098,7 +1110,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
               <div className="flex items-center justify-between w-full">
                 <Button variant="ghost" onClick={onClose} disabled={saving} className="text-muted-foreground hover:text-foreground">Cancelar</Button>
                 <div className="flex items-center gap-3">
-                  <Button onClick={handleSave} disabled={saving || isLoading} className="min-w-[140px] shadow-lg shadow-primary/20">
+                  <Button onClick={handleSave} disabled={saving || !data?.product} className="min-w-[140px] shadow-lg shadow-primary/20">
                     {saving ? (
                       <>
                         <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2" />
