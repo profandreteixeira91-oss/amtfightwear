@@ -929,6 +929,22 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
     return { product: productRes.data, variants: variantsRes.data ?? [] };
   });
 
+// Consulta dedicada às variações: permite que a aba "Variações" carregue em
+// paralelo, sem bloquear os campos do produto nem o botão Salvar.
+export const adminGetStoreProductVariants = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("store_product_variants")
+      .select("id, product_id, size, color, option_label, sku, price, compare_at_price, stock, weight_grams, sort_order, active")
+      .eq("product_id", data.id)
+      .order("sort_order");
+    if (error) throw new Error(error.message);
+    return { variants: rows ?? [] };
+  });
+
+
 const VariantSchema = z.object({
   id: z.string().uuid().optional(),
   size: z.string().nullable().optional(),
