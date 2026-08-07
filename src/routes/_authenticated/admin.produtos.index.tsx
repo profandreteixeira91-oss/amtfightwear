@@ -683,6 +683,7 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "store", "product", productId],
     queryFn: () => getProduct({ data: { id: productId } }),
+    staleTime: 1000 * 60 * 5, // Cache por 5 minutos
   });
 
   const [name, setName] = useState("");
