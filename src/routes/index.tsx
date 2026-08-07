@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: O aluno Otto Lima Araujo é o aluno com mais check-ins na turma Kids na conta rochajiujitsu1@gmail.com, com um total de 20 check-ins.
+ * Execute esta instrucao no projeto: O aluno Joaquim Benevides Duarte Nascimento faz parte da turma "Turma Kids Jiu Jitsu" na conta rochajiujitsu1@gmail.com.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
