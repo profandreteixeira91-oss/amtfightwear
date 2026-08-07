@@ -110,8 +110,12 @@ function DojoAuthPage() {
         // Se for um novo cadastro ou login sem vínculo, permitimos o fluxo de dojo_manager
         // APENAS se não houver conflito de aluno (já validado acima).
         await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
-      } else if (user.user_metadata?.account_type !== "dojo_manager") {
-        await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
+      } else {
+        // Pega os dados do usuário atual para verificar metadados
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser && currentUser.user_metadata?.account_type !== "dojo_manager") {
+          await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
+        }
       }
       
       const target = await resolveDestination(userId, search.redirect);
