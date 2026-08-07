@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Sim, o aluno Otto Lima Araujo faz parte da mesma turma que o Joaquim Benevides Duarte Nascimento ("Turma Kids Jiu Jitsu") na conta rochajiujitsu1@gmail.com.
+ * Execute esta instrucao no projeto: Aluno Joaquim tem 43 check-ins, aluno Otto tem 20 check-ins, e o aluno Otto aparece em primeiro do ranking, investigue a lógica, faça a auditoria e verifique o motivo dessa ocorrencia, não altere nada, apenas investigue e responda
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
