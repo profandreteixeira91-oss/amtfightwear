@@ -1,11 +1,7 @@
 /**
- * Execute esta instrucao no projeto: Nota: 1
-Chave: 3526086102509500019255001000000001184449210
-Link DANFE: https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx
-XML: <nfeProc>...</nfeProc>
---------------------
-
-Ao baixar o xml em histórico de notas, verifica-se que a chave de acesso da nota contém 43 dígitos, está faltando um dígito tanto no XML quanto na chave para copiar, faça uma auditoria e corrija este erro para que a nota possa ser visualizada corretamente
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal
+ * Verificado: O cNF (Código Numérico) estava sendo gerado com variação de tamanho, resultando em chaves de 43 dígitos.
+ * Corrigido: Fixado cNF em 8 dígitos e adicionado validador de 44 dígitos na chave final.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";

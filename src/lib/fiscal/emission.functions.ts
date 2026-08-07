@@ -109,12 +109,18 @@ export const emitNFe = createServerFn({ method: "POST" })
     const serie = String(series).padStart(3, '0');
     const nNF = String(invoiceNumber).padStart(9, '0');
     const tpEmis = "1"; // Normal emission
-    const cNF = Math.floor(10000000 + Math.random() * 90000000).toString().substring(0, 8);
+    const cNF = Math.floor(10000000 + Math.random() * 89999999).toString();
     
-    // Partial key to calculate check digit
+    // Partial key to calculate check digit (43 digits)
     const partialKey = cUF + AAMM + cnpj + mod + serie + nNF + tpEmis + cNF;
     
-    // Simple modulo 11 for cDV (simplified for this mock/logic)
+    // Validate length before check digit
+    if (partialKey.length !== 43) {
+      console.error("Erro na geração da chave parcial:", partialKey, "Comprimento:", partialKey.length);
+      throw new Error(`Erro interno na composição da chave (43 esperado, obtido ${partialKey.length})`);
+    }
+    
+    // Modulo 11 for cDV
     let sum = 0;
     let weight = 2;
     for (let i = partialKey.length - 1; i >= 0; i--) {
