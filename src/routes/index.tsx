@@ -1,5 +1,11 @@
 /**
- * Execute esta instrucao no projeto: moises.bernardo@uol.com.br verifique se este usuário está cadastrado como aluno em algum dojo
+ * Execute esta instrucao no projeto: Nota: 1
+Chave: 3526086102509500019255001000000001184449210
+Link DANFE: https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx
+XML: <nfeProc>...</nfeProc>
+--------------------
+
+Ao baixar o xml em histórico de notas, verifica-se que a chave de acesso da nota contém 43 dígitos, está faltando um dígito tanto no XML quanto na chave para copiar, faça uma auditoria e corrija este erro para que a nota possa ser visualizada corretamente
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";

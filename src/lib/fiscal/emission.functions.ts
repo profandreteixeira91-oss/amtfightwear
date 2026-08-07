@@ -109,7 +109,7 @@ export const emitNFe = createServerFn({ method: "POST" })
     const serie = String(series).padStart(3, '0');
     const nNF = String(invoiceNumber).padStart(9, '0');
     const tpEmis = "1"; // Normal emission
-    const cNF = Math.floor(10000000 + Math.random() * 90000000).toString();
+    const cNF = Math.floor(10000000 + Math.random() * 90000000).toString().substring(0, 8);
     
     // Partial key to calculate check digit
     const partialKey = cUF + AAMM + cnpj + mod + serie + nNF + tpEmis + cNF;
