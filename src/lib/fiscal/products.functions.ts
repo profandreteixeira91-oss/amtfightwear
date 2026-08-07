@@ -5,15 +5,26 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const getProductsWithFiscal = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("products" as any)
-      .select("id, name, price, category_id, ncm, cest, cfop_internal, cfop_interstate, store_categories(name)")
-      .order("name");
-    if (error) throw new Error(error.message);
-    return (data || []).map((p: any) => ({
+    // Sem embed de store_categories: não existe FK entre products.category_id
+    // e store_categories, então o PostgREST rejeita o join e a aba ficava vazia.
+    const [prodRes, catRes] = await Promise.all([
+      context.supabase
+        .from("products" as any)
+        .select("id, name, price, category_id, ncm, cest, cfop_internal, cfop_interstate, unit_commercial, unit_taxable")
+        .order("name"),
+      context.supabase.from("store_categories" as any).select("id, name"),
+    ]);
+    if (prodRes.error) throw new Error(prodRes.error.message);
+    const catMap = new Map<string, string>(
+      ((catRes.data as any[]) || []).map((c: any) => [c.id, c.name]),
+    );
+    return ((prodRes.data as any[]) || []).map((p: any) => ({
       ...p,
+      store_categories: p.category_id ? { name: catMap.get(p.category_id) ?? null } : null,
+      category_name: p.category_id ? catMap.get(p.category_id) ?? null : null,
     }));
   });
+
 
 export const updateProductFiscal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
