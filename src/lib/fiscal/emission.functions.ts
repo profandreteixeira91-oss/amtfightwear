@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { resolveItemsFiscal } from "./fiscal-resolve.server";
+
+
 
 /**
  * Service to handle the full NF-e emission flow
