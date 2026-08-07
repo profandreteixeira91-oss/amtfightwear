@@ -96,9 +96,11 @@ export const uploadCertificate = createServerFn({ method: "POST" })
   }).parse(data))
   .handler(async ({ data, context }) => {
     const s = context.supabase;
+    
+    // Simulação temporária — em produção, integrar com lib p12 para extrair dados reais e persistir file
     const dummyCert = {
       owner_id: context.userId,
-      subject_name: "AMT FIGHT WEAR LTDA",
+      subject_name: "AMT FIGHT WEAR LTDA (Simulado)",
       issuer_name: "AC CERTISIGN RFB G5",
       serial_number: "7239182391283",
       valid_from: new Date().toISOString(),
@@ -113,7 +115,10 @@ export const uploadCertificate = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    return { success: true, message: "Certificado validado e armazenado com sucesso" };
+    return { 
+      success: true, 
+      message: "Certificado recebido e configurado em modo de auditoria. Para transmissão real, será necessário vincular ao Provedor Fiscal." 
+    };
   });
 
 export const saveFiscalConfig = createServerFn({ method: "POST" })

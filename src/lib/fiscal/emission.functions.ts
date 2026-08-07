@@ -150,13 +150,14 @@ export const emitNFe = createServerFn({ method: "POST" })
         invoice_number: invoiceNumber,
         series: series,
         access_key: accessKey,
-        recipient_name: customerData?.full_name || 'Cliente Consumidor',
-        recipient_document: customerData?.document || '000.000.000-00',
+        recipient_name: customerData?.full_name || 'Consumidor Final',
+        recipient_document: customerData?.document?.replace(/\D/g, '') || '00000000000',
         total_amount: orderData.total,
-        status: 'authorized',
+        status: 'pending', // Alterado de authorized para pending: emissão agora exige transmissão real
         issue_date: new Date().toISOString(),
-        xml_content: '<nfeProc>...</nfeProc>',
-        protocol: '135260000000000'
+        xml_content: null,
+        protocol: null,
+        error_message: 'Módulo de transmissão aguardando configuração do provedor fiscal.'
       } as any)
       .select()
       .single();

@@ -30,6 +30,7 @@ import { getFiscalStatus, getFiscalInvoices, uploadCertificate, saveFiscalConfig
 import { getProductsWithFiscal, updateProductFiscal } from "@/lib/fiscal/products.functions";
 import { getFiscalCategorySettings, saveFiscalCategorySetting } from "@/lib/fiscal/automation.functions";
 import { emitNFe } from "@/lib/fiscal/emission.functions";
+import { reconcileFakeInvoices } from "@/lib/fiscal/reconciliation.functions";
 import { getOrdersForFiscal } from "@/lib/fiscal/orders.functions";
 import { 
   Dialog, 
@@ -74,6 +75,7 @@ function FiscalDashboard() {
   const findCnpjFn = useServerFn(fetchCompanyByCnpj);
   const emitNFeFn = useServerFn(emitNFe);
   const fetchOrdersFn = useServerFn(getOrdersForFiscal);
+  const runReconciliation = useServerFn(reconcileFakeInvoices);
   const fetchCategorySettings = useServerFn(getFiscalCategorySettings);
   const saveCatSetting = useServerFn(saveFiscalCategorySetting);
   
@@ -313,6 +315,22 @@ function FiscalDashboard() {
                   <Settings className="h-5 w-5" />
                   Emitente
                 </Button>
+                <Button 
+                  onClick={async () => {
+                    if (window.confirm("Deseja invalidar notas geradas pelo simulador anterior? Isso marcará como 'erro' notas sem transmissão real.")) {
+                      toast.promise(runReconciliation(), {
+                        loading: 'Auditando base de dados...',
+                        success: (res: any) => `${res.count} notas fictícias foram invalidadas.`,
+                        error: 'Erro na auditoria.'
+                      });
+                    }
+                  }}
+                  variant="ghost" 
+                  className="h-14 w-full gap-3 rounded-2xl border-neutral-200 px-8 text-base font-semibold text-amber-600 hover:text-amber-700 hover:bg-amber-50 sm:w-auto"
+                >
+                  <AlertCircle className="h-5 w-5" />
+                  Audit
+                </Button>
               </div>
             </div>
           </div>
@@ -348,7 +366,7 @@ function FiscalDashboard() {
             value={statusLoading ? "—" : (status?.certificate_valid ? 'Válido' : 'Inativo')}
             label={status?.expires_at 
               ? `Expira em ${status.days_remaining} dias` 
-              : 'Nenhum certificado carregado'}
+              : 'Auditando transmissão real'}
           />
         </div>
 
@@ -436,7 +454,17 @@ function FiscalDashboard() {
                                 )}
                                 {inv.status === 'error' && (
                                   <p className="text-[10px] font-medium text-amber-600 bg-amber-50/50 p-1 rounded mt-1 border border-amber-100">
-                                    Aviso: NF-e INEXISTENTE na base nacional. Consulte no site da SEFAZ de origem.
+                                    Aviso: NF-e INEXISTENTE na base nacional ou falha na transmissão. Verifique os dados do emitente e destinatário.
+                                  </p>
+                                )}
+                                {inv.status === 'pending' && (
+                                  <p className="text-[10px] font-medium text-blue-600 bg-blue-50/50 p-1 rounded mt-1 border border-blue-100">
+                                    Nota em processamento ou aguardando integração com provedor.
+                                  </p>
+                                )}
+                                {inv.error_message && (
+                                  <p className="text-[10px] text-red-600 italic">
+                                    Erro: {inv.error_message}
                                   </p>
                                 )}
                               </div>
