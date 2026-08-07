@@ -1,20 +1,18 @@
 /**
  * Execute esta instrucao no projeto: # AUDITORIA CRÍTICA — NF-e NÃO LOCALIZADA NA SEFAZ / PORTAL NACIONAL
- *
+ * 
  * ## MÓDULO: AMT Fight Wear → `/admin/fiscal`
- *
- * ## PROBLEMA: As notas fiscais apresentadas como autorizadas não estão sendo encontradas na consulta oficial da NF-e (Portal Nacional ou SEFAZ). Identificada chave de 43 dígitos (deve ter 44). Falha provável no fluxo de transmissão, retorno ou persistência.
- *
+ * 
+ * ## PROBLEMA: As notas fiscais apresentadas como autorizadas no sistema NÃO estão sendo encontradas nas consultas oficiais (Portal Nacional/SEFAZ). Foi identificada uma falha grave onde o sistema marca a nota como "AUTHORIZED" (status 'authorized') e gera uma chave fictícia de 44 dígitos SEM realizar qualquer transmissão real para a SEFAZ. O código atual em `src/lib/fiscal/emission.functions.ts` apenas simula a autorização inserindo dados fixos no banco (protocolo '135260000000000').
+ * 
  * ## OBJETIVO: AUDITORIA COMPLETA E CORREÇÃO DO FLUXO DE EMISSÃO.
- * 1. Mapear fluxo (Pedido -> XML -> Assinatura -> SEFAZ -> Retorno -> Banco).
- * 2. Verificar transmissão real (provedor, API, Web Service, Certificado, CNPJ).
- * 3. Diferenciar Produção vs Homologação claramente.
- * 4. Auditar resposta da SEFAZ (status, protocolo, chave real de 44 dígitos).
- * 5. Corrigir lógica: "AUTORIZADA" somente com confirmação positiva da SEFAZ.
- * 6. Validar Chave de Acesso (44 dígitos, extraída do XML/Retorno, sem preenchimento artificial).
- * 7. Armazenar evidência: Protocolo, XML Autorizado, Data/Hora.
- * 8. Implementar reconciliação fiscal e tratamento de timeout (AGUARDANDO_CONSULTA).
- * 9. Auditar registros antigos e impedir alteração manual de dados fiscais via frontend.
+ * 1. Mapear fluxo real (Pedido -> XML -> Assinatura -> Transmissão via Provedor -> SEFAZ -> Retorno -> Banco).
+ * 2. Identificar e integrar um provedor fiscal (Focus NFe, Nuvem Fiscal, etc) — o sistema atual está APENAS SIMULANDO.
+ * 3. Impedir que notas sejam marcadas como 'authorized' sem o protocolo de autorização real da SEFAZ.
+ * 4. Diferenciar Produção vs Homologação visualmente e funcionalmente.
+ * 5. Corrigir a tabela `fiscal_invoices` para armazenar o XML de retorno real e o histórico de tentativas.
+ * 6. Validar a Chave de Acesso real (44 dígitos extraídos do retorno oficial).
+ * 7. Implementar reconciliação para invalidar as notas "fakes" geradas anteriormente.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
