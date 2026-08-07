@@ -1,7 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal
- * Verificado: O cNF (Código Numérico) estava sendo gerado com variação de tamanho, resultando em chaves de 43 dígitos.
- * Corrigido: Fixado cNF em 8 dígitos e adicionado validador de 44 dígitos na chave final.
+ * Execute esta instrucao no projeto: Remova dos registros de /admin os donos de dojo que na verdade são alunos do dojo de kledson rocha, alunos não devem aparecer como donos
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
