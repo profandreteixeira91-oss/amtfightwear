@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal
- * Ao clicar em ver danfe sou redirecionado para a página de consulta da nota fiscal eletronica, habilite a visualização da chave de acesso das notas emitidas ou abra a página de consulta da nota fiscal eletronica já com o número da nota fiscal selecionada
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal faça a auditoria e habilite o botão exportar xmls em histórico de notas
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
