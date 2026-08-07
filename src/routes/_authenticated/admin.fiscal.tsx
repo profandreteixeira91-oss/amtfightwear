@@ -522,26 +522,45 @@ function FiscalDashboard() {
                                 </Badge>
                               </td>
                               <td className="p-4 text-right">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => {
-                                    if (inv.danfe_url) {
-                                      window.open(inv.danfe_url, '_blank');
-                                    } else if (inv.status === 'authorized') {
-                                      // Simulação/Fallback para ambiente de testes/demonstração
-                                      toast.info("Visualização do DANFE disponível em ambiente de produção.");
-                                      // Se houver uma chave de acesso, poderíamos abrir um site de consulta pública
-                                      if (inv.access_key) {
-                                        window.open(`https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=`, '_blank');
+                                <div className="flex items-center justify-end gap-2">
+                                  {inv.access_key && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 px-2 text-[10px] font-mono text-muted-foreground hover:text-foreground"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(inv.access_key);
+                                        toast.success("Chave de acesso copiada!");
+                                      }}
+                                      title="Copiar Chave de Acesso"
+                                    >
+                                      {inv.access_key.substring(0, 4)}...{inv.access_key.slice(-4)}
+                                    </Button>
+                                  )}
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => {
+                                      if (inv.danfe_url) {
+                                        window.open(inv.danfe_url, '_blank');
+                                      } else if (inv.status === 'authorized') {
+                                        if (inv.access_key) {
+                                          toast.info("Abrindo consulta na SEFAZ. Utilize a chave de acesso copiada.");
+                                          navigator.clipboard.writeText(inv.access_key);
+                                          // Note: Many official portals don't allow passing the key via URL directly for security/bot reasons,
+                                          // but we can try to provide the most helpful link.
+                                          window.open(`https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=`, '_blank');
+                                        } else {
+                                          toast.info("Visualização do DANFE disponível em ambiente de produção.");
+                                        }
+                                      } else {
+                                        toast.error("DANFE não disponível para notas não autorizadas.");
                                       }
-                                    } else {
-                                      toast.error("DANFE não disponível para notas não autorizadas.");
-                                    }
-                                  }}
-                                >
-                                  Ver DANFE
-                                </Button>
+                                    }}
+                                  >
+                                    Ver DANFE
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           ))
