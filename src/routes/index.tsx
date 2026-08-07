@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Agora, para a aluna adv.aabrantes@gmail.com, libere o acesso ao app do aluno e crie uma senha provisória de acesso
+ * Execute esta instrucao no projeto: rochajiujitsu1@gmail.com
+Verifique quantos check-ins o aluno Joaquim Benevides Duarte Nascimento tem no total, no ano e no mês e verifique a sua posição no ranking
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
