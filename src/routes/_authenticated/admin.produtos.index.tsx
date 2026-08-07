@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   adminListStoreProducts,
   adminUpdateStoreProduct,
   adminGetStoreProduct,
+  adminGetStoreProductVariants,
   adminSaveVariants,
   adminCreateStoreProduct,
   adminDeleteStoreProduct,
@@ -70,10 +71,17 @@ function AdminProductsPage() {
   // o usuário passa o mouse/foco no botão de editar, para que o diálogo abra
   // já com os dados em cache em vez de esperar o round-trip do servidor.
   const getProductPrefetch = useServerFn(adminGetStoreProduct);
+  const getVariantsPrefetch = useServerFn(adminGetStoreProductVariants);
   const prefetchProduct = (id: string) => {
     queryClient.prefetchQuery({
       queryKey: ["admin", "store", "product", id],
       queryFn: () => getProductPrefetch({ data: { id } }),
+      staleTime: PRODUCT_STALE_TIME,
+      gcTime: PRODUCT_GC_TIME,
+    });
+    queryClient.prefetchQuery({
+      queryKey: ["admin", "store", "product", id, "variants"],
+      queryFn: () => getVariantsPrefetch({ data: { id } }),
       staleTime: PRODUCT_STALE_TIME,
       gcTime: PRODUCT_GC_TIME,
     });
@@ -701,6 +709,7 @@ type VariantDraft = {
 
 function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: string; seed?: any; onClose: () => void; onSaved: () => void }) {
   const getProduct = useServerFn(adminGetStoreProduct);
+  const getVariants = useServerFn(adminGetStoreProductVariants);
   const updateProduct = useServerFn(adminUpdateStoreProduct);
   const saveVariants = useServerFn(adminSaveVariants);
 
@@ -709,6 +718,19 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
     queryFn: () => getProduct({ data: { id: productId } }),
     staleTime: PRODUCT_STALE_TIME,
     gcTime: PRODUCT_GC_TIME,
+    refetchOnWindowFocus: false,
+  });
+
+  // Variações em requisição própria: a aba carrega em paralelo e o salvamento
+  // dos campos do produto nunca fica bloqueado por ela.
+  const variantsQuery = useQuery({
+    queryKey: ["admin", "store", "product", productId, "variants"],
+    queryFn: () => getVariants({ data: { id: productId } }),
+    staleTime: PRODUCT_STALE_TIME,
+    gcTime: PRODUCT_GC_TIME,
+    refetchOnWindowFocus: false,
+    // Aproveita as variações já vindas no detalhe, se ele resolveu primeiro.
+    initialData: data?.variants ? { variants: data.variants } : undefined,
   });
 
   // Semeia o formulário com o registro já carregado na listagem, para que o
@@ -730,8 +752,15 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
   const [unidade, setUnidade] = useState("");
   const [gtin, setGtin] = useState("");
 
+  // Hidrata os campos uma única vez por produto — refetches em segundo plano
+  // não podem descartar edições em andamento.
+  const hydratedProduct = useRef<string | null>(null);
+  const hydratedVariants = useRef<string | null>(null);
+
   useEffect(() => {
     if (!data?.product) return;
+    if (hydratedProduct.current === productId) return;
+    hydratedProduct.current = productId;
     const p = data.product;
     setName(p.name ?? "");
     setSlug(p.slug ?? "");
@@ -746,8 +775,15 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
     setCfop((p as { cfop?: string | null }).cfop ?? "");
     setUnidade((p as { unidade?: string | null }).unidade ?? "");
     setGtin((p as { gtin?: string | null }).gtin ?? "");
+  }, [data, productId]);
+
+  useEffect(() => {
+    const rows = variantsQuery.data?.variants;
+    if (!rows) return;
+    if (hydratedVariants.current === productId) return;
+    hydratedVariants.current = productId;
     setVariants(
-      (data.variants ?? []).map((v) => ({
+      rows.map((v: any) => ({
         id: v.id,
         size: v.size,
         color: v.color,
@@ -762,7 +798,10 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
       })),
     );
     setDeletedIds([]);
-  }, [data]);
+  }, [variantsQuery.data, productId]);
+
+  const variantsReady = !!variantsQuery.data?.variants;
+
 
   const updateVariant = (i: number, patch: Partial<VariantDraft>) => {
     setVariants((prev) => prev.map((v, idx) => (idx === i ? { ...v, ...patch } : v)));
@@ -793,7 +832,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
   const handleSave = async () => {
     // Impede salvar com o formulário apenas semeado pela listagem: campos como
     // descrição/GTIN ainda não chegaram e seriam gravados vazios.
-    if (isLoading || !data?.product) return toast.error("Aguarde o carregamento completo do produto");
+    if (!data?.product) return toast.error("Aguarde o carregamento dos dados do produto");
     const priceNum = parseNum(price);
     const stockNum = Number(stock);
     if (priceNum === null || priceNum < 0) return toast.error("Preço inválido");
@@ -819,6 +858,10 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
       };
       await updateProduct({ data: { id: productId, patch } });
 
+      // Só grava variações se elas realmente chegaram do servidor: caso a aba
+      // ainda esteja carregando, os campos do produto são salvos sem apagar
+      // as variações existentes.
+      if (variantsReady) {
       const cleanedVariants = variants.map((v, idx) => ({
         id: v.id,
         size: v.size?.trim() || null,
@@ -833,6 +876,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
         active: v.active,
       }));
       await saveVariants({ data: { product_id: productId, variants: cleanedVariants, deleted_ids: deletedIds } });
+      }
 
       toast.success("Produto atualizado");
       onSaved();
@@ -969,10 +1013,17 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
                         </Button>
                       </div>
 
-                      {isLoading || !data?.product ? (
+                      {!variantsReady && variantsQuery.isLoading ? (
                         <div className="flex items-center justify-center gap-3 py-12 text-muted-foreground">
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
                           <p className="text-sm">Carregando variações...</p>
+                        </div>
+                      ) : variantsQuery.error && !variantsReady ? (
+                        <div className="py-12 text-center text-sm text-destructive">
+                          Erro ao carregar variações: {(variantsQuery.error as Error).message}
+                          <div className="mt-3">
+                            <Button size="sm" variant="outline" onClick={() => variantsQuery.refetch()}>Tentar novamente</Button>
+                          </div>
                         </div>
                       ) : variants.length === 0 ? (
                         <div className="text-center py-12 border-2 border-dashed border-border/40 rounded-2xl bg-muted/20">
@@ -1066,7 +1117,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
               <div className="flex items-center justify-between w-full">
                 <Button variant="ghost" onClick={onClose} disabled={saving} className="text-muted-foreground hover:text-foreground">Cancelar</Button>
                 <div className="flex items-center gap-3">
-                  <Button onClick={handleSave} disabled={saving || isLoading} className="min-w-[140px] shadow-lg shadow-primary/20">
+                  <Button onClick={handleSave} disabled={saving || !data?.product} className="min-w-[140px] shadow-lg shadow-primary/20">
                     {saving ? (
                       <>
                         <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2" />
