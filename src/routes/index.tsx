@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/fiscal faça a auditoria e habilite o botão exportar xmls em histórico de notas
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos clicar em editar produto ainda está com o carregamento lento, faça uma auditoria no módulo catálogo e aplique as correções necessárias para que o carregamento seja rápido
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
