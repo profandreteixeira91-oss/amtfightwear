@@ -152,7 +152,7 @@ function KanbanCard({ lead }: { lead: LeadCard }) {
           <CardContent className="space-y-2 p-3">
             <Link
               to="/admin/leads"
-              search={{ focus: lead.id }}
+              search={{ focus: lead.id, q: "", pipeline_stage: undefined }}
               className="line-clamp-2 text-sm font-semibold hover:text-primary"
               onPointerDown={(e) => e.stopPropagation()}
             >
