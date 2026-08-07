@@ -152,6 +152,7 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .from("dojo_attendance")
       .select("student_id")
       .in("student_id", studentIds);
+    attQuery = attQuery.in("status", ["present", "late"] as string[]);
     if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
     if (untilIso) attQuery = attQuery.lt("checked_in_at", untilIso);
 
