@@ -70,6 +70,7 @@ function DojoAuthPage() {
       } catch {
         // Se a checagem falhar, seguimos sem bloquear para não travar o dono.
       }
+      // Apenas marca como dojo_manager se o gate não bloqueou
       await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
       const target = await resolveDestination(userId, search.redirect);
       window.location.replace(target);
@@ -119,18 +120,26 @@ function DojoAuthPage() {
       setLoading(false);
       return toast.error("Falha ao entrar", { description: error.message });
     }
-    // Contas de aluno não podem acessar o Dojo Manager.
+    // Hardening: Contas de aluno não podem acessar o Dojo Manager sob nenhuma circunstância.
     if (signInData.user) {
       const { data: studentRows } = await supabase
         .from("dojo_students")
         .select("id")
         .eq("user_id", signInData.user.id)
         .limit(1);
-      if (studentRows && studentRows.length > 0) {
+
+      // Verificação dupla: por user_id e também por e-mail para cobrir importações manuais
+      const { data: studentByEmail } = await supabase
+        .from("dojo_students")
+        .select("id")
+        .eq("email", signInData.user.email?.trim().toLowerCase())
+        .limit(1);
+
+      if ((studentRows && studentRows.length > 0) || (studentByEmail && studentByEmail.length > 0)) {
         await supabase.auth.signOut();
         setLoading(false);
-        toast.error("Acesso restrito", {
-          description: "Este e-mail é de aluno. Use o App do Aluno em /app.",
+        toast.error("Acesso negado", {
+          description: "Este e-mail pertence a um aluno. Use o App do Aluno.",
         });
         window.location.assign("/app");
         return;
