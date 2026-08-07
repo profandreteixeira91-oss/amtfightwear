@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Nunca exclua um perfil por não ter os registros da infraestrutura, jamais. O cliente poderá preencher estes dados durante a utilização do sistema
+ * Execute esta instrucao no projeto: admin/produtos
+ * Ao clicar em editar produto, o carregamento continua lento, faça a auditoria e corrija de forma definitiva
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
