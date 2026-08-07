@@ -109,6 +109,20 @@ function DojoAuthPage() {
 
         // Se for um novo cadastro ou login sem vínculo, permitimos o fluxo de dojo_manager
         // APENAS se não houver conflito de aluno (já validado acima).
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+           await supabaseAdmin
+            .from("dojo_users")
+            .upsert({
+              auth_user_id: currentUser.id,
+              owner_id: currentUser.id,
+              role: "owner",
+              email: currentUser.email,
+              name: currentUser.user_metadata?.full_name || name
+            }, { onConflict: "auth_user_id, owner_id" });
+        }
+
         await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
       } else {
         // Pega os dados do usuário atual para verificar metadados
@@ -244,6 +258,18 @@ function DojoAuthPage() {
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.user) {
+      // Registra o novo dono na tabela de contexto administrativo
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("dojo_users")
+        .insert({
+          auth_user_id: data.user.id,
+          owner_id: data.user.id,
+          role: "owner",
+          email: data.user.email,
+          name: name
+        });
+
       toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
       window.location.assign("/dojo/app");
     }
@@ -305,6 +331,18 @@ function DojoAuthPage() {
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.user) {
+      // Registra o novo dono na tabela de contexto administrativo
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("dojo_users")
+        .insert({
+          auth_user_id: data.user.id,
+          owner_id: data.user.id,
+          role: "owner",
+          email: data.user.email,
+          name: name
+        });
+
       toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
       window.location.assign("/dojo/app");
     }

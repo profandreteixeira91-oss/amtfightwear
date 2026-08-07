@@ -274,6 +274,19 @@ export const setTeamMemberLogin = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (linkErr) throw new Error(linkErr.message);
 
+    // CRÍTICO: Registra como dojo_user para habilitar o contexto administrativo
+    const { error: duErr } = await supabaseAdmin
+      .from("dojo_users")
+      .upsert({
+        auth_user_id: userId,
+        owner_id: member.owner_id,
+        role: member.role === "admin" || member.role === "manager" ? "admin" : "teacher",
+        email,
+        name: member.full_name
+      }, { onConflict: "auth_user_id, owner_id" });
+
+    if (duErr) console.error("Erro ao criar dojo_user:", duErr);
+
     await context.supabase.from("dojo_team_history").insert({
       owner_id: context.userId,
       member_id: data.id,
