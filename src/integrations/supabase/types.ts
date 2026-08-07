@@ -10996,6 +10996,8 @@ export type Database = {
           category_id: string | null
           cest: string | null
           cfop: string | null
+          cfop_internal: string | null
+          cfop_interstate: string | null
           compare_at_price: number | null
           cost: number
           created_at: string
@@ -11020,6 +11022,8 @@ export type Database = {
           status: string
           stock: number
           unidade: string | null
+          unit_commercial: string | null
+          unit_taxable: string | null
           updated_at: string
           wc_product_id: number | null
           weight_grams: number | null
@@ -11032,6 +11036,8 @@ export type Database = {
           category_id?: string | null
           cest?: string | null
           cfop?: string | null
+          cfop_internal?: string | null
+          cfop_interstate?: string | null
           compare_at_price?: number | null
           cost?: number
           created_at?: string
@@ -11056,6 +11062,8 @@ export type Database = {
           status?: string
           stock?: number
           unidade?: string | null
+          unit_commercial?: string | null
+          unit_taxable?: string | null
           updated_at?: string
           wc_product_id?: number | null
           weight_grams?: number | null
@@ -11068,6 +11076,8 @@ export type Database = {
           category_id?: string | null
           cest?: string | null
           cfop?: string | null
+          cfop_internal?: string | null
+          cfop_interstate?: string | null
           compare_at_price?: number | null
           cost?: number
           created_at?: string
@@ -11092,6 +11102,8 @@ export type Database = {
           status?: string
           stock?: number
           unidade?: string | null
+          unit_commercial?: string | null
+          unit_taxable?: string | null
           updated_at?: string
           wc_product_id?: number | null
           weight_grams?: number | null
