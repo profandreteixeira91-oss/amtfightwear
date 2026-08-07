@@ -966,7 +966,12 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
                         </Button>
                       </div>
 
-                      {variants.length === 0 ? (
+                      {isLoading || !data?.product ? (
+                        <div className="flex items-center justify-center gap-3 py-12 text-muted-foreground">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+                          <p className="text-sm">Carregando variações...</p>
+                        </div>
+                      ) : variants.length === 0 ? (
                         <div className="text-center py-12 border-2 border-dashed border-border/40 rounded-2xl bg-muted/20">
                           <Package className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
                           <p className="text-sm text-muted-foreground">Este produto não possui variações.</p>
