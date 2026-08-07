@@ -37,6 +37,8 @@ export const Route = createFileRoute("/_authenticated/admin/produtos/")({
 });
 
 const PAGE_SIZE = 20;
+const PRODUCT_STALE_TIME = 1000 * 60 * 15;
+const PRODUCT_GC_TIME = 1000 * 60 * 30;
 
 type EditState = Record<string, { price?: string; stock?: string }>;
 
