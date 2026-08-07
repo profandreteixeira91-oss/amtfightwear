@@ -128,13 +128,18 @@ export const emitNFe = createServerFn({ method: "POST" })
     
     const accessKey = partialKey + cDV;
     
-    for (const item of orderItems) {
-      if (!item.products?.ncm) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem NCM preenchido.`);
-      
-      const cfop = item.products?.cfop;
-      
-      if (!cfop) throw new Error(`Produto ${item.product_name || item.name || 'sem nome'} está sem CFOP configurado.`);
+    // Dados fiscais vêm do catálogo: produto -> categoria -> padrão nacional.
+    // Somente o NCM bloqueia a emissão quando não existe em nenhum nível.
+    const { missingNcm } = await resolveItemsFiscal(s, orderItems, {
+      interstate: customerState !== issuerState,
+    });
+
+    if (missingNcm.length > 0) {
+      throw new Error(
+        `NCM não encontrado no catálogo para: ${missingNcm.join(", ")}. Preencha o NCM no produto ou na categoria em Catálogo > Fiscal.`,
+      );
     }
+
 
     const { data: invoice, error: invoiceError } = await s
       .from('fiscal_invoices')
