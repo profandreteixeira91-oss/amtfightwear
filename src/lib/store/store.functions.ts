@@ -911,18 +911,22 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { data: product, error } = await context.supabase
-      .from("products")
-      .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin")
-      .eq("id", data.id)
-      .maybeSingle() as any;
-    if (error) throw new Error(error.message);
-    const { data: variants } = await context.supabase
-      .from("store_product_variants")
-      .select("*")
-      .eq("product_id", data.id)
-      .order("sort_order");
-    return { product, variants: variants ?? [] };
+    // Ambas as consultas são independentes: rodam em paralelo para reduzir
+    // o tempo de abertura do diálogo de edição (antes eram sequenciais).
+    const [productRes, variantsRes] = await Promise.all([
+      context.supabase
+        .from("products")
+        .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop_internal, cfop_interstate, unit_commercial, unit_taxable, unidade, gtin")
+        .eq("id", data.id)
+        .maybeSingle() as unknown as Promise<{ data: any; error: any }>,
+      context.supabase
+        .from("store_product_variants")
+        .select("id, product_id, size, color, option_label, sku, price, compare_at_price, stock, weight_grams, sort_order, active")
+        .eq("product_id", data.id)
+        .order("sort_order") as unknown as Promise<{ data: any[] | null; error: any }>,
+    ]);
+    if (productRes.error) throw new Error(productRes.error.message);
+    return { product: productRes.data, variants: variantsRes.data ?? [] };
   });
 
 const VariantSchema = z.object({

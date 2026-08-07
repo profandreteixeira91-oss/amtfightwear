@@ -37,6 +37,8 @@ export const Route = createFileRoute("/_authenticated/admin/produtos/")({
 });
 
 const PAGE_SIZE = 20;
+const PRODUCT_STALE_TIME = 1000 * 60 * 15;
+const PRODUCT_GC_TIME = 1000 * 60 * 30;
 
 type EditState = Record<string, { price?: string; stock?: string }>;
 
@@ -62,6 +64,19 @@ function AdminProductsPage() {
   const refresh = () => {
     refetch();
     queryClient.invalidateQueries({ queryKey: ["store"] });
+  };
+
+  // Pré-carrega os dados completos do produto (detalhes + variações) assim que
+  // o usuário passa o mouse/foco no botão de editar, para que o diálogo abra
+  // já com os dados em cache em vez de esperar o round-trip do servidor.
+  const getProductPrefetch = useServerFn(adminGetStoreProduct);
+  const prefetchProduct = (id: string) => {
+    queryClient.prefetchQuery({
+      queryKey: ["admin", "store", "product", id],
+      queryFn: () => getProductPrefetch({ data: { id } }),
+      staleTime: PRODUCT_STALE_TIME,
+      gcTime: PRODUCT_GC_TIME,
+    });
   };
 
   const [search, setSearch] = useState("");
@@ -566,7 +581,15 @@ function AdminProductsPage() {
                                   <Save className="h-3.5 w-3.5" />
                                 </Button>
                               )}
-                              <Button size="icon" variant="ghost" onClick={() => setEditingId(p.id)} className="h-8 w-8 rounded-full" title="Editar Detalhes">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onMouseEnter={() => prefetchProduct(p.id)}
+                                onFocus={() => prefetchProduct(p.id)}
+                                onClick={() => { prefetchProduct(p.id); setEditingId(p.id); }}
+                                className="h-8 w-8 rounded-full"
+                                title="Editar Detalhes"
+                              >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
                               
@@ -638,6 +661,7 @@ function AdminProductsPage() {
       {editingId && (
         <ProductEditDialog
           productId={editingId}
+          seed={(filtered as any[]).find((p) => p.id === editingId)}
           onClose={() => setEditingId(null)}
           onSaved={() => { setEditingId(null); refresh(); }}
         />
@@ -675,7 +699,7 @@ type VariantDraft = {
   active: boolean;
 };
 
-function ProductEditDialog({ productId, onClose, onSaved }: { productId: string; onClose: () => void; onSaved: () => void }) {
+function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: string; seed?: any; onClose: () => void; onSaved: () => void }) {
   const getProduct = useServerFn(adminGetStoreProduct);
   const updateProduct = useServerFn(adminUpdateStoreProduct);
   const saveVariants = useServerFn(adminSaveVariants);
@@ -683,24 +707,26 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "store", "product", productId],
     queryFn: () => getProduct({ data: { id: productId } }),
-    staleTime: 1000 * 60 * 15, // Cache por 15 minutos
-    gcTime: 1000 * 60 * 30, // Mantém em memória por 30 minutos
+    staleTime: PRODUCT_STALE_TIME,
+    gcTime: PRODUCT_GC_TIME,
   });
 
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
+  // Semeia o formulário com o registro já carregado na listagem, para que o
+  // diálogo apareça preenchido de imediato enquanto os dados completos chegam.
+  const [name, setName] = useState(seed?.name ?? "");
+  const [slug, setSlug] = useState(seed?.slug ?? "");
   const [shortDesc, setShortDesc] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [compareAt, setCompareAt] = useState("");
-  const [stock, setStock] = useState("");
+  const [price, setPrice] = useState(seed?.price != null ? String(seed.price) : "");
+  const [compareAt, setCompareAt] = useState(seed?.compare_at_price != null ? String(seed.compare_at_price) : "");
+  const [stock, setStock] = useState(seed?.stock != null ? String(seed.stock) : "");
   const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const [ncm, setNcm] = useState("");
-  const [cest, setCest] = useState("");
-  const [origem, setOrigem] = useState("");
-  const [cfop, setCfop] = useState("");
+  const [ncm, setNcm] = useState(seed?.ncm ?? "");
+  const [cest, setCest] = useState(seed?.cest ?? "");
+  const [origem, setOrigem] = useState(seed?.origem ?? "");
+  const [cfop, setCfop] = useState(seed?.cfop ?? "");
   const [unidade, setUnidade] = useState("");
   const [gtin, setGtin] = useState("");
 
@@ -765,6 +791,9 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
   };
 
   const handleSave = async () => {
+    // Impede salvar com o formulário apenas semeado pela listagem: campos como
+    // descrição/GTIN ainda não chegaram e seriam gravados vazios.
+    if (isLoading || !data?.product) return toast.error("Aguarde o carregamento completo do produto");
     const priceNum = parseNum(price);
     const stockNum = Number(stock);
     if (priceNum === null || priceNum < 0) return toast.error("Preço inválido");
@@ -850,7 +879,7 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
 
             <ScrollArea className="flex-1">
               <div className="p-6">
-                {isLoading || !data?.product ? (
+                {(isLoading || !data?.product) && !seed ? (
                   <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
                     <p className="text-sm">Carregando dados do produto...</p>
@@ -940,7 +969,12 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
                         </Button>
                       </div>
 
-                      {variants.length === 0 ? (
+                      {isLoading || !data?.product ? (
+                        <div className="flex items-center justify-center gap-3 py-12 text-muted-foreground">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+                          <p className="text-sm">Carregando variações...</p>
+                        </div>
+                      ) : variants.length === 0 ? (
                         <div className="text-center py-12 border-2 border-dashed border-border/40 rounded-2xl bg-muted/20">
                           <Package className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
                           <p className="text-sm text-muted-foreground">Este produto não possui variações.</p>
