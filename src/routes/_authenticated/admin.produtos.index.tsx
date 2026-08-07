@@ -699,7 +699,7 @@ type VariantDraft = {
   active: boolean;
 };
 
-function ProductEditDialog({ productId, onClose, onSaved }: { productId: string; onClose: () => void; onSaved: () => void }) {
+function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: string; seed?: any; onClose: () => void; onSaved: () => void }) {
   const getProduct = useServerFn(adminGetStoreProduct);
   const updateProduct = useServerFn(adminUpdateStoreProduct);
   const saveVariants = useServerFn(adminSaveVariants);
@@ -707,24 +707,26 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "store", "product", productId],
     queryFn: () => getProduct({ data: { id: productId } }),
-    staleTime: 1000 * 60 * 15, // Cache por 15 minutos
-    gcTime: 1000 * 60 * 30, // Mantém em memória por 30 minutos
+    staleTime: PRODUCT_STALE_TIME,
+    gcTime: PRODUCT_GC_TIME,
   });
 
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
+  // Semeia o formulário com o registro já carregado na listagem, para que o
+  // diálogo apareça preenchido de imediato enquanto os dados completos chegam.
+  const [name, setName] = useState(seed?.name ?? "");
+  const [slug, setSlug] = useState(seed?.slug ?? "");
   const [shortDesc, setShortDesc] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [compareAt, setCompareAt] = useState("");
-  const [stock, setStock] = useState("");
+  const [price, setPrice] = useState(seed?.price != null ? String(seed.price) : "");
+  const [compareAt, setCompareAt] = useState(seed?.compare_at_price != null ? String(seed.compare_at_price) : "");
+  const [stock, setStock] = useState(seed?.stock != null ? String(seed.stock) : "");
   const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const [ncm, setNcm] = useState("");
-  const [cest, setCest] = useState("");
-  const [origem, setOrigem] = useState("");
-  const [cfop, setCfop] = useState("");
+  const [ncm, setNcm] = useState(seed?.ncm ?? "");
+  const [cest, setCest] = useState(seed?.cest ?? "");
+  const [origem, setOrigem] = useState(seed?.origem ?? "");
+  const [cfop, setCfop] = useState(seed?.cfop ?? "");
   const [unidade, setUnidade] = useState("");
   const [gtin, setGtin] = useState("");
 
