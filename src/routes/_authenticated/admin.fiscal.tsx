@@ -488,7 +488,50 @@ function FiscalDashboard() {
                       {isEmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                       {isEmitting ? "Emitindo..." : "Nova NF-e"}
                     </Button>
-                   <Button variant="outline" size="sm" className="gap-2">
+                   <Button 
+                     variant="outline" 
+                     size="sm" 
+                     className="gap-2"
+                     onClick={() => {
+                       if (!invoices || invoices.length === 0) {
+                         toast.error("Nenhuma nota para exportar.");
+                         return;
+                       }
+                       
+                       // Em um cenário real, isso poderia chamar uma API para gerar um ZIP.
+                       // Como estamos no frontend, vamos simular a exportação das notas carregadas.
+                       toast.promise(
+                         new Promise(async (resolve, reject) => {
+                           try {
+                             // Simula processamento
+                             await new Promise(r => setTimeout(r, 2000));
+                             
+                             // Cria um blob de texto simples contendo a lista de chaves e conteúdos (simulado)
+                             const exportContent = invoices
+                               .filter(inv => inv.status === 'authorized')
+                               .map(inv => `Nota: ${inv.invoice_number}\nChave: ${inv.access_key}\nXML: ${inv.xml_content}\n${"-".repeat(20)}`)
+                               .join("\n\n");
+                             
+                             const blob = new Blob([exportContent], { type: 'text/plain' });
+                             const url = window.URL.createObjectURL(blob);
+                             const a = document.createElement('a');
+                             a.href = url;
+                             a.download = `export-xml-nfe-${new Date().toISOString().split('T')[0]}.txt`;
+                             a.click();
+                             window.URL.revokeObjectURL(url);
+                             resolve(true);
+                           } catch (err) {
+                             reject(err);
+                           }
+                         }),
+                         {
+                           loading: 'Preparando pacote de XMLs...',
+                           success: 'Download iniciado com sucesso!',
+                           error: 'Erro ao exportar XMLs.',
+                         }
+                       );
+                     }}
+                   >
                      <Download className="h-4 w-4" /> Exportar XMLs
                    </Button>
                  </div>
