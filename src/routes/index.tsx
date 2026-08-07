@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Remova dos registros de /admin os donos de dojo que na verdade são alunos do dojo de kledson rocha, alunos não devem aparecer como donos
+ * Execute esta instrucao no projeto: Veja na imagem abaixo que os alunos aparecem como donos de dojos, remova-os dessa lista
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
