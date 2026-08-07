@@ -1,6 +1,7 @@
 /**
- * Execute esta instrucao no projeto: admin/produtos
- * Ao clicar em editar produto, o carregamento continua lento, faça a auditoria e corrija de forma definitiva
+ * Execute esta instrucao no projeto: NF-e INEXISTENTE na base nacional, favor consultar esta NF-e no site da SEFAZ de origem.
+ * 
+ * admim/fiscal tive esse retorno ao consultar a nota na SEFAZ nacional
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
