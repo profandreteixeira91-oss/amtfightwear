@@ -1,7 +1,8 @@
 /**
- * Execute esta instrucao no projeto: Arquivo em anexo
+ * Execute esta instrucao no projeto: adv.aabrantes@gmail.com (Andreza Abrantes) é aluna desde out/2025, mas criou conta de admin em 30/07/2026.
+ * mfvbb11@gmail.com (Maria Fernanda) é aluna desde fev/2026, mas criou conta de admin em 06/08/2026.
  *
- * Implemente as regras deste documento.
+ * Estes alunos devem ter criado acesso para o app do aluno, portanto, não fazem parte dos donos de dojo em dojo manager, sendo assim, não devem ser listados como donos de dojo
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
