@@ -215,7 +215,7 @@ export const setTeamMemberLogin = createServerFn({ method: "POST" })
     // 1) valida propriedade do membro
     const { data: member, error: mErr } = await context.supabase
       .from("dojo_team_members")
-      .select("id, owner_id, email, full_name, user_id")
+      .select("id, owner_id, email, full_name, user_id, role")
       .eq("id", data.id)
       .maybeSingle();
     if (mErr) throw new Error(mErr.message);
