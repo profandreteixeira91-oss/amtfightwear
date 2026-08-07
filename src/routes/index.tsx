@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: /admin, verifiquei que o dojo da Claudyany não consta mais na lista de dojos, verifique o motivo
+ * Execute esta instrucao no projeto: Nunca exclua um perfil por não ter os registros da infraestrutura, jamais. O cliente poderá preencher estes dados durante a utilização do sistema
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
