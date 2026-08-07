@@ -1,12 +1,7 @@
 /**
- * Execute esta instrucao no projeto: Faça a auditoria na janela apresentada pela imagem abaixo e faça com que os botões funcionem 100%
+ * Execute esta instrucao no projeto: arquivo em anexo
  *
  * Implemente as regras deste documento.
- *
- * Faça auditoria de todas as rotas existentes.
- * Corrija permissões inconsistentes.
- * Não altere layout.
- * Não altere funcionalidades.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
