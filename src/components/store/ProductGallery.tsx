@@ -14,15 +14,30 @@ interface ProductGalleryProps {
   media: GalleryMedia[];
   name: string;
   className?: string;
+  activeImageIndex?: number;
+  onImageChange?: (index: number) => void;
 }
 
 /**
  * Galeria premium do produto: miniaturas, swipe no mobile, zoom com o mouse,
  * modo tela cheia, suporte a vídeo e navegação por teclado.
  */
-export function ProductGallery({ media, name, className }: ProductGalleryProps) {
+export function ProductGallery({ 
+  media, 
+  name, 
+  className, 
+  activeImageIndex, 
+  onImageChange 
+}: ProductGalleryProps) {
   const items = media.length > 0 ? media : [];
-  const [index, setIndex] = useState(0);
+  const [internalIndex, setInternalIndex] = useState(0);
+  
+  const index = activeImageIndex !== undefined ? activeImageIndex : internalIndex;
+  const setIndex = (val: number | ((prev: number) => number)) => {
+    const next = typeof val === "function" ? val(index) : val;
+    if (onImageChange) onImageChange(next);
+    else setInternalIndex(next);
+  };
   const [fullscreen, setFullscreen] = useState(false);
   const [zoom, setZoom] = useState(false);
   const [origin, setOrigin] = useState("50% 50%");

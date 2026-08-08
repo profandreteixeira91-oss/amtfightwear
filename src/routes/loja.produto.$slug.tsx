@@ -110,13 +110,41 @@ function ProductPage() {
   const { data: categories } = useSuspenseQuery(queryOptions({ queryKey: ["store", "categories"], queryFn: () => listStoreCategories() }));
   const add = useCart((s) => s.add);
 
-  const defaultVariantId = (() => {
-    const inStock = data.variants.filter((v) => v.stock > 0);
-    const pool = inStock.length > 0 ? inStock : data.variants;
-    return pool[0]?.id ?? null;
-  })();
-  const [selectedVariant, setSelectedVariant] = useState<string | null>(defaultVariantId);
   const [qty, setQty] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+
+  // Inicializar seleção baseada em variantes disponíveis
+  useEffect(() => {
+    if (data.variants.length > 0) {
+      const inStock = data.variants.filter((v) => v.stock > 0);
+      const pool = inStock.length > 0 ? inStock : data.variants;
+      const first = pool[0];
+      if (first) {
+        setSelectedSize(first.size || null);
+        setSelectedColor(first.color || null);
+      }
+    }
+  }, [data.variants]);
+
+  // Sincronizar imagem ao trocar cor
+  useEffect(() => {
+    if (!selectedColor) return;
+    const images = data.images.length > 0 ? data.images : [];
+    const colorIndex = images.findIndex(img => 
+      img.alt?.toLowerCase().includes(selectedColor.toLowerCase()) || 
+      img.url.toLowerCase().includes(selectedColor.toLowerCase())
+    );
+    if (colorIndex !== -1) {
+      setActiveImageIndex(colorIndex);
+    }
+  }, [selectedColor, data.images]);
+
+  const variant = data.variants.find(v => 
+    (selectedSize ? v.size === selectedSize : true) && 
+    (selectedColor ? v.color === selectedColor : true)
+  ) ?? null;
 
   // Histórico local + evento de visualização (analytics de e-commerce).
   const p = data.product;
@@ -145,7 +173,7 @@ function ProductPage() {
   }
 
   const product = data.product;
-  const variant = data.variants.find((v) => v.id === selectedVariant) ?? null;
+  // Removido variant find redundante pois já está definido acima
   // Preço é sempre o cadastrado no painel administrativo (products.price),
   // independentemente de valores individuais em variantes.
   const price = Number(product.price);
@@ -157,6 +185,10 @@ function ProductPage() {
   const pixPrice = formatBRL(pixPriceFor(price));
 
   const handleAddToCart = () => {
+    if (!variant && data.variants.length > 0) {
+      toast.error("Por favor, selecione as opções do produto");
+      return;
+    }
     const variantLabel = variant ? [variant.size, variant.color].filter(Boolean).join(" / ") : null;
     add({
       product_id: product.id,
@@ -218,7 +250,12 @@ function ProductPage() {
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-12">
           {/* Galeria */}
-          <ProductGallery media={images} name={product.name} />
+          <ProductGallery 
+            media={images} 
+            name={product.name} 
+            activeImageIndex={activeImageIndex}
+            onImageChange={setActiveImageIndex}
+          />
 
 
           {/* Buy box */}
@@ -252,32 +289,83 @@ function ProductPage() {
             </div>
 
             {data.variants.length > 0 && (
-              <div>
-                <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                  <span>Tamanho / Variação</span>
-                  {showKimonoGuide ? <KimonoSizeGuideLink /> : <span className="text-primary normal-case tracking-normal font-medium">Guia de medidas</span>}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {data.variants.map((v) => {
-                    const label = v.size || v.color || v.option_label || "Único";
-                    const selected = v.id === selectedVariant;
-                    const outOfStock = v.stock <= 0;
-                    return (
-                      <button
-                        key={v.id}
-                        disabled={outOfStock}
-                        onClick={() => setSelectedVariant(v.id)}
-                        className={`min-w-[3.25rem] rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
-                          selected
-                            ? "border-primary bg-primary text-primary-foreground shadow-[var(--store-shadow-ruby)]"
-                            : "border-input bg-background hover:border-primary/50"
-                        } ${outOfStock ? "opacity-40 line-through cursor-not-allowed" : ""}`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
+              <div className="flex flex-col gap-6">
+                {/* Tamanhos */}
+                {(() => {
+                  const sizes = Array.from(new Set(data.variants.map(v => v.size).filter(Boolean)));
+                  if (sizes.length === 0) return null;
+                  return (
+                    <div>
+                      <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                        <span>Tamanho</span>
+                        {showKimonoGuide ? <KimonoSizeGuideLink /> : <span className="text-primary normal-case tracking-normal font-medium cursor-pointer">Guia de medidas</span>}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {sizes.map((s) => {
+                          const selected = s === selectedSize;
+                          // Verifica se o tamanho está disponível na cor selecionada (se houver cor)
+                          const variantsForSize = data.variants.filter(v => 
+                            v.size === s && (selectedColor ? v.color === selectedColor : true)
+                          );
+                          const outOfStock = variantsForSize.every(v => v.stock <= 0);
+                          
+                          return (
+                            <button
+                              key={s}
+                              disabled={outOfStock}
+                              onClick={() => setSelectedSize(s!)}
+                              className={`min-w-[3.25rem] rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
+                                selected
+                                  ? "border-primary bg-primary text-primary-foreground shadow-[var(--store-shadow-ruby)]"
+                                  : "border-input bg-background hover:border-primary/50"
+                              } ${outOfStock ? "opacity-40 line-through cursor-not-allowed" : ""}`}
+                            >
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Cores */}
+                {(() => {
+                  const colors = Array.from(new Set(data.variants.map(v => v.color).filter(Boolean)));
+                  if (colors.length === 0) return null;
+                  return (
+                    <div>
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                        Cor
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {colors.map((c) => {
+                          const selected = c === selectedColor;
+                          // Verifica se a cor está disponível no tamanho selecionado (se houver tamanho)
+                          const variantsForColor = data.variants.filter(v => 
+                            v.color === c && (selectedSize ? v.size === selectedSize : true)
+                          );
+                          const outOfStock = variantsForColor.every(v => v.stock <= 0);
+
+                          return (
+                            <button
+                              key={c}
+                              disabled={outOfStock}
+                              onClick={() => setSelectedColor(c!)}
+                              className={`min-w-[3.25rem] rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
+                                selected
+                                  ? "border-primary bg-primary text-primary-foreground shadow-[var(--store-shadow-ruby)]"
+                                  : "border-input bg-background hover:border-primary/50"
+                              } ${outOfStock ? "opacity-40 line-through cursor-not-allowed" : ""}`}
+                            >
+                              {c}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
