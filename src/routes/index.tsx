@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Sim, altere somente a parte visual, não altere funcionalidades ou rotas
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-infantil-manga-longa-basica-amt a ficha técnica deve conter o mesmo visual dos demais produtos desta categoria, faça essa alteração
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
