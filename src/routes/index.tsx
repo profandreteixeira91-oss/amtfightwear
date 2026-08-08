@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Adicione a imagem enviada a todas as faixas da linha training (judo e jiu-jitsu) da amt fight wear, não substitua a imagem já existente, apenas adicione a imagem enviada como segunda imagem de exibição
+ * Execute esta instrucao no projeto: Adicione a imagem enviada como segunda imagem de exibição das faixas de judô e jiu-jitsu da subcategoria LINHA PRO
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
