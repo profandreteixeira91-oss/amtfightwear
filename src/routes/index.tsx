@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Adicione a imagem enviada como segunda imagem de exibição das faixas de judô e jiu-jitsu da subcategoria LINHA PRO
+ * Execute esta instrucao no projeto: Adicione a imagem enviada como segunda imagem de exibição de todas as faixas da categoria LINHA PREMIUM de judo e jiu-jitsu
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
