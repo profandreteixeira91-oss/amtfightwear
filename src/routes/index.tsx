@@ -1,11 +1,7 @@
 /**
- * Execute esta instrucao no projeto: Adicione o produto: Rashguard manga curta básica AMT Fight Wear 
-Categoria - Rashguard básica adulto
-Descrição: Crie uma descrição adequada (composição malha poliéster com elastano gramatura aproximada 250gsm
-Variações
-Mangas: Branca, Azul, Roxa, Marrom, Preta
-Tamanhos: PP, P, M, G, GG, EG
-Preço: R$ 89,90
+ * Execute esta instrucao no projeto: Novo produto: Rashguard Manga Longa Básica AMT Fight Wear
+As características são exatamente as mesmas da rashguard manga curta
+Preço: R$ 99,90
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
