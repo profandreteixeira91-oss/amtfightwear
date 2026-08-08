@@ -1,5 +1,25 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-full-color-manga-longa-basica-amt esta página está correta com relação a clicar na cor e aparecer a imagem correspondente, todos as páginas de produtos de rashguard devem apresentar este mesmo comportamento, faça isso de forma definitiva
+ * Execute esta instrucao no projeto: # CARACTERÍSTICAS TÉCNICAS
+ * 
+ * ## RASHGUARDS — LINHA BÁSICA AMT FIGHT WEAR
+ * 
+ * * **Tecido:** Malha esportiva tecnológica
+ * * **Composição:** 88% Poliéster / 12% Elastano
+ * * **Gramatura:** Aproximadamente 200–220 g/m²
+ * * **Elasticidade:** Multidirecional (4-way stretch)
+ * * **Modelagem:** Anatômica e ajustada ao corpo
+ * * **Secagem:** Rápida
+ * * **Controle de umidade:** Sim
+ * * **Respirabilidade:** Boa
+ * * **Resistência:** Adequada para treinamento esportivo de alta intensidade
+ * * **Costuras:** Reforçadas nas principais áreas de tensão
+ * * **Acabamento:** Desenvolvido para reduzir atrito durante o uso
+ * * **Personalização:** DTF (Direct to Film)
+ * * **Aplicação:** Jiu-Jitsu, No-Gi, Grappling, MMA, Wrestling, Muay Thai, treinamento funcional e atividades esportivas em geral
+ * * **Construção:** Desenvolvida para proporcionar conforto, mobilidade e ajuste durante a prática esportiva
+ * * **Linha:** AMT Fight Wear Basic
+ * 
+ * Utilize a ficha técnica acima para todos os produtos da linha de rashguards básica AMT Fight Wear
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
