@@ -335,7 +335,7 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
   const judoBeltIds = descendantIds("faixas-de-judo");
   const kimonoIds = descendantIds("kimonos-de-jiu-jitsu");
 
-  const productSel = "id, name, slug, price, compare_at_price, image_url, category_id";
+  const productSel = "id, name, slug, price, compare_at_price, image_url, category_id, store_product_variants(id, color), store_product_images(url, alt, sort_order)";
 
   const [categoriesR, featuredR, newestR, bjjBeltsR, judoBeltsR, kimonosR] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12) as any,
@@ -464,7 +464,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
 
     const { data: products } = await sb
       .from("products")
-      .select("id, name, slug, price, compare_at_price, image_url, short_description, category_id")
+      .select("id, name, slug, price, compare_at_price, image_url, short_description, category_id, store_product_variants(id, color), store_product_images(url, alt, sort_order)")
       // .eq("status", "active")
       .in("category_id", ids)
       .order("featured", { ascending: false })

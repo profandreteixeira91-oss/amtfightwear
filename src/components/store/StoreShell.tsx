@@ -552,13 +552,60 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   );
 }
 
-export function ProductCard({ product }: { product: { id: string; name: string; slug: string | null; price: number | string; compare_at_price?: number | string | null; image_url?: string | null; short_description?: string | null } }) {
+export function ProductCard({
+  product,
+}: {
+  product: {
+    id: string;
+    name: string;
+    slug: string | null;
+    price: number | string;
+    compare_at_price?: number | string | null;
+    image_url?: string | null;
+    short_description?: string | null;
+    store_product_variants?: Array<{ id: string; color: string | null }>;
+    store_product_images?: Array<{ url: string; alt: string | null; sort_order: number }>;
+  };
+}) {
   const price = Number(product.price);
   const compareAt = product.compare_at_price ? Number(product.compare_at_price) : null;
   const hasDiscount = compareAt && compareAt > price;
   const pixPrice = pixPriceFor(price);
   const installments = installmentLabel(price);
   const freeShipping = price >= FREE_SHIPPING_THRESHOLD;
+
+  const [currentImage, setCurrentImage] = useState(product.image_url);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+
+  // Rashguards check (name or category)
+  const isRashguard = /rashguard/i.test(product.name);
+
+  // Sync image when color is clicked
+  const handleColorClick = (color: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedColor(color);
+
+    if (product.store_product_images && product.store_product_images.length > 0) {
+      const colorImg = product.store_product_images.find(
+        (img) =>
+          img.alt?.toLowerCase().includes(color.toLowerCase()) ||
+          img.url.toLowerCase().includes(color.toLowerCase()),
+      );
+      if (colorImg) {
+        setCurrentImage(colorImg.url);
+      }
+    }
+  };
+
+  const colors = Array.from(
+    new Set(
+      (product.store_product_variants ?? [])
+        .map((v) => v.color)
+        .filter((c): c is string => !!c),
+    ),
+  ).slice(0, 5); // Limit colors shown on card
+
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.25)]">
@@ -575,7 +622,7 @@ export function ProductCard({ product }: { product: { id: string; name: string; 
       >
         <div className="relative overflow-hidden bg-neutral-50">
           <ProductImage
-            src={product.image_url}
+            src={currentImage}
             alt={product.name}
             aspect="square"
             imgClassName="transition-transform duration-[600ms] ease-out group-hover:scale-[1.06]"
@@ -593,7 +640,38 @@ export function ProductCard({ product }: { product: { id: string; name: string; 
               </span>
             )}
           </div>
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+          {isRashguard && colors.length > 1 && (
+            <div className="absolute inset-x-0 bottom-0 flex justify-center gap-1.5 bg-gradient-to-t from-black/20 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  onClick={(e) => handleColorClick(color, e)}
+                  title={color}
+                  className={cn(
+                    "h-4 w-4 rounded-full border border-white/40 ring-offset-1 transition-transform hover:scale-125",
+                    selectedColor === color && "ring-1 ring-white",
+                  )}
+                  style={{
+                    backgroundColor:
+                      color.toLowerCase() === "preta" || color.toLowerCase() === "black"
+                        ? "#000"
+                        : color.toLowerCase() === "branca" || color.toLowerCase() === "white"
+                          ? "#fff"
+                          : color.toLowerCase() === "azul" || color.toLowerCase() === "blue"
+                            ? "#00f"
+                            : color.toLowerCase() === "roxo" ||
+                                color.toLowerCase() === "purple" ||
+                                color.toLowerCase() === "roxa"
+                              ? "#800080"
+                              : color.toLowerCase() === "marrom" || color.toLowerCase() === "brown"
+                                ? "#8B4513"
+                                : "#ccc",
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex flex-1 flex-col gap-2 p-5">
           <h3 className="line-clamp-2 min-h-[2.6rem] text-sm font-semibold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
