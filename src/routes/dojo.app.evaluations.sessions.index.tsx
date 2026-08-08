@@ -36,10 +36,11 @@ const RESULT_LABEL: Record<string, string> = {
   conditional: "Aprovado c/ ressalvas",
 };
 const RESULT_COLOR: Record<string, string> = {
-  approved: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
-  failed: "bg-red-500/20 text-red-400 border border-red-500/30",
-  review: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
-  conditional: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+  approved: "bg-emerald-50 text-emerald-600 border border-emerald-200",
+  failed: "bg-red-50 text-red-600 border border-red-200",
+  review: "bg-amber-50 text-amber-600 border border-amber-200",
+  conditional: "bg-blue-50 text-blue-600 border border-blue-200",
+
 };
 
 function SessionsList() {
@@ -106,8 +107,8 @@ function SessionsList() {
     <div className="mx-auto w-full max-w-4xl space-y-5 p-2 sm:p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-display text-2xl font-black tracking-tight text-white">Minhas Avaliações</h2>
-          <p className="text-sm text-neutral-400">Gerencie as sessões de avaliação dos seus alunos.</p>
+          <h2 className="font-display text-2xl font-black tracking-tight text-neutral-900 uppercase">Minhas Avaliações</h2>
+          <p className="text-sm text-neutral-500 font-medium">Gerencie as sessões de avaliação dos seus alunos.</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -145,14 +146,14 @@ function SessionsList() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <Input 
-            className="h-11 border-white/10 bg-neutral-900/50 pl-10 text-sm focus:ring-red-500" 
+            className="h-11 border-neutral-200 bg-white pl-10 text-sm focus:ring-red-500 shadow-sm" 
             placeholder="Buscar por aluno ou modelo..." 
             value={q} 
             onChange={(e) => setQ(e.target.value)} 
           />
         </div>
         <select 
-          className="h-11 rounded-lg border border-white/10 bg-neutral-900/50 px-4 text-sm text-white focus:ring-red-500 sm:w-48" 
+          className="h-11 rounded-lg border border-neutral-200 bg-white px-4 text-sm text-neutral-900 focus:ring-red-500 sm:w-48 shadow-sm" 
           value={status} 
           onChange={(e) => setStatus(e.target.value)}
         >
@@ -163,34 +164,34 @@ function SessionsList() {
 
       <div className="grid gap-3 sm:grid-cols-1">
         {filtered.map((s: any) => (
-          <Card key={s.id} className="overflow-hidden border-white/10 bg-neutral-900/40 hover:bg-neutral-900/60 transition-colors">
+          <Card key={s.id} className="overflow-hidden border-neutral-200 bg-white hover:bg-neutral-50 transition-all shadow-sm">
             <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
               <div className="flex-1 min-w-0">
-                <div className="font-bold text-white leading-tight truncate">{s.student?.full_name ?? "Aluno"}</div>
-                <div className="mt-1 text-xs text-neutral-500 flex flex-wrap gap-x-2 gap-y-1">
+                <div className="font-bold text-neutral-900 leading-tight truncate">{s.student?.full_name ?? "Aluno"}</div>
+                <div className="mt-1 text-xs text-neutral-500 flex flex-wrap gap-x-2 gap-y-1 font-medium">
                   <span className="truncate">{s.template?.title ?? "Sem modelo"}</span>
-                  <span className="hidden sm:inline text-neutral-700">•</span>
+                  <span className="hidden sm:inline text-neutral-300">•</span>
                   <span>{new Date(s.updated_at).toLocaleDateString("pt-BR")}</span>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between gap-4 border-t border-white/5 pt-3 sm:border-0 sm:pt-0">
-                <div className="text-sm font-black text-white">
-                  {s.total_score} / {s.max_score} <span className="text-[10px] font-bold text-neutral-500">({s.percentage}%)</span>
+              <div className="flex items-center justify-between gap-4 border-t border-neutral-100 pt-3 sm:border-0 sm:pt-0">
+                <div className="text-sm font-black text-neutral-900">
+                  {s.total_score} / {s.max_score} <span className="text-[10px] font-bold text-neutral-400">({s.percentage}%)</span>
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="h-6 border-white/10 bg-white/5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <Badge variant="outline" className="h-6 border-neutral-200 bg-neutral-50 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
                     {STATUS_LABEL[s.status] ?? s.status}
                   </Badge>
                   {s.result && (
-                    <Badge className={`h-6 text-[10px] font-bold uppercase tracking-wider ${RESULT_COLOR[s.result] ?? "bg-neutral-800 text-neutral-400"}`}>
+                    <Badge className={`h-6 text-[10px] font-bold uppercase tracking-wider shadow-sm ${RESULT_COLOR[s.result] ?? "bg-neutral-100 text-neutral-500"}`}>
                       {RESULT_LABEL[s.result]}
                     </Badge>
                   )}
                   <div className="flex gap-1.5 ml-2">
                     <Link to="/dojo/app/evaluations/sessions/$id" params={{ id: s.id }}>
-                      <Button size="sm" variant="outline" className="h-9 w-9 p-0 border-white/10 bg-white/5 hover:bg-white/10 sm:w-auto sm:px-3">
+                      <Button size="sm" variant="outline" className="h-9 w-9 p-0 border-neutral-200 bg-white hover:bg-neutral-50 sm:w-auto sm:px-3 shadow-sm">
                         <Play className="h-3.5 w-3.5 sm:mr-1.5" /> <span className="hidden sm:inline">Abrir</span>
                       </Button>
                     </Link>
@@ -204,7 +205,7 @@ function SessionsList() {
           </Card>
         ))}
         {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-white/5 rounded-2xl bg-neutral-900/20">
+          <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-neutral-200 rounded-2xl bg-white shadow-sm">
             <Search className="h-10 w-10 text-neutral-700 mb-3" />
             <div className="text-sm font-medium text-neutral-400">Nenhuma avaliação encontrada</div>
           </div>
