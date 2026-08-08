@@ -1,12 +1,11 @@
 /**
- * Execute esta instrucao no projeto: Crie uma nova categoria de produtos chamada Rashguards
-Subcategorias
-Rashguard Básica 
-   Infantil
-   Adulto
-Rashguard Premium
-   Infantil
-   Adulto
+ * Execute esta instrucao no projeto: Adicione o produto: Rashguard manga curta básica AMT Fight Wear 
+Categoria - Rashguard básica adulto
+Descrição: Crie uma descrição adequada (composição malha poliéster com elastano gramatura aproximada 250gsm
+Variações
+Mangas: Branca, Azul, Roxa, Marrom, Preta
+Tamanhos: PP, P, M, G, GG, EG
+Preço: R$ 89,90
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
