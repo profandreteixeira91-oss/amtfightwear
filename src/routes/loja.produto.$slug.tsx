@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { ProductGallery } from "@/components/store/ProductGallery";
+import { TechSpecs } from "@/components/store/TechSpecs";
 import { TrustBadges } from "@/components/store/TrustBadges";
 import { FavoriteButton } from "@/components/store/FavoriteButton";
 import { RecentlyViewed } from "@/components/store/RecentlyViewed";
@@ -425,10 +426,8 @@ function ProductPage() {
         {product.description && (
           <section className="mt-14 card-elevated p-6 sm:p-8">
             <div className="eyebrow mb-3">Descrição</div>
-            <h2 className="mb-4 font-display text-2xl font-bold tracking-tight">Detalhes do produto</h2>
-            <div className="prose prose-sm max-w-none whitespace-pre-line text-foreground">
-              {product.description}
-            </div>
+            <h2 className="mb-8 font-display text-2xl font-bold tracking-tight sm:text-3xl">Ficha Técnica Profissional</h2>
+            <TechSpecs description={product.description} />
           </section>
         )}
 
