@@ -402,21 +402,35 @@ function MacroPage() {
       setSkippedIds((s) => new Set(s).add(lead.id));
       return false;
     }
-    setAutoStatus(`Enviando para @${handle}…`);
-    const res = await sendViaExtension(handle, msg);
-    if (res.ok) {
-      logMut.mutate(lead.id);
+
+    const trySend = async (isRetry = false) => {
+      setAutoStatus(`${isRetry ? "Retentando" : "Enviando"} para @${handle}…`);
+      const res = await sendViaExtension(handle, msg);
+      
+      if (res.ok) {
+        logMut.mutate(lead.id);
+        if (manualActive) removeFromMacroQueue(lead.id);
+        setSessionCount((v) => v + 1);
+        setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
+        setSkippedIds((s) => new Set(s).add(lead.id));
+        toast.success(`DM enviado para @${handle}`);
+        return true;
+      }
+
+      // Se falhou e ainda não é uma retentativa, tenta mais uma vez
+      if (!isRetry) {
+        setAutoStatus(`Erro no Instagram. Retentando em 3s…`);
+        await new Promise(r => setTimeout(r, 3000));
+        return trySend(true);
+      }
+
+      toast.error(`Falha definitiva em @${handle}: ${res.error || "erro desconhecido"}`);
       if (manualActive) removeFromMacroQueue(lead.id);
-      setSessionCount((v) => v + 1);
-      setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
       setSkippedIds((s) => new Set(s).add(lead.id));
-      toast.success(`DM enviado para @${handle}`);
-      return true;
-    }
-    toast.error(`Falha em @${handle}: ${res.error || "erro desconhecido"}`);
-    if (manualActive) removeFromMacroQueue(lead.id);
-    setSkippedIds((s) => new Set(s).add(lead.id));
-    return false;
+      return false;
+    };
+
+    return trySend();
   }
 
   // Loop automático: processa a fila respeitando cooldown e limites.

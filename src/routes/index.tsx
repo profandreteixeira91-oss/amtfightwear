@@ -1,7 +1,7 @@
 /**
- * Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/evaluations/sessions/e80a422f-769e-4821-9076-2395d229b7bb
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/leads/macro
  * 
- * Auditoria concluída: Refatorei todo o módulo de avaliações para o padrão visual "Premium Light" (fundo claro com textos escuros). Todas as páginas, modais e fluxos de execução agora compartilham da mesma identidade visual limpa e profissional.
+ * Melhoria de fluxo do macro: Ao clicar em enviar mensagem, aparece um erro, o macro deve clicar mais uma vez caso o instagram apresente erro para que o fluxo surja sem interrupções, faça a auditoria e corrija de forma definitiva
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
