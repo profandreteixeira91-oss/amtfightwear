@@ -1,6 +1,7 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-curta-basica-amt
- * Ao clicar na cor, a imagem correspondente a cor deve aparecer no card, faça esse ajuste e aplique a todas as páginas de rashguards como padrão
+ * Execute esta instrucao no projeto: Novo produto: Rashguard Full Color Manga Longa Básica AMT Fight Wear
+ * As características são exatamente as mesmas da rashguard manga longa básica já existente
+ * Preço: R$ 99,90
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
