@@ -1,6 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-infantil-manga-longa-basica-amt 
- * em /admin catálogo, o estoque foi alterado, porém na loja ainda consta como indisponível, faça uma auditoria e corrija de forma definitiva
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-longa-basica-amt-fight-wear
+ * A ficha técnica de todos os produtos dentro de rashguards básicas adulta e infantil deve ser exatamente igual a deste produto, com todas as informações e layout exatamente iguais, portanto, corrija de forma defintiva e defina como um padrão para futuros produtos nesta categoria
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
