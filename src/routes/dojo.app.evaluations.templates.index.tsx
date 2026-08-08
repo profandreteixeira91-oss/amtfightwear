@@ -123,8 +123,8 @@ function TemplatesList() {
       <section className="space-y-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-display text-2xl font-black tracking-tight text-white uppercase">Meus Modelos</h2>
-            <p className="text-sm text-neutral-400">
+            <h2 className="font-display text-2xl font-black tracking-tight text-neutral-900 uppercase">Meus Modelos</h2>
+            <p className="text-sm text-neutral-500 font-medium">
               Personalize os critérios de avaliação da sua academia.
             </p>
           </div>
@@ -143,10 +143,10 @@ function TemplatesList() {
               0,
             );
             return (
-              <Card key={t.id} className="overflow-hidden border-white/10 bg-neutral-900/40 hover:bg-neutral-900/60 transition-all">
+              <Card key={t.id} className="overflow-hidden border-neutral-200 bg-white hover:bg-neutral-50 transition-all shadow-sm">
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base font-bold text-white">{t.title}</CardTitle>
+                    <CardTitle className="text-base font-bold text-neutral-900">{t.title}</CardTitle>
                     {!t.active && <Badge variant="outline" className="border-neutral-700 text-neutral-500">Inativo</Badge>}
                   </div>
                 </CardHeader>
@@ -166,7 +166,7 @@ function TemplatesList() {
                       className="flex-1"
                       onClick={() => qc.setQueryData(["eval-template", t.id], (prev: any) => prev ?? t)}
                     >
-                      <Button size="sm" variant="outline" className="w-full border-white/10 bg-white/5 hover:bg-white/10">
+                      <Button size="sm" variant="outline" className="w-full border-neutral-200 bg-white hover:bg-neutral-50 shadow-sm">
                         <Pencil className="h-3.5 w-3.5 mr-1.5" /> Editar
                       </Button>
                     </Link>
@@ -182,7 +182,7 @@ function TemplatesList() {
             );
           })}
           {!mine.isLoading && (mine.data ?? []).length === 0 && (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-white/5 rounded-2xl bg-neutral-900/20">
+            <div className="col-span-full flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-neutral-200 rounded-2xl bg-white shadow-sm">
               <Plus className="h-8 w-8 text-neutral-700 mb-3" />
               <div className="text-sm font-medium text-neutral-400">Nenhum modelo criado ainda</div>
             </div>
@@ -192,14 +192,14 @@ function TemplatesList() {
 
       {/* Biblioteca */}
       <section className="space-y-5">
-        <div className="flex flex-col gap-4 border-t border-white/5 pt-10 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-t border-neutral-100 pt-10 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600/20 text-red-500">
               <Library className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-black tracking-tight text-white uppercase">Biblioteca AMT</h2>
-              <p className="text-xs text-neutral-500">Modelos profissionais prontos para uso.</p>
+              <h2 className="font-display text-xl font-black tracking-tight text-neutral-900 uppercase">Biblioteca AMT</h2>
+              <p className="text-xs text-neutral-500 font-medium">Modelos profissionais prontos para uso.</p>
             </div>
           </div>
           
@@ -207,14 +207,15 @@ function TemplatesList() {
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
               <Input
-                className="h-10 border-white/10 bg-neutral-950 pl-9 text-xs focus:ring-red-500 sm:w-64"
+                className="h-10 border-neutral-200 bg-white pl-9 text-xs focus:ring-red-500 sm:w-64 shadow-sm"
+
                 placeholder="Buscar modelo na biblioteca…"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
               />
             </div>
             <select
-              className="h-10 rounded-lg border border-white/10 bg-neutral-950 px-3 text-xs text-white focus:ring-red-500"
+              className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-xs text-neutral-900 focus:ring-red-500 shadow-sm"
               value={modality}
               onChange={(e) => setModality(e.target.value)}
             >
@@ -230,10 +231,10 @@ function TemplatesList() {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredLib.map((t: any) => (
-            <Card key={t.id} className="group overflow-hidden border-white/10 bg-neutral-950 transition-all hover:border-red-500/30">
+            <Card key={t.id} className="group overflow-hidden border-neutral-200 bg-white transition-all hover:border-red-500/30 shadow-sm">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base font-bold text-white group-hover:text-red-400 transition-colors">{t.title}</CardTitle>
+                  <CardTitle className="text-base font-bold text-neutral-900 group-hover:text-red-600 transition-colors">{t.title}</CardTitle>
                   <Badge variant="secondary" className="bg-red-500/10 text-red-400 text-[9px] font-black uppercase tracking-tighter shrink-0 border-0">
                     {MODALITY_LABELS[t.modality] ?? t.modality ?? "—"}
                   </Badge>
@@ -243,10 +244,10 @@ function TemplatesList() {
                 <p className="text-xs leading-relaxed text-neutral-500 min-h-[32px] line-clamp-2">
                   {t.description ?? "Modelo pronto disponibilizado pelo sistema."}
                 </p>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
                   {t.structure?.categories?.length ?? 0} categorias • {t.method}
                 </div>
-                <Button size="sm" className="w-full bg-white/5 hover:bg-red-600 hover:text-white border border-white/10 group-hover:border-red-600/50 transition-all" onClick={() => duplicate(t.id)}>
+                <Button size="sm" className="w-full bg-neutral-50 hover:bg-red-600 hover:text-white border border-neutral-200 text-neutral-900 group-hover:border-red-600/50 transition-all shadow-sm" onClick={() => duplicate(t.id)}>
                   <Copy className="h-3.5 w-3.5 mr-2" /> Usar este modelo
                 </Button>
               </CardContent>
