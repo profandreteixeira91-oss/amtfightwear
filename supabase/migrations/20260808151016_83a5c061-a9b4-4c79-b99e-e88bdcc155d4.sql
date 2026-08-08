@@ -1,0 +1,2 @@
+INSERT INTO store_product_images (product_id, url, alt, sort_order) 
+VALUES ('cc19a64b-8ea2-4947-b7d9-bb11ce22add2', 'https://bright-spark-echo.lovable.app/__l5e/assets-v1/31e1519b-acde-4dba-8f7a-898caee43529/rashguard-infantil-branca.png', 'Rashguard Infantil Branca', 0);
