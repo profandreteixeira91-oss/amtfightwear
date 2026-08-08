@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Utilize as imagens enviadas em anexo como as imagens do produto https://amtfightwear.com.br/loja/produto/rashguard-full-color-manga-longa-basica-amt
- * Não utilize imagens de IA
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-full-color-manga-longa-basica-amt esta página está correta com relação a clicar na cor e aparecer a imagem correspondente, todos as páginas de produtos de rashguard devem apresentar este mesmo comportamento, faça isso de forma definitiva
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
