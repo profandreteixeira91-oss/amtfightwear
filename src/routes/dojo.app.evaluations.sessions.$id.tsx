@@ -182,16 +182,16 @@ function SessionRunner() {
       )}
 
       {structure.categories?.map((cat: any) => (
-        <Card key={cat.id} className="overflow-hidden border-white/10 bg-neutral-900/40">
-          <CardHeader className="border-b border-white/5 bg-white/5 py-3">
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-neutral-300">{cat.name}</CardTitle>
+        <Card key={cat.id} className="overflow-hidden border-neutral-200 bg-white shadow-sm">
+          <CardHeader className="border-b border-neutral-100 bg-neutral-50/50 py-3">
+            <CardTitle className="text-sm font-bold uppercase tracking-widest text-neutral-500">{cat.name}</CardTitle>
           </CardHeader>
-          <CardContent className="divide-y divide-white/5 p-0">
+          <CardContent className="divide-y divide-neutral-100 p-0">
             {cat.criteria.map((cr: any) => (
               <div key={cr.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-bold text-white leading-tight">{cr.name}</span>
+                    <span className="text-sm font-bold text-neutral-900 leading-tight">{cr.name}</span>
                     <div className="flex gap-1">
                       {cr.required && <Badge variant="outline" className="h-4 border-emerald-500/30 bg-emerald-500/10 px-1 text-[8px] font-black uppercase text-emerald-400">Obrigatório</Badge>}
                       {cr.eliminatory && <Badge variant="destructive" className="h-4 bg-red-500/20 px-1 text-[8px] font-black uppercase text-red-400 ring-1 ring-inset ring-red-500/30">Eliminatório</Badge>}
