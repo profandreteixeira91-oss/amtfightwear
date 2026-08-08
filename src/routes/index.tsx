@@ -1,7 +1,9 @@
 /**
- * Execute esta instrucao no projeto: # CARACTERÍSTICAS TÉCNICAS
+ * Execute esta instrucao no projeto: Descrição
+ * Detalhes do produto
+ * ## CARACTERÍSTICAS TÉCNICAS
  * 
- * ## RASHGUARDS — LINHA BÁSICA AMT FIGHT WEAR
+ * ### RASHGUARDS — LINHA BÁSICA AMT FIGHT WEAR
  * 
  * * **Tecido:** Malha esportiva tecnológica
  * * **Composição:** 88% Poliéster / 12% Elastano
@@ -19,7 +21,7 @@
  * * **Construção:** Desenvolvida para proporcionar conforto, mobilidade e ajuste durante a prática esportiva
  * * **Linha:** AMT Fight Wear Basic
  * 
- * Utilize a ficha técnica acima para todos os produtos da linha de rashguards básica AMT Fight Wear
+ * Melhore o layout e o design dessa ficha técnica em todos os produtos, deixando-a com um visual premium profissional
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
