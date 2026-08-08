@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Será necessário atualizar ou baixar novamente o macro para que a atualização seja válida? Apenas responda
+ * Execute esta instrucao no projeto: logica para o macro dm: A mensagem não deve ser enviada mais de uma vez para o mesmo perfil do instagram, o macro deve identificar no chat se a mensagem já foi enviada, se sim, não deve enviar novamente, a não ser que a mensagem seja diferente da mensagem enviada anteriormente
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
