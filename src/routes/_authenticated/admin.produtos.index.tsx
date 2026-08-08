@@ -879,7 +879,6 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
       }
 
       toast.success("Produto atualizado e sincronizado com a loja");
-      refresh();
       onSaved();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao salvar");
