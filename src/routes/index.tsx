@@ -1,11 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Novo produto: Rashguard Infantil Manga Curta Básica AMT Fight Wear
- * Categoria: Rashguard básica infantil
- * Tamanhos: 6, 8, 10, 12, 14, 16
- * Cores: Branca, Cinza, Amarela, Laranja, Verde
- * Descrição exatamente igual as rashguards básicas
- * Preço: R$ 79,90
- * Utilize exatamente as imagens enviadas em anexo
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-curta-basica-amt esta página ainda não apresenta a troca da imagem ao clicar na variação de cor correspondente, faça a auditoria e corrija de forma definitiva para que, ao clicar na variação de cor, a imagem correspondente a cor seja exibida no card
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

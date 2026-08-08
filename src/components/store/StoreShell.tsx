@@ -588,11 +588,12 @@ export function ProductCard({
     setSelectedColor(color);
 
     if (product.store_product_images && product.store_product_images.length > 0) {
-      const colorImg = product.store_product_images.find(
-        (img) =>
-          img.alt?.toLowerCase().includes(color.toLowerCase()) ||
-          img.url.toLowerCase().includes(color.toLowerCase()),
-      );
+      const colorImg = product.store_product_images.find((img) => {
+        const alt = (img.alt || "").toLowerCase();
+        const url = (img.url || "").toLowerCase();
+        const c = color.toLowerCase();
+        return alt.includes(c) || url.includes(c);
+      });
       if (colorImg) {
         setCurrentImage(colorImg.url);
       }

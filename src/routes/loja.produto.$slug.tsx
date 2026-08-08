@@ -132,15 +132,56 @@ function ProductPage() {
   // Sincronizar imagem ao trocar cor
   useEffect(() => {
     if (!selectedColor) return;
-    const images = data.images.length > 0 ? data.images : [];
-    const colorIndex = images.findIndex(img => 
-      img.alt?.toLowerCase().includes(selectedColor.toLowerCase()) || 
-      img.url.toLowerCase().includes(selectedColor.toLowerCase())
-    );
+    
+    // As imagens podem vir de data.images (tabela store_product_images)
+    // ou do fallback data.product.image_url.
+    // data.images tem precedência na ProductGallery.
+    const images = data.images.length > 0 ? data.images : (data.product?.image_url ? [{ url: data.product.image_url, alt: data.product.name }] : []);
+    
+    if (images.length === 0) return;
+
+    const colorToMatch = selectedColor.toLowerCase();
+
+    // 1. Procura por uma imagem que contenha o nome da cor selecionada no alt ou na URL
+    const colorIndex = images.findIndex(img => {
+      const alt = (img.alt || "").toLowerCase();
+      const url = (img.url || "").toLowerCase();
+      
+      // Match direto
+      if (alt.includes(colorToMatch)) return true;
+      if (url.includes(colorToMatch)) return true;
+      
+      return false;
+    });
+
     if (colorIndex !== -1) {
       setActiveImageIndex(colorIndex);
+    } else {
+      // 2. Se não encontrou por string direta, tenta mapear termos comuns
+      const colorMap: Record<string, string[]> = {
+        'branca': ['white', 'branco'],
+        'preta': ['black', 'preto'],
+        'azul': ['blue'],
+        'roxa': ['purple', 'roxo'],
+        'marrom': ['brown'],
+        'cinza': ['grey', 'gray'],
+        'verde': ['green'],
+        'amarela': ['yellow', 'amarelo'],
+        'laranja': ['orange']
+      };
+
+      const synonyms = colorMap[colorToMatch] || [];
+      const synonymIndex = images.findIndex(img => {
+        const alt = (img.alt || "").toLowerCase();
+        const url = (img.url || "").toLowerCase();
+        return synonyms.some(s => alt.includes(s) || url.includes(s));
+      });
+
+      if (synonymIndex !== -1) {
+        setActiveImageIndex(synonymIndex);
+      }
     }
-  }, [selectedColor, data.images]);
+  }, [selectedColor, data.images, data.product]);
 
   const variant = data.variants.find(v => 
     (selectedSize ? v.size === selectedSize : true) && 
