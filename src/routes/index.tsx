@@ -1,7 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Novo produto: Rashguard Full Color Manga Longa Básica AMT Fight Wear
- * As características são exatamente as mesmas da rashguard manga longa básica já existente
- * Preço: R$ 99,90
+ * Execute esta instrucao no projeto: Utilize as imagens enviadas em anexo como as imagens do produto https://amtfightwear.com.br/loja/produto/rashguard-full-color-manga-longa-basica-amt
+ * Não utilize imagens de IA
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
