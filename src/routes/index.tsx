@@ -1,7 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/leads/macro
- * 
- * Melhoria de fluxo do macro: Ao clicar em enviar mensagem, aparece um erro, o macro deve clicar mais uma vez caso o instagram apresente erro para que o fluxo surja sem interrupções, faça a auditoria e corrija de forma definitiva
+ * Execute esta instrucao no projeto: Será necessário atualizar ou baixar novamente o macro para que a atualização seja válida? Apenas responda
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
