@@ -152,10 +152,10 @@ function TemplatesList() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-1">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-red-400">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-red-600">
                       {t.modality ?? "Geral"} • v{t.version}
                     </div>
-                    <div className="text-xs text-neutral-500">
+                    <div className="text-xs text-neutral-500 font-medium">
                       {catCount} categorias • {critCount} técnicas • {t.total_score ?? 0} pts
                     </div>
                   </div>
