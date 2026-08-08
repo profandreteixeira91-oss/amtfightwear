@@ -1,18 +1,5 @@
 /**
- * Execute esta instrucao no projeto: # AUDITORIA CRÍTICA — NF-e NÃO LOCALIZADA NA SEFAZ / PORTAL NACIONAL
- * 
- * ## MÓDULO: AMT Fight Wear → `/admin/fiscal`
- * 
- * ## PROBLEMA: As notas fiscais apresentadas como autorizadas no sistema NÃO estão sendo encontradas nas consultas oficiais (Portal Nacional/SEFAZ). Foi identificada uma falha grave onde o sistema marca a nota como "AUTHORIZED" (status 'authorized') e gera uma chave fictícia de 44 dígitos SEM realizar qualquer transmissão real para a SEFAZ. O código atual em `src/lib/fiscal/emission.functions.ts` apenas simula a autorização inserindo dados fixos no banco (protocolo '135260000000000').
- * 
- * ## OBJETIVO: AUDITORIA COMPLETA E CORREÇÃO DO FLUXO DE EMISSÃO.
- * 1. Mapear fluxo real (Pedido -> XML -> Assinatura -> Transmissão via Provedor -> SEFAZ -> Retorno -> Banco).
- * 2. Identificar e integrar um provedor fiscal (Focus NFe, Nuvem Fiscal, etc) — o sistema atual está APENAS SIMULANDO.
- * 3. Impedir que notas sejam marcadas como 'authorized' sem o protocolo de autorização real da SEFAZ.
- * 4. Diferenciar Produção vs Homologação visualmente e funcionalmente.
- * 5. Corrigir a tabela `fiscal_invoices` para armazenar o XML de retorno real e o histórico de tentativas.
- * 6. Validar a Chave de Acesso real (44 dígitos extraídos do retorno oficial).
- * 7. Implementar reconciliação para invalidar as notas "fakes" geradas anteriormente.
+ * Execute esta instrucao no projeto: Adicione a imagem enviada a todas as faixas da linha training (judo e jiu-jitsu) da amt fight wear, não substitua a imagem já existente, apenas adicione a imagem enviada como segunda imagem de exibição
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
