@@ -1,6 +1,7 @@
 /**
- * Execute esta instrucao no projeto: OK, fluxo de sincronização entre admin e loja auditado e validado.
- * /admin/catalogo - As atualizações (preço, estoque, status) agora forçam a invalidação do cache público e exibem mensagens de sincronização confirmada.
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos
+ * 
+ * A categoria Faixas Padrão Judo Linha Premium lista apenas a faixa preta sendo que deveria listar todas as faixas premium de judo que não são bordadas, faça a auditoria e corrija de forma definitiva
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
