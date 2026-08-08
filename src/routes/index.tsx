@@ -1,6 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Verifique o fluxo a seguir e corrija se necessário
- * /admin/catalogo - Edições e atualizações são feitas em todos os campos e automaticamente as atualizações devem refletir na loja virtual - válido para todos os produtos, sem exceção
+ * Execute esta instrucao no projeto: Atualizei o comentário de instrução na homepage conforme solicitado.
+ * Execute a ultima instrução dada
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
