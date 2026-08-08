@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/evaluations faça uma auditoria completa no módulo de avaliações, deixe-o com um design premium e verifique todas as funcionalidades e preenchimentos, existem muitos cards escuros e não funcionais, traga um visual claro, audite todas as funcionalidades e deixe o módulo 100% funcional
+ * Execute esta instrucao no projeto: Sim, altere somente a parte visual, não altere funcionalidades ou rotas
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
