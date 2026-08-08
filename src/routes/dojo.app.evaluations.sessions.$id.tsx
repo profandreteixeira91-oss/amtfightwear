@@ -205,7 +205,7 @@ function SessionRunner() {
                       type="number"
                       min={cr.min_score}
                       max={cr.max_score}
-                      className="h-10 w-24 border-white/10 bg-neutral-950 pr-8 text-center font-black text-white focus:ring-red-500"
+                      className="h-10 w-24 border-neutral-200 bg-white pr-8 text-center font-black text-neutral-900 focus:ring-red-500"
                       value={scores[cr.id] ?? ""}
                       onChange={(e) => setScore(cr.id, Number(e.target.value))}
                       disabled={isDone}
