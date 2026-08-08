@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-curta-basica-amt esta página ainda não apresenta a troca da imagem ao clicar na variação de cor correspondente, faça a auditoria e corrija de forma definitiva para que, ao clicar na variação de cor, a imagem correspondente a cor seja exibida no card
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-infantil-manga-curta-basica-amt
+ * Segue em anexo a imagem corresponde a cor branca, atualize no produto
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
