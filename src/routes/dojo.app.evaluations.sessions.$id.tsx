@@ -146,27 +146,27 @@ function SessionRunner() {
         <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4 flex-1 min-w-0">
             {student?.photo_url ? (
-              <img src={student.photo_url} alt="" className="h-14 w-14 shrink-0 rounded-full border border-white/10 object-cover shadow-lg" />
+              <img src={student.photo_url} alt="" className="h-14 w-14 shrink-0 rounded-full border border-neutral-200 object-cover shadow-sm" />
             ) : (
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/10 bg-neutral-800 text-xl font-bold text-white shadow-lg">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-neutral-100 text-xl font-bold text-neutral-900 shadow-sm">
                 {student?.full_name?.charAt(0) ?? "?"}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h2 className="truncate font-display text-xl font-black tracking-tight text-white sm:text-2xl">{student?.full_name ?? "—"}</h2>
-              <div className="truncate text-sm text-neutral-400">
+              <h2 className="truncate font-display text-xl font-black tracking-tight text-neutral-900 sm:text-2xl">{student?.full_name ?? "—"}</h2>
+              <div className="truncate text-sm text-neutral-500">
                 {student?.belt?.name ?? "Sem faixa"} · {sess.template?.title ?? "—"}
               </div>
             </div>
           </div>
-          <div className="flex items-center justify-between border-t border-white/5 pt-4 sm:block sm:border-0 sm:pt-0 sm:text-right">
+          <div className="flex items-center justify-between border-t border-neutral-100 pt-4 sm:block sm:border-0 sm:pt-0 sm:text-right">
             <div className="flex items-baseline gap-1 sm:justify-end">
-              <span className="text-3xl font-black tracking-tighter text-white">{total}</span>
-              <span className="text-sm font-bold text-neutral-500">/{max}</span>
+              <span className="text-3xl font-black tracking-tighter text-neutral-900">{total}</span>
+              <span className="text-sm font-bold text-neutral-400">/{max}</span>
             </div>
-            <div className="text-xs font-bold uppercase tracking-wider text-red-400">{percent}%</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-red-600">{percent}%</div>
             {passing != null && (
-              <Badge variant={total >= passing ? "default" : "outline"} className={`mt-1 h-5 text-[10px] font-bold uppercase ${total >= passing ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "border-white/10 text-neutral-400"}`}>
+              <Badge variant={total >= passing ? "default" : "outline"} className={`mt-1 h-5 text-[10px] font-bold uppercase ${total >= passing ? "bg-emerald-500 text-white hover:bg-emerald-600" : "border-neutral-200 text-neutral-400"}`}>
                 {total >= passing ? "Aprovado" : `Mínimo: ${passing}`}
               </Badge>
             )}
