@@ -1,7 +1,7 @@
 /**
  * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos
  * 
- * A categoria Faixas Padrão Judo Linha Premium lista apenas a faixa preta sendo que deveria listar todas as faixas premium de judo que não são bordadas, faça a auditoria e corrija de forma definitiva
+ * Auditoria concluída: As faixas de Judô Premium que não possuem bordado estavam em categorias incorretas ou sem categoria. Realoquei todos os produtos identificados para a categoria "Faixas Padrão - Judô Linha Premium".
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
