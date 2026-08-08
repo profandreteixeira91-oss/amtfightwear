@@ -1,5 +1,12 @@
 /**
- * Execute esta instrucao no projeto: Adicione a imagem enviada como segunda imagem de exibição de todas as faixas da categoria LINHA PREMIUM de judo e jiu-jitsu
+ * Execute esta instrucao no projeto: Crie uma nova categoria de produtos chamada Rashguards
+Subcategorias
+Rashguard Básica 
+   Infantil
+   Adulto
+Rashguard Premium
+   Infantil
+   Adulto
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
