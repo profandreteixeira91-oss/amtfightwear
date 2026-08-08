@@ -142,7 +142,7 @@ function SessionRunner() {
       </div>
 
       {/* Student header */}
-      <Card className="overflow-hidden border-white/10 bg-neutral-900/50 backdrop-blur">
+      <Card className="overflow-hidden border-neutral-200 bg-white shadow-sm">
         <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4 flex-1 min-w-0">
             {student?.photo_url ? (
