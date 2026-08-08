@@ -401,7 +401,16 @@ function CategoryPage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((p) => <ProductCard key={p.id} product={p} />)}
+                {filtered.map((p) => (
+                  <ProductCard 
+                    key={p.id} 
+                    product={{
+                      ...p,
+                      store_product_variants: (p as any).store_product_variants,
+                      store_product_images: (p as any).store_product_images
+                    }} 
+                  />
+                ))}
               </div>
             )}
           </section>

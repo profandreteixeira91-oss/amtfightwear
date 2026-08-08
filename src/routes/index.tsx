@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-curta-basica-amt A imagem deve caber inteira no card, não ficar cortada, corrija de forma definitiva
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-curta-basica-amt
+ * Ao clicar na cor, a imagem correspondente a cor deve aparecer no card, faça esse ajuste e aplique a todas as páginas de rashguards como padrão
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
