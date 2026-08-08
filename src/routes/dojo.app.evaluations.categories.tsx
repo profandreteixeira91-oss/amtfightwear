@@ -68,24 +68,24 @@ function CategoriesPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">Categorias técnicas</h2>
-        <p className="text-sm text-muted-foreground">Organize suas técnicas em categorias reutilizáveis.</p>
+        <h2 className="text-lg font-black uppercase tracking-tight text-neutral-900">Categorias técnicas</h2>
+        <p className="text-sm text-neutral-500 font-medium">Organize suas técnicas em categorias reutilizáveis.</p>
       </div>
 
-      <Card>
-        <CardContent className="p-4 space-y-3">
+      <Card className="border-neutral-200 bg-white shadow-sm">
+        <CardContent className="p-5 space-y-4">
           <div className="grid md:grid-cols-3 gap-2">
-            <Input placeholder="Nome da categoria" value={name} onChange={(e) => setName(e.target.value)} />
-            <Input placeholder="Descrição (opcional)" value={desc} onChange={(e) => setDesc(e.target.value)} />
-            <Button onClick={create}><Plus className="h-4 w-4 mr-1" /> Criar</Button>
+            <Input className="border-neutral-200 bg-white shadow-sm" placeholder="Nome da categoria" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input className="border-neutral-200 bg-white shadow-sm" placeholder="Descrição (opcional)" value={desc} onChange={(e) => setDesc(e.target.value)} />
+            <Button onClick={create} className="bg-red-600 hover:bg-red-700 font-bold"><Plus className="h-4 w-4 mr-1.5" /> Criar</Button>
           </div>
-          <div className="flex flex-wrap gap-1.5 pt-2 border-t">
-            <span className="text-xs text-muted-foreground w-full mb-1">Sugestões:</span>
+          <div className="flex flex-wrap gap-1.5 pt-4 border-t border-neutral-100">
+            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 w-full mb-1">Sugestões:</span>
             {SUGGESTED.filter((s) => !existing.has(s.toLowerCase())).map((s) => (
               <button
                 key={s}
                 onClick={() => quickAdd(s)}
-                className="text-xs px-2 py-1 rounded border hover:bg-muted"
+                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-neutral-200 bg-neutral-50 text-neutral-600 hover:bg-neutral-100 transition-colors"
               >+ {s}</button>
             ))}
           </div>
@@ -94,7 +94,7 @@ function CategoriesPage() {
 
       <div className="space-y-2">
         {(data ?? []).map((c: any) => (
-          <Card key={c.id}>
+          <Card key={c.id} className="border-neutral-200 bg-white shadow-sm hover:bg-neutral-50 transition-all">
             <CardContent className="p-3 flex items-center gap-2">
               <Input
                 defaultValue={c.name}
@@ -108,7 +108,7 @@ function CategoriesPage() {
           </Card>
         ))}
         {(data ?? []).length === 0 && (
-          <div className="text-sm text-muted-foreground p-6 text-center border rounded">
+          <div className="text-sm font-medium text-neutral-400 p-10 text-center border-2 border-dashed border-neutral-100 rounded-2xl bg-white shadow-sm">
             Nenhuma categoria criada.
           </div>
         )}

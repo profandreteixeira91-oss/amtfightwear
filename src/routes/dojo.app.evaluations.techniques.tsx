@@ -100,18 +100,18 @@ function TechniquesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Biblioteca de técnicas</h2>
-          <p className="text-sm text-muted-foreground">Cadastre técnicas reutilizáveis em vários modelos.</p>
+          <h2 className="text-lg font-black uppercase tracking-tight text-neutral-900">Biblioteca de técnicas</h2>
+          <p className="text-sm text-neutral-500 font-medium">Cadastre técnicas reutilizáveis em vários modelos.</p>
         </div>
-        <Button onClick={openNew}><Plus className="h-4 w-4 mr-1" /> Nova técnica</Button>
+        <Button onClick={openNew} className="bg-red-600 hover:bg-red-700 font-bold shadow-sm"><Plus className="h-4 w-4 mr-1.5" /> Nova técnica</Button>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[240px]">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Buscar técnica..." value={q} onChange={(e) => setQ(e.target.value)} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+          <Input className="pl-10 h-10 border-neutral-200 bg-white shadow-sm" placeholder="Buscar técnica..." value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <select className="border rounded-md px-3 py-2 bg-background text-sm" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
+        <select className="border border-neutral-200 rounded-md px-3 py-2 bg-white text-sm text-neutral-900 shadow-sm focus:ring-red-500" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
           <option value="all">Todas as categorias</option>
           {(cats ?? []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
@@ -119,30 +119,30 @@ function TechniquesPage() {
 
       <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((t: any) => (
-          <Card key={t.id}>
+          <Card key={t.id} className="overflow-hidden border-neutral-200 bg-white hover:bg-neutral-50 transition-all shadow-sm">
             <CardContent className="p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="font-medium truncate">{t.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {t.category?.name ?? "Sem categoria"} · {t.default_score} pts
+                  <div className="font-bold text-neutral-900 truncate">{t.name}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                    {t.category?.name ?? "Sem categoria"} • {t.default_score} pts
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <Button size="icon" variant="ghost" onClick={() => openEdit(t)}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => remove(t.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-400 hover:text-neutral-900" onClick={() => openEdit(t)}><Pencil className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-400 hover:text-red-500 hover:bg-red-50" onClick={() => remove(t.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
               </div>
               {t.tags?.length > 0 && (
                 <div className="flex flex-wrap gap-1">
-                  {t.tags.map((tag: string) => <Badge key={tag} variant="secondary" className="text-[10px]">{tag}</Badge>)}
+                  {t.tags.map((tag: string) => <Badge key={tag} variant="secondary" className="text-[9px] font-black uppercase tracking-tight bg-neutral-100 text-neutral-600 border-0">{tag}</Badge>)}
                 </div>
               )}
             </CardContent>
           </Card>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full text-sm text-muted-foreground p-6 text-center border rounded">
+          <div className="col-span-full text-sm font-medium text-neutral-400 p-10 text-center border-2 border-dashed border-neutral-100 rounded-2xl bg-white shadow-sm">
             Nenhuma técnica cadastrada.
           </div>
         )}
@@ -150,19 +150,19 @@ function TechniquesPage() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
-          <DialogHeader><DialogTitle>{form.id ? "Editar" : "Nova"} técnica</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-xl font-black uppercase tracking-tight text-neutral-900">{form.id ? "Editar" : "Nova"} técnica</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input placeholder="Nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            <Textarea rows={2} placeholder="Descrição" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <Input className="border-neutral-200 bg-white shadow-sm" placeholder="Nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <Textarea className="border-neutral-200 bg-white shadow-sm" rows={2} placeholder="Descrição" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             <div className="grid grid-cols-2 gap-2">
-              <select className="border rounded p-2 bg-background text-sm" value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
+              <select className="border border-neutral-200 rounded p-2 bg-white text-sm shadow-sm" value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
                 <option value="">Categoria...</option>
                 {(cats ?? []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-              <Input type="number" min={0} placeholder="Pontos" value={form.default_score} onChange={(e) => setForm({ ...form, default_score: Number(e.target.value) })} />
+              <Input className="border-neutral-200 bg-white shadow-sm" type="number" min={0} placeholder="Pontos" value={form.default_score} onChange={(e) => setForm({ ...form, default_score: Number(e.target.value) })} />
             </div>
-            <Input placeholder="URL da imagem (opcional)" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
-            <Input placeholder="Tags separadas por vírgula" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
+            <Input className="border-neutral-200 bg-white shadow-sm" placeholder="URL da imagem (opcional)" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+            <Input className="border-neutral-200 bg-white shadow-sm" placeholder="Tags separadas por vírgula" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.required} onChange={(e) => setForm({ ...form, required: e.target.checked })} />
               Obrigatória
@@ -170,7 +170,7 @@ function TechniquesPage() {
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={save}>Salvar</Button>
+            <Button onClick={save} className="bg-red-600 hover:bg-red-700 font-bold">Salvar técnica</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

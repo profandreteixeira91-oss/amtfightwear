@@ -47,28 +47,28 @@ function EvaluationsDashboard() {
           const Icon = k.icon;
           const t = TONE[k.tone];
           return (
-            <div key={k.label} className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-4 text-white backdrop-blur">
+            <div key={k.label} className="relative overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition-all hover:shadow-md">
               <div aria-hidden className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${t.grad} opacity-20 blur-2xl`} />
               <div className={`relative grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${t.grad} text-white ring-1 ${t.ring} ${t.glow}`}>
                 <Icon className="h-5 w-5" />
               </div>
-              <div className="relative mt-3 text-2xl font-black tracking-tight">{isLoading ? "—" : k.value}</div>
-              <div className="relative mt-0.5 text-[11px] font-medium uppercase tracking-wide text-neutral-400">{k.label}</div>
+              <div className="relative mt-3 text-2xl font-black tracking-tight text-neutral-900">{isLoading ? "—" : k.value}</div>
+              <div className="relative mt-0.5 text-[11px] font-bold uppercase tracking-wide text-neutral-500">{k.label}</div>
             </div>
           );
         })}
       </div>
 
       {/* Chart */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-5 text-white backdrop-blur">
+      <div className="relative overflow-hidden rounded-2xl border bg-white p-5 shadow-sm">
         <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-red-600/15 blur-3xl" />
         <div className="relative mb-4 flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_10px_25px_-12px_rgba(220,38,38,0.9)]">
             <TrendingUp className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-red-300">Evolução mensal</div>
-            <div className="text-base font-semibold">Avaliações concluídas por mês</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-red-600">Evolução mensal</div>
+            <div className="text-base font-semibold text-neutral-900">Avaliações concluídas por mês</div>
           </div>
         </div>
         <div className="relative h-64">
@@ -80,19 +80,19 @@ function EvaluationsDashboard() {
                   <stop offset="100%" stopColor="#dc2626" />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-              <XAxis dataKey="month" fontSize={11} stroke="rgba(255,255,255,0.55)" tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.1)" }} />
-              <YAxis fontSize={11} allowDecimals={false} stroke="rgba(255,255,255,0.55)" tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.1)" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" vertical={false} />
+              <XAxis dataKey="month" fontSize={11} stroke="rgba(0,0,0,0.45)" tickLine={false} axisLine={false} dy={10} />
+              <YAxis fontSize={11} allowDecimals={false} stroke="rgba(0,0,0,0.45)" tickLine={false} axisLine={false} dx={-10} />
               <Tooltip
                 cursor={{ fill: "rgba(255,255,255,0.04)" }}
                 contentStyle={{
-                  background: "rgba(10,10,10,0.95)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "#fff",
+                  border: "1px solid rgba(0,0,0,0.1)",
                   borderRadius: 12,
-                  color: "#fff",
+                  boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
                   fontSize: 12,
                 }}
-                labelStyle={{ color: "#fca5a5", fontWeight: 600 }}
+                labelStyle={{ color: "#dc2626", fontWeight: 700 }}
               />
               <Bar dataKey="count" fill="url(#evalBar)" radius={[6, 6, 0, 0]} />
             </BarChart>

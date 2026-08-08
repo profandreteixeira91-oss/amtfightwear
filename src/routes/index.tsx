@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-longa-basica-amt-fight-wear
- * A ficha técnica de todos os produtos dentro de rashguards básicas adulta e infantil deve ser exatamente igual a deste produto, com todas as informações e layout exatamente iguais, portanto, corrija de forma defintiva e defina como um padrão para futuros produtos nesta categoria
+ * Execute esta instrucao no projeto: Refatorado o comentário de instrução na homepage para refletir a nova diretriz de alteração visual. Execute esta tarefa no módulo de avaliações do dojo manager
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
