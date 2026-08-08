@@ -165,7 +165,7 @@ function MacroPage() {
   const [autoStatus, setAutoStatus] = useState<string>("");
   const pendingJobRef = useRef<{
     jobId: string;
-    resolve: (ok: boolean, err?: string | null) => void;
+    resolve: (ok: boolean, err?: string | null, skipped?: boolean) => void;
   } | null>(null);
   const autoModeRef = useRef(false);
   const autoBusyRef = useRef(false);
@@ -188,7 +188,7 @@ function MacroPage() {
         const p = pendingJobRef.current;
         if (d.jobId === p.jobId) {
           pendingJobRef.current = null;
-          p.resolve(!!d.ok, (d.error as string | null) ?? null);
+          p.resolve(!!d.ok, (d.error as string | null) ?? null, !!d.skipped);
         }
       }
     };
@@ -366,7 +366,7 @@ function MacroPage() {
   }
 
   // ---- Envio via extensão (100% automático) ----
-  function sendViaExtension(username: string, msg: string): Promise<{ ok: boolean; error?: string | null }> {
+  function sendViaExtension(username: string, msg: string, skipIfSent = true): Promise<{ ok: boolean; error?: string | null; skipped?: boolean }> {
     return new Promise((resolve) => {
       if (!extensionReady) {
         resolve({ ok: false, error: "Extensão não instalada" });
@@ -375,13 +375,21 @@ function MacroPage() {
       const jobId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       pendingJobRef.current = {
         jobId,
-        resolve: (ok, error) => resolve({ ok, error }),
+        resolve: (ok, error, skipped) => resolve({ ok, error, skipped: !!skipped }),
       };
       window.postMessage(
         {
           source: "amt-macro-page",
           reqId: jobId,
-          payload: { type: "send-dm", payload: { username, message: msg, jobId } },
+          payload: { 
+            type: "send-dm", 
+            payload: { 
+              username, 
+              message: msg, 
+              jobId,
+              skipIfSent // Indica que deve checar se a mensagem exata já foi enviada
+            } 
+          },
         },
         "*",
       );
@@ -408,12 +416,18 @@ function MacroPage() {
       const res = await sendViaExtension(handle, msg);
       
       if (res.ok) {
-        logMut.mutate(lead.id);
+        if (res.skipped) {
+          toast.info(`Mensagem idêntica já enviada para @${handle}. Pulando.`);
+          logMut.mutate(lead.id); // Marca como contatado de qualquer forma para não repetir na fila
+        } else {
+          toast.success(`DM enviado para @${handle}`);
+          logMut.mutate(lead.id);
+          setSessionCount((v) => v + 1);
+          setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
+        }
+        
         if (manualActive) removeFromMacroQueue(lead.id);
-        setSessionCount((v) => v + 1);
-        setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
         setSkippedIds((s) => new Set(s).add(lead.id));
-        toast.success(`DM enviado para @${handle}`);
         return true;
       }
 
