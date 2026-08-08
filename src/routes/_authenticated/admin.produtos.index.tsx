@@ -195,7 +195,7 @@ function AdminProductsPage() {
         delete n[id];
         return n;
       });
-      toast.success("Salvo");
+      toast.success("Produto atualizado e sincronizado com a loja");
       refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao salvar");
