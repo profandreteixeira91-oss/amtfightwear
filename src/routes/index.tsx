@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-infantil-manga-longa-basica-amt a ficha técnica deve conter o mesmo visual dos demais produtos desta categoria, faça essa alteração
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-infantil-manga-longa-basica-amt 
+ * em /admin catálogo, o estoque foi alterado, porém na loja ainda consta como indisponível, faça uma auditoria e corrija de forma definitiva
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
