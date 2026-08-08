@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 import { ShoppingBag, User, Menu, Instagram, Truck, ShieldCheck, CreditCard, LogIn, ChevronDown, LogOut, Package, Search, X } from "lucide-react";
 import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useRef, useState, type ReactNode } from "react";
