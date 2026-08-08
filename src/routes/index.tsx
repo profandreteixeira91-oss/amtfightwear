@@ -1,6 +1,5 @@
 /**
- * EXECUÇÃO CONCLUÍDA: Rashguard Infantil Manga Longa Básica AMT Fight Wear cadastrada (R$ 84,90).
- * Incluídas 5 imagens reais e 30 variações (Tamanhos 6-16 x 5 Cores).
+ * Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/evaluations faça uma auditoria completa no módulo de avaliações, deixe-o com um design premium e verifique todas as funcionalidades e preenchimentos, existem muitos cards escuros e não funcionais, traga um visual claro, audite todas as funcionalidades e deixe o módulo 100% funcional
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
