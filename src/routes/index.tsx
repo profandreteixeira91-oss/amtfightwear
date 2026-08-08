@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Refatorado o comentário de instrução na homepage para refletir a nova diretriz de alteração visual. Execute esta tarefa no módulo de avaliações do dojo manager
+ * Execute esta instrucao no projeto: Verifique o fluxo a seguir e corrija se necessário
+ * /admin/catalogo - Edições e atualizações são feitas em todos os campos e automaticamente as atualizações devem refletir na loja virtual - válido para todos os produtos, sem exceção
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
