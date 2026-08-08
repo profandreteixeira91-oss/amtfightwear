@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-curta-basica-amt A exibição das variações deve conter uma única linha de tamanhos e abaixo a variação das cores, ao clicar na cor, a imagem muda para a cor da manga de acordo com a variação
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-manga-curta-basica-amt A imagem deve caber inteira no card, não ficar cortada, corrija de forma definitiva
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

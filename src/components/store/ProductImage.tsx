@@ -43,7 +43,7 @@ export function ProductImage({
           decoding="async"
           // @ts-expect-error — fetchpriority is a valid attribute
           fetchpriority={priority ? "high" : "auto"}
-          className={cn("h-full w-full object-cover", imgClassName)}
+          className={cn("h-full w-full object-contain p-2", imgClassName)}
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center text-muted-foreground">
