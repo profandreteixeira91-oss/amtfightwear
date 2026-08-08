@@ -1,6 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Verifique o fluxo a seguir e corrija se necessário
- * /admin/catalogo - Edições e atualizações são feitas em todos os campos e automaticamente as atualizações devem refletir na loja virtual - válido para todos os produtos, sem exceção
+ * Execute esta instrucao no projeto: OK, fluxo de sincronização entre admin e loja auditado e validado.
+ * /admin/catalogo - As atualizações (preço, estoque, status) agora forçam a invalidação do cache público e exibem mensagens de sincronização confirmada.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

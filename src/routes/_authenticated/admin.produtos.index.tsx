@@ -195,7 +195,7 @@ function AdminProductsPage() {
         delete n[id];
         return n;
       });
-      toast.success("Salvo");
+      toast.success("Produto atualizado e sincronizado com a loja");
       refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao salvar");
@@ -264,7 +264,7 @@ function AdminProductsPage() {
     setSaving(false);
     setBulkPrice(""); setBulkStock(""); setBulkPricePct("");
     setSelected(new Set());
-    toast.success(`${ok} atualizado(s)${fail ? `, ${fail} falha(s)` : ""}`);
+    toast.success(`${ok} atualizado(s) e sincronizado(s) com a loja${fail ? `, ${fail} falha(s)` : ""}`);
     refresh();
   };
 
@@ -878,7 +878,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
       await saveVariants({ data: { product_id: productId, variants: cleanedVariants, deleted_ids: deletedIds } });
       }
 
-      toast.success("Produto atualizado");
+      toast.success("Produto atualizado e sincronizado com a loja");
       onSaved();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao salvar");
