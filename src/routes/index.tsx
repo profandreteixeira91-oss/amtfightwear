@@ -1,7 +1,7 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos
+ * Execute esta instrucao no projeto: https://dojomanager.amtfightwear.com.br/dojo/app/evaluations/sessions/e80a422f-769e-4821-9076-2395d229b7bb
  * 
- * Auditoria concluída: As faixas de Judô Premium que não possuem bordado estavam em categorias incorretas ou sem categoria. Realoquei todos os produtos identificados para a categoria "Faixas Padrão - Judô Linha Premium".
+ * Traga o mesmo padrão visual do inicio para todas as páginas do módulo de avaliação (fundo claro com textos escuros), faça a auditoria e corrija de forma definitiva, sem alterar nenhum fluxo, apenas elementos visuais, todas as janelas, diálogos e páginas pertencentes a este módulo devem ter o mesmo padrão visual
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
