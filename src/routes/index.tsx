@@ -1,27 +1,11 @@
 /**
- * Execute esta instrucao no projeto: Descrição
- * Detalhes do produto
- * ## CARACTERÍSTICAS TÉCNICAS
- * 
- * ### RASHGUARDS — LINHA BÁSICA AMT FIGHT WEAR
- * 
- * * **Tecido:** Malha esportiva tecnológica
- * * **Composição:** 88% Poliéster / 12% Elastano
- * * **Gramatura:** Aproximadamente 200–220 g/m²
- * * **Elasticidade:** Multidirecional (4-way stretch)
- * * **Modelagem:** Anatômica e ajustada ao corpo
- * * **Secagem:** Rápida
- * * **Controle de umidade:** Sim
- * * **Respirabilidade:** Boa
- * * **Resistência:** Adequada para treinamento esportivo de alta intensidade
- * * **Costuras:** Reforçadas nas principais áreas de tensão
- * * **Acabamento:** Desenvolvido para reduzir atrito durante o uso
- * * **Personalização:** DTF (Direct to Film)
- * * **Aplicação:** Jiu-Jitsu, No-Gi, Grappling, MMA, Wrestling, Muay Thai, treinamento funcional e atividades esportivas em geral
- * * **Construção:** Desenvolvida para proporcionar conforto, mobilidade e ajuste durante a prática esportiva
- * * **Linha:** AMT Fight Wear Basic
- * 
- * Melhore o layout e o design dessa ficha técnica em todos os produtos, deixando-a com um visual premium profissional
+ * Execute esta instrucao no projeto: Novo produto: Rashguard Infantil Manga Curta Básica AMT Fight Wear
+ * Categoria: Rashguard básica infantil
+ * Tamanhos: 6, 8, 10, 12, 14, 16
+ * Cores: Branca, Cinza, Amarela, Laranja, Verde
+ * Descrição exatamente igual as rashguards básicas
+ * Preço: R$ 79,90
+ * Utilize exatamente as imagens enviadas em anexo
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
