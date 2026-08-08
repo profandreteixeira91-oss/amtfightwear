@@ -223,13 +223,13 @@ function SessionRunner() {
 
       {/* Observations & Plan */}
       <div className="grid gap-5 lg:grid-cols-2">
-        <Card className="border-white/10 bg-neutral-900/40">
+        <Card className="border-neutral-200 bg-white shadow-sm">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-neutral-300">Observações</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-widest text-neutral-500">Observações</CardTitle>
           </CardHeader>
           <CardContent>
             <Textarea 
-              className="min-h-[120px] border-white/10 bg-neutral-950 focus:ring-red-500" 
+              className="min-h-[120px] border-neutral-200 bg-white focus:ring-red-500" 
               placeholder="Notas gerais sobre o desempenho do aluno..."
               value={obs} 
               onChange={(e) => setObs(e.target.value)} 
@@ -238,24 +238,24 @@ function SessionRunner() {
           </CardContent>
         </Card>
 
-        <Card className="border-white/10 bg-neutral-900/40">
+        <Card className="border-neutral-200 bg-white shadow-sm">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-neutral-300">Plano de Evolução</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-widest text-neutral-500">Plano de Evolução</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label className="text-[10px] font-black uppercase tracking-wider text-neutral-500">Pontos fortes</Label>
-                <Textarea className="h-20 border-white/10 bg-neutral-950 text-sm focus:ring-red-500" value={planForm.strong_points} onChange={(e) => setPlanForm({ ...planForm, strong_points: e.target.value })} />
+                <Label className="text-[10px] font-black uppercase tracking-wider text-neutral-400">Pontos fortes</Label>
+                <Textarea className="h-20 border-neutral-200 bg-white text-sm focus:ring-red-500" value={planForm.strong_points} onChange={(e) => setPlanForm({ ...planForm, strong_points: e.target.value })} />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-[10px] font-black uppercase tracking-wider text-neutral-500">Pontos de melhoria</Label>
-                <Textarea className="h-20 border-white/10 bg-neutral-950 text-sm focus:ring-red-500" value={planForm.improvement_points} onChange={(e) => setPlanForm({ ...planForm, improvement_points: e.target.value })} />
+                <Label className="text-[10px] font-black uppercase tracking-wider text-neutral-400">Pontos de melhoria</Label>
+                <Textarea className="h-20 border-neutral-200 bg-white text-sm focus:ring-red-500" value={planForm.improvement_points} onChange={(e) => setPlanForm({ ...planForm, improvement_points: e.target.value })} />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-black uppercase tracking-wider text-neutral-500">Próxima avaliação</Label>
-              <Input type="date" className="border-white/10 bg-neutral-950 text-sm focus:ring-red-500" value={planForm.next_evaluation_at} onChange={(e) => setPlanForm({ ...planForm, next_evaluation_at: e.target.value })} />
+              <Label className="text-[10px] font-black uppercase tracking-wider text-neutral-400">Próxima avaliação</Label>
+              <Input type="date" className="border-neutral-200 bg-white text-sm focus:ring-red-500" value={planForm.next_evaluation_at} onChange={(e) => setPlanForm({ ...planForm, next_evaluation_at: e.target.value })} />
             </div>
           </CardContent>
         </Card>
