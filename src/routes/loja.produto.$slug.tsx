@@ -185,6 +185,10 @@ function ProductPage() {
   const pixPrice = formatBRL(pixPriceFor(price));
 
   const handleAddToCart = () => {
+    if (!variant && data.variants.length > 0) {
+      toast.error("Por favor, selecione as opções do produto");
+      return;
+    }
     const variantLabel = variant ? [variant.size, variant.color].filter(Boolean).join(" / ") : null;
     add({
       product_id: product.id,
