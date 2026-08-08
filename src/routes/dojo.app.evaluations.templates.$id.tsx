@@ -343,22 +343,22 @@ function TemplateEditor() {
         <Button onClick={save}>Salvar modelo</Button>
       </div>
 
-      <Card>
-        <CardHeader><CardTitle className="text-base">Informações gerais</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid md:grid-cols-2 gap-3">
-            <div className="md:col-span-2">
-              <Label>Título</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+      <Card className="border-neutral-200 bg-white shadow-sm overflow-hidden">
+        <CardHeader className="bg-neutral-50/50 border-b border-neutral-100"><CardTitle className="text-base font-black uppercase tracking-tight text-neutral-900">Informações gerais</CardTitle></CardHeader>
+        <CardContent className="space-y-4 p-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="md:col-span-2 space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Título</Label>
+              <Input className="border-neutral-200 bg-white shadow-sm focus:ring-red-500" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
-            <div>
-              <Label>Categoria</Label>
-              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex.: adulto" />
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Categoria</Label>
+              <Input className="border-neutral-200 bg-white shadow-sm focus:ring-red-500" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex.: adulto" />
             </div>
-            <div>
-              <Label>Modalidade</Label>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Modalidade</Label>
               <select
-                className="border rounded p-2 bg-background w-full"
+                className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-red-500/20"
                 value={form.modality}
                 onChange={(e) => {
                   const nextMod = e.target.value;
@@ -378,19 +378,15 @@ function TemplateEditor() {
                 ))}
               </select>
               {modalities.length === 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] text-neutral-400 font-bold mt-1">
                   Cadastre modalidades em Modalidades e Faixas.
                 </p>
               )}
             </div>
-            <div>
-              <Label>Categoria</Label>
-              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex.: adulto" />
-            </div>
-            <div>
-              <Label>Faixa inicial</Label>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Faixa inicial</Label>
               <select
-                className="border rounded p-2 bg-background w-full"
+                className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-red-500/20"
                 value={form.belt_id}
                 disabled={!form.modality}
                 onChange={(e) => setForm({ ...form, belt_id: e.target.value })}
@@ -399,10 +395,10 @@ function TemplateEditor() {
                 {filteredBelts.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
-            <div>
-              <Label>Faixa final (para graduação)</Label>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Faixa final (para graduação)</Label>
               <select
-                className="border rounded p-2 bg-background w-full"
+                className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-red-500/20"
                 value={form.end_belt_id}
                 disabled={!form.modality}
                 onChange={(e) => setForm({ ...form, end_belt_id: e.target.value })}
@@ -411,17 +407,17 @@ function TemplateEditor() {
                 {filteredBelts.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
-            <div>
-              <Label>Tempo mínimo de treino (meses)</Label>
-              <Input type="number" min={0} value={form.min_training_months} onChange={(e) => setForm({ ...form, min_training_months: e.target.value === "" ? "" : Number(e.target.value) })} />
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Tempo mínimo de treino (meses)</Label>
+              <Input className="border-neutral-200 bg-white shadow-sm focus:ring-red-500" type="number" min={0} value={form.min_training_months} onChange={(e) => setForm({ ...form, min_training_months: e.target.value === "" ? "" : Number(e.target.value) })} />
             </div>
-            <div>
-              <Label>Frequência mínima (aulas)</Label>
-              <Input type="number" min={0} value={form.min_attendance} onChange={(e) => setForm({ ...form, min_attendance: e.target.value === "" ? "" : Number(e.target.value) })} />
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Frequência mínima (aulas)</Label>
+              <Input className="border-neutral-200 bg-white shadow-sm focus:ring-red-500" type="number" min={0} value={form.min_attendance} onChange={(e) => setForm({ ...form, min_attendance: e.target.value === "" ? "" : Number(e.target.value) })} />
             </div>
-            <div>
-              <Label>Método de avaliação</Label>
-              <select className="border rounded p-2 bg-background w-full" value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Método de avaliação</Label>
+              <select className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-red-500/20" value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
                 <option value="numeric">Nota numérica</option>
                 <option value="checklist">Checklist</option>
                 <option value="pass_fail">Aprovado/Reprovado</option>
@@ -430,36 +426,36 @@ function TemplateEditor() {
                 <option value="concept">Conceito</option>
               </select>
             </div>
-            <div>
-              <Label>Nota mínima para aprovação</Label>
-              <Input type="number" min={0} value={form.passing_score} onChange={(e) => setForm({ ...form, passing_score: e.target.value === "" ? "" : Number(e.target.value) })} placeholder={`Total: ${total}`} />
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Nota mínima para aprovação</Label>
+              <Input className="border-neutral-200 bg-white shadow-sm focus:ring-red-500" type="number" min={0} value={form.passing_score} onChange={(e) => setForm({ ...form, passing_score: e.target.value === "" ? "" : Number(e.target.value) })} placeholder={`Total: ${total}`} />
             </div>
           </div>
-          <div>
-            <Label>Descrição</Label>
-            <Textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <div className="space-y-1.5 pt-2">
+            <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Descrição</Label>
+            <Textarea className="min-h-[80px] border-neutral-200 bg-white shadow-sm focus:ring-red-500" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
-          <div>
-            <Label>Observações</Label>
-            <Textarea rows={2} value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Observações</Label>
+            <Textarea className="min-h-[80px] border-neutral-200 bg-white shadow-sm focus:ring-red-500" rows={2} value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
           </div>
-          <div className="flex flex-wrap gap-6">
-            <label className="flex items-center gap-2 text-sm">
+          <div className="flex flex-wrap gap-8 pt-2">
+            <label className="flex items-center gap-3 cursor-pointer group">
               <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
-              Ativo
+              <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 group-hover:text-neutral-900 transition-colors">Ativo</span>
             </label>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-3 cursor-pointer group">
               <Switch checked={form.auto_graduate} onCheckedChange={(v) => setForm({ ...form, auto_graduate: v })} />
-              Graduar automaticamente ao aprovar
+              <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 group-hover:text-neutral-900 transition-colors">Graduar automaticamente ao aprovar</span>
             </label>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <CardTitle className="text-base">Estrutura da avaliação</CardTitle>
+      <Card className="border-neutral-200 bg-white shadow-sm overflow-hidden">
+        <CardHeader className="bg-neutral-50/50 border-b border-neutral-100">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <CardTitle className="text-base font-black uppercase tracking-tight text-neutral-900">Estrutura da avaliação</CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               {libCats.length > 0 && (
                 <select
