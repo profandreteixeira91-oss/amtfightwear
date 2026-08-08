@@ -284,23 +284,23 @@ function SessionRunner() {
           </Card>
         </div>
       ) : (
-        <Card className="border-white/10 bg-neutral-900/50">
+        <Card className="border-neutral-200 bg-white shadow-sm">
           <CardContent className="flex flex-col items-center justify-center p-8 text-center sm:p-12">
-            <div className={`mb-4 flex h-20 w-20 items-center justify-center rounded-full ${sess.result === 'approved' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-red-500/20 text-red-500'}`}>
+            <div className={`mb-4 flex h-20 w-20 items-center justify-center rounded-full ${sess.result === 'approved' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
               {sess.result === 'approved' ? <CheckCircle2 className="h-10 w-10" /> : <XCircle className="h-10 w-10" />}
             </div>
-            <h3 className="font-display text-2xl font-black tracking-tight text-white">Avaliação Concluída</h3>
-            <p className="mt-1 text-neutral-400">Resultado: <span className="font-bold uppercase tracking-widest text-white">{RESULT_LABEL[sess.result ?? ""] ?? sess.result}</span></p>
+            <h3 className="font-display text-2xl font-black tracking-tight text-neutral-900">Avaliação Concluída</h3>
+            <p className="mt-1 text-neutral-500">Resultado: <span className="font-bold uppercase tracking-widest text-neutral-900">{RESULT_LABEL[sess.result ?? ""] ?? sess.result}</span></p>
             
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link to="/dojo/app/evaluations/sessions" search={{ new: 1 } as never}>
-                <Button variant="outline" className="h-11 w-full border-white/10 bg-white/5 px-8 hover:bg-white/10 sm:w-auto">
+                <Button variant="outline" className="h-11 w-full border-neutral-200 bg-white px-8 hover:bg-neutral-50 sm:w-auto text-neutral-900">
                   <Plus className="h-4 w-4 mr-2" /> Nova avaliação
                 </Button>
               </Link>
               {sess.result === "approved" && student?.id && (
                 <Link to="/dojo/app/graduations" search={{ student: student.id, session: id } as never}>
-                  <Button className="h-11 w-full bg-red-600 px-8 hover:bg-red-700 sm:w-auto">
+                  <Button className="h-11 w-full bg-red-600 px-8 hover:bg-red-700 text-white sm:w-auto">
                     <CheckCircle2 className="h-4 w-4 mr-2" /> Registrar graduação
                   </Button>
                 </Link>
