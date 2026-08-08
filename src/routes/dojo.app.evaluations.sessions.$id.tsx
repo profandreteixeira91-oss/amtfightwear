@@ -264,19 +264,19 @@ function SessionRunner() {
       {/* Result actions */}
       {!isDone ? (
         <div className="sticky bottom-4 z-10 sm:relative sm:bottom-0">
-          <Card className="border-white/10 bg-neutral-950/80 p-2 shadow-2xl backdrop-blur-xl sm:p-4">
+          <Card className="border-neutral-200 bg-white shadow-lg p-2 sm:p-4">
             <CardContent className="flex flex-col gap-2 p-0 sm:flex-row sm:justify-end">
               <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row">
-                <Button variant="outline" size="sm" onClick={() => finish("review")} className="h-10 flex-1 border-white/10 bg-white/5 hover:bg-white/10 sm:flex-none">
+                <Button variant="outline" size="sm" onClick={() => finish("review")} className="h-10 flex-1 border-neutral-200 bg-white hover:bg-neutral-50 sm:flex-none">
                   <RotateCcw className="h-4 w-4 mr-1.5" /> Revisão
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => finish("conditional")} className="h-10 flex-1 border-white/10 bg-white/5 hover:bg-white/10 sm:flex-none">
+                <Button variant="outline" size="sm" onClick={() => finish("conditional")} className="h-10 flex-1 border-neutral-200 bg-white hover:bg-neutral-50 sm:flex-none">
                   Condicional
                 </Button>
-                <Button variant="destructive" size="sm" onClick={() => finish("failed")} className="h-10 flex-1 bg-red-600/20 text-red-500 hover:bg-red-600/30 sm:flex-none">
+                <Button variant="destructive" size="sm" onClick={() => finish("failed")} className="h-10 flex-1 bg-red-50 text-red-600 hover:bg-red-100 border-red-200 sm:flex-none">
                   <XCircle className="h-4 w-4 mr-1.5" /> Reprovar
                 </Button>
-                <Button size="sm" onClick={() => finish("approved")} className="h-10 flex-1 bg-emerald-600 hover:bg-emerald-700 sm:flex-none">
+                <Button size="sm" onClick={() => finish("approved")} className="h-10 flex-1 bg-emerald-600 hover:bg-emerald-700 text-white sm:flex-none">
                   <CheckCircle2 className="h-4 w-4 mr-1.5" /> Aprovar
                 </Button>
               </div>
