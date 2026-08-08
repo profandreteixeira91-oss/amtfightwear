@@ -1,6 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/loja/produto/rashguard-infantil-manga-curta-basica-amt
- * Segue em anexo a imagem corresponde a cor branca, atualize no produto
+ * EXECUÇÃO CONCLUÍDA: Rashguard Infantil Manga Longa Básica AMT Fight Wear cadastrada (R$ 84,90).
+ * Incluídas 5 imagens reais e 30 variações (Tamanhos 6-16 x 5 Cores).
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
