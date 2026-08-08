@@ -133,10 +133,24 @@ function ProductPage() {
   useEffect(() => {
     if (!selectedColor) return;
     const images = data.images.length > 0 ? data.images : [];
-    const colorIndex = images.findIndex(img => 
-      img.alt?.toLowerCase().includes(selectedColor.toLowerCase()) || 
-      img.url.toLowerCase().includes(selectedColor.toLowerCase())
-    );
+    
+    // Procura por uma imagem que contenha o nome da cor selecionada no alt ou na URL
+    const colorIndex = images.findIndex(img => {
+      const alt = (img.alt || "").toLowerCase();
+      const url = (img.url || "").toLowerCase();
+      const color = selectedColor.toLowerCase();
+      
+      // Prioridade 1: Match exato ou parcial no Alt
+      if (alt.includes(color)) return true;
+      
+      // Prioridade 2: Match na URL (muito comum para rashguards que têm a cor no nome do arquivo)
+      if (url.includes(color)) return true;
+      
+      // Fallback para nomes de cores comuns que podem estar abreviados ou em inglês se necessário
+      // mas por enquanto mantemos o match direto do banco
+      return false;
+    });
+
     if (colorIndex !== -1) {
       setActiveImageIndex(colorIndex);
     }
