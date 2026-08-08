@@ -116,27 +116,27 @@ function SessionsList() {
               <Plus className="h-5 w-5 mr-2" /> Nova Avaliação
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-[calc(100vw-1rem)] max-w-lg border-white/10 bg-neutral-900 text-white">
-            <DialogHeader><DialogTitle className="text-xl font-black uppercase tracking-tight">Nova Avaliação</DialogTitle></DialogHeader>
+          <DialogContent className="w-[calc(100vw-1rem)] max-w-lg border-neutral-200 bg-white text-neutral-900 shadow-xl">
+            <DialogHeader><DialogTitle className="text-xl font-black uppercase tracking-tight text-neutral-900">Nova Avaliação</DialogTitle></DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Modelo de Avaliação</label>
-                <select className="h-11 border-white/10 rounded-lg p-2 bg-neutral-950 w-full text-sm focus:ring-red-500" value={newSess.template_id} onChange={(e) => setNewSess({ ...newSess, template_id: e.target.value })}>
+                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Modelo de Avaliação</label>
+                <select className="h-11 border-neutral-200 rounded-lg p-2 bg-white w-full text-sm focus:ring-red-500 shadow-sm outline-none" value={newSess.template_id} onChange={(e) => setNewSess({ ...newSess, template_id: e.target.value })}>
                   <option value="">Selecione um modelo...</option>
                   {(templates ?? []).map((t: any) => <option key={t.id} value={t.id}>{t.title}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Aluno</label>
-                <select className="h-11 border-white/10 rounded-lg p-2 bg-neutral-950 w-full text-sm focus:ring-red-500" value={newSess.student_id} onChange={(e) => setNewSess({ ...newSess, student_id: e.target.value })}>
+                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Aluno</label>
+                <select className="h-11 border-neutral-200 rounded-lg p-2 bg-white w-full text-sm focus:ring-red-500 shadow-sm outline-none" value={newSess.student_id} onChange={(e) => setNewSess({ ...newSess, student_id: e.target.value })}>
                   <option value="">Selecione um aluno...</option>
                   {(students ?? []).map((s: any) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
                 </select>
               </div>
             </div>
             <DialogFooter className="gap-2">
-              <Button variant="ghost" className="hover:bg-white/5" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-              <Button className="bg-red-600 hover:bg-red-700" onClick={create}>Criar e Iniciar</Button>
+              <Button variant="ghost" className="hover:bg-neutral-50" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+              <Button className="bg-red-600 hover:bg-red-700 text-white font-bold shadow-sm" onClick={create}>Criar e Iniciar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
