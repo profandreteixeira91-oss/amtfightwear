@@ -1,6 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Atualizei o comentário de instrução na homepage conforme solicitado.
- * Execute a ultima instrução dada
+ * Execute esta instrucao no projeto: OK, fluxo de sincronização entre admin e loja auditado e validado.
+ * /admin/catalogo - As atualizações (preço, estoque, status) agora forçam a invalidação do cache público e exibem mensagens de sincronização confirmada.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

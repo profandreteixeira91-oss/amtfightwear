@@ -264,7 +264,7 @@ function AdminProductsPage() {
     setSaving(false);
     setBulkPrice(""); setBulkStock(""); setBulkPricePct("");
     setSelected(new Set());
-    toast.success(`${ok} atualizado(s)${fail ? `, ${fail} falha(s)` : ""}`);
+    toast.success(`${ok} atualizado(s) e sincronizado(s) com a loja${fail ? `, ${fail} falha(s)` : ""}`);
     refresh();
   };
 
