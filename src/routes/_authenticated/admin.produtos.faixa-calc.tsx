@@ -414,31 +414,55 @@ function CalculatorV2() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products.map((p) => (
-                    <TableRow 
-                      key={p.id} 
-                      className={cn("cursor-pointer hover:bg-muted/50 transition-colors", selectedProductId === p.id && "bg-primary/5")}
-                      onClick={() => setSelectedProductId(p.id)}
-                    >
-                      <TableCell className="font-semibold">
-                        <div className="flex items-center gap-2">
-                          {p.name}
-                          {selectedProductId === p.id && <Badge variant="outline" className="text-[10px] py-0">Editando BOM</Badge>}
-                        </div>
-                      </TableCell>
-                      <TableCell>{formatMoney(Number(p.price) || 0)}</TableCell>
-                      <TableCell>{formatMoney(Number(p.cost) || 0)}</TableCell>
-                      <TableCell><Badge variant="secondary" className="bg-green-100 text-green-800">40%</Badge></TableCell>
-                      <TableCell className="font-bold text-primary">
-                        <div className="flex items-center justify-between">
-                          {formatMoney((Number(p.cost) || 0) * 2.5)}
-                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); setSelectedProductId(p.id); setActiveTab("composition"); }}>
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {products.map((p) => {
+                    const bomTotal = p.product_cost_compositions?.reduce((acc: number, curr: any) => acc + (Number(curr.quantity) * Number(curr.unit_cost)), 0) || 0;
+                    const finalCost = bomTotal > 0 ? bomTotal : (Number(p.cost) || 0);
+                    const markup = 2.5;
+                    const suggestedPrice = finalCost * markup;
+                    const currentMargin = p.price ? ((Number(p.price) - finalCost) / Number(p.price)) * 100 : 0;
+
+                    return (
+                      <TableRow 
+                        key={p.id} 
+                        className={cn("cursor-pointer hover:bg-muted/50 transition-colors", selectedProductId === p.id && "bg-primary/5")}
+                        onClick={() => setSelectedProductId(p.id)}
+                      >
+                        <TableCell className="font-semibold">
+                          <div className="flex items-center gap-2">
+                            {p.name}
+                            {selectedProductId === p.id && <Badge variant="outline" className="text-[10px] py-0">Editando BOM</Badge>}
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatMoney(Number(p.price) || 0)}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span>{formatMoney(finalCost)}</span>
+                            {bomTotal > 0 && <span className="text-[10px] text-muted-foreground italic">Base: BOM</span>}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className={cn(
+                            currentMargin > 30 ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"
+                          )}>
+                            {currentMargin.toFixed(1)}%
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-bold text-primary">
+                          <div className="flex items-center justify-between">
+                            {formatMoney(suggestedPrice)}
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); setSelectedProductId(p.id); setActiveTab("composition"); }}>
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); setSelectedProductId(p.id); setActiveTab("composition"); }}>
+                                <ChevronRight className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </CardContent>
