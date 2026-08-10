@@ -393,15 +393,18 @@ function CalculatorV2() {
                     variant="default" 
                     className="bg-green-600 hover:bg-green-700"
                     onClick={() => {
-                      if (!selectedProduct?.product_cost_compositions) {
+                      if (!selectedProduct?.product_cost_compositions && !selectedProductId) {
                         toast.error("Selecione um produto de referência na aba Formação primeiro.");
                         return;
                       }
+                      
+                      const compositionToReplicate = selectedProduct?.product_cost_compositions || [];
+
                       updateCategoryBOMMutation.mutate({ 
                         data: { 
                           category: selectedCategory || undefined, 
                           sub_category_id: selectedSubCategoryId || undefined,
-                          composition: selectedProduct.product_cost_compositions.map(({ id, product_id, tenant_id, created_at, updated_at, ...rest }: any) => rest)
+                          composition: compositionToReplicate.map(({ id, product_id, tenant_id, created_at, updated_at, ...rest }: any) => rest)
                         } 
                       });
                     }}

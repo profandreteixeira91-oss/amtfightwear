@@ -1,6 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Calculadroa https://amtfightwear.com.br/admin/produtos/faixa-calc
- * Fluxo de cálculo: Custo por metro x Total de metros (utilizar as variações de tamanho das faixas) dividido por largura utilizada , refatore a calculadora e ajuste o solicitado sem alterar mais nada
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc
+ * Fluxo: ao selecionar uma categoria e/ou subcategoria e aplicar as edições, ao clicar em replicar no grupo, todos os itens daquela categoria ou subcategoria devem ser atualizados com os valores editados, independente se for selecionado algum produto ou não em formação
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
