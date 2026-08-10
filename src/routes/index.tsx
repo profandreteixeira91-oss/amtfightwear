@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Verifique na página /loja/atacado o pixel da meta configurado, caso esteja tudo ok, configure o pixel para receber todas as ações possíveis da página para que as métricas sejam melhor avaliadas
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/leads/macro os leads descartados na fila voltam para fila apos recarregar a página, sendo que deveriam ter sido excluídos da fila, corrija de forma definitiva. Os leads cuja mensagem já foi enviada também devem sair da fila
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

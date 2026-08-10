@@ -136,6 +136,8 @@ const listInput = z.object({
   category: z.string().max(120).optional(),
   pipeline_stage: z.string().max(30).optional(),
   status: z.string().max(30).optional(),
+  not_pipeline_stage: z.string().max(30).optional(),
+  last_contacted_before: z.string().optional(),
   minScore: z.number().min(0).max(100).optional(),
   hasEmail: z.boolean().optional(),
   hasWhatsapp: z.boolean().optional(),
@@ -182,6 +184,10 @@ export const listLeads = createServerFn({ method: "POST" })
     if (data.city) q = q.ilike("city", `%${data.city}%`);
     if (data.category) q = q.ilike("category", `%${data.category}%`);
     if (data.pipeline_stage) q = q.eq("pipeline_stage", data.pipeline_stage);
+    if (data.not_pipeline_stage) q = q.not("pipeline_stage", "eq", data.not_pipeline_stage);
+    if (data.last_contacted_before) {
+      q = q.or(`last_contacted_at.is.null,last_contacted_at.lt.${data.last_contacted_before}`);
+    }
     if (data.status) q = q.eq("status", data.status);
     if (typeof data.minScore === "number") q = q.gte("score", data.minScore);
     if (data.onlyEnriched) q = q.not("enriched_at", "is", null);

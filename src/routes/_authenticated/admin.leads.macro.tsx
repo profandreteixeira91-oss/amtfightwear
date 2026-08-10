@@ -228,7 +228,9 @@ function MacroPage() {
             }
           : {
               hasInstagram: true,
-              pipeline_stage: prefs.stageFilter || undefined,
+              pipeline_stage: prefs.stageFilter || "novo",
+              not_pipeline_stage: "descartado", // Garantia extra no lado do servidor
+              last_contacted_before: todayISO(), // Opcional: só mostra quem não foi contatado hoje
               limit: 200,
               offset: 0,
               orderBy: prefs.smartQueueEnabled ? "state" : "score",
