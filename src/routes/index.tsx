@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/atendimento
- * Altere o botão de atendimento da homepage da loja amtfightwear pelo botão do whatsapp para facilitar a comunicação com os clientes
+ * Execute esta instrucao no projeto: Verifique se houve algum novo cadastro no dojo manager pelo auth de donos de dojo
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
