@@ -48,6 +48,14 @@ export const updatePricingConfig = createServerFn({ method: "POST" })
     wholesale_min_qty: z.number().optional(),
     wholesale_discount_percent: z.number().optional(),
     apportionment_method: z.string().optional(),
+    monthly_production_estimate: z.number().optional(),
+    desired_pro_labore: z.number().optional(),
+    reserve_percent: z.number().optional(),
+    profit_percent: z.number().optional(),
+    commission_percent: z.number().optional(),
+    marketing_percent: z.number().optional(),
+    taxes_percent: z.number().optional(),
+    gateway_percent: z.number().optional(),
   }).parse(data))
   .handler(async ({ data: input, context }) => {
     const { data, error } = await (context.supabase as any)
