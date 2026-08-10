@@ -9,11 +9,14 @@ import {
   Layers, 
   Image as ImageIcon,
   Loader2,
-  CheckCircle2,
-  Rocket
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+   CheckCircle2,
+   Rocket,
+   Video
+ } from "lucide-react";
+ import { Button } from "@/components/ui/button";
++import VideoAdGenerator from "./VideoAdGenerator";
+ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { generateAdCreativeSet } from "@/lib/ads/ads-creative-ai.functions";
@@ -21,7 +24,8 @@ import { Badge } from "@/components/ui/badge";
 
 export default function AdsAiGenerator() {
   const [type, setType] = useState<"bjj_belts" | "judo_belts" | "kimonos" | "mixed">("bjj_belts");
-  const [style, setStyle] = useState<"carousel" | "single_image">("carousel");
+   const [style, setStyle] = useState<"carousel" | "single_image" | "video">("carousel");
+
   const generate = useServerFn(generateAdCreativeSet);
 
   const mutation = useMutation({
@@ -85,36 +89,51 @@ export default function AdsAiGenerator() {
               </RadioGroup>
             </div>
 
-            <div className="grid gap-3">
-              <Label>Formato do Anúncio</Label>
-              <div className="flex gap-4">
-                <Button 
-                  variant={style === "carousel" ? "default" : "outline"} 
-                  className="flex-1 gap-2"
-                  onClick={() => setStyle("carousel")}
-                >
-                  <Layers className="h-4 w-4" /> Carrossel
-                </Button>
-                <Button 
-                  variant={style === "single_image" ? "default" : "outline"} 
-                  className="flex-1 gap-2"
-                  onClick={() => setStyle("single_image")}
-                >
-                  <ImageIcon className="h-4 w-4" /> Imagem Única
-                </Button>
-              </div>
-            </div>
+             <div className="grid gap-3">
+               <Label>Formato do Anúncio</Label>
+               <div className="flex flex-wrap gap-4">
+                 <Button 
+                   variant={style === "carousel" ? "default" : "outline"} 
+                   className="flex-1 min-w-[120px] gap-2"
+                   onClick={() => setStyle("carousel")}
+                 >
+                   <Layers className="h-4 w-4" /> Carrossel
+                 </Button>
+                 <Button 
+                   variant={style === "single_image" ? "default" : "outline"} 
+                   className="flex-1 min-w-[120px] gap-2"
+                   onClick={() => setStyle("single_image")}
+                 >
+                   <ImageIcon className="h-4 w-4" /> Imagem Única
+                 </Button>
+                 <Button 
+                   variant={style === "video" ? "default" : "outline"} 
+                   className="flex-1 min-w-[120px] gap-2 border-primary/40 text-primary hover:text-primary-foreground"
+                   onClick={() => setStyle("video")}
+                 >
+                   <Video className="h-4 w-4" /> Vídeo 9:16
+                 </Button>
+               </div>
+             </div>
+
           </CardContent>
-          <CardFooter>
-            <Button 
-              className="w-full gap-2 py-6 text-lg" 
-              onClick={() => mutation.mutate({ type, style, name: "Campanha IA " + new Date().toLocaleDateString() })}
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Wand2 className="h-5 w-5" />}
-              Gerar Conjunto de Imagens e Copy
-            </Button>
-          </CardFooter>
+           <CardFooter>
+             {style === "video" ? (
+               <div className="w-full">
+                 <VideoAdGenerator />
+               </div>
+             ) : (
+               <Button 
+                 className="w-full gap-2 py-6 text-lg" 
+                 onClick={() => mutation.mutate({ type, style, name: "Campanha IA " + new Date().toLocaleDateString() })}
+                 disabled={mutation.isPending}
+               >
+                 {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Wand2 className="h-5 w-5" />}
+                 Gerar Conjunto de Imagens e Copy
+               </Button>
+             )}
+           </CardFooter>
+
         </Card>
       ) : (
         <div className="space-y-6">
