@@ -534,20 +534,25 @@ function CalculatorV2() {
                             Fórmula: (Custo Metro × Comprimento × Camadas) × (Largura Utilizada / Largura Total)
                           </p>
                         </div>
-                        {selectedProductId && (
+                        {(selectedProductId || selectedCategory || selectedSubCategoryId) && (
                           <Button 
                             className="w-full h-8 text-xs bg-primary hover:bg-primary/90" 
                             variant="default"
                             onClick={() => {
-                              saveCompositionMutation.mutate({ 
-                                data: { 
-                                  product_id: selectedProductId, 
-                                  name: `Material (${lengthUsed}m x ${widthUsed}m)`, 
-                                  type: "material", 
-                                  quantity: 1, 
-                                  unit_cost: calculatedMaterialCost 
-                                } 
-                              });
+                              const newItem = { 
+                                id: selectedProductId ? undefined : crypto.randomUUID(),
+                                product_id: selectedProductId || undefined, 
+                                name: `Material (${lengthUsed}m x ${widthUsed}m)`, 
+                                type: "material", 
+                                quantity: 1, 
+                                unit_cost: calculatedMaterialCost 
+                              };
+
+                              if (selectedProductId) {
+                                saveCompositionMutation.mutate({ data: newItem });
+                              } else {
+                                setLocalComposition(prev => [...prev, newItem]);
+                              }
                             }}
                           >
                             <Plus className="h-3 w-3 mr-1" /> Injetar Custo na BOM
