@@ -1,5 +1,15 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/leads/macro os leads descartados na fila voltam para fila apos recarregar a página, sendo que deveriam ter sido excluídos da fila, corrija de forma definitiva. Os leads cuja mensagem já foi enviada também devem sair da fila
+ * Execute esta instrucao no projeto: Rota a ser trabalhada: https://amtfightwear.com.br/admin/produtos/faixa-calc
+ * 
+ * # REFATORAÇÃO COMPLETA — MÓDULO CALCULADORA DE CUSTOS E FORMAÇÃO DE PREÇO
+ * 
+ * ## AMT Fight Wear
+ * 
+ * Refatore completamente o módulo atual de **Calculadora de Custos / Formação de Preço** da AMT Fight Wear.
+ * 
+ * O objetivo é transformar o módulo em uma ferramenta de **formação de preço baseada em custo real, margem de contribuição, despesas fixas, marketing e lucro líquido**, evitando a lógica simplificada de apenas aplicar markup sobre o custo do produto.
+ * 
+ * **IMPORTANTE:** antes de alterar qualquer código, faça uma auditoria completa do módulo atual, suas tabelas, campos, cálculos, componentes, hooks, APIs, funções, relacionamentos com produtos e banco de dados. Preserve tudo que já funciona e altere somente o que for necessário.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
