@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getPricingConfig = createServerFn({ method: "GET" })
@@ -14,7 +13,6 @@ export const getPricingConfig = createServerFn({ method: "GET" })
 
     if (error) throw error;
     
-    // Default config if none exists
     if (!data) {
       return {
         min_net_margin: 15,
@@ -33,7 +31,7 @@ export const getPricingConfig = createServerFn({ method: "GET" })
 
 export const updatePricingConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .input(z.object({
+  .validator((data: any) => z.object({
     min_net_margin: z.number().optional(),
     min_contribution_margin: z.number().optional(),
     default_tax_rate: z.number().optional(),
@@ -42,8 +40,8 @@ export const updatePricingConfig = createServerFn({ method: "POST" })
     wholesale_min_qty: z.number().optional(),
     wholesale_discount_percent: z.number().optional(),
     apportionment_method: z.string().optional(),
-  }))
-  .handler(async ({ input, context }) => {
+  }).parse(data))
+  .handler(async ({ data: input, context }) => {
     const { data, error } = await context.supabase
       .from("app_pricing_configs")
       .upsert({
@@ -73,13 +71,13 @@ export const getFixedExpenses = createServerFn({ method: "GET" })
 
 export const saveFixedExpense = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .input(z.object({
+  .validator((data: any) => z.object({
     id: z.string().uuid().optional(),
     name: z.string(),
     value: z.number(),
     category: z.string().optional()
-  }))
-  .handler(async ({ input, context }) => {
+  }).parse(data))
+  .handler(async ({ data: input, context }) => {
     const { data, error } = await context.supabase
       .from("fixed_expenses")
       .upsert({
@@ -96,8 +94,8 @@ export const saveFixedExpense = createServerFn({ method: "POST" })
 
 export const deleteFixedExpense = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .input(z.object({ id: z.string().uuid() }))
-  .handler(async ({ input, context }) => {
+  .validator((data: any) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data: input, context }) => {
     const { error } = await context.supabase
       .from("fixed_expenses")
       .delete()
@@ -123,13 +121,13 @@ export const getMarketingInvestments = createServerFn({ method: "GET" })
 
 export const saveMarketingInvestment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .input(z.object({
+  .validator((data: any) => z.object({
     id: z.string().uuid().optional(),
     channel: z.string(),
     monthly_investment: z.number(),
     new_customers_goal: z.number().optional()
-  }))
-  .handler(async ({ input, context }) => {
+  }).parse(data))
+  .handler(async ({ data: input, context }) => {
     const { data, error } = await context.supabase
       .from("marketing_investments")
       .upsert({
@@ -146,8 +144,8 @@ export const saveMarketingInvestment = createServerFn({ method: "POST" })
 
 export const deleteMarketingInvestment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .input(z.object({ id: z.string().uuid() }))
-  .handler(async ({ input, context }) => {
+  .validator((data: any) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data: input, context }) => {
     const { error } = await context.supabase
       .from("marketing_investments")
       .delete()
@@ -160,8 +158,8 @@ export const deleteMarketingInvestment = createServerFn({ method: "POST" })
 
 export const getCostCompositions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .input(z.object({ productId: z.string().uuid() }))
-  .handler(async ({ input, context }) => {
+  .validator((data: any) => z.object({ productId: z.string().uuid() }).parse(data))
+  .handler(async ({ data: input, context }) => {
     const { data, error } = await context.supabase
       .from("product_cost_compositions")
       .select("*")
@@ -175,7 +173,7 @@ export const getCostCompositions = createServerFn({ method: "GET" })
 
 export const saveCostComposition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .input(z.object({
+  .validator((data: any) => z.object({
     id: z.string().uuid().optional(),
     product_id: z.string().uuid(),
     name: z.string(),
@@ -186,8 +184,8 @@ export const saveCostComposition = createServerFn({ method: "POST" })
     waste_percent: z.number().optional(),
     provider: z.string().optional(),
     is_active: z.boolean().optional(),
-  }))
-  .handler(async ({ input, context }) => {
+  }).parse(data))
+  .handler(async ({ data: input, context }) => {
     const { data: oldData } = input.id 
       ? await context.supabase.from("product_cost_compositions").select("unit_cost").eq("id", input.id).single()
       : { data: null };
@@ -204,7 +202,6 @@ export const saveCostComposition = createServerFn({ method: "POST" })
 
     if (error) throw error;
 
-    // Record history if cost changed
     if (oldData && oldData.unit_cost !== input.unit_cost) {
       await context.supabase.from("cost_change_history").insert({
         tenant_id: context.userId,
@@ -221,8 +218,8 @@ export const saveCostComposition = createServerFn({ method: "POST" })
 
 export const deleteCostComposition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .input(z.object({ id: z.string().uuid() }))
-  .handler(async ({ input, context }) => {
+  .validator((data: any) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data: input, context }) => {
     const { error } = await context.supabase
       .from("product_cost_compositions")
       .delete()
@@ -236,7 +233,6 @@ export const deleteCostComposition = createServerFn({ method: "POST" })
 export const listAllProductPricing = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    // This will be a complex query joining products with their compositions
     const { data, error } = await context.supabase
       .from("products")
       .select(`
