@@ -80,10 +80,10 @@ function CalculatorV2() {
   const deleteExpenseFn = useServerFn(deleteFixedExpense);
   const updateConfigFn = useServerFn(updatePricingConfig);
 
-  const { data: config } = useSuspenseQuery({ queryKey: ["pricing-config"], queryFn: () => fetchConfig() });
-  const { data: expensesData } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => fetchExpenses() });
-  const { data: marketingData } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => fetchMarketing() });
-  const { data: productsData } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => fetchProducts() });
+  const { data: config, isLoading: isLoadingConfig } = useSuspenseQuery({ queryKey: ["pricing-config"], queryFn: () => fetchConfig() });
+  const { data: expensesData, isLoading: isLoadingExpenses } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => fetchExpenses() });
+  const { data: marketingData, isLoading: isLoadingMarketing } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => fetchMarketing() });
+  const { data: productsData, isLoading: isLoadingProducts } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => fetchProducts() });
 
   const expenses = (expensesData || []) as FixedExpense[];
   const marketing = (marketingData || []) as MarketingInvestment[];
@@ -127,6 +127,19 @@ function CalculatorV2() {
   
   const avgContributionMargin = 40; 
   const breakEvenPoint = totalFixedExpenses / (avgContributionMargin / 100 || 1);
+
+  if (isLoadingConfig || isLoadingExpenses || isLoadingMarketing || isLoadingProducts) {
+    return (
+      <AdminShell title="Calculadora de Custos">
+        <div className="flex h-[50vh] items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm text-muted-foreground font-medium">Carregando dados financeiros...</p>
+          </div>
+        </div>
+      </AdminShell>
+    );
+  }
 
   return (
     <AdminShell title="Calculadora de Custos">
