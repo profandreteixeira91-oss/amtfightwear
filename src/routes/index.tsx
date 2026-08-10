@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Agora crie o video
+ * Execute esta instrucao no projeto: DIsponibilize o vídeo criado para download
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

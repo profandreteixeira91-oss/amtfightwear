@@ -111,7 +111,19 @@ export default function VideoAdGenerator() {
                 </div>
               </div>
               <CardFooter className="flex gap-2 p-4">
-                <Button className="flex-1 gap-2" variant="default">
+                <Button 
+                  className="flex-1 gap-2" 
+                  variant="default"
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = result.preview_url;
+                    link.download = `amt-ads-video-${result.id || Date.now()}.mp4`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    toast.success("Download iniciado!");
+                  }}
+                >
                   <Download className="h-4 w-4" /> Baixar MP4
                 </Button>
                 <Button variant="outline" size="icon">
