@@ -249,3 +249,61 @@ export const listAllProductPricing = createServerFn({ method: "GET" })
     if (error) throw error;
     return data;
   });
+
+export const updateCategoryBOM = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    category: z.string(),
+    composition: z.array(z.object({
+      name: z.string(),
+      type: z.string(),
+      unit_of_measure: z.string().optional(),
+      quantity: z.number(),
+      unit_cost: z.number(),
+      waste_percent: z.number().optional(),
+      provider: z.string().optional(),
+    }))
+  }).parse(data))
+  .handler(async ({ data: input, context }) => {
+    // 1. Get all products in this category
+    const { data: products, error: pError } = await (context.supabase as any)
+      .from("products")
+      .select("id")
+      .eq("category", input.category);
+
+    if (pError) throw pError;
+    if (!products || products.length === 0) return { success: true, count: 0 };
+
+    // 2. Clear existing compositions for these products
+    const productIds = products.map((p: any) => p.id);
+    await (context.supabase as any)
+      .from("product_cost_compositions")
+      .delete()
+      .in("product_id", productIds)
+      .eq("tenant_id", context.userId);
+
+    // 3. Insert new compositions for all products
+    const newCompositions = productIds.flatMap((pid: string) => 
+      input.composition.map(c => ({
+        ...c,
+        product_id: pid,
+        tenant_id: context.userId,
+        updated_at: new Date().toISOString()
+      }))
+    );
+
+    const { error: iError } = await (context.supabase as any)
+      .from("product_cost_compositions")
+      .insert(newCompositions);
+
+    if (iError) throw iError;
+
+    // 4. Update the products base cost as the sum of compositions
+    const totalCost = input.composition.reduce((acc, curr) => acc + (curr.quantity * curr.unit_cost), 0);
+    await (context.supabase as any)
+      .from("products")
+      .update({ cost: totalCost })
+      .in("id", productIds);
+
+    return { success: true, count: products.length };
+  });

@@ -298,7 +298,7 @@ function FiscalDashboard() {
                     </>
                   )}
                 </Button>
-                <Link to="/admin/fiscal/pedidos" search={{}} className="w-full sm:w-auto">
+                <Link to="/admin/fiscal/pedidos" search={{ orderId: undefined, type: undefined }} className="w-full sm:w-auto">
                   <Button 
                     variant="outline" 
                     className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50"

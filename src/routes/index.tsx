@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc continue a implementação configurando os demais itens, incluindo o editor de Composição Industrial (BOM), aba de Variáveis e ajustes finos de impostos e taxas.
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc a formação dos produtos devem ser editadas por categorias e variações, considerando que os produtos são fabricados com o mesmo material de acordo com a categoria.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

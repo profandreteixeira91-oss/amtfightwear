@@ -39,7 +39,8 @@ import {
   saveCostComposition,
   deleteCostComposition,
   saveMarketingInvestment,
-  deleteMarketingInvestment
+  deleteMarketingInvestment,
+  updateCategoryBOM
 } from "@/lib/store/pricing-calculator.functions";
 import { formatMoney } from "@/lib/store/pricing";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,7 @@ interface ProductPricing {
   id: string;
   name: string;
   sku: string | null;
+  category: string | null;
   price: number | null;
   cost: number | null;
   product_cost_compositions?: any[];
@@ -111,6 +113,20 @@ function CalculatorV2() {
 
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const categories = useMemo(() => {
+    const cats = new Set(products.map(p => p.category).filter(Boolean));
+    return Array.from(cats) as string[];
+  }, [products]);
+
+  const updateCategoryBOMMutation = useMutation({
+    mutationFn: (args: { data: any }) => useServerFn(updateCategoryBOM)(args),
+    onSuccess: (res: any) => {
+      queryClient.invalidateQueries({ queryKey: ["all-product-pricing"] });
+      toast.success(`Composição aplicada a ${res.count} produtos da categoria!`);
+    }
+  });
 
   const selectedProduct = useMemo(() => 
     products.find(p => p.id === selectedProductId),
@@ -307,59 +323,108 @@ function CalculatorV2() {
         <TabsContent value="composition">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <div>
+              <div className="space-y-1">
                 <CardTitle>Composição Industrial (BOM)</CardTitle>
-                <CardDescription>Materiais e mão de obra para: {selectedProduct?.name || "Nenhum produto selecionado"}</CardDescription>
+                <CardDescription>
+                  {selectedCategory 
+                    ? `Editando composição GLOBAL para categoria: ${selectedCategory}` 
+                    : `Insumos para: ${selectedProduct?.name || "Selecione um produto ou categoria"}`}
+                </CardDescription>
               </div>
-              {selectedProductId && (
-                <Button size="sm" onClick={() => saveCompositionMutation.mutate({ data: { product_id: selectedProductId, name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 } })}>
-                  <Plus className="h-4 w-4 mr-2" /> Adicionar Insumo
-                </Button>
-              )}
+              <div className="flex gap-2">
+                <Select onValueChange={(v) => {
+                  setSelectedCategory(v);
+                  setSelectedProductId(null);
+                }}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Editar por Categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {selectedCategory && (
+                   <Button 
+                    variant="default" 
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => {
+                      if (!selectedProduct?.product_cost_compositions) return;
+                      updateCategoryBOMMutation.mutate({ 
+                        data: { 
+                          category: selectedCategory, 
+                          composition: selectedProduct.product_cost_compositions.map(({ id, product_id, tenant_id, created_at, updated_at, ...rest }: any) => rest)
+                        } 
+                      });
+                    }}
+                  >
+                    <Save className="h-4 w-4 mr-2" /> Replicar na Categoria
+                  </Button>
+                )}
+
+                {selectedProductId && (
+                  <Button size="sm" onClick={() => saveCompositionMutation.mutate({ data: { product_id: selectedProductId, name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 } })}>
+                    <Plus className="h-4 w-4 mr-2" /> Adicionar Insumo
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
-              {!selectedProductId ? (
+              {!selectedProductId && !selectedCategory ? (
                 <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
                   <Package className="h-10 w-10 mx-auto mb-3 text-primary/50" />
-                  <p>Selecione um produto na aba "Formação" para editar os insumos.</p>
+                  <p>Selecione um produto na aba "Formação" ou escolha uma categoria acima para editar a composição.</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Insumo</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Qtd</TableHead>
-                      <TableHead>Custo Unit.</TableHead>
-                      <TableHead>Total</TableHead>
-                      <TableHead className="w-16"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedProduct?.product_cost_compositions?.map((item: any) => (
-                      <TableRow key={item.id}>
-                        <TableCell><Input defaultValue={item.name} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, name: e.target.value } })} /></TableCell>
-                        <TableCell>
-                          <Select defaultValue={item.type} onValueChange={(v) => saveCompositionMutation.mutate({ data: { ...item, type: v } })}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="material">Material</SelectItem>
-                              <SelectItem value="labor">Mão de Obra</SelectItem>
-                              <SelectItem value="other">Outros</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell><Input type="number" className="w-20" defaultValue={item.quantity} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, quantity: Number(e.target.value) } })} /></TableCell>
-                        <TableCell><Input type="number" className="w-24" defaultValue={item.unit_cost} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, unit_cost: Number(e.target.value) } })} /></TableCell>
-                        <TableCell className="font-medium">{formatMoney(item.quantity * item.unit_cost)}</TableCell>
-                        <TableCell><Button variant="ghost" size="icon" onClick={() => deleteCompositionMutation.mutate({ data: { id: item.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                <div className="space-y-4">
+                  {selectedCategory && !selectedProductId && (
+                    <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
+                      <Info className="h-5 w-5 text-amber-600 mt-0.5" />
+                      <p className="text-sm text-amber-800">
+                        Para editar a composição da categoria, selecione um produto de referência desta categoria na aba "Formação", 
+                        ajuste seus insumos aqui e depois clique em "Replicar na Categoria".
+                      </p>
+                    </div>
+                  )}
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Insumo</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Qtd</TableHead>
+                        <TableHead>Custo Unit.</TableHead>
+                        <TableHead>Total</TableHead>
+                        <TableHead className="w-16"></TableHead>
                       </TableRow>
-                    ))}
-                    {(!selectedProduct?.product_cost_compositions || selectedProduct.product_cost_compositions.length === 0) && (
-                      <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Nenhum insumo cadastrado para este produto.</TableCell></TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedProduct?.product_cost_compositions?.map((item: any) => (
+                        <TableRow key={item.id}>
+                          <TableCell><Input defaultValue={item.name} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, name: e.target.value } })} /></TableCell>
+                          <TableCell>
+                            <Select defaultValue={item.type} onValueChange={(v) => saveCompositionMutation.mutate({ data: { ...item, type: v } })}>
+                              <SelectTrigger><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="material">Material</SelectItem>
+                                <SelectItem value="labor">Mão de Obra</SelectItem>
+                                <SelectItem value="other">Outros</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell><Input type="number" className="w-20" defaultValue={item.quantity} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, quantity: Number(e.target.value) } })} /></TableCell>
+                          <TableCell><Input type="number" className="w-24" defaultValue={item.unit_cost} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, unit_cost: Number(e.target.value) } })} /></TableCell>
+                          <TableCell className="font-medium">{formatMoney(item.quantity * item.unit_cost)}</TableCell>
+                          <TableCell><Button variant="ghost" size="icon" onClick={() => deleteCompositionMutation.mutate({ data: { id: item.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                        </TableRow>
+                      ))}
+                      {(!selectedProduct?.product_cost_compositions || selectedProduct.product_cost_compositions.length === 0) && (
+                        <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Nenhum insumo cadastrado.</TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
