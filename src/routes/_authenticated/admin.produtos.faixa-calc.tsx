@@ -119,6 +119,7 @@ function CalculatorV2() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
+  const [localComposition, setLocalComposition] = useState<any[]>([]);
 
   // Calculadora de Metragem
   const [materialWidth, setMaterialWidth] = useState<number>(1.6);
@@ -158,6 +159,14 @@ function CalculatorV2() {
     products.find(p => p.id === selectedProductId),
     [products, selectedProductId]
   );
+
+  useEffect(() => {
+    if (selectedProduct?.product_cost_compositions) {
+      setLocalComposition(selectedProduct.product_cost_compositions);
+    } else if (!selectedProductId) {
+      // Don't reset if we are just switching categories, but maybe clear if nothing is selected
+    }
+  }, [selectedProduct, selectedProductId]);
 
   const saveCompositionMutation = useMutation({
     mutationFn: (args: { data: any }) => saveCostComposition(args),
@@ -395,12 +404,12 @@ function CalculatorV2() {
                     variant="default" 
                     className="bg-green-600 hover:bg-green-700"
                     onClick={() => {
-                      if (!selectedProduct?.product_cost_compositions && !selectedProductId) {
-                        toast.error("Selecione um produto de referência na aba Formação primeiro.");
+                      const compositionToReplicate = localComposition;
+
+                      if (compositionToReplicate.length === 0) {
+                        toast.error("Adicione ao menos um insumo na lista abaixo antes de replicar.");
                         return;
                       }
-                      
-                      const compositionToReplicate = selectedProduct?.product_cost_compositions || [];
 
                       updateCategoryBOMMutation.mutate({ 
                         data: { 
@@ -415,8 +424,14 @@ function CalculatorV2() {
                   </Button>
                 )}
 
-                {selectedProductId && (
-                  <Button size="sm" onClick={() => saveCompositionMutation.mutate({ data: { product_id: selectedProductId, name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 } })}>
+                {(selectedProductId || selectedCategory || selectedSubCategoryId) && (
+                  <Button size="sm" onClick={() => {
+                    if (selectedProductId) {
+                      saveCompositionMutation.mutate({ data: { product_id: selectedProductId, name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 } });
+                    } else {
+                      setLocalComposition(prev => [...prev, { id: crypto.randomUUID(), name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 }]);
+                    }
+                  }}>
                     <Plus className="h-4 w-4 mr-2" /> Adicionar Insumo
                   </Button>
                 )}
@@ -434,8 +449,7 @@ function CalculatorV2() {
                     <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
                       <Info className="h-5 w-5 text-amber-600 mt-0.5" />
                       <p className="text-sm text-amber-800">
-                        Para editar a composição do grupo, selecione um produto de referência deste grupo na aba "Formação", 
-                        ajuste seus insumos aqui e depois clique em "Replicar no Grupo".
+                        Você está editando uma composição global. Adicione os insumos abaixo e clique em "Replicar no Grupo" para aplicar a todos os produtos da categoria selecionada.
                       </p>
                     </div>
                   )}
@@ -520,20 +534,25 @@ function CalculatorV2() {
                             Fórmula: (Custo Metro × Comprimento × Camadas) × (Largura Utilizada / Largura Total)
                           </p>
                         </div>
-                        {selectedProductId && (
+                        {(selectedProductId || selectedCategory || selectedSubCategoryId) && (
                           <Button 
                             className="w-full h-8 text-xs bg-primary hover:bg-primary/90" 
                             variant="default"
                             onClick={() => {
-                              saveCompositionMutation.mutate({ 
-                                data: { 
-                                  product_id: selectedProductId, 
-                                  name: `Material (${lengthUsed}m x ${widthUsed}m)`, 
-                                  type: "material", 
-                                  quantity: 1, 
-                                  unit_cost: calculatedMaterialCost 
-                                } 
-                              });
+                              const newItem = { 
+                                id: selectedProductId ? undefined : crypto.randomUUID(),
+                                product_id: selectedProductId || undefined, 
+                                name: `Material (${lengthUsed}m x ${widthUsed}m)`, 
+                                type: "material", 
+                                quantity: 1, 
+                                unit_cost: calculatedMaterialCost 
+                              };
+
+                              if (selectedProductId) {
+                                saveCompositionMutation.mutate({ data: newItem });
+                              } else {
+                                setLocalComposition(prev => [...prev, newItem]);
+                              }
                             }}
                           >
                             <Plus className="h-3 w-3 mr-1" /> Injetar Custo na BOM
@@ -546,7 +565,7 @@ function CalculatorV2() {
                        <div className="text-center">
                           <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Custo de Produção Atual</p>
                           <h2 className="text-4xl font-black text-primary mt-1">
-                            {formatMoney(selectedProduct?.product_cost_compositions?.reduce((acc: number, curr: any) => acc + (Number(curr.quantity) * Number(curr.unit_cost)), 0) || 0)}
+                            {formatMoney(localComposition.reduce((acc: number, curr: any) => acc + (Number(curr.quantity) * Number(curr.unit_cost)), 0) || 0)}
                           </h2>
                        </div>
                     </div>
@@ -563,11 +582,32 @@ function CalculatorV2() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {selectedProduct?.product_cost_compositions?.map((item: any) => (
+                      {localComposition.map((item: any) => (
                         <TableRow key={item.id}>
-                          <TableCell><Input defaultValue={item.name} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, name: e.target.value } })} /></TableCell>
                           <TableCell>
-                            <Select defaultValue={item.type} onValueChange={(v) => saveCompositionMutation.mutate({ data: { ...item, type: v } })}>
+                            <Input 
+                              defaultValue={item.name} 
+                              onBlur={(e) => {
+                                const newName = e.target.value;
+                                if (selectedProductId) {
+                                  saveCompositionMutation.mutate({ data: { ...item, name: newName } });
+                                } else {
+                                  setLocalComposition(prev => prev.map(i => i.id === item.id ? { ...i, name: newName } : i));
+                                }
+                              }} 
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Select 
+                              defaultValue={item.type} 
+                              onValueChange={(v) => {
+                                if (selectedProductId) {
+                                  saveCompositionMutation.mutate({ data: { ...item, type: v } });
+                                } else {
+                                  setLocalComposition(prev => prev.map(i => i.id === item.id ? { ...i, type: v } : i));
+                                }
+                              }}
+                            >
                               <SelectTrigger><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="material">Material</SelectItem>
@@ -576,13 +616,55 @@ function CalculatorV2() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell><Input type="number" className="w-20" defaultValue={item.quantity} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, quantity: Number(e.target.value) } })} /></TableCell>
-                          <TableCell><Input type="number" className="w-24" defaultValue={item.unit_cost} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, unit_cost: Number(e.target.value) } })} /></TableCell>
+                          <TableCell>
+                            <Input 
+                              type="number" 
+                              className="w-20" 
+                              defaultValue={item.quantity} 
+                              onBlur={(e) => {
+                                const newQty = Number(e.target.value);
+                                if (selectedProductId) {
+                                  saveCompositionMutation.mutate({ data: { ...item, quantity: newQty } });
+                                } else {
+                                  setLocalComposition(prev => prev.map(i => i.id === item.id ? { ...i, quantity: newQty } : i));
+                                }
+                              }} 
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input 
+                              type="number" 
+                              className="w-24" 
+                              defaultValue={item.unit_cost} 
+                              onBlur={(e) => {
+                                const newCost = Number(e.target.value);
+                                if (selectedProductId) {
+                                  saveCompositionMutation.mutate({ data: { ...item, unit_cost: newCost } });
+                                } else {
+                                  setLocalComposition(prev => prev.map(i => i.id === item.id ? { ...i, unit_cost: newCost } : i));
+                                }
+                              }} 
+                            />
+                          </TableCell>
                           <TableCell className="font-medium">{formatMoney(item.quantity * item.unit_cost)}</TableCell>
-                          <TableCell><Button variant="ghost" size="icon" onClick={() => deleteCompositionMutation.mutate({ data: { id: item.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                          <TableCell>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => {
+                                if (selectedProductId) {
+                                  deleteCompositionMutation.mutate({ data: { id: item.id } });
+                                } else {
+                                  setLocalComposition(prev => prev.filter(i => i.id !== item.id));
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))}
-                      {(!selectedProduct?.product_cost_compositions || selectedProduct.product_cost_compositions.length === 0) && (
+                      {localComposition.length === 0 && (
                         <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Nenhum insumo cadastrado.</TableCell></TableRow>
                       )}
                     </TableBody>
