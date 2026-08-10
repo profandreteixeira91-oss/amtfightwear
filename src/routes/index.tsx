@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/leads/macro
-Ajuste: Leads que foram descartados na fila não devem aparecer novamente, faça a auditoria e aplique esta alteração de forma definitiva
+ * Execute esta instrucao no projeto: Os e-mails dos clientes que realizaram pedidos na loja são: masbenicio@yahoo.com.br e orcamentos@amtfightwear.com.br
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
