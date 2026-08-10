@@ -1,6 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/orcamentos
-No diálogo que aparece ao clicar em novo orçamento, ao preencher o CEP, o endereço deve ser preenchido automaticamente, ao preencher CNPJ, busca automática por dados da empresa e a formatação do campo valor unitário deve corresponder a valor monetário, faça a auditoria e corrija de forma definitiva
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/leads/macro
+Ajuste: Leads que foram descartados na fila não devem aparecer novamente, faça a auditoria e aplique esta alteração de forma definitiva
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

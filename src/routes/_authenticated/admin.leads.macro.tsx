@@ -269,6 +269,7 @@ function MacroPage() {
     () =>
       orderedRows.filter((r) => {
         if (skippedIds.has(r.id)) return false;
+        if (r.pipeline_stage === "descartado") return false;
         const ig = r.contacts.find((c) => c.channel === "instagram")?.value;
         return !!normalizeIgHandle(ig);
       }),
