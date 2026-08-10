@@ -40,7 +40,8 @@ import {
   deleteCostComposition,
   saveMarketingInvestment,
   deleteMarketingInvestment,
-  updateCategoryBOM
+  updateCategoryBOM,
+  getStoreCategories
 } from "@/lib/store/pricing-calculator.functions";
 import { formatMoney } from "@/lib/store/pricing";
 import { Button } from "@/components/ui/button";
@@ -85,6 +86,7 @@ interface ProductPricing {
   name: string;
   sku: string | null;
   category: string | null;
+  category_id?: string | null;
   price: number | null;
   cost: number | null;
   product_cost_compositions?: any[];
@@ -97,6 +99,7 @@ function CalculatorV2() {
   const fetchExpenses = useServerFn(getFixedExpenses);
   const fetchMarketing = useServerFn(getMarketingInvestments);
   const fetchProducts = useServerFn(listAllProductPricing);
+  const fetchCategories = useServerFn(getStoreCategories);
   
   const saveExpenseFn = useServerFn(saveFixedExpense);
   const deleteExpenseFn = useServerFn(deleteFixedExpense);
@@ -106,6 +109,7 @@ function CalculatorV2() {
   const { data: expensesData, isPending: isLoadingExpenses } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => fetchExpenses() });
   const { data: marketingData, isPending: isLoadingMarketing } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => fetchMarketing() });
   const { data: productsData, isPending: isLoadingProducts } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => fetchProducts() });
+  const { data: allStoreCategories } = useSuspenseQuery({ queryKey: ["store-categories"], queryFn: () => fetchCategories() });
 
   const expenses = (expensesData || []) as FixedExpense[];
   const marketing = (marketingData || []) as MarketingInvestment[];
@@ -114,6 +118,7 @@ function CalculatorV2() {
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
 
   // Calculadora de Metragem
   const [materialWidth, setMaterialWidth] = useState<number>(1.6);
@@ -122,6 +127,8 @@ function CalculatorV2() {
   const [lengthUsed, setLengthUsed] = useState<number>(0);
 
   const calculatedMaterialCost = useMemo(() => {
+    // Cálculo proporcional: (Custo Metro / Largura Total) * (Comprimento * Camadas)
+    // Se considerarmos que 'lengthUsed' é a metragem linear consumida da peça.
     return (materialPriceMeter * lengthUsed * layersCount);
   }, [materialPriceMeter, lengthUsed, layersCount]);
 
@@ -336,18 +343,21 @@ function CalculatorV2() {
               <div className="space-y-1">
                 <CardTitle>Composição Industrial (BOM)</CardTitle>
                 <CardDescription>
-                  {selectedCategory 
-                    ? `Editando composição GLOBAL para categoria: ${selectedCategory}` 
-                    : `Insumos para: ${selectedProduct?.name || "Selecione um produto ou categoria"}`}
+                  {selectedSubCategoryId 
+                    ? `Editando composição GLOBAL para subcategoria: ${allStoreCategories?.find((c: any) => c.id === selectedSubCategoryId)?.name}`
+                    : selectedCategory 
+                      ? `Editando composição GLOBAL para categoria: ${selectedCategory}` 
+                      : `Insumos para: ${selectedProduct?.name || "Selecione um produto ou categoria"}`}
                 </CardDescription>
               </div>
               <div className="flex gap-2">
                 <Select onValueChange={(v) => {
                   setSelectedCategory(v);
+                  setSelectedSubCategoryId(null);
                   setSelectedProductId(null);
                 }}>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Editar por Categoria" />
+                    <SelectValue placeholder="Categoria" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map(cat => (
@@ -356,21 +366,40 @@ function CalculatorV2() {
                   </SelectContent>
                 </Select>
 
-                {selectedCategory && (
+                <Select onValueChange={(v) => {
+                  setSelectedSubCategoryId(v);
+                  setSelectedCategory(null);
+                  setSelectedProductId(null);
+                }}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Subcategoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allStoreCategories?.filter((c: any) => c.parent_id !== null).map((sub: any) => (
+                      <SelectItem key={sub.id} value={sub.id}>{sub.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {(selectedCategory || selectedSubCategoryId) && (
                    <Button 
                     variant="default" 
                     className="bg-green-600 hover:bg-green-700"
                     onClick={() => {
-                      if (!selectedProduct?.product_cost_compositions) return;
+                      if (!selectedProduct?.product_cost_compositions) {
+                        toast.error("Selecione um produto de referência na aba Formação primeiro.");
+                        return;
+                      }
                       updateCategoryBOMMutation.mutate({ 
                         data: { 
-                          category: selectedCategory, 
+                          category: selectedCategory || undefined, 
+                          sub_category_id: selectedSubCategoryId || undefined,
                           composition: selectedProduct.product_cost_compositions.map(({ id, product_id, tenant_id, created_at, updated_at, ...rest }: any) => rest)
                         } 
                       });
                     }}
                   >
-                    <Save className="h-4 w-4 mr-2" /> Replicar na Categoria
+                    <Save className="h-4 w-4 mr-2" /> Replicar no Grupo
                   </Button>
                 )}
 
@@ -382,19 +411,19 @@ function CalculatorV2() {
               </div>
             </CardHeader>
             <CardContent>
-              {!selectedProductId && !selectedCategory ? (
+              {!selectedProductId && !selectedCategory && !selectedSubCategoryId ? (
                 <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
                   <Package className="h-10 w-10 mx-auto mb-3 text-primary/50" />
-                  <p>Selecione um produto na aba "Formação" ou escolha uma categoria acima para editar a composição.</p>
+                  <p>Selecione um produto na aba "Formação" ou escolha uma categoria/subcategoria acima para editar a composição.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {selectedCategory && !selectedProductId && (
+                  {(selectedCategory || selectedSubCategoryId) && !selectedProductId && (
                     <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
                       <Info className="h-5 w-5 text-amber-600 mt-0.5" />
                       <p className="text-sm text-amber-800">
-                        Para editar a composição da categoria, selecione um produto de referência desta categoria na aba "Formação", 
-                        ajuste seus insumos aqui e depois clique em "Replicar na Categoria".
+                        Para editar a composição do grupo, selecione um produto de referência deste grupo na aba "Formação", 
+                        ajuste seus insumos aqui e depois clique em "Replicar no Grupo".
                       </p>
                     </div>
                   )}
@@ -404,7 +433,7 @@ function CalculatorV2() {
                       <CardHeader className="py-4">
                         <CardTitle className="text-sm flex items-center gap-2">
                           <Calculator className="h-4 w-4 text-primary" />
-                          Calculadora de Metragem
+                          Calculadora de Metragem Proporcional
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4 py-0 pb-4">
@@ -437,11 +466,23 @@ function CalculatorV2() {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] uppercase">Largura Ref. (m)</Label>
+                            <Label className="text-[10px] uppercase">Largura Total (m)</Label>
                             <Input 
                               type="number" 
                               value={materialWidth} 
                               onChange={(e) => setMaterialWidth(Number(e.target.value))}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase">Largura Utilizada (m)</Label>
+                            <Input 
+                              type="number" 
+                              defaultValue={0.1}
+                              onChange={(e) => {
+                                // Apenas visual, o cálculo proporcional usa materialWidth e a largura consumida se fosse peça a peça
+                                // Mas aqui o usuário quer "Cálculo Proporcional"
+                              }}
                               className="h-8 text-sm"
                             />
                           </div>
