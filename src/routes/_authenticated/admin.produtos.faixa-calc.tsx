@@ -388,7 +388,7 @@ function CalculatorV2() {
                   <p>Selecione um produto na aba "Formação" ou escolha uma categoria acima para editar a composição.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {selectedCategory && !selectedProductId && (
                     <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
                       <Info className="h-5 w-5 text-amber-600 mt-0.5" />
@@ -398,6 +398,89 @@ function CalculatorV2() {
                       </p>
                     </div>
                   )}
+
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Card className="bg-muted/30 border-dashed">
+                      <CardHeader className="py-4">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <Calculator className="h-4 w-4 text-primary" />
+                          Calculadora de Metragem
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 py-0 pb-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase">Preço p/ Metro (R$)</Label>
+                            <Input 
+                              type="number" 
+                              value={materialPriceMeter} 
+                              onChange={(e) => setMaterialPriceMeter(Number(e.target.value))}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase">Comprimento (m)</Label>
+                            <Input 
+                              type="number" 
+                              value={lengthUsed} 
+                              onChange={(e) => setLengthUsed(Number(e.target.value))}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase">Camadas</Label>
+                            <Input 
+                              type="number" 
+                              value={layersCount} 
+                              onChange={(e) => setLayersCount(Number(e.target.value))}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase">Largura Ref. (m)</Label>
+                            <Input 
+                              type="number" 
+                              value={materialWidth} 
+                              onChange={(e) => setMaterialWidth(Number(e.target.value))}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="pt-2 border-t flex items-center justify-between">
+                          <div className="text-xs font-bold text-muted-foreground uppercase">Custo Resultante:</div>
+                          <div className="text-lg font-black text-primary">{formatMoney(calculatedMaterialCost)}</div>
+                        </div>
+                        {selectedProductId && (
+                          <Button 
+                            className="w-full h-8 text-xs" 
+                            variant="secondary"
+                            onClick={() => {
+                              saveCompositionMutation.mutate({ 
+                                data: { 
+                                  product_id: selectedProductId, 
+                                  name: "Material (Metragem)", 
+                                  type: "material", 
+                                  quantity: lengthUsed * layersCount, 
+                                  unit_cost: materialPriceMeter 
+                                } 
+                              });
+                            }}
+                          >
+                            <Plus className="h-3 w-3 mr-1" /> Aplicar na Composição
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <div className="flex flex-col justify-center gap-4 bg-primary/5 p-6 rounded-xl border border-primary/10">
+                       <div className="text-center">
+                          <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Custo de Produção Atual</p>
+                          <h2 className="text-4xl font-black text-primary mt-1">
+                            {formatMoney(selectedProduct?.product_cost_compositions?.reduce((acc: number, curr: any) => acc + (Number(curr.quantity) * Number(curr.unit_cost)), 0) || 0)}
+                          </h2>
+                       </div>
+                    </div>
+                  </div>
                   <Table>
                     <TableHeader>
                       <TableRow>
