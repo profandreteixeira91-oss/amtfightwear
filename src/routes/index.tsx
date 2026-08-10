@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Homepage - exclua o botão de atendimento e mantenha somente o botao de atendimento por whatsapp com o numero 82920016732
+ * Execute esta instrucao no projeto: Verifique e responda se houve algum novo cadastro de donos de dojo nos últimos 5 dias
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
