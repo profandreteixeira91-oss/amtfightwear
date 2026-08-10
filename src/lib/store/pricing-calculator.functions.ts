@@ -268,19 +268,21 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
   }).parse(data))
   .handler(async ({ data: input, context }) => {
     // 1. Get all products in this category or subcategory
-    let query = (context.supabase as any).from("products").select("id");
+    let productsQuery = (context.supabase as any).from("products").select("id");
     
     if (input.sub_category_id) {
-      query = query.eq("category_id", input.sub_category_id);
+      productsQuery = productsQuery.eq("category_id", input.sub_category_id);
     } else if (input.category) {
-      query = query.eq("category", input.category);
+      productsQuery = productsQuery.eq("category", input.category);
     } else {
       throw new Error("Category or sub-category is required");
     }
 
-    const { data: products, error: pError } = await query;
+    const { data: products, error: pError } = await productsQuery;
 
     if (pError) throw pError;
+    
+    // Se não houver produtos, retornamos sucesso mas com contagem 0
     if (!products || products.length === 0) return { success: true, count: 0 };
 
     // 2. Clear existing compositions for these products
