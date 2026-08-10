@@ -242,6 +242,7 @@ export const listAllProductPricing = createServerFn({ method: "GET" })
         category,
         price,
         cost,
+        category_id,
         product_cost_compositions (*)
       `)
       .order("name");
@@ -253,7 +254,8 @@ export const listAllProductPricing = createServerFn({ method: "GET" })
 export const updateCategoryBOM = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({
-    category: z.string(),
+    category: z.string().optional(),
+    sub_category_id: z.string().uuid().optional(),
     composition: z.array(z.object({
       name: z.string(),
       type: z.string(),
@@ -265,11 +267,18 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
     }))
   }).parse(data))
   .handler(async ({ data: input, context }) => {
-    // 1. Get all products in this category
-    const { data: products, error: pError } = await (context.supabase as any)
-      .from("products")
-      .select("id")
-      .eq("category", input.category);
+    // 1. Get all products in this category or subcategory
+    let query = (context.supabase as any).from("products").select("id");
+    
+    if (input.sub_category_id) {
+      query = query.eq("category_id", input.sub_category_id);
+    } else if (input.category) {
+      query = query.eq("category", input.category);
+    } else {
+      throw new Error("Category or sub-category is required");
+    }
+
+    const { data: products, error: pError } = await query;
 
     if (pError) throw pError;
     if (!products || products.length === 0) return { success: true, count: 0 };
@@ -306,4 +315,16 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
       .in("id", productIds);
 
     return { success: true, count: products.length };
+  });
+
+export const getStoreCategories = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await (context.supabase as any)
+      .from("store_categories")
+      .select("*")
+      .order("name");
+
+    if (error) throw error;
+    return data;
   });
