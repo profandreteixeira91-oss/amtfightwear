@@ -582,11 +582,32 @@ function CalculatorV2() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {selectedProduct?.product_cost_compositions?.map((item: any) => (
+                      {localComposition.map((item: any) => (
                         <TableRow key={item.id}>
-                          <TableCell><Input defaultValue={item.name} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, name: e.target.value } })} /></TableCell>
                           <TableCell>
-                            <Select defaultValue={item.type} onValueChange={(v) => saveCompositionMutation.mutate({ data: { ...item, type: v } })}>
+                            <Input 
+                              defaultValue={item.name} 
+                              onBlur={(e) => {
+                                const newName = e.target.value;
+                                if (selectedProductId) {
+                                  saveCompositionMutation.mutate({ data: { ...item, name: newName } });
+                                } else {
+                                  setLocalComposition(prev => prev.map(i => i.id === item.id ? { ...i, name: newName } : i));
+                                }
+                              }} 
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Select 
+                              defaultValue={item.type} 
+                              onValueChange={(v) => {
+                                if (selectedProductId) {
+                                  saveCompositionMutation.mutate({ data: { ...item, type: v } });
+                                } else {
+                                  setLocalComposition(prev => prev.map(i => i.id === item.id ? { ...i, type: v } : i));
+                                }
+                              }}
+                            >
                               <SelectTrigger><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="material">Material</SelectItem>
@@ -595,13 +616,55 @@ function CalculatorV2() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell><Input type="number" className="w-20" defaultValue={item.quantity} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, quantity: Number(e.target.value) } })} /></TableCell>
-                          <TableCell><Input type="number" className="w-24" defaultValue={item.unit_cost} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, unit_cost: Number(e.target.value) } })} /></TableCell>
+                          <TableCell>
+                            <Input 
+                              type="number" 
+                              className="w-20" 
+                              defaultValue={item.quantity} 
+                              onBlur={(e) => {
+                                const newQty = Number(e.target.value);
+                                if (selectedProductId) {
+                                  saveCompositionMutation.mutate({ data: { ...item, quantity: newQty } });
+                                } else {
+                                  setLocalComposition(prev => prev.map(i => i.id === item.id ? { ...i, quantity: newQty } : i));
+                                }
+                              }} 
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input 
+                              type="number" 
+                              className="w-24" 
+                              defaultValue={item.unit_cost} 
+                              onBlur={(e) => {
+                                const newCost = Number(e.target.value);
+                                if (selectedProductId) {
+                                  saveCompositionMutation.mutate({ data: { ...item, unit_cost: newCost } });
+                                } else {
+                                  setLocalComposition(prev => prev.map(i => i.id === item.id ? { ...i, unit_cost: newCost } : i));
+                                }
+                              }} 
+                            />
+                          </TableCell>
                           <TableCell className="font-medium">{formatMoney(item.quantity * item.unit_cost)}</TableCell>
-                          <TableCell><Button variant="ghost" size="icon" onClick={() => deleteCompositionMutation.mutate({ data: { id: item.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                          <TableCell>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => {
+                                if (selectedProductId) {
+                                  deleteCompositionMutation.mutate({ data: { id: item.id } });
+                                } else {
+                                  setLocalComposition(prev => prev.filter(i => i.id !== item.id));
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))}
-                      {(!selectedProduct?.product_cost_compositions || selectedProduct.product_cost_compositions.length === 0) && (
+                      {localComposition.length === 0 && (
                         <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Nenhum insumo cadastrado.</TableCell></TableRow>
                       )}
                     </TableBody>
