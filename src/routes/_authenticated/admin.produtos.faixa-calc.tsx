@@ -83,6 +83,7 @@ interface ProductPricing {
   sku: string | null;
   price: number | null;
   cost: number | null;
+  product_cost_compositions?: any[];
 }
 
 function CalculatorV2() {
