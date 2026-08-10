@@ -90,7 +90,7 @@ function CalculatorV2() {
 
   // Mutations
   const updateConfigMutation = useMutation({
-    mutationFn: (data: Parameters<typeof updateConfigFn>[0]) => updateConfigFn(data),
+    mutationFn: (data: Parameters<typeof updateConfigFn>[0]) => updateConfigFn({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pricing-config"] });
       toast.success("Configurações salvas!");
@@ -98,7 +98,7 @@ function CalculatorV2() {
   });
 
   const saveExpenseMutation = useMutation({
-    mutationFn: (data: Parameters<typeof saveExpenseFn>[0]) => saveExpenseFn(data),
+    mutationFn: (data: Parameters<typeof saveExpenseFn>[0]) => saveExpenseFn({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fixed-expenses"] });
       toast.success("Despesa salva!");
@@ -106,7 +106,7 @@ function CalculatorV2() {
   });
 
   const deleteExpenseMutation = useMutation({
-    mutationFn: (data: Parameters<typeof deleteExpenseFn>[0]) => deleteExpenseFn(data),
+    mutationFn: (data: Parameters<typeof deleteExpenseFn>[0]) => deleteExpenseFn({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fixed-expenses"] });
       toast.success("Despesa removida!");
