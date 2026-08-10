@@ -109,7 +109,7 @@ function CalculatorV2() {
   const marketing = (marketingData || []) as MarketingInvestment[];
   const products = (productsData || []) as ProductPricing[];
 
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<string>("overview");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   const selectedProduct = useMemo(() => 
