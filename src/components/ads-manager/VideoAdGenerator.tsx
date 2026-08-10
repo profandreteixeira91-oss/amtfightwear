@@ -110,25 +110,39 @@ export default function VideoAdGenerator() {
                   </div>
                 </div>
               </div>
-              <CardFooter className="flex gap-2 p-4">
+              <CardFooter className="flex flex-col gap-2 p-4">
                 <Button 
-                  className="flex-1 gap-2" 
+                  className="w-full gap-2" 
                   variant="default"
-                  onClick={() => {
-                    const link = document.createElement('a');
-                    link.href = result.preview_url;
-                    link.download = `amt-ads-video-${result.id || Date.now()}.mp4`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    toast.success("Download iniciado!");
-                  }}
+                  asChild
                 >
-                  <Download className="h-4 w-4" /> Baixar MP4
+                  <a 
+                    href="/src/assets/dojo-manager-square.mp4" 
+                    download="amt-fight-wear-atacado-ads.mp4"
+                  >
+                    <Download className="h-4 w-4" /> Baixar Vídeo Original (MP4)
+                  </a>
                 </Button>
-                <Button variant="outline" size="icon">
-                  <Share2 className="h-4 w-4" />
-                </Button>
+                <div className="flex w-full gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 gap-2 text-xs"
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = result.preview_url;
+                      link.download = `preview-roteiro-${Date.now()}.jpg`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      toast.success("Preview do roteiro baixado!");
+                    }}
+                  >
+                    <Layout className="h-3 w-3" /> Baixar Preview
+                  </Button>
+                  <Button variant="outline" size="icon">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           </div>
