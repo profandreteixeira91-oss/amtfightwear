@@ -1,7 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc
- *
- * Não é necessário escolher um produto na aba formação para alterar uma categoria ou subcategoria, apenas incluir os materiais e salvar. Faça essa auditoria e corrija
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/atendimento
+ * Altere o botão de atendimento da homepage da loja amtfightwear pelo botão do whatsapp para facilitar a comunicação com os clientes
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
