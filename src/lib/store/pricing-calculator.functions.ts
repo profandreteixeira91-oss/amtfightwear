@@ -17,12 +17,20 @@ export const getPricingConfig = createServerFn({ method: "GET" })
       return {
         min_net_margin: 15,
         min_contribution_margin: 35,
-        default_tax_rate: 8,
-        default_gateway_fee: 4,
-        default_marketing_percent: 10,
+        default_tax_rate: 6,
+        default_gateway_fee: 5,
+        default_marketing_percent: 8,
         wholesale_min_qty: 10,
         wholesale_discount_percent: 25,
-        apportionment_method: "revenue"
+        apportionment_method: "revenue",
+        monthly_production_estimate: 500,
+        desired_pro_labore: 4000,
+        reserve_percent: 4,
+        profit_percent: 20,
+        commission_percent: 0,
+        marketing_percent: 8,
+        taxes_percent: 6,
+        gateway_percent: 5
       };
     }
     
