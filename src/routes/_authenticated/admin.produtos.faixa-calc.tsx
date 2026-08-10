@@ -440,13 +440,13 @@ function CalculatorV2() {
                       <CardHeader className="py-4">
                         <CardTitle className="text-sm flex items-center gap-2">
                           <Calculator className="h-4 w-4 text-primary" />
-                          Calculadora de Metragem Proporcional
+                          Calculadora de Metragem (Fluxo Refatorado)
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4 py-0 pb-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label className="text-[10px] uppercase">Preço p/ Metro (R$)</Label>
+                            <Label className="text-[10px] uppercase">Custo por Metro (R$)</Label>
                             <Input 
                               type="number" 
                               value={materialPriceMeter} 
@@ -461,6 +461,7 @@ function CalculatorV2() {
                               value={lengthUsed} 
                               onChange={(e) => setLengthUsed(Number(e.target.value))}
                               className="h-8 text-sm"
+                              placeholder="Ex: 2.80m p/ A2"
                             />
                           </div>
                           <div className="space-y-2">
@@ -473,7 +474,7 @@ function CalculatorV2() {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] uppercase">Largura Total (m)</Label>
+                            <Label className="text-[10px] uppercase">Largura Total Peça (m)</Label>
                             <Input 
                               type="number" 
                               value={materialWidth} 
@@ -481,40 +482,43 @@ function CalculatorV2() {
                               className="h-8 text-sm"
                             />
                           </div>
-                          <div className="space-y-2">
+                          <div className="space-y-2 col-span-2">
                             <Label className="text-[10px] uppercase">Largura Utilizada (m)</Label>
                             <Input 
                               type="number" 
-                              defaultValue={0.1}
-                              onChange={(e) => {
-                                // Apenas visual, o cálculo proporcional usa materialWidth e a largura consumida se fosse peça a peça
-                                // Mas aqui o usuário quer "Cálculo Proporcional"
-                              }}
-                              className="h-8 text-sm"
+                              value={widthUsed}
+                              onChange={(e) => setWidthUsed(Number(e.target.value))}
+                              className="h-8 text-sm font-bold border-primary/50"
+                              placeholder="Largura da tira (ex: 0.04)"
                             />
                           </div>
                         </div>
-                        <div className="pt-2 border-t flex items-center justify-between">
-                          <div className="text-xs font-bold text-muted-foreground uppercase">Custo Resultante:</div>
-                          <div className="text-lg font-black text-primary">{formatMoney(calculatedMaterialCost)}</div>
+                        <div className="pt-2 border-t flex flex-col gap-1">
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs font-bold text-muted-foreground uppercase">Custo Resultante:</div>
+                            <div className="text-lg font-black text-primary">{formatMoney(calculatedMaterialCost)}</div>
+                          </div>
+                          <p className="text-[9px] text-muted-foreground italic">
+                            Fórmula: (Custo Metro × Comprimento × Camadas) × (Largura Utilizada / Largura Total)
+                          </p>
                         </div>
                         {selectedProductId && (
                           <Button 
-                            className="w-full h-8 text-xs" 
-                            variant="secondary"
+                            className="w-full h-8 text-xs bg-primary hover:bg-primary/90" 
+                            variant="default"
                             onClick={() => {
                               saveCompositionMutation.mutate({ 
                                 data: { 
                                   product_id: selectedProductId, 
-                                  name: "Material (Metragem)", 
+                                  name: `Material (${lengthUsed}m x ${widthUsed}m)`, 
                                   type: "material", 
-                                  quantity: lengthUsed * layersCount, 
-                                  unit_cost: materialPriceMeter 
+                                  quantity: 1, 
+                                  unit_cost: calculatedMaterialCost 
                                 } 
                               });
                             }}
                           >
-                            <Plus className="h-3 w-3 mr-1" /> Aplicar na Composição
+                            <Plus className="h-3 w-3 mr-1" /> Injetar Custo na BOM
                           </Button>
                         )}
                       </CardContent>
