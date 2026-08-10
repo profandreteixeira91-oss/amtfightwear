@@ -148,10 +148,14 @@ function CalculatorV2() {
   }, [products]);
 
   const updateCategoryBOMMutation = useMutation({
-    mutationFn: (args: { data: any }) => useServerFn(updateCategoryBOM)(args),
+    mutationFn: (args: { data: any }) => updateCategoryBOM(args),
     onSuccess: (res: any) => {
       queryClient.invalidateQueries({ queryKey: ["all-product-pricing"] });
       toast.success(`Composição aplicada a ${res.count} produtos da categoria!`);
+    },
+    onError: (err: any) => {
+      console.error("Erro ao replicar BOM:", err);
+      toast.error("Erro ao replicar composição. Verifique o console.");
     }
   });
 
