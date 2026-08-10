@@ -325,6 +325,19 @@ function WholesalePage() {
   const resumeFlag = !!routeSearch.resume;
 
   // Resumo abre apenas via clique explícito em "Adicionar ao carrinho" (não em mudanças de quantidade).
+  // Meta Pixel AddToCart event
+  const trackAddToCart = (p: Prod, q: number) => {
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "AddToCart", {
+        content_name: p.name,
+        content_ids: [p.id],
+        content_type: "product",
+        value: Number(p.price) * q,
+        currency: "BRL"
+      });
+    }
+  };
+
   // Force-close when jumping to checkout step so the user sees the form summary.
   useEffect(() => {
     if (step === "checkout") setSheetOpen(false);
@@ -461,6 +474,13 @@ function WholesalePage() {
       return;
     }
     setStep("checkout");
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "InitiateCheckout", {
+        value: subtotal,
+        currency: "BRL",
+        num_items: totalQty
+      });
+    }
     setSheetOpen(false);
   };
 
