@@ -115,6 +115,16 @@ function CalculatorV2() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  // Calculadora de Metragem
+  const [materialWidth, setMaterialWidth] = useState<number>(1.6);
+  const [materialPriceMeter, setMaterialPriceMeter] = useState<number>(0);
+  const [layersCount, setLayersCount] = useState<number>(1);
+  const [lengthUsed, setLengthUsed] = useState<number>(0);
+
+  const calculatedMaterialCost = useMemo(() => {
+    return (materialPriceMeter * lengthUsed * layersCount);
+  }, [materialPriceMeter, lengthUsed, layersCount]);
+
   const categories = useMemo(() => {
     const cats = new Set(products.map(p => p.category).filter(Boolean));
     return Array.from(cats) as string[];
