@@ -395,12 +395,12 @@ function CalculatorV2() {
                     variant="default" 
                     className="bg-green-600 hover:bg-green-700"
                     onClick={() => {
-                      if (!selectedProduct?.product_cost_compositions && !selectedProductId) {
-                        toast.error("Selecione um produto de referência na aba Formação primeiro.");
+                      const compositionToReplicate = localComposition;
+
+                      if (compositionToReplicate.length === 0) {
+                        toast.error("Adicione ao menos um insumo na lista abaixo antes de replicar.");
                         return;
                       }
-                      
-                      const compositionToReplicate = selectedProduct?.product_cost_compositions || [];
 
                       updateCategoryBOMMutation.mutate({ 
                         data: { 
@@ -415,8 +415,14 @@ function CalculatorV2() {
                   </Button>
                 )}
 
-                {selectedProductId && (
-                  <Button size="sm" onClick={() => saveCompositionMutation.mutate({ data: { product_id: selectedProductId, name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 } })}>
+                {(selectedProductId || selectedCategory || selectedSubCategoryId) && (
+                  <Button size="sm" onClick={() => {
+                    if (selectedProductId) {
+                      saveCompositionMutation.mutate({ data: { product_id: selectedProductId, name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 } });
+                    } else {
+                      setLocalComposition(prev => [...prev, { id: crypto.randomUUID(), name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 }]);
+                    }
+                  }}>
                     <Plus className="h-4 w-4 mr-2" /> Adicionar Insumo
                   </Button>
                 )}
