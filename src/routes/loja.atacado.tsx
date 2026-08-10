@@ -416,6 +416,12 @@ function WholesalePage() {
       const email = data.session?.user.email;
       loadProfile().then((p) => {
         if (!mounted) return;
+        if (authed && (window as any).fbq) {
+          (window as any).fbq("track", "Lead", {
+            content_name: "Wholesale Prospect",
+            content_category: "B2B"
+          });
+        }
         setForm((f) => ({
           customer_name: p?.full_name ?? f.customer_name,
           customer_email: p?.email ?? email ?? f.customer_email,
