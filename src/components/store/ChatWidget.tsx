@@ -244,7 +244,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
         <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
           {/* WhatsApp Button */}
           <a
-            href="https://wa.me/5511999999999" // TODO: Confirmar o número correto do WhatsApp da AMT
+            href="https://wa.me/5582920016732"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-xl transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#25D366]/60"
@@ -252,20 +252,6 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
             <Phone className="h-6 w-6 fill-current" strokeWidth={2.4} />
             <span className="hidden text-sm font-bold sm:inline">WhatsApp</span>
           </a>
-
-          {/* Original Chat Button */}
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Abrir chat da loja"
-            className="flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-primary-foreground shadow-xl transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/60"
-          >
-            <span className="relative flex h-6 w-6 items-center justify-center">
-              {hasUnread && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-primary" />}
-              <MessageCircle className="h-6 w-6" strokeWidth={2.4} />
-            </span>
-            <span className="hidden text-sm font-semibold sm:inline">{buttonLabel}</span>
-          </button>
         </div>
       )}
 
