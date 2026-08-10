@@ -22,7 +22,8 @@ import {
   AlertTriangle,
   ArrowUpRight,
   TrendingDown,
-  RefreshCw
+  RefreshCw,
+  Edit2
 } from "lucide-react";
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -108,6 +109,44 @@ function CalculatorV2() {
   const products = (productsData || []) as ProductPricing[];
 
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+
+  const selectedProduct = useMemo(() => 
+    products.find(p => p.id === selectedProductId),
+    [products, selectedProductId]
+  );
+
+  const saveCompositionMutation = useMutation({
+    mutationFn: (args: { data: any }) => saveCostComposition(args),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-product-pricing"] });
+      toast.success("Composição salva!");
+    }
+  });
+
+  const deleteCompositionMutation = useMutation({
+    mutationFn: (args: { data: any }) => deleteComposition(args),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-product-pricing"] });
+      toast.success("Item removido!");
+    }
+  });
+
+  const saveMarketingMutation = useMutation({
+    mutationFn: (args: { data: any }) => saveMarketingInvestment(args),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["marketing-investments"] });
+      toast.success("Investimento salvo!");
+    }
+  });
+
+  const deleteMarketingMutation = useMutation({
+    mutationFn: (args: { data: any }) => deleteMarketingInvestment(args),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["marketing-investments"] });
+      toast.success("Investimento removido!");
+    }
+  });
 
   const updateConfigMutation = useMutation({
     mutationFn: (args: { data: any }) => updateConfigFn(args),
@@ -258,12 +297,95 @@ function CalculatorV2() {
 
         <TabsContent value="composition">
           <Card>
-            <CardHeader><CardTitle>Composição de Custos</CardTitle></CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Composição Industrial (BOM)</CardTitle>
+                <CardDescription>Materiais e mão de obra para: {selectedProduct?.name || "Nenhum produto selecionado"}</CardDescription>
+              </div>
+              {selectedProductId && (
+                <Button size="sm" onClick={() => saveCompositionMutation.mutate({ data: { product_id: selectedProductId, name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 } })}>
+                  <Plus className="h-4 w-4 mr-2" /> Adicionar Insumo
+                </Button>
+              )}
+            </CardHeader>
             <CardContent>
-               <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-                 <Package className="h-10 w-10 mx-auto mb-3 text-primary/50" />
-                 <p>Selecione um produto na aba "Formação" para editar os insumos (Tecido, Costura, Bordado, Packaging).</p>
-               </div>
+              {!selectedProductId ? (
+                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                  <Package className="h-10 w-10 mx-auto mb-3 text-primary/50" />
+                  <p>Selecione um produto na aba "Formação" para editar os insumos.</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Insumo</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Qtd</TableHead>
+                      <TableHead>Custo Unit.</TableHead>
+                      <TableHead>Total</TableHead>
+                      <TableHead className="w-16"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedProduct?.product_cost_compositions?.map((item: any) => (
+                      <TableRow key={item.id}>
+                        <TableCell><Input defaultValue={item.name} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, name: e.target.value } })} /></TableCell>
+                        <TableCell>
+                          <Select defaultValue={item.type} onValueChange={(v) => saveCompositionMutation.mutate({ data: { ...item, type: v } })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="material">Material</SelectItem>
+                              <SelectItem value="labor">Mão de Obra</SelectItem>
+                              <SelectItem value="other">Outros</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell><Input type="number" className="w-20" defaultValue={item.quantity} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, quantity: Number(e.target.value) } })} /></TableCell>
+                        <TableCell><Input type="number" className="w-24" defaultValue={item.unit_cost} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, unit_cost: Number(e.target.value) } })} /></TableCell>
+                        <TableCell className="font-medium">{formatMoney(item.quantity * item.unit_cost)}</TableCell>
+                        <TableCell><Button variant="ghost" size="icon" onClick={() => deleteCompositionMutation.mutate({ data: { id: item.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                      </TableRow>
+                    ))}
+                    {(!selectedProduct?.product_cost_compositions || selectedProduct.product_cost_compositions.length === 0) && (
+                      <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Nenhum insumo cadastrado para este produto.</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="variables">
+          <Card>
+            <CardHeader>
+              <CardTitle>Variáveis de Marketing</CardTitle>
+              <CardDescription>Canais de aquisição e investimento mensal.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Canal</TableHead>
+                    <TableHead>Investimento</TableHead>
+                    <TableHead>Meta de Leads</TableHead>
+                    <TableHead className="w-16"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {marketing.map((m) => (
+                    <TableRow key={m.id}>
+                      <TableCell><Input defaultValue={m.channel} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, channel: e.target.value } })} /></TableCell>
+                      <TableCell><Input type="number" defaultValue={m.monthly_investment} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, monthly_investment: Number(e.target.value) } })} /></TableCell>
+                      <TableCell><Input type="number" defaultValue={m.new_customers_goal} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, new_customers_goal: Number(e.target.value) } })} /></TableCell>
+                      <TableCell><Button variant="ghost" size="icon" onClick={() => deleteMarketingMutation.mutate({ data: { id: m.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell colSpan={4}><Button variant="outline" size="sm" className="w-full" onClick={() => saveMarketingMutation.mutate({ data: { channel: "Novo Canal", monthly_investment: 0 } })}><Plus className="h-4 w-4 mr-2" /> Adicionar Canal</Button></TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
@@ -284,12 +406,28 @@ function CalculatorV2() {
                 </TableHeader>
                 <TableBody>
                   {products.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-semibold">{p.name}</TableCell>
+                    <TableRow 
+                      key={p.id} 
+                      className={cn("cursor-pointer hover:bg-muted/50 transition-colors", selectedProductId === p.id && "bg-primary/5")}
+                      onClick={() => setSelectedProductId(p.id)}
+                    >
+                      <TableCell className="font-semibold">
+                        <div className="flex items-center gap-2">
+                          {p.name}
+                          {selectedProductId === p.id && <Badge variant="outline" className="text-[10px] py-0">Editando BOM</Badge>}
+                        </div>
+                      </TableCell>
                       <TableCell>{formatMoney(Number(p.price) || 0)}</TableCell>
                       <TableCell>{formatMoney(Number(p.cost) || 0)}</TableCell>
                       <TableCell><Badge variant="secondary" className="bg-green-100 text-green-800">40%</Badge></TableCell>
-                      <TableCell className="font-bold text-primary">{formatMoney((Number(p.cost) || 0) * 2.5)}</TableCell>
+                      <TableCell className="font-bold text-primary">
+                        <div className="flex items-center justify-between">
+                          {formatMoney((Number(p.cost) || 0) * 2.5)}
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); setSelectedProductId(p.id); setActiveTab("composition"); }}>
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
