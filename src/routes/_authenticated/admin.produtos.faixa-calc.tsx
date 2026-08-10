@@ -125,12 +125,19 @@ function CalculatorV2() {
   const [materialPriceMeter, setMaterialPriceMeter] = useState<number>(0);
   const [layersCount, setLayersCount] = useState<number>(1);
   const [lengthUsed, setLengthUsed] = useState<number>(0);
+  const [widthUsed, setWidthUsed] = useState<number>(0.1);
 
   const calculatedMaterialCost = useMemo(() => {
-    // Cálculo proporcional: (Custo Metro / Largura Total) * (Comprimento * Camadas)
-    // Se considerarmos que 'lengthUsed' é a metragem linear consumida da peça.
-    return (materialPriceMeter * lengthUsed * layersCount);
-  }, [materialPriceMeter, lengthUsed, layersCount]);
+    // Fluxo de cálculo: Custo por metro x Total de metros (comprimento * camadas) dividido por largura utilizada (proporcional à largura total?)
+    // O usuário pediu: Custo por metro x Total de metros (utilizar as variações de tamanho das faixas) dividido por largura utilizada
+    // Se 'lengthUsed' é o comprimento total consumido e 'widthUsed' é a largura de cada tira:
+    if (widthUsed <= 0) return 0;
+    
+    // Total de metros = lengthUsed * layersCount (que representa a metragem linear)
+    // Se o custo é por metro linear da peça de largura 'materialWidth', e estamos usando 'widthUsed':
+    // O custo proporcional é (Custo Metro * (Metragem Linear)) * (Largura Utilizada / Largura Total)
+    return (materialPriceMeter * lengthUsed * layersCount) * (widthUsed / materialWidth);
+  }, [materialPriceMeter, lengthUsed, layersCount, widthUsed, materialWidth]);
 
   const categories = useMemo(() => {
     const cats = new Set(products.map(p => p.category).filter(Boolean));
