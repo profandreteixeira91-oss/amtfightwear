@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc inclua também uma calculadora igual a anterior que se integra com a formação do produto, que calcula o preço do metro do material, a largura, camadas utilizadas e metragem de material utilizado.
+ * Execute esta instrucao no projeto: Calculadroa https://amtfightwear.com.br/admin/produtos/faixa-calc
+ * Fluxo de cálculo: Custo por metro x Total de metros (utilizar as variações de tamanho das faixas) dividido por largura utilizada , refatore a calculadora e ajuste o solicitado sem alterar mais nada
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
