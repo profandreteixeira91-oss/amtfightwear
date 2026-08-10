@@ -23,7 +23,8 @@ import {
   ArrowUpRight,
   TrendingDown,
   RefreshCw,
-  Edit2
+  Edit2,
+  FileText
 } from "lucide-react";
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
