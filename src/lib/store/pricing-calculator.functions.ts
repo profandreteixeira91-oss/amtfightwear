@@ -259,6 +259,12 @@ export const listAllProductPricing = createServerFn({ method: "GET" })
         price,
         cost,
         category_id,
+        pricing_marketing_percent,
+        pricing_taxes_percent,
+        pricing_gateway_percent,
+        pricing_commission_percent,
+        pricing_reserve_percent,
+        pricing_profit_percent,
         product_cost_compositions (*)
       `)
       .order("name");
