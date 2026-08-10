@@ -275,7 +275,7 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
     if (!products || products.length === 0) return { success: true, count: 0 };
 
     // 2. Clear existing compositions for these products
-    const productIds = products.map(p => p.id);
+    const productIds = products.map((p: any) => p.id);
     await (context.supabase as any)
       .from("product_cost_compositions")
       .delete()
@@ -283,7 +283,7 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
       .eq("tenant_id", context.userId);
 
     // 3. Insert new compositions for all products
-    const newCompositions = productIds.flatMap(pid => 
+    const newCompositions = productIds.flatMap((pid: string) => 
       input.composition.map(c => ({
         ...c,
         product_id: pid,
