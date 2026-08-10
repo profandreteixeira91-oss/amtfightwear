@@ -43,6 +43,9 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/faixa-calc")({
+  beforeLoad: () => {
+    console.log("Route /admin/produtos/faixa-calc reached");
+  },
   component: CalculatorV2,
 });
 
