@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: logica para o macro dm: A mensagem não deve ser enviada mais de uma vez para o mesmo perfil do instagram, o macro deve identificar no chat se a mensagem já foi enviada, se sim, não deve enviar novamente, a não ser que a mensagem seja diferente da mensagem enviada anteriormente
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/orcamentos
+No diálogo que aparece ao clicar em novo orçamento, ao preencher o CEP, o endereço deve ser preenchido automaticamente, ao preencher CNPJ, busca automática por dados da empresa e a formatação do campo valor unitário deve corresponder a valor monetário, faça a auditoria e corrija de forma definitiva
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
