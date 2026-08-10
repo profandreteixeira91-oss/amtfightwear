@@ -80,10 +80,10 @@ function CalculatorV2() {
   const deleteExpenseFn = useServerFn(deleteFixedExpense);
   const updateConfigFn = useServerFn(updatePricingConfig);
 
-  const { data: config, isLoading: isLoadingConfig } = useSuspenseQuery({ queryKey: ["pricing-config"], queryFn: () => fetchConfig() });
-  const { data: expensesData, isLoading: isLoadingExpenses } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => fetchExpenses() });
-  const { data: marketingData, isLoading: isLoadingMarketing } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => fetchMarketing() });
-  const { data: productsData, isLoading: isLoadingProducts } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => fetchProducts() });
+  const { data: config, isPending: isLoadingConfig } = useSuspenseQuery({ queryKey: ["pricing-config"], queryFn: () => fetchConfig() });
+  const { data: expensesData, isPending: isLoadingExpenses } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => fetchExpenses() });
+  const { data: marketingData, isPending: isLoadingMarketing } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => fetchMarketing() });
+  const { data: productsData, isPending: isLoadingProducts } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => fetchProducts() });
 
   const expenses = (expensesData || []) as FixedExpense[];
   const marketing = (marketingData || []) as MarketingInvestment[];
