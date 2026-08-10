@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const getPricingConfig = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("app_pricing_configs")
       .select("*")
       .eq("tenant_id", context.userId)
@@ -31,7 +31,7 @@ export const getPricingConfig = createServerFn({ method: "GET" })
 
 export const updatePricingConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: any) => z.object({
+  .validator((data: unknown) => z.object({
     min_net_margin: z.number().optional(),
     min_contribution_margin: z.number().optional(),
     default_tax_rate: z.number().optional(),
@@ -42,7 +42,7 @@ export const updatePricingConfig = createServerFn({ method: "POST" })
     apportionment_method: z.string().optional(),
   }).parse(data))
   .handler(async ({ data: input, context }) => {
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("app_pricing_configs")
       .upsert({
         tenant_id: context.userId,
@@ -59,7 +59,7 @@ export const updatePricingConfig = createServerFn({ method: "POST" })
 export const getFixedExpenses = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("fixed_expenses")
       .select("*")
       .eq("tenant_id", context.userId)
@@ -71,14 +71,14 @@ export const getFixedExpenses = createServerFn({ method: "GET" })
 
 export const saveFixedExpense = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: any) => z.object({
+  .validator((data: unknown) => z.object({
     id: z.string().uuid().optional(),
     name: z.string(),
     value: z.number(),
     category: z.string().optional()
   }).parse(data))
   .handler(async ({ data: input, context }) => {
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("fixed_expenses")
       .upsert({
         ...input,
@@ -94,9 +94,9 @@ export const saveFixedExpense = createServerFn({ method: "POST" })
 
 export const deleteFixedExpense = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: any) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data: input, context }) => {
-    const { error } = await context.supabase
+    const { error } = await (context.supabase as any)
       .from("fixed_expenses")
       .delete()
       .eq("id", input.id)
@@ -109,7 +109,7 @@ export const deleteFixedExpense = createServerFn({ method: "POST" })
 export const getMarketingInvestments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("marketing_investments")
       .select("*")
       .eq("tenant_id", context.userId)
@@ -121,14 +121,14 @@ export const getMarketingInvestments = createServerFn({ method: "GET" })
 
 export const saveMarketingInvestment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: any) => z.object({
+  .validator((data: unknown) => z.object({
     id: z.string().uuid().optional(),
     channel: z.string(),
     monthly_investment: z.number(),
     new_customers_goal: z.number().optional()
   }).parse(data))
   .handler(async ({ data: input, context }) => {
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("marketing_investments")
       .upsert({
         ...input,
@@ -144,9 +144,9 @@ export const saveMarketingInvestment = createServerFn({ method: "POST" })
 
 export const deleteMarketingInvestment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: any) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data: input, context }) => {
-    const { error } = await context.supabase
+    const { error } = await (context.supabase as any)
       .from("marketing_investments")
       .delete()
       .eq("id", input.id)
@@ -158,9 +158,9 @@ export const deleteMarketingInvestment = createServerFn({ method: "POST" })
 
 export const getCostCompositions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((data: any) => z.object({ productId: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ productId: z.string().uuid() }).parse(data))
   .handler(async ({ data: input, context }) => {
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("product_cost_compositions")
       .select("*")
       .eq("product_id", input.productId)
@@ -173,7 +173,7 @@ export const getCostCompositions = createServerFn({ method: "GET" })
 
 export const saveCostComposition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: any) => z.object({
+  .validator((data: unknown) => z.object({
     id: z.string().uuid().optional(),
     product_id: z.string().uuid(),
     name: z.string(),
@@ -187,10 +187,10 @@ export const saveCostComposition = createServerFn({ method: "POST" })
   }).parse(data))
   .handler(async ({ data: input, context }) => {
     const { data: oldData } = input.id 
-      ? await context.supabase.from("product_cost_compositions").select("unit_cost").eq("id", input.id).single()
+      ? await (context.supabase as any).from("product_cost_compositions").select("unit_cost").eq("id", input.id).single()
       : { data: null };
 
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("product_cost_compositions")
       .upsert({
         ...input,
@@ -203,7 +203,7 @@ export const saveCostComposition = createServerFn({ method: "POST" })
     if (error) throw error;
 
     if (oldData && oldData.unit_cost !== input.unit_cost) {
-      await context.supabase.from("cost_change_history").insert({
+      await (context.supabase as any).from("cost_change_history").insert({
         tenant_id: context.userId,
         composition_id: data.id,
         old_cost: oldData.unit_cost,
@@ -218,9 +218,9 @@ export const saveCostComposition = createServerFn({ method: "POST" })
 
 export const deleteCostComposition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: any) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data: input, context }) => {
-    const { error } = await context.supabase
+    const { error } = await (context.supabase as any)
       .from("product_cost_compositions")
       .delete()
       .eq("id", input.id)
@@ -233,7 +233,7 @@ export const deleteCostComposition = createServerFn({ method: "POST" })
 export const listAllProductPricing = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    const { data, error } = await (context.supabase as any)
       .from("products")
       .select(`
         id,
