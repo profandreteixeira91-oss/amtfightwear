@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc a pãgina aparece em branco, faça a auditoria e corrija de forma definitiva
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc ajuste o layout para que a sidebar e o cabeçalho não apareçam de forma duplicada, a página não deve renderizar sidebar e cabeçalho
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

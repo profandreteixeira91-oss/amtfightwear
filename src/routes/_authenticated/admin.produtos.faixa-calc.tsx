@@ -130,20 +130,17 @@ function CalculatorV2() {
 
   if (isLoadingConfig || isLoadingExpenses || isLoadingMarketing || isLoadingProducts) {
     return (
-      <AdminShell title="Calculadora de Custos">
-        <div className="flex h-[50vh] items-center justify-center">
-          <div className="flex flex-col items-center gap-2">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground font-medium">Carregando dados financeiros...</p>
-          </div>
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground font-medium">Carregando dados financeiros...</p>
         </div>
-      </AdminShell>
+      </div>
     );
   }
 
   return (
-    <AdminShell title="Calculadora de Custos">
-      <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">Dojo Manager Finance</h1>
           <p className="text-sm text-muted-foreground mt-1">Formação de Preço Baseada em Lucro Real e Ponto de Equilíbrio</p>
@@ -341,8 +338,7 @@ function CalculatorV2() {
         </TabsContent>
       </Tabs>
       </div>
-    </AdminShell>
-  );
+    );
 }
 
 function MetricCard({ 
