@@ -565,7 +565,7 @@ function CalculatorV2() {
                        <div className="text-center">
                           <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Custo de Produção Atual</p>
                           <h2 className="text-4xl font-black text-primary mt-1">
-                            {formatMoney(selectedProduct?.product_cost_compositions?.reduce((acc: number, curr: any) => acc + (Number(curr.quantity) * Number(curr.unit_cost)), 0) || 0)}
+                            {formatMoney(localComposition.reduce((acc: number, curr: any) => acc + (Number(curr.quantity) * Number(curr.unit_cost)), 0) || 0)}
                           </h2>
                        </div>
                     </div>
