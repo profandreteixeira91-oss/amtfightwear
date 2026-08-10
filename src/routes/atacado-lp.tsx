@@ -23,7 +23,7 @@ const WHATSAPP_PHONE = "5582920016732";
 const WHATSAPP_MSG = "Olá! Vim pela página de atacado e gostaria de tirar uma dúvida.";
 const whatsappHref = (from: string) =>
   `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(WHATSAPP_MSG + " (origem: " + from + ")")}`;
-const FAIXAS_HREF = "/loja/categoria/faixas";
+const FAIXAS_HREF = "/loja/atacado";
 import { useEffect, useRef, useState } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
 import f1 from "@/assets/atacado-lp/f1-clean.jpg";
