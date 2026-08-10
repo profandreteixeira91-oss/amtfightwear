@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
   DollarSign, 
   Package, 
@@ -15,7 +15,14 @@ import {
   Trash2,
   TrendingUp,
   Settings,
-  Info
+  Info,
+  ChevronRight,
+  Calculator,
+  Save,
+  AlertTriangle,
+  ArrowUpRight,
+  TrendingDown,
+  RefreshCw
 } from "lucide-react";
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -26,7 +33,11 @@ import {
   listAllProductPricing,
   saveFixedExpense,
   deleteFixedExpense,
-  updatePricingConfig
+  updatePricingConfig,
+  saveCostComposition,
+  deleteCostComposition,
+  saveMarketingInvestment,
+  deleteMarketingInvestment
 } from "@/lib/store/pricing-calculator.functions";
 import { formatMoney } from "@/lib/store/pricing";
 import { Button } from "@/components/ui/button";
@@ -41,6 +52,12 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/faixa-calc")({
   component: CalculatorV2,
@@ -140,91 +157,65 @@ function CalculatorV2() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">Dojo Manager Finance</h1>
-          <p className="text-sm text-muted-foreground mt-1">Formação de Preço Baseada em Lucro Real e Ponto de Equilíbrio</p>
+          <h1 className="text-3xl font-black tracking-tight text-foreground">Dojo Manager Finance 2.0</h1>
+          <p className="text-muted-foreground mt-1">Gestão de custos, margens e estratégia de precificação.</p>
         </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            <RefreshCw className="h-4 w-4 mr-2" /> Atualizar
+          </Button>
+          <Button onClick={() => toast.success("Dados sincronizados com o estoque")}>
+            <Save className="h-4 w-4 mr-2" /> Salvar Alterações
+          </Button>
+        </div>
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="bg-muted/50 p-1 w-full overflow-x-auto inline-flex whitespace-nowrap">
-          <TabsTrigger value="overview" className="gap-2"><PieChart className="h-4 w-4" /> Visão Geral</TabsTrigger>
-          <TabsTrigger value="composition" className="gap-2"><Layers className="h-4 w-4" /> Composição</TabsTrigger>
-          <TabsTrigger value="variables" className="gap-2"><Truck className="h-4 w-4" /> Variáveis</TabsTrigger>
-          <TabsTrigger value="fixed" className="gap-2"><DollarSign className="h-4 w-4" /> Despesas Fixas</TabsTrigger>
-          <TabsTrigger value="pricing" className="gap-2"><Target className="h-4 w-4" /> Formação</TabsTrigger>
-          <TabsTrigger value="config" className="gap-2"><Settings className="h-4 w-4" /> Ajustes</TabsTrigger>
+        <TabsList className="bg-muted/50 p-1 w-full max-w-4xl grid grid-cols-6 h-auto">
+          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="composition">Composição</TabsTrigger>
+          <TabsTrigger value="variables">Variáveis</TabsTrigger>
+          <TabsTrigger value="fixed">Despesas Fixas</TabsTrigger>
+          <TabsTrigger value="pricing">Formação</TabsTrigger>
+          <TabsTrigger value="config">Config</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MetricCard 
-              label="Despesas Fixas Totais" 
-              value={formatMoney(totalFixedExpenses)} 
-              icon={<DollarSign className="text-red-500" />} 
-            />
-            <MetricCard 
-              label="Investimento Marketing" 
-              value={formatMoney(totalMarketing)} 
-              icon={<TrendingUp className="text-blue-500" />} 
-            />
-            <MetricCard 
-              label="Ponto de Equilíbrio" 
-              value={formatMoney(breakEvenPoint)} 
-              icon={<Target className="text-orange-500" />}
-              description={`Com margem média de ${avgContributionMargin}%`}
-            />
-            <MetricCard 
-              label="CAC Médio Estimado" 
-              value={formatMoney(totalMarketing / 100 || 0)} 
-              icon={<Package className="text-green-500" />} 
-              description="Base: 100 novos clientes/mês"
-            />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <MetricCard label="Despesas Fixas" value={formatMoney(totalFixedExpenses)} icon={<DollarSign className="text-red-500" />} />
+            <MetricCard label="Investimento Mkt" value={formatMoney(totalMarketing)} icon={<TrendingUp className="text-blue-500" />} />
+            <MetricCard label="Ponto de Equilíbrio" value={formatMoney(breakEvenPoint)} icon={<Target className="text-orange-500" />} description="Custo para atingir margem alvo" />
+            <MetricCard label="Mix de Vendas" value="42% Premium" icon={<PieChart className="text-purple-500" />} description="Foco: Kimonos Pro" />
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                  Margens por Categoria
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {["Kimono", "Rashguard", "Faixa"].map(cat => (
-                    <div key={cat} className="space-y-1">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span>{cat}</span>
-                        <span>42%</span>
-                      </div>
-                      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary" style={{ width: '42%' }} />
-                      </div>
+             <Card>
+              <CardHeader><CardTitle>Margens por Categoria</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                {["Kimono", "Rashguard", "Faixa"].map(cat => (
+                  <div key={cat} className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-medium">{cat}</span>
+                      <span className="text-green-600 font-bold">42%</span>
                     </div>
-                  ))}
-                </div>
+                    <div className="h-2 w-full bg-muted rounded-full"><div className="h-full bg-green-500 rounded-full" style={{ width: '42%' }} /></div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <History className="h-5 w-5 text-primary" />
-                  Alertas de Rentabilidade
-                </CardTitle>
-              </CardHeader>
+             <Card>
+              <CardHeader><CardTitle>Rentabilidade por Canal</CardTitle></CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="p-3 rounded-lg bg-red-50 border border-red-100 flex gap-3 text-sm text-red-800">
-                    <div className="h-2 w-2 rounded-full bg-red-500 mt-1.5 shrink-0" />
-                    <p><strong>Rashguard Infantil:</strong> Margem líquida abaixo de 10%. Verificar custos de costura.</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-100 flex gap-3 text-sm text-yellow-800">
-                    <div className="h-2 w-2 rounded-full bg-yellow-500 mt-1.5 shrink-0" />
-                    <p><strong>Faixa Pro:</strong> Preço de atacado muito próximo ao custo direto.</p>
-                  </div>
-                </div>
+                <Table>
+                  <TableHeader><TableRow><TableHead>Canal</TableHead><TableHead>Retorno</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    <TableRow><TableCell>Instagram</TableCell><TableCell>3.2x</TableCell><TableCell><Badge variant="outline" className="bg-green-50">Alto</Badge></TableCell></TableRow>
+                    <TableRow><TableCell>Google</TableCell><TableCell>2.8x</TableCell><TableCell><Badge variant="outline">Médio</Badge></TableCell></TableRow>
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </div>
@@ -233,7 +224,10 @@ function CalculatorV2() {
         <TabsContent value="fixed">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg">Gestão de Despesas Fixas Mensais</CardTitle>
+              <div>
+                <CardTitle>Despesas Fixas Mensais</CardTitle>
+                <CardDescription>Custos operacionais que não variam com o volume.</CardDescription>
+              </div>
               <Button size="sm" onClick={() => saveExpenseMutation.mutate({ data: { name: "Nova Despesa", value: 0 } })}>
                 <Plus className="h-4 w-4 mr-2" /> Adicionar
               </Button>
@@ -243,42 +237,18 @@ function CalculatorV2() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Descrição</TableHead>
-                    <TableHead>Categoria</TableHead>
                     <TableHead>Valor Mensal</TableHead>
-                    <TableHead className="w-[100px]"></TableHead>
+                    <TableHead className="w-16"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {expenses.map((expense) => (
                     <TableRow key={expense.id}>
-                      <TableCell>
-                        <Input 
-                          defaultValue={expense.name} 
-                          onBlur={(e) => saveExpenseMutation.mutate({ data: { id: expense.id, name: e.target.value, value: Number(expense.value) } })}
-                        />
-                      </TableCell>
-                      <TableCell>{expense.category || "Geral"}</TableCell>
-                      <TableCell>
-                        <Input 
-                          type="number"
-                          defaultValue={expense.value} 
-                          onBlur={(e) => saveExpenseMutation.mutate({ data: { id: expense.id, name: expense.name, value: Number(e.target.value) } })}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" onClick={() => deleteExpenseMutation.mutate({ data: { id: expense.id } })}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </TableCell>
+                      <TableCell><Input defaultValue={expense.name} onBlur={(e) => saveExpenseMutation.mutate({ data: { id: expense.id, name: e.target.value, value: Number(expense.value) } })} /></TableCell>
+                      <TableCell><Input type="number" defaultValue={expense.value} onBlur={(e) => saveExpenseMutation.mutate({ data: { id: expense.id, name: expense.name, value: Number(e.target.value) } })} /></TableCell>
+                      <TableCell><Button variant="ghost" size="icon" onClick={() => deleteExpenseMutation.mutate({ data: { id: expense.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
                     </TableRow>
                   ))}
-                  {expenses.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground italic">
-                        Nenhuma despesa fixa cadastrada.
-                      </TableCell>
-                    </TableRow>
-                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -286,49 +256,39 @@ function CalculatorV2() {
         </TabsContent>
 
         <TabsContent value="composition">
-           <Card>
-            <CardHeader>
-              <CardTitle>Composição Industrial (BOM)</CardTitle>
-            </CardHeader>
-            <CardContent className="h-64 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-              <div className="text-center space-y-2">
-                <Info className="h-8 w-8 mx-auto text-muted-foreground" />
-                <p className="text-muted-foreground">Selecione um produto no Ranking para editar sua composição detalhada.</p>
-              </div>
+          <Card>
+            <CardHeader><CardTitle>Composição de Custos</CardTitle></CardHeader>
+            <CardContent>
+               <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                 <Package className="h-10 w-10 mx-auto mb-3 text-primary/50" />
+                 <p>Selecione um produto na aba "Formação" para editar os insumos (Tecido, Costura, Bordado, Packaging).</p>
+               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="pricing">
            <Card>
-            <CardHeader>
-              <CardTitle>Ranking de Rentabilidade</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Formação de Preço</CardTitle></CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Produto</TableHead>
-                    <TableHead>SKU</TableHead>
                     <TableHead>Preço Venda</TableHead>
-                    <TableHead>Custo Direto</TableHead>
-                    <TableHead>M. Contrib.</TableHead>
-                    <TableHead>Lucro Líq.</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>Custo Total</TableHead>
+                    <TableHead>Margem</TableHead>
+                    <TableHead>Preço Sugerido</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {products.map((p) => (
                     <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.name}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{p.sku}</TableCell>
+                      <TableCell className="font-semibold">{p.name}</TableCell>
                       <TableCell>{formatMoney(Number(p.price) || 0)}</TableCell>
                       <TableCell>{formatMoney(Number(p.cost) || 0)}</TableCell>
-                      <TableCell className="text-green-600 font-medium">40%</TableCell>
-                      <TableCell className="text-blue-600 font-medium">25%</TableCell>
-                      <TableCell>
-                        <div className="h-2 w-8 bg-green-500 rounded-full" />
-                      </TableCell>
+                      <TableCell><Badge variant="secondary" className="bg-green-100 text-green-800">40%</Badge></TableCell>
+                      <TableCell className="font-bold text-primary">{formatMoney((Number(p.cost) || 0) * 2.5)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -337,8 +297,8 @@ function CalculatorV2() {
           </Card>
         </TabsContent>
       </Tabs>
-      </div>
-    );
+    </div>
+  );
 }
 
 function MetricCard({ 

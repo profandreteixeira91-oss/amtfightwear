@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc ajuste o layout para que a sidebar e o cabeçalho não apareçam de forma duplicada, a página não deve renderizar sidebar e cabeçalho
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc continue a implementação das abas de Composição, Variáveis e Formação de Preço com dados reais e cálculos automáticos.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
