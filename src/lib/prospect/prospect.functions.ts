@@ -155,29 +155,9 @@ export const listLeads = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => listInput.parse(i))
   .handler(async ({ data, context }) => {
-    const supa = context.supabase as unknown as {
-      from: (t: string) => {
-        select: (c: string, o?: unknown) => {
-          eq: (k: string, v: unknown) => unknown;
-          gte: (k: string, v: unknown) => unknown;
-          ilike: (k: string, v: string) => unknown;
-          in: (k: string, v: unknown[]) => unknown;
-          not: (k: string, op: string, v: unknown) => unknown;
-          order: (k: string, o?: unknown) => unknown;
-          range: (a: number, b: number) => unknown;
-        };
-      };
-    };
-    let q = supa.from("prospect_companies").select("*", { count: "exact" }) as unknown as {
-      eq: (k: string, v: unknown) => typeof q;
-      gte: (k: string, v: unknown) => typeof q;
-      ilike: (k: string, v: string) => typeof q;
-      in: (k: string, v: unknown[]) => typeof q;
-      not: (k: string, op: string, v: unknown) => typeof q;
-      order: (k: string, o?: unknown) => typeof q;
-      range: (a: number, b: number) => Promise<{ data: unknown[] | null; count: number | null }>;
-      or: (q: string) => typeof q;
-    };
+    const supa = context.supabase as any;
+    let q = supa.from("prospect_companies").select("*", { count: "exact" });
+    
     q = q.eq("owner_id", context.userId);
     if (data.ids && data.ids.length > 0) q = q.in("id", data.ids);
     if (data.search) q = q.ilike("name", `%${data.search}%`);
