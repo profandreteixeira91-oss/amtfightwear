@@ -111,6 +111,12 @@ function CalculatorV2() {
 
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const categories = useMemo(() => {
+    const cats = new Set(products.map(p => p.category).filter(Boolean));
+    return Array.from(cats) as string[];
+  }, [products]);
 
   const selectedProduct = useMemo(() => 
     products.find(p => p.id === selectedProductId),
