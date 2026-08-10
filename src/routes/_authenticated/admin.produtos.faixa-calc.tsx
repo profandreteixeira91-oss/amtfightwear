@@ -377,7 +377,7 @@ function CalculatorV2() {
                     <TableRow key={m.id}>
                       <TableCell><Input defaultValue={m.channel} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, channel: e.target.value } })} /></TableCell>
                       <TableCell><Input type="number" defaultValue={m.monthly_investment} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, monthly_investment: Number(e.target.value) } })} /></TableCell>
-                      <TableCell><Input type="number" defaultValue={m.new_customers_goal} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, new_customers_goal: Number(e.target.value) } })} /></TableCell>
+                      <TableCell><Input type="number" defaultValue={m.new_customers_goal ?? 0} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, new_customers_goal: Number(e.target.value) } })} /></TableCell>
                       <TableCell><Button variant="ghost" size="icon" onClick={() => deleteMarketingMutation.mutate({ data: { id: m.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
                     </TableRow>
                   ))}
