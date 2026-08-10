@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Verifique e responda se houve algum novo cadastro de donos de dojo nos últimos 5 dias
+ * Execute esta instrucao no projeto: Homepage > Troque o ícone do botão de whatsapp por um ícone com o logotipo do whatsapp
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
