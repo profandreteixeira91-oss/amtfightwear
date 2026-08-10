@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc a formação dos produtos devem ser editadas por categorias e variações, considerando que os produtos são fabricados com o mesmo material de acordo com a categoria.
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc inclua também uma calculadora igual a anterior que se integra com a formação do produto, que calcula o preço do metro do material, a largura, camadas utilizadas e metragem de material utilizado.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
