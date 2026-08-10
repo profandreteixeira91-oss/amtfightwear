@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc continue a implementação das abas de Composição, Variáveis e Formação de Preço com dados reais e cálculos automáticos.
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc continue a implementação configurando os demais itens, incluindo o editor de Composição Industrial (BOM), aba de Variáveis e ajustes finos de impostos e taxas.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

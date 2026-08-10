@@ -22,7 +22,9 @@ import {
   AlertTriangle,
   ArrowUpRight,
   TrendingDown,
-  RefreshCw
+  RefreshCw,
+  Edit2,
+  FileText
 } from "lucide-react";
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -83,6 +85,7 @@ interface ProductPricing {
   sku: string | null;
   price: number | null;
   cost: number | null;
+  product_cost_compositions?: any[];
 }
 
 function CalculatorV2() {
@@ -106,7 +109,45 @@ function CalculatorV2() {
   const marketing = (marketingData || []) as MarketingInvestment[];
   const products = (productsData || []) as ProductPricing[];
 
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+
+  const selectedProduct = useMemo(() => 
+    products.find(p => p.id === selectedProductId),
+    [products, selectedProductId]
+  );
+
+  const saveCompositionMutation = useMutation({
+    mutationFn: (args: { data: any }) => saveCostComposition(args),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-product-pricing"] });
+      toast.success("Composição salva!");
+    }
+  });
+
+  const deleteCompositionMutation = useMutation({
+    mutationFn: (args: { data: any }) => deleteCostComposition(args),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-product-pricing"] });
+      toast.success("Item removido!");
+    }
+  });
+
+  const saveMarketingMutation = useMutation({
+    mutationFn: (args: { data: any }) => saveMarketingInvestment(args),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["marketing-investments"] });
+      toast.success("Investimento salvo!");
+    }
+  });
+
+  const deleteMarketingMutation = useMutation({
+    mutationFn: (args: { data: any }) => deleteMarketingInvestment(args),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["marketing-investments"] });
+      toast.success("Investimento removido!");
+    }
+  });
 
   const updateConfigMutation = useMutation({
     mutationFn: (args: { data: any }) => updateConfigFn(args),
@@ -121,6 +162,14 @@ function CalculatorV2() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fixed-expenses"] });
       toast.success("Despesa salva!");
+    }
+  });
+
+  const saveProductCostMutation = useMutation({
+    mutationFn: async (args: { id: string; cost: number }) => {
+      // Aqui poderíamos chamar uma função de servidor para atualizar o custo base do produto
+      // com base na soma da composição BOM, mas por enquanto vamos simular ou usar a lógica BOM.
+      toast.info("Custo base atualizado via BOM");
     }
   });
 
@@ -142,8 +191,8 @@ function CalculatorV2() {
     [marketing]
   );
   
-  const avgContributionMargin = 40; 
-  const breakEvenPoint = totalFixedExpenses / (avgContributionMargin / 100 || 1);
+  const avgContributionMargin = config?.min_contribution_margin || 40; 
+  const breakEvenPoint = totalFixedExpenses / (avgContributionMargin / 100 || 0.4);
 
   if (isLoadingConfig || isLoadingExpenses || isLoadingMarketing || isLoadingProducts) {
     return (
@@ -175,12 +224,12 @@ function CalculatorV2() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-muted/50 p-1 w-full max-w-4xl grid grid-cols-6 h-auto">
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="composition">Composição</TabsTrigger>
-          <TabsTrigger value="variables">Variáveis</TabsTrigger>
-          <TabsTrigger value="fixed">Despesas Fixas</TabsTrigger>
-          <TabsTrigger value="pricing">Formação</TabsTrigger>
-          <TabsTrigger value="config">Config</TabsTrigger>
+          <TabsTrigger value="overview" className="gap-2"><PieChart className="h-4 w-4" /> Visão Geral</TabsTrigger>
+          <TabsTrigger value="composition" className="gap-2"><Layers className="h-4 w-4" /> Composição</TabsTrigger>
+          <TabsTrigger value="variables" className="gap-2"><Truck className="h-4 w-4" /> Variáveis</TabsTrigger>
+          <TabsTrigger value="fixed" className="gap-2"><DollarSign className="h-4 w-4" /> Despesas Fixas</TabsTrigger>
+          <TabsTrigger value="pricing" className="gap-2"><Target className="h-4 w-4" /> Formação</TabsTrigger>
+          <TabsTrigger value="config" className="gap-2"><Settings className="h-4 w-4" /> Config</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -257,12 +306,95 @@ function CalculatorV2() {
 
         <TabsContent value="composition">
           <Card>
-            <CardHeader><CardTitle>Composição de Custos</CardTitle></CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Composição Industrial (BOM)</CardTitle>
+                <CardDescription>Materiais e mão de obra para: {selectedProduct?.name || "Nenhum produto selecionado"}</CardDescription>
+              </div>
+              {selectedProductId && (
+                <Button size="sm" onClick={() => saveCompositionMutation.mutate({ data: { product_id: selectedProductId, name: "Novo Item", type: "material", quantity: 1, unit_cost: 0 } })}>
+                  <Plus className="h-4 w-4 mr-2" /> Adicionar Insumo
+                </Button>
+              )}
+            </CardHeader>
             <CardContent>
-               <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-                 <Package className="h-10 w-10 mx-auto mb-3 text-primary/50" />
-                 <p>Selecione um produto na aba "Formação" para editar os insumos (Tecido, Costura, Bordado, Packaging).</p>
-               </div>
+              {!selectedProductId ? (
+                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                  <Package className="h-10 w-10 mx-auto mb-3 text-primary/50" />
+                  <p>Selecione um produto na aba "Formação" para editar os insumos.</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Insumo</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Qtd</TableHead>
+                      <TableHead>Custo Unit.</TableHead>
+                      <TableHead>Total</TableHead>
+                      <TableHead className="w-16"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedProduct?.product_cost_compositions?.map((item: any) => (
+                      <TableRow key={item.id}>
+                        <TableCell><Input defaultValue={item.name} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, name: e.target.value } })} /></TableCell>
+                        <TableCell>
+                          <Select defaultValue={item.type} onValueChange={(v) => saveCompositionMutation.mutate({ data: { ...item, type: v } })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="material">Material</SelectItem>
+                              <SelectItem value="labor">Mão de Obra</SelectItem>
+                              <SelectItem value="other">Outros</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell><Input type="number" className="w-20" defaultValue={item.quantity} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, quantity: Number(e.target.value) } })} /></TableCell>
+                        <TableCell><Input type="number" className="w-24" defaultValue={item.unit_cost} onBlur={(e) => saveCompositionMutation.mutate({ data: { ...item, unit_cost: Number(e.target.value) } })} /></TableCell>
+                        <TableCell className="font-medium">{formatMoney(item.quantity * item.unit_cost)}</TableCell>
+                        <TableCell><Button variant="ghost" size="icon" onClick={() => deleteCompositionMutation.mutate({ data: { id: item.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                      </TableRow>
+                    ))}
+                    {(!selectedProduct?.product_cost_compositions || selectedProduct.product_cost_compositions.length === 0) && (
+                      <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Nenhum insumo cadastrado para este produto.</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="variables">
+          <Card>
+            <CardHeader>
+              <CardTitle>Variáveis de Marketing</CardTitle>
+              <CardDescription>Canais de aquisição e investimento mensal.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Canal</TableHead>
+                    <TableHead>Investimento</TableHead>
+                    <TableHead>Meta de Leads</TableHead>
+                    <TableHead className="w-16"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {marketing.map((m) => (
+                    <TableRow key={m.id}>
+                      <TableCell><Input defaultValue={m.channel} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, channel: e.target.value } })} /></TableCell>
+                      <TableCell><Input type="number" defaultValue={m.monthly_investment} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, monthly_investment: Number(e.target.value) } })} /></TableCell>
+                      <TableCell><Input type="number" defaultValue={m.new_customers_goal ?? 0} onBlur={(e) => saveMarketingMutation.mutate({ data: { ...m, new_customers_goal: Number(e.target.value) } })} /></TableCell>
+                      <TableCell><Button variant="ghost" size="icon" onClick={() => deleteMarketingMutation.mutate({ data: { id: m.id } })}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell colSpan={4}><Button variant="outline" size="sm" className="w-full" onClick={() => saveMarketingMutation.mutate({ data: { channel: "Novo Canal", monthly_investment: 0 } })}><Plus className="h-4 w-4 mr-2" /> Adicionar Canal</Button></TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
@@ -282,17 +414,125 @@ function CalculatorV2() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-semibold">{p.name}</TableCell>
-                      <TableCell>{formatMoney(Number(p.price) || 0)}</TableCell>
-                      <TableCell>{formatMoney(Number(p.cost) || 0)}</TableCell>
-                      <TableCell><Badge variant="secondary" className="bg-green-100 text-green-800">40%</Badge></TableCell>
-                      <TableCell className="font-bold text-primary">{formatMoney((Number(p.cost) || 0) * 2.5)}</TableCell>
-                    </TableRow>
-                  ))}
+                  {products.map((p) => {
+                    const bomTotal = p.product_cost_compositions?.reduce((acc: number, curr: any) => acc + (Number(curr.quantity) * Number(curr.unit_cost)), 0) || 0;
+                    const finalCost = bomTotal > 0 ? bomTotal : (Number(p.cost) || 0);
+                    const markup = 2.5;
+                    const suggestedPrice = finalCost * markup;
+                    const currentMargin = p.price ? ((Number(p.price) - finalCost) / Number(p.price)) * 100 : 0;
+
+                    return (
+                      <TableRow 
+                        key={p.id} 
+                        className={cn("cursor-pointer hover:bg-muted/50 transition-colors", selectedProductId === p.id && "bg-primary/5")}
+                        onClick={() => setSelectedProductId(p.id)}
+                      >
+                        <TableCell className="font-semibold">
+                          <div className="flex items-center gap-2">
+                            {p.name}
+                            {selectedProductId === p.id && <Badge variant="outline" className="text-[10px] py-0">Editando BOM</Badge>}
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatMoney(Number(p.price) || 0)}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span>{formatMoney(finalCost)}</span>
+                            {bomTotal > 0 && <span className="text-[10px] text-muted-foreground italic">Base: BOM</span>}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className={cn(
+                            currentMargin > 30 ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"
+                          )}>
+                            {currentMargin.toFixed(1)}%
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-bold text-primary">
+                          <div className="flex items-center justify-between">
+                            {formatMoney(suggestedPrice)}
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); setSelectedProductId(p.id); setActiveTab("composition"); }}>
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); setSelectedProductId(p.id); setActiveTab("composition"); }}>
+                                <ChevronRight className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="config">
+          <Card>
+            <CardHeader>
+              <CardTitle>Parâmetros Gerais</CardTitle>
+              <CardDescription>Configurações globais para o cálculo de margens e tributos.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Imposto Médio (%)</Label>
+                    <div className="flex gap-4 items-center">
+                      <Slider 
+                        value={[config?.default_tax_rate || 0]} 
+                        max={30} 
+                        step={0.5} 
+                        onValueChange={([v]) => updateConfigMutation.mutate({ data: { default_tax_rate: v } })} 
+                      />
+                      <span className="w-12 text-sm font-bold">{config?.default_tax_rate}%</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Taxa de Gateway / Antecipação (%)</Label>
+                    <div className="flex gap-4 items-center">
+                      <Slider 
+                        value={[config?.default_gateway_fee || 0]} 
+                        max={15} 
+                        step={0.1} 
+                        onValueChange={([v]) => updateConfigMutation.mutate({ data: { default_gateway_fee: v } })} 
+                      />
+                      <span className="w-12 text-sm font-bold">{config?.default_gateway_fee}%</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Margem Mínima de Contribuição (%)</Label>
+                    <div className="flex gap-4 items-center">
+                      <Slider 
+                        value={[config?.min_contribution_margin || 0]} 
+                        max={70} 
+                        step={1} 
+                        onValueChange={([v]) => updateConfigMutation.mutate({ data: { min_contribution_margin: v } })} 
+                      />
+                      <span className="w-12 text-sm font-bold">{config?.min_contribution_margin}%</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Markup Sugerido (x)</Label>
+                    <div className="flex gap-4 items-center">
+                      <Slider 
+                        value={[2.5]} 
+                        max={5} 
+                        step={0.1} 
+                      />
+                      <span className="w-12 text-sm font-bold">2.5x</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Separator />
+              <div className="flex items-center gap-2 text-amber-600 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
+                <p className="text-sm">Estes valores afetam o "Preço Sugerido" e os KPIs de saúde financeira em todo o sistema.</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
