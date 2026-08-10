@@ -1,6 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/atacado-lp
- * Ao clicar em qualquer botão CTA desta landing page, o cliente deve ser direcionado para a página https://amtfightwear.com.br/loja/atacado
+ * Execute esta instrucao no projeto: Verifique na página /loja/atacado o pixel da meta configurado, caso esteja tudo ok, configure o pixel para receber todas as ações possíveis da página para que as métricas sejam melhor avaliadas
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
