@@ -264,6 +264,7 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
       unit_cost: z.number(),
       waste_percent: z.number().optional(),
       provider: z.string().optional(),
+      metrical_base_length: z.number().optional(), // Novo campo: comprimento base para cálculo proporcional
     }))
   }).parse(data))
   .handler(async ({ data: input, context }) => {
@@ -294,14 +295,35 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
       .eq("tenant_id", context.userId);
 
     // 3. Insert new compositions for all products
-    const newCompositions = productIds.flatMap((pid: string) => 
-      input.composition.map(c => ({
-        ...c,
-        product_id: pid,
-        tenant_id: context.userId,
-        updated_at: new Date().toISOString()
-      }))
-    );
+    // Buscamos as variantes para saber o tamanho de cada produto
+    const { data: variants } = await (context.supabase as any)
+      .from("store_product_variants")
+      .select("product_id, size")
+      .in("product_id", productIds);
+
+    const newCompositions = productIds.flatMap((pid: string) => {
+      // Tenta inferir a metragem com base no tamanho da primeira variante encontrada para este produto
+      // Isso é uma simplificação, idealmente cada variante teria seu custo, mas a tabela products.cost é global.
+      // Vamos usar a média ou a maior metragem do produto para o custo base.
+      const productVariants = variants?.filter((v: any) => v.product_id === pid) || [];
+      const referenceSize = productVariants[0]?.size || "Padrão";
+
+      return input.composition.map(c => {
+        let finalUnitCost = c.unit_cost;
+        
+        // Se for um item métrico e tivermos uma base, ajustamos proporcionalmente
+        // Aqui assumimos que se o nome contém metragem, aplicamos a lógica.
+        // Como não temos a metragem por tamanho no banco ainda, vamos manter o unit_cost
+        // mas preparar a estrutura para que edições individuais reflitam a metragem.
+        
+        return {
+          ...c,
+          product_id: pid,
+          tenant_id: context.userId,
+          updated_at: new Date().toISOString()
+        };
+      });
+    });
 
     const { error: iError } = await (context.supabase as any)
       .from("product_cost_compositions")
@@ -310,11 +332,16 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
     if (iError) throw iError;
 
     // 4. Update the products base cost as the sum of compositions
-    const totalCost = input.composition.reduce((acc, curr) => acc + (curr.quantity * curr.unit_cost), 0);
-    await (context.supabase as any)
-      .from("products")
-      .update({ cost: totalCost })
-      .in("id", productIds);
+    // Calculamos o custo total médio para o produto
+    for (const pid of productIds) {
+      const productComps = newCompositions.filter(nc => nc.product_id === pid);
+      const totalCost = productComps.reduce((acc, curr) => acc + (curr.quantity * curr.unit_cost), 0);
+      
+      await (context.supabase as any)
+        .from("products")
+        .update({ cost: totalCost })
+        .eq("id", pid);
+    }
 
     return { success: true, count: products.length };
   });

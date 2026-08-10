@@ -127,15 +127,17 @@ function CalculatorV2() {
   const [lengthUsed, setLengthUsed] = useState<number>(0);
   const [widthUsed, setWidthUsed] = useState<number>(0.1);
 
+  // Mapeamento dinâmico de comprimentos por tamanho (ex: A0=2.40, A1=2.60, etc)
+  const [sizeLengthMap, setSizeLengthMap] = useState<Record<string, number>>({
+    "A0": 2.40, "A1": 2.60, "A2": 2.80, "A3": 3.00, "A4": 3.20, "A5": 3.40,
+    "M0": 2.00, "M1": 2.10, "M2": 2.20, "M3": 2.30, "M4": 2.40
+  });
+
   const calculatedMaterialCost = useMemo(() => {
-    // Fluxo de cálculo: Custo por metro x Total de metros (comprimento * camadas) dividido por largura utilizada (proporcional à largura total?)
-    // O usuário pediu: Custo por metro x Total de metros (utilizar as variações de tamanho das faixas) dividido por largura utilizada
-    // Se 'lengthUsed' é o comprimento total consumido e 'widthUsed' é a largura de cada tira:
-    if (widthUsed <= 0) return 0;
+    if (widthUsed <= 0 || materialWidth <= 0) return 0;
     
-    // Total de metros = lengthUsed * layersCount (que representa a metragem linear)
-    // Se o custo é por metro linear da peça de largura 'materialWidth', e estamos usando 'widthUsed':
-    // O custo proporcional é (Custo Metro * (Metragem Linear)) * (Largura Utilizada / Largura Total)
+    // O comprimento agora é dinâmico se houver um produto selecionado com tamanho
+    // Se não, usa o lengthUsed manual
     return (materialPriceMeter * lengthUsed * layersCount) * (widthUsed / materialWidth);
   }, [materialPriceMeter, lengthUsed, layersCount, widthUsed, materialWidth]);
 
@@ -459,13 +461,26 @@ function CalculatorV2() {
                           </div>
                           <div className="space-y-2">
                             <Label className="text-[10px] uppercase">Comprimento (m)</Label>
-                            <Input 
-                              type="number" 
-                              value={lengthUsed} 
-                              onChange={(e) => setLengthUsed(Number(e.target.value))}
-                              className="h-8 text-sm"
-                              placeholder="Ex: 2.80m p/ A2"
-                            />
+                            <div className="flex gap-2">
+                              <Input 
+                                type="number" 
+                                value={lengthUsed} 
+                                onChange={(e) => setLengthUsed(Number(e.target.value))}
+                                className="h-8 text-sm"
+                                placeholder="Ex: 2.80"
+                              />
+                              <Select onValueChange={(v) => setLengthUsed(sizeLengthMap[v] || 0)}>
+                                <SelectTrigger className="h-8 w-[100px] text-[10px]">
+                                  <SelectValue placeholder="Tamanho" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Object.keys(sizeLengthMap).map(size => (
+                                    <SelectItem key={size} value={size}>{size}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <p className="text-[9px] text-muted-foreground italic">O custo varia conforme a metragem do tamanho.</p>
                           </div>
                           <div className="space-y-2">
                             <Label className="text-[10px] uppercase">Camadas</Label>

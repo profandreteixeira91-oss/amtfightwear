@@ -1,6 +1,6 @@
 /**
  * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc
- * Fluxo: ao selecionar uma categoria e/ou subcategoria e aplicar as edições, ao clicar em replicar no grupo, todos os itens daquela categoria ou subcategoria devem ser atualizados com os valores editados, independente se for selecionado algum produto ou não em formação
+ * Comprimento (M) deve ser calculado de acordo com as variáveis de tamanho das faixas e demais produtos, portanto, o custo de produção por faixa varia de acordo com a sua metragem, aplique essa regra de forma definitiva considerando as variações de cada produto
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
