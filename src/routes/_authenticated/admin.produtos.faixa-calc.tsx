@@ -435,6 +435,74 @@ function CalculatorV2() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="config">
+          <Card>
+            <CardHeader>
+              <CardTitle>Parâmetros Gerais</CardTitle>
+              <CardDescription>Configurações globais para o cálculo de margens e tributos.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Imposto Médio (%)</Label>
+                    <div className="flex gap-4 items-center">
+                      <Slider 
+                        value={[config?.default_tax_rate || 0]} 
+                        max={30} 
+                        step={0.5} 
+                        onValueChange={([v]) => updateConfigMutation.mutate({ data: { default_tax_rate: v } })} 
+                      />
+                      <span className="w-12 text-sm font-bold">{config?.default_tax_rate}%</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Taxa de Gateway / Antecipação (%)</Label>
+                    <div className="flex gap-4 items-center">
+                      <Slider 
+                        value={[config?.default_gateway_fee || 0]} 
+                        max={15} 
+                        step={0.1} 
+                        onValueChange={([v]) => updateConfigMutation.mutate({ data: { default_gateway_fee: v } })} 
+                      />
+                      <span className="w-12 text-sm font-bold">{config?.default_gateway_fee}%</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Margem Mínima de Contribuição (%)</Label>
+                    <div className="flex gap-4 items-center">
+                      <Slider 
+                        value={[config?.min_contribution_margin || 0]} 
+                        max={70} 
+                        step={1} 
+                        onValueChange={([v]) => updateConfigMutation.mutate({ data: { min_contribution_margin: v } })} 
+                      />
+                      <span className="w-12 text-sm font-bold">{config?.min_contribution_margin}%</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Markup Sugerido (x)</Label>
+                    <div className="flex gap-4 items-center">
+                      <Slider 
+                        value={[2.5]} 
+                        max={5} 
+                        step={0.1} 
+                      />
+                      <span className="w-12 text-sm font-bold">2.5x</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Separator />
+              <div className="flex items-center gap-2 text-amber-600 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
+                <p className="text-sm">Estes valores afetam o "Preço Sugerido" e os KPIs de saúde financeira em todo o sistema.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
