@@ -69,6 +69,9 @@ export const Route = createFileRoute("/loja/atacado")({
     links: [{ rel: "canonical", href: "https://amtfightwear.com.br/loja/atacado" }],
     scripts: [
       {
+        children: `fbq('track', 'ViewContent', { content_name: 'Wholesale Catalog', content_category: 'B2B' });`,
+      },
+      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
@@ -565,6 +568,16 @@ function WholesalePage() {
       }
 
       sessionStorage.removeItem(DRAFT_KEY);
+      // Track Purchase event for Meta Pixel
+      if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq("track", "Purchase", {
+          value: subtotal,
+          currency: "BRL",
+          content_type: "product_group",
+          content_ids: items.map(i => i.product_id),
+          num_items: totalQty
+        });
+      }
       toast.success("Pedido de atacado criado!");
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
     } catch (err) {
