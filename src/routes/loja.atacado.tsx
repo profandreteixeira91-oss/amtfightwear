@@ -797,7 +797,10 @@ function WholesalePage() {
                               categoryName={g.cat?.name ?? null}
                               minPerSubcategory={MIN_PER_SUBCAT}
                               onZoom={setZoomImg}
-                              onAdd={() => setSheetOpen(true)}
+                              onAdd={() => {
+                                setSheetOpen(true);
+                                trackAddToCart(p, productTotal(p.id) || 1);
+                              }}
                             />
                           ))}
                         </div>
