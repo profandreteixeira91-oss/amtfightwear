@@ -191,8 +191,8 @@ function CalculatorV2() {
     [marketing]
   );
   
-  const avgContributionMargin = 40; 
-  const breakEvenPoint = totalFixedExpenses / (avgContributionMargin / 100 || 1);
+  const avgContributionMargin = config?.min_contribution_margin || 40; 
+  const breakEvenPoint = totalFixedExpenses / (avgContributionMargin / 100 || 0.4);
 
   if (isLoadingConfig || isLoadingExpenses || isLoadingMarketing || isLoadingProducts) {
     return (
