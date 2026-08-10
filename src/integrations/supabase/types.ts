@@ -1447,13 +1447,21 @@ export type Database = {
       app_pricing_configs: {
         Row: {
           apportionment_method: string | null
+          commission_percent: number | null
           created_at: string | null
           default_gateway_fee: number | null
           default_marketing_percent: number | null
           default_tax_rate: number | null
+          desired_pro_labore: number | null
+          gateway_percent: number | null
           id: string
+          marketing_percent: number | null
           min_contribution_margin: number | null
           min_net_margin: number | null
+          monthly_production_estimate: number | null
+          profit_percent: number | null
+          reserve_percent: number | null
+          taxes_percent: number | null
           tenant_id: string | null
           updated_at: string | null
           wholesale_discount_percent: number | null
@@ -1461,13 +1469,21 @@ export type Database = {
         }
         Insert: {
           apportionment_method?: string | null
+          commission_percent?: number | null
           created_at?: string | null
           default_gateway_fee?: number | null
           default_marketing_percent?: number | null
           default_tax_rate?: number | null
+          desired_pro_labore?: number | null
+          gateway_percent?: number | null
           id?: string
+          marketing_percent?: number | null
           min_contribution_margin?: number | null
           min_net_margin?: number | null
+          monthly_production_estimate?: number | null
+          profit_percent?: number | null
+          reserve_percent?: number | null
+          taxes_percent?: number | null
           tenant_id?: string | null
           updated_at?: string | null
           wholesale_discount_percent?: number | null
@@ -1475,13 +1491,21 @@ export type Database = {
         }
         Update: {
           apportionment_method?: string | null
+          commission_percent?: number | null
           created_at?: string | null
           default_gateway_fee?: number | null
           default_marketing_percent?: number | null
           default_tax_rate?: number | null
+          desired_pro_labore?: number | null
+          gateway_percent?: number | null
           id?: string
+          marketing_percent?: number | null
           min_contribution_margin?: number | null
           min_net_margin?: number | null
+          monthly_production_estimate?: number | null
+          profit_percent?: number | null
+          reserve_percent?: number | null
+          taxes_percent?: number | null
           tenant_id?: string | null
           updated_at?: string | null
           wholesale_discount_percent?: number | null
@@ -11247,6 +11271,12 @@ export type Database = {
           ncm: string | null
           origem: string | null
           price: number
+          pricing_commission_percent: number | null
+          pricing_gateway_percent: number | null
+          pricing_marketing_percent: number | null
+          pricing_profit_percent: number | null
+          pricing_reserve_percent: number | null
+          pricing_taxes_percent: number | null
           short_description: string | null
           sku: string | null
           slug: string | null
@@ -11287,6 +11317,12 @@ export type Database = {
           ncm?: string | null
           origem?: string | null
           price?: number
+          pricing_commission_percent?: number | null
+          pricing_gateway_percent?: number | null
+          pricing_marketing_percent?: number | null
+          pricing_profit_percent?: number | null
+          pricing_reserve_percent?: number | null
+          pricing_taxes_percent?: number | null
           short_description?: string | null
           sku?: string | null
           slug?: string | null
@@ -11327,6 +11363,12 @@ export type Database = {
           ncm?: string | null
           origem?: string | null
           price?: number
+          pricing_commission_percent?: number | null
+          pricing_gateway_percent?: number | null
+          pricing_marketing_percent?: number | null
+          pricing_profit_percent?: number | null
+          pricing_reserve_percent?: number | null
+          pricing_taxes_percent?: number | null
           short_description?: string | null
           sku?: string | null
           slug?: string | null
