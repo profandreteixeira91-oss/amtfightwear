@@ -1444,6 +1444,51 @@ export type Database = {
         }
         Relationships: []
       }
+      app_pricing_configs: {
+        Row: {
+          apportionment_method: string | null
+          created_at: string | null
+          default_gateway_fee: number | null
+          default_marketing_percent: number | null
+          default_tax_rate: number | null
+          id: string
+          min_contribution_margin: number | null
+          min_net_margin: number | null
+          tenant_id: string | null
+          updated_at: string | null
+          wholesale_discount_percent: number | null
+          wholesale_min_qty: number | null
+        }
+        Insert: {
+          apportionment_method?: string | null
+          created_at?: string | null
+          default_gateway_fee?: number | null
+          default_marketing_percent?: number | null
+          default_tax_rate?: number | null
+          id?: string
+          min_contribution_margin?: number | null
+          min_net_margin?: number | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          wholesale_discount_percent?: number | null
+          wholesale_min_qty?: number | null
+        }
+        Update: {
+          apportionment_method?: string | null
+          created_at?: string | null
+          default_gateway_fee?: number | null
+          default_marketing_percent?: number | null
+          default_tax_rate?: number | null
+          id?: string
+          min_contribution_margin?: number | null
+          min_net_margin?: number | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          wholesale_discount_percent?: number | null
+          wholesale_min_qty?: number | null
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
@@ -1747,6 +1792,47 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "competition_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cost_change_history: {
+        Row: {
+          changed_by: string | null
+          composition_id: string | null
+          created_at: string | null
+          id: string
+          new_cost: number | null
+          old_cost: number | null
+          reason: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          composition_id?: string | null
+          created_at?: string | null
+          id?: string
+          new_cost?: number | null
+          old_cost?: number | null
+          reason?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          composition_id?: string | null
+          created_at?: string | null
+          id?: string
+          new_cost?: number | null
+          old_cost?: number | null
+          reason?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cost_change_history_composition_id_fkey"
+            columns: ["composition_id"]
+            isOneToOne: false
+            referencedRelation: "product_cost_compositions"
             referencedColumns: ["id"]
           },
         ]
@@ -9940,6 +10026,36 @@ export type Database = {
         }
         Relationships: []
       }
+      fixed_expenses: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          name: string
+          tenant_id: string | null
+          updated_at: string | null
+          value: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          tenant_id?: string | null
+          updated_at?: string | null
+          value?: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       ig_accounts: {
         Row: {
           account_type: string | null
@@ -10673,6 +10789,36 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_investments: {
+        Row: {
+          channel: string
+          created_at: string | null
+          id: string
+          monthly_investment: number
+          new_customers_goal: number | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          channel: string
+          created_at?: string | null
+          id?: string
+          monthly_investment?: number
+          new_customers_goal?: number | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string | null
+          id?: string
+          monthly_investment?: number
+          new_customers_goal?: number | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       meta_connections: {
         Row: {
           created_at: string
@@ -10983,6 +11129,92 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "price_suggestions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_scenarios: {
+        Row: {
+          config_snapshot: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          config_snapshot: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          config_snapshot?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      product_cost_compositions: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          product_id: string | null
+          provider: string | null
+          quantity: number | null
+          tenant_id: string | null
+          type: string
+          unit_cost: number | null
+          unit_of_measure: string | null
+          updated_at: string | null
+          waste_percent: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          product_id?: string | null
+          provider?: string | null
+          quantity?: number | null
+          tenant_id?: string | null
+          type: string
+          unit_cost?: number | null
+          unit_of_measure?: string | null
+          updated_at?: string | null
+          waste_percent?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          product_id?: string | null
+          provider?: string | null
+          quantity?: number | null
+          tenant_id?: string | null
+          type?: string
+          unit_cost?: number | null
+          unit_of_measure?: string | null
+          updated_at?: string | null
+          waste_percent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_cost_compositions_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
