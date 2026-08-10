@@ -125,7 +125,7 @@ function CalculatorV2() {
   });
 
   const deleteCompositionMutation = useMutation({
-    mutationFn: (args: { data: any }) => deleteComposition(args),
+    mutationFn: (args: { data: any }) => deleteCostComposition(args),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-product-pricing"] });
       toast.success("Item removido!");
