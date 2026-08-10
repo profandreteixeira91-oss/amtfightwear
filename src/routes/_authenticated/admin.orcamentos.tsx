@@ -427,10 +427,70 @@ function QuotesPage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Nome *" value={form.customer_name} onChange={(v) => setForm({ ...form, customer_name: v })} />
                 <Field label="Empresa" value={form.customer_company} onChange={(v) => setForm({ ...form, customer_company: v })} />
-                <Field label="CPF / CNPJ" value={form.customer_document} onChange={(v) => setForm({ ...form, customer_document: v })} />
+                <Field
+                  label="CPF / CNPJ"
+                  value={form.customer_document}
+                  onChange={async (v) => {
+                    const clean = v.replace(/\D/g, "");
+                    setForm({ ...form, customer_document: v });
+                    if (clean.length === 14) {
+                      try {
+                        const res = await fetch(`https://publica.cnpj.ws/cnpj/${clean}`);
+                        if (res.ok) {
+                          const data = await res.json();
+                          setForm((f) => ({
+                            ...f,
+                            customer_company: data.razao_social || f.customer_company,
+                            customer_address: {
+                              ...f.customer_address,
+                              zip: data.estabelecimento.cep || f.customer_address.zip,
+                              street: data.estabelecimento.logradouro || f.customer_address.street,
+                              number: data.estabelecimento.numero || f.customer_address.number,
+                              complement: data.estabelecimento.complemento || f.customer_address.complement,
+                              neighborhood: data.estabelecimento.bairro || f.customer_address.neighborhood,
+                              city: data.estabelecimento.cidade.nome || f.customer_address.city,
+                              state: data.estabelecimento.estado.sigla || f.customer_address.state,
+                            },
+                          }));
+                          toast.success("Dados da empresa importados");
+                        }
+                      } catch (e) {
+                        console.error("CNPJ error", e);
+                      }
+                    }
+                  }}
+                />
                 <Field label="Telefone" value={form.customer_phone} onChange={(v) => setForm({ ...form, customer_phone: v })} />
                 <Field label="E-mail" value={form.customer_email} onChange={(v) => setForm({ ...form, customer_email: v })} />
-                <Field label="CEP" value={form.customer_address.zip} onChange={(v) => setForm({ ...form, customer_address: { ...form.customer_address, zip: v } })} />
+                <Field
+                  label="CEP"
+                  value={form.customer_address.zip}
+                  onChange={async (v) => {
+                    const clean = v.replace(/\D/g, "");
+                    setForm({ ...form, customer_address: { ...form.customer_address, zip: v } });
+                    if (clean.length === 8) {
+                      try {
+                        const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+                        const data = await res.json();
+                        if (!data.erro) {
+                          setForm((f) => ({
+                            ...f,
+                            customer_address: {
+                              ...f.customer_address,
+                              street: data.logradouro || f.customer_address.street,
+                              neighborhood: data.bairro || f.customer_address.neighborhood,
+                              city: data.localidade || f.customer_address.city,
+                              state: data.uf || f.customer_address.state,
+                            },
+                          }));
+                          toast.success("Endereço preenchido");
+                        }
+                      } catch (e) {
+                        console.error("CEP error", e);
+                      }
+                    }
+                  }}
+                />
                 <Field label="Endereço" value={form.customer_address.street} onChange={(v) => setForm({ ...form, customer_address: { ...form.customer_address, street: v } })} />
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Número" value={form.customer_address.number} onChange={(v) => setForm({ ...form, customer_address: { ...form.customer_address, number: v } })} />
@@ -477,8 +537,20 @@ function QuotesPage() {
                         </div>
                         <div>
                           <Label className="text-[10px] uppercase text-neutral-500">Valor unit.</Label>
-                          <Input className="h-9" type="number" min={0} step="0.01" value={it.unit_price}
-                            onChange={(e) => updItem(i, { unit_price: Math.max(0, Number(e.target.value) || 0) })} />
+                          <div className="relative">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-neutral-400">R$</span>
+                            <Input
+                              className="h-9 pl-8"
+                              type="text"
+                              inputMode="decimal"
+                              value={it.unit_price ? Number(it.unit_price).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, "");
+                                const num = val ? Number(val) / 100 : 0;
+                                updItem(i, { unit_price: num });
+                              }}
+                            />
+                          </div>
                         </div>
                         <div className="text-right">
                           <Label className="text-[10px] uppercase text-neutral-500">Total</Label>
@@ -500,13 +572,37 @@ function QuotesPage() {
               <div className="grid gap-3 sm:grid-cols-3">
                 <div>
                   <Label className="text-[10px] uppercase text-neutral-500">Desconto (R$)</Label>
-                  <Input className="h-9" type="number" min={0} step="0.01" value={form.discount}
-                    onChange={(e) => setForm({ ...form, discount: Math.max(0, Number(e.target.value) || 0) })} />
+                  <div className="relative">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-neutral-400">R$</span>
+                    <Input
+                      className="h-9 pl-8"
+                      type="text"
+                      inputMode="decimal"
+                      value={form.discount ? Number(form.discount).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        const num = val ? Number(val) / 100 : 0;
+                        setForm({ ...form, discount: num });
+                      }}
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label className="text-[10px] uppercase text-neutral-500">Frete (R$)</Label>
-                  <Input className="h-9" type="number" min={0} step="0.01" value={form.shipping_cost}
-                    onChange={(e) => setForm({ ...form, shipping_cost: Math.max(0, Number(e.target.value) || 0) })} />
+                  <div className="relative">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-neutral-400">R$</span>
+                    <Input
+                      className="h-9 pl-8"
+                      type="text"
+                      inputMode="decimal"
+                      value={form.shipping_cost ? Number(form.shipping_cost).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        const num = val ? Number(val) / 100 : 0;
+                        setForm({ ...form, shipping_cost: num });
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="rounded-xl bg-neutral-900 p-3 text-white">
                   <div className="text-[10px] uppercase tracking-wider text-white/60">Total do orçamento</div>
