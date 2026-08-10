@@ -216,12 +216,12 @@ function CalculatorV2() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-muted/50 p-1 w-full max-w-4xl grid grid-cols-6 h-auto">
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="composition">Composição</TabsTrigger>
-          <TabsTrigger value="variables">Variáveis</TabsTrigger>
-          <TabsTrigger value="fixed">Despesas Fixas</TabsTrigger>
-          <TabsTrigger value="pricing">Formação</TabsTrigger>
-          <TabsTrigger value="config">Config</TabsTrigger>
+          <TabsTrigger value="overview" className="gap-2"><PieChart className="h-4 w-4" /> Visão Geral</TabsTrigger>
+          <TabsTrigger value="composition" className="gap-2"><Layers className="h-4 w-4" /> Composição</TabsTrigger>
+          <TabsTrigger value="variables" className="gap-2"><Truck className="h-4 w-4" /> Variáveis</TabsTrigger>
+          <TabsTrigger value="fixed" className="gap-2"><DollarSign className="h-4 w-4" /> Despesas Fixas</TabsTrigger>
+          <TabsTrigger value="pricing" className="gap-2"><Target className="h-4 w-4" /> Formação</TabsTrigger>
+          <TabsTrigger value="config" className="gap-2"><Settings className="h-4 w-4" /> Config</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
