@@ -160,6 +160,14 @@ function CalculatorV2() {
     [products, selectedProductId]
   );
 
+  useEffect(() => {
+    if (selectedProduct?.product_cost_compositions) {
+      setLocalComposition(selectedProduct.product_cost_compositions);
+    } else if (!selectedProductId) {
+      // Don't reset if we are just switching categories, but maybe clear if nothing is selected
+    }
+  }, [selectedProduct, selectedProductId]);
+
   const saveCompositionMutation = useMutation({
     mutationFn: (args: { data: any }) => saveCostComposition(args),
     onSuccess: () => {
