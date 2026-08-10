@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc nada aparece ao clicar na página, faça a auditoria e corrija de forma definitiva
+ * Execute esta instrucao no projeto: Inicie a implementação
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

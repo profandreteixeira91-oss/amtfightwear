@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { PageShell } from "@/components/common/PageShell";
+import { AdminShell } from "@/components/admin/AdminShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   DollarSign, 
@@ -43,9 +43,6 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/faixa-calc")({
-  beforeLoad: () => {
-    console.log("Route /admin/produtos/faixa-calc reached");
-  },
   component: CalculatorV2,
 });
 
@@ -132,11 +129,13 @@ function CalculatorV2() {
   const breakEvenPoint = totalFixedExpenses / (avgContributionMargin / 100 || 1);
 
   return (
-    <PageShell
-      title="Dojo Manager Finance"
-      description="Formação de Preço Baseada em Lucro Real e Ponto de Equilíbrio"
-      eyebrow="Calculadora V2"
-    >
+    <AdminShell title="Calculadora de Custos">
+      <div className="flex flex-col gap-6">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">Dojo Manager Finance</h1>
+          <p className="text-sm text-muted-foreground mt-1">Formação de Preço Baseada em Lucro Real e Ponto de Equilíbrio</p>
+        </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-muted/50 p-1 w-full overflow-x-auto inline-flex whitespace-nowrap">
           <TabsTrigger value="overview" className="gap-2"><PieChart className="h-4 w-4" /> Visão Geral</TabsTrigger>
@@ -328,7 +327,8 @@ function CalculatorV2() {
           </Card>
         </TabsContent>
       </Tabs>
-    </PageShell>
+      </div>
+    </AdminShell>
   );
 }
 
