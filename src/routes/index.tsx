@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Homepage > Troque o ícone do botão de whatsapp por um ícone com o logotipo do whatsapp
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/admin/produtos/faixa-calc ao clicar em replicar no grupo, nada acontece, faça a auditoria e aplique as correções de forma definitiva
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
