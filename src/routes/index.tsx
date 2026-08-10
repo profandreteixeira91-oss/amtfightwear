@@ -1,15 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Rota a ser trabalhada: https://amtfightwear.com.br/admin/produtos/faixa-calc
- * 
- * # REFATORAÇÃO COMPLETA — MÓDULO CALCULADORA DE CUSTOS E FORMAÇÃO DE PREÇO
- * 
- * ## AMT Fight Wear
- * 
- * Refatore completamente o módulo atual de **Calculadora de Custos / Formação de Preço** da AMT Fight Wear.
- * 
- * O objetivo é transformar o módulo em uma ferramenta de **formação de preço baseada em custo real, margem de contribuição, despesas fixas, marketing e lucro líquido**, evitando a lógica simplificada de apenas aplicar markup sobre o custo do produto.
- * 
- * **IMPORTANTE:** antes de alterar qualquer código, faça uma auditoria completa do módulo atual, suas tabelas, campos, cálculos, componentes, hooks, APIs, funções, relacionamentos com produtos e banco de dados. Preserve tudo que já funciona e altere somente o que for necessário.
+ * Execute esta instrucao no projeto: Criei a infraestrutura de banco de dados e as funções de servidor para a nova calculadora premium e iniciei a refatoração visual do módulo em /admin/produtos/faixa-calc. execute esta ação
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
