@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Criei a infraestrutura de banco de dados e as funções de servidor para a nova calculadora premium e iniciei a refatoração visual do módulo em /admin/produtos/faixa-calc. execute esta ação
+ * Execute esta instrucao no projeto: Inicie a implementação
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
