@@ -334,8 +334,8 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
     // 4. Update the products base cost as the sum of compositions
     // Calculamos o custo total médio para o produto
     for (const pid of productIds) {
-      const productComps = newCompositions.filter(nc => nc.product_id === pid);
-      const totalCost = productComps.reduce((acc, curr) => acc + (curr.quantity * curr.unit_cost), 0);
+      const productComps = newCompositions.filter((nc: any) => nc.product_id === pid);
+      const totalCost = productComps.reduce((acc: number, curr: any) => acc + (curr.quantity * curr.unit_cost), 0);
       
       await (context.supabase as any)
         .from("products")
