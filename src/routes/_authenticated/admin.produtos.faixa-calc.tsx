@@ -18,6 +18,7 @@ import {
   Info
 } from "lucide-react";
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { 
   getPricingConfig, 
   getFixedExpenses, 
@@ -69,16 +70,27 @@ interface ProductPricing {
 
 function CalculatorV2() {
   const queryClient = useQueryClient();
-  const { data: config } = useSuspenseQuery({ queryKey: ["pricing-config"], queryFn: () => getPricingConfig() });
-  const { data: expenses } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => getFixedExpenses() }) as { data: FixedExpense[] };
-  const { data: marketing } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => getMarketingInvestments() }) as { data: MarketingInvestment[] };
-  const { data: products } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => listAllProductPricing() }) as { data: ProductPricing[] };
+  
+  // Server functions wrapped with useServerFn to ensure proper hook execution and context
+  const fetchConfig = useServerFn(getPricingConfig);
+  const fetchExpenses = useServerFn(getFixedExpenses);
+  const fetchMarketing = useServerFn(getMarketingInvestments);
+  const fetchProducts = useServerFn(listAllProductPricing);
+  
+  const saveExpenseFn = useServerFn(saveFixedExpense);
+  const deleteExpenseFn = useServerFn(deleteFixedExpense);
+  const updateConfigFn = useServerFn(updatePricingConfig);
+
+  const { data: config } = useSuspenseQuery({ queryKey: ["pricing-config"], queryFn: () => fetchConfig() });
+  const { data: expenses } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => fetchExpenses() }) as { data: FixedExpense[] };
+  const { data: marketing } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => fetchMarketing() }) as { data: MarketingInvestment[] };
+  const { data: products } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => fetchProducts() }) as { data: ProductPricing[] };
 
   const [activeTab, setActiveTab] = useState("overview");
 
   // Mutations
   const updateConfigMutation = useMutation({
-    mutationFn: updatePricingConfig,
+    mutationFn: (data: Parameters<typeof updateConfigFn>[0]) => updateConfigFn(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pricing-config"] });
       toast.success("Configurações salvas!");
@@ -86,7 +98,7 @@ function CalculatorV2() {
   });
 
   const saveExpenseMutation = useMutation({
-    mutationFn: (data: Partial<FixedExpense>) => saveFixedExpense(data),
+    mutationFn: (data: Parameters<typeof saveExpenseFn>[0]) => saveExpenseFn(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fixed-expenses"] });
       toast.success("Despesa salva!");
@@ -94,7 +106,7 @@ function CalculatorV2() {
   });
 
   const deleteExpenseMutation = useMutation({
-    mutationFn: (data: { id: string }) => deleteFixedExpense(data),
+    mutationFn: (data: Parameters<typeof deleteExpenseFn>[0]) => deleteExpenseFn(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fixed-expenses"] });
       toast.success("Despesa removida!");
@@ -103,12 +115,12 @@ function CalculatorV2() {
 
   // Totals calculations
   const totalFixedExpenses = useMemo(() => 
-    (Array.isArray(expenses) ? expenses : []).reduce((acc: number, curr: FixedExpense) => acc + (curr.value || 0), 0), 
+    (Array.isArray(expenses) ? expenses : []).reduce((acc: number, curr: FixedExpense) => acc + (Number(curr.value) || 0), 0), 
     [expenses]
   );
   
   const totalMarketing = useMemo(() => 
-    (Array.isArray(marketing) ? marketing : []).reduce((acc: number, curr: MarketingInvestment) => acc + (curr.monthly_investment || 0), 0), 
+    (Array.isArray(marketing) ? marketing : []).reduce((acc: number, curr: MarketingInvestment) => acc + (Number(curr.monthly_investment) || 0), 0), 
     [marketing]
   );
   
@@ -229,7 +241,7 @@ function CalculatorV2() {
                       <TableCell>
                         <Input 
                           defaultValue={expense.name} 
-                          onBlur={(e) => saveExpenseMutation.mutate({ ...expense, name: e.target.value })}
+                          onBlur={(e) => saveExpenseMutation.mutate({ id: expense.id, name: e.target.value, value: Number(expense.value) })}
                         />
                       </TableCell>
                       <TableCell>{expense.category || "Geral"}</TableCell>
@@ -237,7 +249,7 @@ function CalculatorV2() {
                         <Input 
                           type="number"
                           defaultValue={expense.value} 
-                          onBlur={(e) => saveExpenseMutation.mutate({ ...expense, value: Number(e.target.value) })}
+                          onBlur={(e) => saveExpenseMutation.mutate({ id: expense.id, name: expense.name, value: Number(e.target.value) })}
                         />
                       </TableCell>
                       <TableCell>
@@ -297,8 +309,8 @@ function CalculatorV2() {
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">{p.name}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{p.sku}</TableCell>
-                      <TableCell>{formatMoney(p.price || 0)}</TableCell>
-                      <TableCell>{formatMoney(p.cost || 0)}</TableCell>
+                      <TableCell>{formatMoney(Number(p.price) || 0)}</TableCell>
+                      <TableCell>{formatMoney(Number(p.cost) || 0)}</TableCell>
                       <TableCell className="text-green-600 font-medium">40%</TableCell>
                       <TableCell className="text-blue-600 font-medium">25%</TableCell>
                       <TableCell>
