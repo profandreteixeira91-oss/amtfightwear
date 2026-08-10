@@ -17,12 +17,20 @@ export const getPricingConfig = createServerFn({ method: "GET" })
       return {
         min_net_margin: 15,
         min_contribution_margin: 35,
-        default_tax_rate: 8,
-        default_gateway_fee: 4,
-        default_marketing_percent: 10,
+        default_tax_rate: 6,
+        default_gateway_fee: 5,
+        default_marketing_percent: 8,
         wholesale_min_qty: 10,
         wholesale_discount_percent: 25,
-        apportionment_method: "revenue"
+        apportionment_method: "revenue",
+        monthly_production_estimate: 500,
+        desired_pro_labore: 4000,
+        reserve_percent: 4,
+        profit_percent: 20,
+        commission_percent: 0,
+        marketing_percent: 8,
+        taxes_percent: 6,
+        gateway_percent: 5
       };
     }
     
@@ -40,6 +48,14 @@ export const updatePricingConfig = createServerFn({ method: "POST" })
     wholesale_min_qty: z.number().optional(),
     wholesale_discount_percent: z.number().optional(),
     apportionment_method: z.string().optional(),
+    monthly_production_estimate: z.number().optional(),
+    desired_pro_labore: z.number().optional(),
+    reserve_percent: z.number().optional(),
+    profit_percent: z.number().optional(),
+    commission_percent: z.number().optional(),
+    marketing_percent: z.number().optional(),
+    taxes_percent: z.number().optional(),
+    gateway_percent: z.number().optional(),
   }).parse(data))
   .handler(async ({ data: input, context }) => {
     const { data, error } = await (context.supabase as any)
@@ -243,6 +259,12 @@ export const listAllProductPricing = createServerFn({ method: "GET" })
         price,
         cost,
         category_id,
+        pricing_marketing_percent,
+        pricing_taxes_percent,
+        pricing_gateway_percent,
+        pricing_commission_percent,
+        pricing_reserve_percent,
+        pricing_profit_percent,
         product_cost_compositions (*)
       `)
       .order("name");
