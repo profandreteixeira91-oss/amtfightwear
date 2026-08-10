@@ -3,9 +3,6 @@ import { useState, useMemo } from "react";
 import { PageShell } from "@/components/common/PageShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
-  Calculator, 
-  Settings, 
-  TrendingUp, 
   DollarSign, 
   Package, 
   Layers, 
@@ -16,7 +13,8 @@ import {
   Target,
   Plus,
   Trash2,
-  Save,
+  TrendingUp,
+  Settings,
   Info
 } from "lucide-react";
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,14 +25,11 @@ import {
   listAllProductPricing,
   saveFixedExpense,
   deleteFixedExpense,
-  saveMarketingInvestment,
-  deleteMarketingInvestment,
   updatePricingConfig
 } from "@/lib/store/pricing-calculator.functions";
 import { formatMoney } from "@/lib/store/pricing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { 
   Table, 
   TableBody, 
@@ -50,12 +45,34 @@ export const Route = createFileRoute("/_authenticated/admin/produtos/faixa-calc"
   component: CalculatorV2,
 });
 
+interface FixedExpense {
+  id: string;
+  name: string;
+  value: number;
+  category?: string | null;
+}
+
+interface MarketingInvestment {
+  id: string;
+  channel: string;
+  monthly_investment: number;
+  new_customers_goal?: number | null;
+}
+
+interface ProductPricing {
+  id: string;
+  name: string;
+  sku: string | null;
+  price: number | null;
+  cost: number | null;
+}
+
 function CalculatorV2() {
   const queryClient = useQueryClient();
   const { data: config } = useSuspenseQuery({ queryKey: ["pricing-config"], queryFn: () => getPricingConfig() });
-  const { data: expenses } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => getFixedExpenses() });
-  const { data: marketing } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => getMarketingInvestments() });
-  const { data: products } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => listAllProductPricing() });
+  const { data: expenses } = useSuspenseQuery({ queryKey: ["fixed-expenses"], queryFn: () => getFixedExpenses() }) as { data: FixedExpense[] };
+  const { data: marketing } = useSuspenseQuery({ queryKey: ["marketing-investments"], queryFn: () => getMarketingInvestments() }) as { data: MarketingInvestment[] };
+  const { data: products } = useSuspenseQuery({ queryKey: ["all-product-pricing"], queryFn: () => listAllProductPricing() }) as { data: ProductPricing[] };
 
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -69,7 +86,7 @@ function CalculatorV2() {
   });
 
   const saveExpenseMutation = useMutation({
-    mutationFn: saveFixedExpense,
+    mutationFn: (data: Partial<FixedExpense>) => saveFixedExpense(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fixed-expenses"] });
       toast.success("Despesa salva!");
@@ -77,7 +94,7 @@ function CalculatorV2() {
   });
 
   const deleteExpenseMutation = useMutation({
-    mutationFn: deleteFixedExpense,
+    mutationFn: (data: { id: string }) => deleteFixedExpense(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fixed-expenses"] });
       toast.success("Despesa removida!");
@@ -85,12 +102,18 @@ function CalculatorV2() {
   });
 
   // Totals calculations
-  const totalFixedExpenses = useMemo(() => expenses.reduce((acc, curr) => acc + curr.value, 0), [expenses]);
-  const totalMarketing = useMemo(() => marketing.reduce((acc, curr) => acc + curr.monthly_investment, 0), [marketing]);
+  const totalFixedExpenses = useMemo(() => 
+    (Array.isArray(expenses) ? expenses : []).reduce((acc: number, curr: FixedExpense) => acc + (curr.value || 0), 0), 
+    [expenses]
+  );
   
-  // Média de margem de contribuição (mock ou calculada a partir dos produtos)
-  const avgContributionMargin = 40; // 40% como base para ponto de equilíbrio
-  const breakEvenPoint = totalFixedExpenses / (avgContributionMargin / 100);
+  const totalMarketing = useMemo(() => 
+    (Array.isArray(marketing) ? marketing : []).reduce((acc: number, curr: MarketingInvestment) => acc + (curr.monthly_investment || 0), 0), 
+    [marketing]
+  );
+  
+  const avgContributionMargin = 40; 
+  const breakEvenPoint = totalFixedExpenses / (avgContributionMargin / 100 || 1);
 
   return (
     <PageShell
@@ -201,7 +224,7 @@ function CalculatorV2() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {expenses.map((expense) => (
+                  {(Array.isArray(expenses) ? expenses : []).map((expense) => (
                     <TableRow key={expense.id}>
                       <TableCell>
                         <Input 
@@ -224,7 +247,7 @@ function CalculatorV2() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {expenses.length === 0 && (
+                  {(!expenses || expenses.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-8 text-muted-foreground italic">
                         Nenhuma despesa fixa cadastrada.
@@ -237,7 +260,6 @@ function CalculatorV2() {
           </Card>
         </TabsContent>
 
-        {/* Other Tabs Content would go here... */}
         <TabsContent value="composition">
            <Card>
             <CardHeader>
@@ -271,12 +293,12 @@ function CalculatorV2() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products.map((p) => (
+                  {(Array.isArray(products) ? products : []).map((p) => (
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">{p.name}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{p.sku}</TableCell>
-                      <TableCell>{formatMoney(p.price)}</TableCell>
-                      <TableCell>{formatMoney(p.cost)}</TableCell>
+                      <TableCell>{formatMoney(p.price || 0)}</TableCell>
+                      <TableCell>{formatMoney(p.cost || 0)}</TableCell>
                       <TableCell className="text-green-600 font-medium">40%</TableCell>
                       <TableCell className="text-blue-600 font-medium">25%</TableCell>
                       <TableCell>
