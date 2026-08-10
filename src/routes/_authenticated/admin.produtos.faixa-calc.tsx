@@ -449,8 +449,7 @@ function CalculatorV2() {
                     <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
                       <Info className="h-5 w-5 text-amber-600 mt-0.5" />
                       <p className="text-sm text-amber-800">
-                        Para editar a composição do grupo, selecione um produto de referência deste grupo na aba "Formação", 
-                        ajuste seus insumos aqui e depois clique em "Replicar no Grupo".
+                        Você está editando uma composição global. Adicione os insumos abaixo e clique em "Replicar no Grupo" para aplicar a todos os produtos da categoria selecionada.
                       </p>
                     </div>
                   )}
