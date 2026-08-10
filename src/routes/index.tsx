@@ -1,5 +1,6 @@
 /**
- * Execute esta instrucao no projeto: Os e-mails dos clientes que realizaram pedidos na loja são: masbenicio@yahoo.com.br e orcamentos@amtfightwear.com.br
+ * Execute esta instrucao no projeto: https://amtfightwear.com.br/atacado-lp
+ * Ao clicar em qualquer botão CTA desta landing page, o cliente deve ser direcionado para a página https://amtfightwear.com.br/loja/atacado
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
