@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
   DollarSign, 
   Package, 
@@ -15,7 +15,13 @@ import {
   Trash2,
   TrendingUp,
   Settings,
-  Info
+  Info,
+  ChevronRight,
+  Calculator,
+  Save,
+  AlertTriangle,
+  ArrowUpRight,
+  TrendingDown
 } from "lucide-react";
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -26,7 +32,11 @@ import {
   listAllProductPricing,
   saveFixedExpense,
   deleteFixedExpense,
-  updatePricingConfig
+  updatePricingConfig,
+  saveCostComposition,
+  deleteCostComposition,
+  saveMarketingInvestment,
+  deleteMarketingInvestment
 } from "@/lib/store/pricing-calculator.functions";
 import { formatMoney } from "@/lib/store/pricing";
 import { Button } from "@/components/ui/button";
@@ -41,6 +51,12 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/faixa-calc")({
   component: CalculatorV2,
