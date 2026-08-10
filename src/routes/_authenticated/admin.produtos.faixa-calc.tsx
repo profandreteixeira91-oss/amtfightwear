@@ -122,17 +122,11 @@ function CalculatorV2() {
 
   const updateCategoryBOMMutation = useMutation({
     mutationFn: (args: { data: any }) => useServerFn(updateCategoryBOM)(args),
-    onSuccess: (res) => {
+    onSuccess: (res: any) => {
       queryClient.invalidateQueries({ queryKey: ["all-product-pricing"] });
       toast.success(`Composição aplicada a ${res.count} produtos da categoria!`);
     }
   });
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const categories = useMemo(() => {
-    const cats = new Set(products.map(p => p.category).filter(Boolean));
-    return Array.from(cats) as string[];
-  }, [products]);
 
   const selectedProduct = useMemo(() => 
     products.find(p => p.id === selectedProductId),
