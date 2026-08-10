@@ -119,6 +119,7 @@ function CalculatorV2() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
+  const [localComposition, setLocalComposition] = useState<any[]>([]);
 
   // Calculadora de Metragem
   const [materialWidth, setMaterialWidth] = useState<number>(1.6);
