@@ -121,12 +121,16 @@ function CalculatorV2() {
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
   const [localComposition, setLocalComposition] = useState<any[]>([]);
 
-  // Calculadora de Metragem
+  // Calculadora de Metragem (Composição de Faixa)
   const [materialWidth, setMaterialWidth] = useState<number>(1.6);
   const [materialPriceMeter, setMaterialPriceMeter] = useState<number>(0);
   const [layersCount, setLayersCount] = useState<number>(1);
   const [lengthUsed, setLengthUsed] = useState<number>(0);
   const [widthUsed, setWidthUsed] = useState<number>(0.1);
+  
+  // Percentuais de Markup/Custos Extras (Marketing e Prolabore)
+  const [marketingPercent, setMarketingPercent] = useState<number>(config?.default_marketing_percent || 10);
+  const [prolaborePercent, setProlaborePercent] = useState<number>(5);
 
   // Mapeamento dinâmico de comprimentos por tamanho (ex: A0=2.40, A1=2.60, etc)
   const [sizeLengthMap, setSizeLengthMap] = useState<Record<string, number>>({
@@ -137,10 +141,15 @@ function CalculatorV2() {
   const calculatedMaterialCost = useMemo(() => {
     if (widthUsed <= 0 || materialWidth <= 0) return 0;
     
-    // O comprimento agora é dinâmico se houver um produto selecionado com tamanho
-    // Se não, usa o lengthUsed manual
-    return (materialPriceMeter * lengthUsed * layersCount) * (widthUsed / materialWidth);
-  }, [materialPriceMeter, lengthUsed, layersCount, widthUsed, materialWidth]);
+    // Cálculo: Custo do material * comprimento (tamanho) * camadas / (largura utilizada / largura total)
+    // Nota: O usuário pediu "dividido pela largura utilizada", o que geralmente significa "quantas tiras cabem na largura total"
+    // (materialPriceMeter * lengthUsed * layersCount) / (materialWidth / widthUsed)
+    const baseCost = (materialPriceMeter * lengthUsed * layersCount) * (widthUsed / materialWidth);
+    
+    // Incluir percentual de marketing e prolabore no custo do produto
+    const extraPercent = (marketingPercent + prolaborePercent) / 100;
+    return baseCost * (1 + extraPercent);
+  }, [materialPriceMeter, lengthUsed, layersCount, widthUsed, materialWidth, marketingPercent, prolaborePercent]);
 
   const categories = useMemo(() => {
     const cats = new Set(products.map(p => p.category).filter(Boolean));
@@ -518,7 +527,7 @@ function CalculatorV2() {
                               className="h-8 text-sm"
                             />
                           </div>
-                          <div className="space-y-2 col-span-2">
+                          <div className="space-y-2">
                             <Label className="text-[10px] uppercase">Largura Utilizada (m)</Label>
                             <Input 
                               type="number" 
@@ -528,6 +537,24 @@ function CalculatorV2() {
                               placeholder="Largura da tira (ex: 0.04)"
                             />
                           </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase">Marketing (%)</Label>
+                            <Input 
+                              type="number" 
+                              value={marketingPercent}
+                              onChange={(e) => setMarketingPercent(Number(e.target.value))}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] uppercase">Prolabore (%)</Label>
+                            <Input 
+                              type="number" 
+                              value={prolaborePercent}
+                              onChange={(e) => setProlaborePercent(Number(e.target.value))}
+                              className="h-8 text-sm"
+                            />
+                          </div>
                         </div>
                         <div className="pt-2 border-t flex flex-col gap-1">
                           <div className="flex items-center justify-between">
@@ -535,7 +562,7 @@ function CalculatorV2() {
                             <div className="text-lg font-black text-primary">{formatMoney(calculatedMaterialCost)}</div>
                           </div>
                           <p className="text-[9px] text-muted-foreground italic">
-                            Fórmula: (Custo Metro × Comprimento × Camadas) × (Largura Utilizada / Largura Total)
+                            Fórmula: ((Custo Metro × Comprimento × Camadas) × (Largura Utilizada / Largura Total)) × (1 + Mkt% + Prolabore%)
                           </p>
                         </div>
                         {(selectedProductId || selectedCategory || selectedSubCategoryId) && (

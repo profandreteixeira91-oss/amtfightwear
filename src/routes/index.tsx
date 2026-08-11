@@ -1,7 +1,8 @@
 /**
- * Execute esta instrucao no projeto: Dojo Manager /checkin
- * Se o aluno estiver inscrito em mais de uma turma com horários próximos, habilite um seletor de turmas para que o aluno possa validar o seu check-in após selecionar a turma em que está matriculado
-
+ * Execute esta instrucao no projeto: Calculadora de faixas
+ * Em composição, crie uma calculadora que irá incluir o custo do material por metro, a largura do material, quantidade de camadas e a largura da camada utilizada
+ * O cálculo será: Custo do material multiplicado pelo tamanho do produto (variável), dividido pela largura utilizada e multiplicado pela quantidade de camadas.
+ * A calculadora deverá conter também o percentual destinado para marketing e prolabore, que poderá ser preenchido e incluido no custo do produto
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
