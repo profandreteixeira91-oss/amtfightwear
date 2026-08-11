@@ -141,14 +141,18 @@ function CalculatorV2() {
   const calculatedMaterialCost = useMemo(() => {
     if (widthUsed <= 0 || materialWidth <= 0) return 0;
     
-    // Cálculo: Custo do material * comprimento (tamanho) * camadas / (largura utilizada / largura total)
-    // Nota: O usuário pediu "dividido pela largura utilizada", o que geralmente significa "quantas tiras cabem na largura total"
-    // (materialPriceMeter * lengthUsed * layersCount) / (materialWidth / widthUsed)
+    // Cálculo: (Custo do material * comprimento * camadas) * (Largura Utilizada / Largura Total)
     const baseCost = (materialPriceMeter * lengthUsed * layersCount) * (widthUsed / materialWidth);
     
-    // Incluir percentual de marketing e prolabore no custo do produto
-    const extraPercent = (marketingPercent + prolaborePercent) / 100;
-    return baseCost * (1 + extraPercent);
+    // O usuário solicitou que marketing e prolabore sejam calculados com base no PREÇO FINAL do produto.
+    // Em precificação, isso geralmente significa que esses custos são percentuais da receita.
+    // Custo Final = Custo Base / (1 - (Marketing% + Prolabore%) / 100)
+    // Se Marketing = 10% e Prolabore = 5%, o custo base representa 85% do custo final deste item.
+    const marginDivisor = 1 - ((marketingPercent + prolaborePercent) / 100);
+    
+    if (marginDivisor <= 0) return baseCost; // Proteção contra divisão por zero
+    
+    return baseCost / marginDivisor;
   }, [materialPriceMeter, lengthUsed, layersCount, widthUsed, materialWidth, marketingPercent, prolaborePercent]);
 
   const categories = useMemo(() => {
@@ -564,7 +568,7 @@ function CalculatorV2() {
                             <div className="text-lg font-black text-primary">{formatMoney(calculatedMaterialCost)}</div>
                           </div>
                           <p className="text-[9px] text-muted-foreground italic">
-                            Fórmula: ((Custo Metro × Comprimento × Camadas) × (Largura Utilizada / Largura Total)) × (1 + Mkt% + Prolabore%)
+                            Fórmula: ((Custo Metro × Comprimento × Camadas) × (Largura Utilizada / Largura Total)) / (1 - (Mkt% + Prolabore%) / 100)
                           </p>
                         </div>
                         {(selectedProductId || selectedCategory || selectedSubCategoryId) && (
