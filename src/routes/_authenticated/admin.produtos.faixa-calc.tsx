@@ -383,14 +383,15 @@ function CalculatorV2() {
               </div>
               <div className="flex gap-2">
                 <Select onValueChange={(v) => {
-                  setSelectedCategory(v);
+                  setSelectedCategory(v === "all" ? null : v);
                   setSelectedSubCategoryId(null);
                   setSelectedProductId(null);
                 }}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Categoria" />
+                  <SelectTrigger className="w-[220px]">
+                    <SelectValue placeholder="Selecionar Categoria" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="all">Todas as Categorias</SelectItem>
                     {categories.map(cat => (
                       <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                     ))}
@@ -398,14 +399,15 @@ function CalculatorV2() {
                 </Select>
 
                 <Select onValueChange={(v) => {
-                  setSelectedSubCategoryId(v);
+                  setSelectedSubCategoryId(v === "all" ? null : v);
                   setSelectedCategory(null);
                   setSelectedProductId(null);
                 }}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Subcategoria" />
+                  <SelectTrigger className="w-[220px]">
+                    <SelectValue placeholder="Selecionar Subcategoria" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="all">Todas as Subcategorias</SelectItem>
                     {allStoreCategories?.filter((c: any) => c.parent_id !== null).map((sub: any) => (
                       <SelectItem key={sub.id} value={sub.id}>{sub.name}</SelectItem>
                     ))}
