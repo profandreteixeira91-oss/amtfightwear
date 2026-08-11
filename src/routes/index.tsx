@@ -1,5 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Calculadura de faixas: em composição, deverá ser selecionada uma categoria ou subcategoria, exatamente como a loja apresenta, e as edições devem propagar em todos os produtos pertencentes a categoria selecionada
+ * Execute esta instrucao no projeto: Calculadora de faixas > corrija a calculadora dentro de composição para que os cálculos sejam efetuados corretamente. Os custos de marketing e pro labore são calculados com base no preço final do produto, o mesmo do site
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
