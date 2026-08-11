@@ -9,6 +9,13 @@ import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { FixedQrScanner } from "@/components/student/FixedQrScanner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Clock } from "lucide-react";
+
 
 const searchSchema = z.object({
   auto: z.enum(["fixed_qr"]).optional(),
@@ -51,6 +58,9 @@ function CheckinPage() {
   const { data: history, isLoading } = useQuery({ queryKey: ["student", "attendance"], queryFn: () => listFn({}) });
   const [submitting, setSubmitting] = useState<Method | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [multipleClasses, setMultipleClasses] = useState<{ availableClasses: any[], method: Exclude<Method, "fixed_qr">, payload?: any } | null>(null);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+
 
   async function getPosition(): Promise<GeolocationPosition | null> {
     if (typeof navigator === "undefined" || !navigator.geolocation) return null;
@@ -63,11 +73,12 @@ function CheckinPage() {
     });
   }
 
-  async function doCheckin(method: Exclude<Method, "fixed_qr">) {
+  async function doCheckin(method: Exclude<Method, "fixed_qr">, classId?: string | null) {
     if (submitting) return;
     setSubmitting(method);
     try {
-      let payload: any = { method };
+      let payload: any = { method, classId };
+
       if (method === "app") {
         const pos = await getPosition();
         if (!pos) {
@@ -82,11 +93,19 @@ function CheckinPage() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           accuracy: pos.coords.accuracy,
+          classId,
         };
       }
-      await checkinFn({ data: payload });
+      const res = await checkinFn({ data: payload });
+      if (res && (res as any).error === "MULTIPLE_CLASSES") {
+        setMultipleClasses({ availableClasses: (res as any).availableClasses, method, payload });
+        return;
+      }
       toast.success("Check-in registrado!");
       qc.invalidateQueries({ queryKey: ["student"] });
+      setMultipleClasses(null);
+      setSelectedClassId(null);
+
     } catch (e) {
       toast.error("Falha no check-in", { description: (e as Error).message });
     } finally {
@@ -190,6 +209,54 @@ function CheckinPage() {
           ))}
         </div>
       </section>
+
+      <Dialog open={!!multipleClasses} onOpenChange={(open) => !open && setMultipleClasses(null)}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Múltiplas turmas</DialogTitle>
+            <DialogDescription>
+              Você está no horário de mais de uma turma. Selecione para qual deseja confirmar sua presença.
+            </DialogDescription>
+          </DialogHeader>
+
+          <RadioGroup value={selectedClassId ?? ""} onValueChange={setSelectedClassId} className="gap-3 py-4">
+            {multipleClasses?.availableClasses.map((cls: any) => (
+              <div
+                key={cls.id}
+                onClick={() => setSelectedClassId(cls.id)}
+                className={`flex cursor-pointer items-center justify-between rounded-2xl border-2 p-4 transition-all ${
+                  selectedClassId === cls.id
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "border-neutral-100 bg-white hover:border-neutral-200"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 text-neutral-600">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold">{cls.name}</span>
+                    {cls.modality && <span className="text-[10px] uppercase tracking-wider text-neutral-400">{cls.modality}</span>}
+                  </div>
+                </div>
+                <RadioGroupItem value={cls.id} id={cls.id} className="sr-only" />
+                {selectedClassId === cls.id && <CheckCircle2 className="h-5 w-5 text-primary" />}
+              </div>
+            ))}
+          </RadioGroup>
+
+          <DialogFooter>
+            <Button
+              disabled={!selectedClassId || submitting !== null}
+              onClick={() => multipleClasses && doCheckin(multipleClasses.method, selectedClassId)}
+              className="w-full rounded-2xl py-6 font-bold uppercase tracking-widest"
+            >
+              {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Confirmar Presença"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <FixedQrScanner
         open={scannerOpen}

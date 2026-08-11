@@ -1,5 +1,7 @@
 /**
- * Execute esta instrucao no projeto: Você criou anteriormente vídeos e disponibilizou aqui mesmo em "arquivos" para download direto, faça o mesmo com este vídeo
+ * Execute esta instrucao no projeto: Dojo Manager /checkin
+ * Se o aluno estiver inscrito em mais de uma turma com horários próximos, habilite um seletor de turmas para que o aluno possa validar o seu check-in após selecionar a turma em que está matriculado
+
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";

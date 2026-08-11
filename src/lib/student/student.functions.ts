@@ -423,6 +423,8 @@ export const selfCheckin = createServerFn({ method: "POST" })
       lat: z.number().min(-90).max(90).optional().nullable(),
       lng: z.number().min(-180).max(180).optional().nullable(),
       accuracy: z.number().min(0).max(100000).optional().nullable(),
+      classId: z.string().uuid().optional().nullable(),
+
     }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -481,14 +483,35 @@ export const selfCheckin = createServerFn({ method: "POST" })
       }
     }
 
-    const { resolveClassForCheckin } = await import("@/lib/dojo/attendance.functions");
-    const classId = await resolveClassForCheckin(context.supabase, me.id);
+    const { validateAndResolveCheckin } = await import("@/lib/dojo/attendance.functions");
+    const validation = await validateAndResolveCheckin(
+      context.supabase,
+      me.id,
+      me.owner_id,
+      false,
+      data.classId
+    );
+
+    if (!validation.isValid) {
+      if (validation.reason === "multiple_classes") {
+        return { error: "MULTIPLE_CLASSES", availableClasses: validation.availableClasses };
+      }
+      if (validation.reason === "duplicate_checkin") {
+        throw new Error("Você já realizou o check-in desta aula.");
+      }
+      if (validation.reason === "outside_window") {
+        throw new Error("Fora da janela permitida para check-in.");
+      }
+      throw new Error("Não há nenhuma aula disponível para check-in neste momento.");
+    }
+
     const { error } = await context.supabase.from("dojo_attendance").insert({
       student_id: me.id,
       owner_id: me.owner_id,
       unit_id: me.unit_id ?? null,
-      class_id: classId,
+      class_id: validation.classId,
       method: data.method,
+
       source: "student_app",
       status: "present",
     });
