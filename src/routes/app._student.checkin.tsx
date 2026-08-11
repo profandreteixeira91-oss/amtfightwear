@@ -1,7 +1,7 @@
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getMyAttendance, selfCheckin, getMyStudent, listMySchedule } from "@/lib/student/student.functions";
+import { getMyAttendance, selfCheckin, getMyStudent } from "@/lib/student/student.functions";
 import { getMyCheckinMethods } from "@/lib/dojo/checkin.functions";
 import { checkinByUnitQr } from "@/lib/student/unit-qr-checkin.functions";
 import { CheckCircle2, QrCode, History, MapPin, Fingerprint, ScanLine, Camera, Loader2 } from "lucide-react";
