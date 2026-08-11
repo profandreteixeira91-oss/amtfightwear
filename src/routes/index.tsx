@@ -1,8 +1,5 @@
 /**
- * Execute esta instrucao no projeto: Calculadora de faixas
- * Em composição, crie uma calculadora que irá incluir o custo do material por metro, a largura do material, quantidade de camadas e a largura da camada utilizada
- * O cálculo será: Custo do material multiplicado pelo tamanho do produto (variável), dividido pela largura utilizada e multiplicado pela quantidade de camadas.
- * A calculadora deverá conter também o percentual destinado para marketing e prolabore, que poderá ser preenchido e incluido no custo do produto
+ * Execute esta instrucao no projeto: Calculadura de faixas: em composição, deverá ser selecionada uma categoria ou subcategoria, exatamente como a loja apresenta, e as edições devem propagar em todos os produtos pertencentes a categoria selecionada
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
