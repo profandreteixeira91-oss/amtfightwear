@@ -1203,7 +1203,7 @@ function NewGraduationPage() {
                   }
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
                   const nextSuggest = suggestNextBelt({
-                    current: currentMatch ? { belt: currentMatch.belt, degree: currentMatch.degree ?? 0 } : null,
+                    current: currentMatch?.belt ? { belt: currentMatch.belt, degree: currentMatch.degree ?? 0 } : null,
                     belts: (belts.data ?? []) as any[],
                     modality: chosenMod,
                     age: studentAge,
