@@ -1057,7 +1057,7 @@ function NewGraduationPage() {
                       })()}
                     </div>
                     <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
-                      {belts.slice(0, 3).map((b: any, i: number) => (
+                      {belts.filter((b: any) => b?.belt).slice(0, 3).map((b: any, i: number) => (
                         <BeltAuto
                           key={i}
                           belt={b.belt}
