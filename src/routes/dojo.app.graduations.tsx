@@ -258,7 +258,7 @@ function NewGraduationPage() {
         if (next[id]?.beltId) continue;
         const currentTarget = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === targetMod) ?? null;
         const suggestion = suggestNextBelt({
-          current: currentTarget ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
+          current: currentTarget?.belt ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
           belts: allBelts,
           modality: targetMod,
           age,
@@ -353,7 +353,7 @@ function NewGraduationPage() {
       : (s?.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
     const currentTarget = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === newMod) ?? null;
     const suggestion = suggestNextBelt({
-      current: currentTarget ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
+      current: currentTarget?.belt ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
       belts: (belts.data ?? []) as any[],
       modality: newMod,
       age,
@@ -995,9 +995,12 @@ function NewGraduationPage() {
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-bold text-foreground">{s.full_name}</div>
                         <div className="mt-0.5 truncate text-[10px] uppercase tracking-wider text-muted-foreground">
-                          {belts.length === 0
+                          {belts.filter((b: any) => b?.belt?.name).length === 0
                             ? "Sem faixa"
-                            : belts.map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree)).join(" • ")}
+                            : belts
+                                .filter((b: any) => b?.belt?.name)
+                                .map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree))
+                                .join(" • ")}
                         </div>
                       </div>
                     </div>
@@ -1054,7 +1057,7 @@ function NewGraduationPage() {
                       })()}
                     </div>
                     <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
-                      {belts.slice(0, 3).map((b: any, i: number) => (
+                      {belts.filter((b: any) => b?.belt).slice(0, 3).map((b: any, i: number) => (
                         <BeltAuto
                           key={i}
                           belt={b.belt}
@@ -1200,7 +1203,7 @@ function NewGraduationPage() {
                   }
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
                   const nextSuggest = suggestNextBelt({
-                    current: currentMatch ? { belt: currentMatch.belt, degree: currentMatch.degree ?? 0 } : null,
+                    current: currentMatch?.belt ? { belt: currentMatch.belt, degree: currentMatch.degree ?? 0 } : null,
                     belts: (belts.data ?? []) as any[],
                     modality: chosenMod,
                     age: studentAge,
@@ -1230,7 +1233,7 @@ function NewGraduationPage() {
                             )}
                           </div>
                           <div className="truncate text-[11px] text-muted-foreground">
-                            {currentMatch
+                            {currentMatch?.belt?.name
                               ? `Atual: ${formatBeltFull(currentMatch.belt.name, currentMatch.belt?.modality, currentMatch.degree)}`
                               : "Sem faixa nesta modalidade"}
                           </div>
