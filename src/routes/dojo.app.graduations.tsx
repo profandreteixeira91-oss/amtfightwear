@@ -1233,7 +1233,7 @@ function NewGraduationPage() {
                             )}
                           </div>
                           <div className="truncate text-[11px] text-muted-foreground">
-                            {currentMatch
+                            {currentMatch?.belt?.name
                               ? `Atual: ${formatBeltFull(currentMatch.belt.name, currentMatch.belt?.modality, currentMatch.degree)}`
                               : "Sem faixa nesta modalidade"}
                           </div>
