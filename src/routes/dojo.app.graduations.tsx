@@ -258,7 +258,7 @@ function NewGraduationPage() {
         if (next[id]?.beltId) continue;
         const currentTarget = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === targetMod) ?? null;
         const suggestion = suggestNextBelt({
-          current: currentTarget ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
+          current: currentTarget?.belt ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
           belts: allBelts,
           modality: targetMod,
           age,
@@ -353,7 +353,7 @@ function NewGraduationPage() {
       : (s?.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
     const currentTarget = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === newMod) ?? null;
     const suggestion = suggestNextBelt({
-      current: currentTarget ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
+      current: currentTarget?.belt ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
       belts: (belts.data ?? []) as any[],
       modality: newMod,
       age,
