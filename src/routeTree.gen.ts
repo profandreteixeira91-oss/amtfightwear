@@ -61,6 +61,7 @@ import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as LovableEmailEventsRouteImport } from './routes/lovable/email/events'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
@@ -587,6 +588,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailEventsRoute = LovableEmailEventsRouteImport.update({
+  id: '/lovable/email/events',
+  path: '/lovable/email/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
@@ -2268,6 +2274,7 @@ export interface FileRoutesByFullPath {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
+  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
@@ -2570,6 +2577,7 @@ export interface FileRoutesByTo {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
+  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
@@ -2891,6 +2899,7 @@ export interface FileRoutesById {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
+  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
@@ -3213,6 +3222,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
+    | '/lovable/email/events'
     | '/lovable/email/suppression'
     | '/admin/'
     | '/prospect/'
@@ -3515,6 +3525,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
+    | '/lovable/email/events'
     | '/lovable/email/suppression'
     | '/admin'
     | '/prospect'
@@ -3835,6 +3846,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
+    | '/lovable/email/events'
     | '/lovable/email/suppression'
     | '/_authenticated/admin/'
     | '/_authenticated/prospect/'
@@ -4006,6 +4018,7 @@ export interface RootRouteChildren {
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
+  LovableEmailEventsRoute: typeof LovableEmailEventsRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LojaContaIndexRoute: typeof LojaContaIndexRoute
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
@@ -4407,6 +4420,13 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/suppression'
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/events': {
+      id: '/lovable/email/events'
+      path: '/lovable/email/events'
+      fullPath: '/lovable/email/events'
+      preLoaderRoute: typeof LovableEmailEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/produto/$slug': {
@@ -7219,6 +7239,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
+  LovableEmailEventsRoute: LovableEmailEventsRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LojaContaIndexRoute: LojaContaIndexRoute,
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
