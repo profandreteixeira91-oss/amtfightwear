@@ -18,8 +18,8 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "bright-spark-echo"
-const ROOT_DOMAIN = "marketing.amtfightwear.com.br"
+const SITE_NAME = "AMT Marketing"
+const ROOT_DOMAIN = "amtfightwear.com.br"
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.

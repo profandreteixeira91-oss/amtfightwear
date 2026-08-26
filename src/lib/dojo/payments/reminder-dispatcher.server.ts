@@ -1,20 +1,9 @@
-// Server-only: dispara um lembrete de fatura via infra transacional (React Email + fila).
-// Reaproveita o pipeline /lovable/email/transactional/send para renderizar + enfileirar.
-import * as React from "react";
-import { render } from "react-email";
-import { template as reminderTemplate } from "@/lib/email-templates/dojo-invoice-reminder";
+// Server-only: dispara um lembrete de fatura via e-mail gerenciado da Lovable.
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 
-const SITE_NAME = "AMT Dojo Manager";
-const SENDER_DOMAIN = "notify.marketing.amtfightwear.com.br";
-const FROM_DOMAIN = "marketing.amtfightwear.com.br";
+const FROM_DOMAIN = "amtfightwear.com.br";
+void FROM_DOMAIN;
 
-function generateToken(): string {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -68,24 +57,6 @@ export async function dispatchInvoiceReminder(
     .maybeSingle();
   if (existing) return { status: "skipped", reason: "already_sent" };
 
-  // Verifica suppression list.
-  const { data: suppressed } = await supabase
-    .from("suppressed_emails")
-    .select("id")
-    .eq("email", recipient.toLowerCase())
-    .maybeSingle();
-  if (suppressed) {
-    await supabase.from("dojo_invoice_reminders").insert({
-      owner_id: invoice.owner_id,
-      invoice_id: invoice.id,
-      offset_days: offsetDays,
-      channel,
-      status: "skipped",
-      error_message: "recipient_suppressed",
-    });
-    return { status: "skipped", reason: "recipient_suppressed" };
-  }
-
   // Descobre nome do dojo — prioriza a identidade personalizada no AMT Pay.
   let dojoName = args.dojoName ?? "Sua academia";
   if (!args.dojoName) {
@@ -106,91 +77,55 @@ export async function dispatchInvoiceReminder(
     invoiceDescription: invoice.description ?? "Mensalidade",
   };
 
-  // Renderiza template.
-  const element = React.createElement(reminderTemplate.component as any, templateData);
-  const html = await render(element);
-  const text = await render(element, { plainText: true });
-  const subject =
-    typeof reminderTemplate.subject === "function"
-      ? reminderTemplate.subject(templateData)
-      : reminderTemplate.subject;
-
-  // Prepara token de unsubscribe (uma vez por email).
-  const normalizedEmail = recipient.toLowerCase();
-  let unsubscribeToken: string | null = null;
-  const { data: existingToken } = await supabase
-    .from("email_unsubscribe_tokens")
-    .select("token, used_at")
-    .eq("email", normalizedEmail)
-    .maybeSingle();
-  if (existingToken && !existingToken.used_at) {
-    unsubscribeToken = existingToken.token;
-  } else if (!existingToken) {
-    unsubscribeToken = generateToken();
-    await supabase
-      .from("email_unsubscribe_tokens")
-      .upsert(
-        { token: unsubscribeToken, email: normalizedEmail },
-        { onConflict: "email", ignoreDuplicates: true },
-      );
-    const { data: stored } = await supabase
-      .from("email_unsubscribe_tokens")
-      .select("token")
-      .eq("email", normalizedEmail)
-      .maybeSingle();
-    unsubscribeToken = stored?.token ?? unsubscribeToken;
-  } else {
-    await supabase.from("dojo_invoice_reminders").insert({
-      owner_id: invoice.owner_id,
-      invoice_id: invoice.id,
-      offset_days: offsetDays,
-      channel,
-      status: "skipped",
-      error_message: "unsubscribed",
-    });
-    return { status: "skipped", reason: "unsubscribed" };
-  }
-
-  const messageId = crypto.randomUUID();
   const idempotencyKey = `dojo-reminder-${invoice.id}-${offsetDays}-${channel}`;
 
-  await supabase.from("email_send_log").insert({
-    message_id: messageId,
-    template_name: "dojo-invoice-reminder",
-    recipient_email: recipient,
-    status: "pending",
-  });
-
-  const { error: enqueueError } = await supabase.rpc("enqueue_email", {
-    queue_name: "transactional_emails",
-    payload: {
-      message_id: messageId,
-      to: recipient,
-      from: `${dojoName} <noreply@${FROM_DOMAIN}>`,
-      sender_domain: SENDER_DOMAIN,
-      subject,
-      html,
-      text,
-      purpose: "transactional",
-      label: "dojo-invoice-reminder",
-      idempotency_key: idempotencyKey,
-      unsubscribe_token: unsubscribeToken,
-      queued_at: new Date().toISOString(),
-    },
-  });
-
-  if (enqueueError) {
+  let result: { sent: boolean; reason?: string };
+  try {
+    result = await sendTemplateEmail("dojo-invoice-reminder", recipient, {
+      templateData,
+      idempotencyKey,
+    });
+  } catch (err: any) {
+    const message = String(err?.message ?? err);
+    await supabase.from("email_send_log").insert({
+      template_name: "dojo-invoice-reminder",
+      recipient_email: recipient,
+      status: "failed",
+      error_message: message.slice(0, 1000),
+    });
     await supabase.from("dojo_invoice_reminders").insert({
       owner_id: invoice.owner_id,
       invoice_id: invoice.id,
       offset_days: offsetDays,
       channel,
       status: "failed",
-      error_message: enqueueError.message,
-      message_id: messageId,
+      error_message: message,
     });
-    return { status: "failed", reason: enqueueError.message };
+    return { status: "failed", reason: message };
   }
+
+  if (!result.sent) {
+    await supabase.from("email_send_log").insert({
+      template_name: "dojo-invoice-reminder",
+      recipient_email: recipient,
+      status: "suppressed",
+    });
+    await supabase.from("dojo_invoice_reminders").insert({
+      owner_id: invoice.owner_id,
+      invoice_id: invoice.id,
+      offset_days: offsetDays,
+      channel,
+      status: "skipped",
+      error_message: "recipient_suppressed",
+    });
+    return { status: "skipped", reason: "recipient_suppressed" };
+  }
+
+  await supabase.from("email_send_log").insert({
+    template_name: "dojo-invoice-reminder",
+    recipient_email: recipient,
+    status: "sent",
+  });
 
   // Registra o disparo (idempotência garantida pela unique index).
   const { error: logErr } = await supabase.from("dojo_invoice_reminders").insert({
@@ -199,7 +134,6 @@ export async function dispatchInvoiceReminder(
     offset_days: offsetDays,
     channel,
     status: "sent",
-    message_id: messageId,
   });
   if (logErr && !logErr.message.includes("duplicate")) {
     console.warn("[reminders] falha ao logar envio", logErr);
@@ -207,6 +141,7 @@ export async function dispatchInvoiceReminder(
 
   return { status: "sent" };
 }
+
 
 // ---------- Push (Web Push) ----------
 export async function dispatchInvoicePushReminder(

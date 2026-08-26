@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -31,7 +30,6 @@ import { Route as LojaGuiaKimonoRouteImport } from './routes/loja.guia-kimono'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
-import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DojoOnboardingRouteImport } from './routes/dojo.onboarding'
 import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
@@ -60,7 +58,7 @@ import { Route as DojoAppIndexRouteImport } from './routes/dojo.app.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as LovableEmailEventsRouteImport } from './routes/lovable/email/events'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
@@ -215,9 +213,7 @@ import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminInstagramIndexRouteImport } from './routes/_authenticated/admin.instagram.index'
 import { Route as AuthenticatedAdminAnunciosIndexRouteImport } from './routes/_authenticated/admin.anuncios.index'
 import { Route as AuthenticatedAdminAdsIndexRouteImport } from './routes/_authenticated/admin.ads.index'
-import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as DojoAppVideosNovoRouteImport } from './routes/dojo.app.videos.novo'
@@ -330,11 +326,6 @@ import { Route as DojoAppStoreCCategoriaIndexRouteImport } from './routes/dojo.a
 import { Route as DojoAppStoreCCategoriaSubcategoriaRouteImport } from './routes/dojo.app.store.c.$categoria.$subcategoria'
 import { Route as DojoAppContractsIssuedKindIdRouteImport } from './routes/dojo.app.contracts.issued.$kind.$id'
 
-const UnsubscribeRoute = UnsubscribeRouteImport.update({
-  id: '/unsubscribe',
-  path: '/unsubscribe',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -437,11 +428,6 @@ const LojaCarrinhoRoute = LojaCarrinhoRouteImport.update({
 const LojaAtacadoRoute = LojaAtacadoRouteImport.update({
   id: '/loja/atacado',
   path: '/loja/atacado',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
-  id: '/email/unsubscribe',
-  path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DojoOnboardingRoute = DojoOnboardingRouteImport.update({
@@ -584,9 +570,9 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
-  id: '/lovable/email/suppression',
-  path: '/lovable/email/suppression',
+const LovableEmailEventsRoute = LovableEmailEventsRouteImport.update({
+  id: '/lovable/email/events',
+  path: '/lovable/email/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
@@ -1428,22 +1414,10 @@ const AuthenticatedAdminAdsIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAdminAdsRoute,
   } as any)
-const LovableEmailTransactionalSendRoute =
-  LovableEmailTransactionalSendRouteImport.update({
-    id: '/lovable/email/transactional/send',
-    path: '/lovable/email/transactional/send',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
     path: '/lovable/email/transactional/preview',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
 const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
@@ -2099,7 +2073,6 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -2121,7 +2094,6 @@ export interface FileRoutesByFullPath {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2268,7 +2240,7 @@ export interface FileRoutesByFullPath {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
-  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
@@ -2372,9 +2344,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
-  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
   '/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
@@ -2417,7 +2387,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/unsubscribe': typeof UnsubscribeRoute
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/growth': typeof AuthenticatedGrowthRouteWithChildren
@@ -2436,7 +2405,6 @@ export interface FileRoutesByTo {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2570,7 +2538,7 @@ export interface FileRoutesByTo {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
-  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
@@ -2672,9 +2640,7 @@ export interface FileRoutesByTo {
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
-  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/admin/ads': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios': typeof AuthenticatedAdminAnunciosIndexRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramIndexRoute
@@ -2721,7 +2687,6 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/ads': typeof AuthenticatedAdsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -2744,7 +2709,6 @@ export interface FileRoutesById {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2891,7 +2855,7 @@ export interface FileRoutesById {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
-  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
@@ -2995,9 +2959,7 @@ export interface FileRoutesById {
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
-  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/_authenticated/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/_authenticated/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
   '/_authenticated/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
@@ -3044,7 +3006,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/terms'
-    | '/unsubscribe'
     | '/admin'
     | '/ads'
     | '/dashboard'
@@ -3066,7 +3027,6 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
-    | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3213,7 +3173,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
-    | '/lovable/email/suppression'
+    | '/lovable/email/events'
     | '/admin/'
     | '/prospect/'
     | '/store/'
@@ -3317,9 +3277,7 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/novo'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
-    | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
-    | '/lovable/email/transactional/send'
     | '/admin/ads/'
     | '/admin/anuncios/'
     | '/admin/instagram/'
@@ -3362,7 +3320,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/terms'
-    | '/unsubscribe'
     | '/ads'
     | '/dashboard'
     | '/growth'
@@ -3381,7 +3338,6 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
-    | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3515,7 +3471,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
-    | '/lovable/email/suppression'
+    | '/lovable/email/events'
     | '/admin'
     | '/prospect'
     | '/store'
@@ -3617,9 +3573,7 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/novo'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
-    | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
-    | '/lovable/email/transactional/send'
     | '/admin/ads'
     | '/admin/anuncios'
     | '/admin/instagram'
@@ -3665,7 +3619,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/terms'
-    | '/unsubscribe'
     | '/_authenticated/admin'
     | '/_authenticated/ads'
     | '/_authenticated/dashboard'
@@ -3688,7 +3641,6 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
-    | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3835,7 +3787,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
-    | '/lovable/email/suppression'
+    | '/lovable/email/events'
     | '/_authenticated/admin/'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
@@ -3939,9 +3891,7 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/novo'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
-    | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
-    | '/lovable/email/transactional/send'
     | '/_authenticated/admin/ads/'
     | '/_authenticated/admin/anuncios/'
     | '/_authenticated/admin/instagram/'
@@ -3988,10 +3938,8 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
-  UnsubscribeRoute: typeof UnsubscribeRoute
   ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
   CertificateHashRoute: typeof CertificateHashRoute
-  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LojaAtacadoRoute: typeof LojaAtacadoRoute
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
@@ -4006,7 +3954,7 @@ export interface RootRouteChildren {
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
-  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  LovableEmailEventsRoute: typeof LovableEmailEventsRoute
   LojaContaIndexRoute: typeof LojaContaIndexRoute
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
@@ -4036,22 +3984,13 @@ export interface RootRouteChildren {
   ApiPublicSalesMessagesRoute: typeof ApiPublicSalesMessagesRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
-  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
-  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
   ApiPublicAppSlugDownloadRoute: typeof ApiPublicAppSlugDownloadRoute
   ApiPublicDojoPartnerCheckinProviderRoute: typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/unsubscribe': {
-      id: '/unsubscribe'
-      path: '/unsubscribe'
-      fullPath: '/unsubscribe'
-      preLoaderRoute: typeof UnsubscribeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -4197,13 +4136,6 @@ declare module '@tanstack/react-router' {
       path: '/loja/atacado'
       fullPath: '/loja/atacado'
       preLoaderRoute: typeof LojaAtacadoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/email/unsubscribe': {
-      id: '/email/unsubscribe'
-      path: '/email/unsubscribe'
-      fullPath: '/email/unsubscribe'
-      preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dojo/onboarding': {
@@ -4402,11 +4334,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/lovable/email/suppression': {
-      id: '/lovable/email/suppression'
-      path: '/lovable/email/suppression'
-      fullPath: '/lovable/email/suppression'
-      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+    '/lovable/email/events': {
+      id: '/lovable/email/events'
+      path: '/lovable/email/events'
+      fullPath: '/lovable/email/events'
+      preLoaderRoute: typeof LovableEmailEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/produto/$slug': {
@@ -5487,25 +5419,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminAdsRoute
     }
-    '/lovable/email/transactional/send': {
-      id: '/lovable/email/transactional/send'
-      path: '/lovable/email/transactional/send'
-      fullPath: '/lovable/email/transactional/send'
-      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
       fullPath: '/lovable/email/transactional/preview'
       preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/webhook': {
@@ -7200,10 +7118,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
-  UnsubscribeRoute: UnsubscribeRoute,
   ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
   CertificateHashRoute: CertificateHashRoute,
-  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LojaAtacadoRoute: LojaAtacadoRoute,
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
@@ -7219,7 +7135,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
-  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  LovableEmailEventsRoute: LovableEmailEventsRoute,
   LojaContaIndexRoute: LojaContaIndexRoute,
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicAppManifestDotwebmanifestRoute:
@@ -7255,9 +7171,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicSalesMessagesRoute: ApiPublicSalesMessagesRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
-  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
-  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
   ApiPublicAppSlugDownloadRoute: ApiPublicAppSlugDownloadRoute,
   ApiPublicDojoPartnerCheckinProviderRoute:
     ApiPublicDojoPartnerCheckinProviderRoute,
