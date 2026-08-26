@@ -1,20 +1,9 @@
-// Server-only: dispara um lembrete de fatura via infra transacional (React Email + fila).
-// Reaproveita o pipeline /lovable/email/transactional/send para renderizar + enfileirar.
-import * as React from "react";
-import { render } from "react-email";
-import { template as reminderTemplate } from "@/lib/email-templates/dojo-invoice-reminder";
+// Server-only: dispara um lembrete de fatura via e-mail gerenciado da Lovable.
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 
-const SITE_NAME = "AMT Dojo Manager";
-const SENDER_DOMAIN = "notify.marketing.amtfightwear.com.br";
-const FROM_DOMAIN = "marketing.amtfightwear.com.br";
+const FROM_DOMAIN = "amtfightwear.com.br";
+void FROM_DOMAIN;
 
-function generateToken(): string {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
