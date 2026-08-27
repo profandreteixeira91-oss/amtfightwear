@@ -28,7 +28,7 @@ import { adminRegenerateStorePixQrCodes } from "@/lib/store/mercadopago.function
 import { formatBRL } from "@/lib/store/cart-store";
 import { orderStatusLabel, paymentStatusLabel, orderStatusOptions } from "@/lib/store/order-status";
 import { useState } from "react";
-import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2, QrCode } from "lucide-react";
+import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2, QrCode, Eye } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
