@@ -232,6 +232,7 @@ function AdminOrdersPage() {
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                        </div>
                       </td>
                     </tr>
 
