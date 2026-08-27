@@ -638,6 +638,8 @@ export const createStoreOrder = createServerFn({ method: "POST" })
         customer_document: data.customer_document,
         shipping_address: data.shipping_address,
         shipping_method: data.shipping_method ?? null,
+        melhor_envio_service_id: data.shipping_service_id ?? null,
+        melhor_envio_service_name: data.shipping_method ?? null,
         subtotal,
         shipping_cost,
         discount: shipping_discount + pix_discount,
