@@ -542,6 +542,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
       notes: z.string().optional().nullable(),
       shipping_cost: z.number().min(0).optional(),
       shipping_method: z.string().optional().nullable(),
+      shipping_service_id: z.number().int().positive().optional().nullable(),
       payment_method: z.enum(["PIX", "CREDIT_CARD", "BOLETO"]).optional(),
     }).parse(i),
   )
