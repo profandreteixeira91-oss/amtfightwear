@@ -598,7 +598,8 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
   return (
     <div className="space-y-4 text-sm">
       <div className="grid gap-3 rounded-md border bg-muted/40 p-3 sm:grid-cols-2">
-        <Field label="Serviço" value={str(order.melhor_envio_service_name)} />
+        <Field label="Serviço escolhido pelo cliente" value={chosenName} />
+        <Field label="Valor do frete" value={formatBRL(chosenPrice)} />
         <Field label="Status Melhor Envio" value={str(order.melhor_envio_status)} />
         <Field label="ID carrinho" value={str(order.melhor_envio_cart_id)} mono />
         <Field label="ID envio" value={str(order.melhor_envio_order_id)} mono />
