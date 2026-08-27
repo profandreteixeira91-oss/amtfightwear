@@ -435,6 +435,14 @@ export const adminMelhorEnvioAddToCart = createServerFn({ method: "POST" })
       })
       .eq("id", data.order_id);
 
+    const { logOrderEvent } = await import("@/lib/store/order-events.server");
+    await logOrderEvent({
+      order_id: data.order_id,
+      event: "shipping_in_cart",
+      message: `Envio adicionado ao carrinho Melhor Envio (${data.service_name ?? data.service_id})`,
+      metadata: { cart_id: cartResp.id, service_id: data.service_id },
+    });
+
     return { cart_id: cartResp.id, protocol: cartResp.protocol ?? null };
   });
 
@@ -469,6 +477,11 @@ export const adminMelhorEnvioCheckout = createServerFn({ method: "POST" })
         .update({ melhor_envio_status: "paid", melhor_envio_order_id: o.melhor_envio_cart_id })
         .eq("id", o.id);
     }
+    const { logOrderEvent } = await import("@/lib/store/order-events.server");
+    for (const o of orders ?? []) {
+      if (!o.melhor_envio_cart_id) continue;
+      await logOrderEvent({ order_id: o.id, event: "shipping_paid", message: "Etiqueta comprada no Melhor Envio" });
+    }
     return { ok: true, response: resp };
   });
 
@@ -500,6 +513,15 @@ export const adminMelhorEnvioGenerate = createServerFn({ method: "POST" })
         .from("store_orders")
         .update({ melhor_envio_label_url: printResp?.url ?? null, melhor_envio_status: "generated", status: "preparing" })
         .eq("id", o.id);
+    }
+    const { logOrderEvent } = await import("@/lib/store/order-events.server");
+    for (const o of orders ?? []) {
+      await logOrderEvent({
+        order_id: o.id,
+        event: "shipping_label",
+        message: "Etiqueta gerada",
+        metadata: { url: printResp?.url ?? null },
+      });
     }
     return { url: printResp?.url ?? null };
   });
@@ -548,6 +570,13 @@ export const adminMelhorEnvioSyncTracking = createServerFn({ method: "POST" })
       if (row.status === "posted") patch.status = "shipped";
       if (row.status === "delivered") patch.status = "delivered";
       await supabaseAdmin.from("store_orders").update(patch).eq("id", o.id);
+      const { logOrderEvent } = await import("@/lib/store/order-events.server");
+      await logOrderEvent({
+        order_id: o.id,
+        event: "shipping_tracking",
+        message: `Rastreio sincronizado: ${row.status ?? "sem status"}${tracking ? ` · ${tracking}` : ""}`,
+        metadata: row as Record<string, unknown>,
+      });
       updated += 1;
     }
     return { updated };

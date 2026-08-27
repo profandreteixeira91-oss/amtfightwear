@@ -12687,6 +12687,47 @@ export type Database = {
         }
         Relationships: []
       }
+      store_order_events: {
+        Row: {
+          actor_email: string | null
+          actor_user_id: string | null
+          created_at: string
+          event: string
+          id: string
+          message: string | null
+          metadata: Json | null
+          order_id: string
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          event: string
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          order_id: string
+        }
+        Update: {
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          event?: string
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "store_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_order_items: {
         Row: {
           created_at: string
@@ -13566,10 +13607,6 @@ export type Database = {
         Args: { owner_id_to_delete: string }
         Returns: undefined
       }
-      delete_email: {
-        Args: { message_id: number; queue_name: string }
-        Returns: boolean
-      }
       dojo_announcement_visible_to_student: {
         Args: { _ann: string; _student: string }
         Returns: boolean
@@ -13594,11 +13631,6 @@ export type Database = {
         Returns: undefined
       }
       dojo_slugify: { Args: { input: string }; Returns: string }
-      email_queue_dispatch: { Args: never; Returns: undefined }
-      enqueue_email: {
-        Args: { payload: Json; queue_name: string }
-        Returns: number
-      }
       ensure_my_student_credentials: {
         Args: never
         Returns: {
@@ -13734,23 +13766,6 @@ export type Database = {
           owner_id: string
           photo_url: string
           unit_id: string
-        }[]
-      }
-      move_to_dlq: {
-        Args: {
-          dlq_name: string
-          message_id: number
-          payload: Json
-          source_queue: string
-        }
-        Returns: number
-      }
-      read_email_batch: {
-        Args: { batch_size: number; queue_name: string; vt: number }
-        Returns: {
-          message: Json
-          msg_id: number
-          read_ct: number
         }[]
       }
       show_limit: { Args: never; Returns: number }

@@ -719,6 +719,20 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
+    try {
+      const { logOrderEvent } = await import("@/lib/store/order-events.server");
+      await logOrderEvent({
+        order_id: data.id,
+        event: "status_changed",
+        message: `Status: ${data.status}${data.payment_status ? ` · Pagamento: ${data.payment_status}` : ""}`,
+        metadata: patch as Record<string, unknown>,
+        actor_user_id: context.userId,
+        actor_email: (context.claims?.email as string | undefined) ?? null,
+      });
+    } catch (err) {
+      console.error("[order-events] status log failed", err);
+    }
+
     // Notificar admins sobre mudanças importantes no pedido
     if (data.status === "paid" || data.payment_status === "paid") {
       try {

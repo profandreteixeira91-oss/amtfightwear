@@ -43,7 +43,7 @@ import {
 import { PageShell } from "@/components/common/PageShell";
 
 
-export const Route = createFileRoute("/_authenticated/admin/pedidos")({
+export const Route = createFileRoute("/_authenticated/admin/pedidos/")({
   component: AdminOrdersPage,
 });
 

@@ -176,7 +176,6 @@ import { Route as AuthenticatedAdminSaasRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminProspectRouteImport } from './routes/_authenticated/admin.prospect'
 import { Route as AuthenticatedAdminProducaoRouteImport } from './routes/_authenticated/admin.producao'
 import { Route as AuthenticatedAdminPerfilRouteImport } from './routes/_authenticated/admin.perfil'
-import { Route as AuthenticatedAdminPedidosRouteImport } from './routes/_authenticated/admin.pedidos'
 import { Route as AuthenticatedAdminOrcamentosRouteImport } from './routes/_authenticated/admin.orcamentos'
 import { Route as AuthenticatedAdminNotificacoesRouteImport } from './routes/_authenticated/admin.notificacoes'
 import { Route as AuthenticatedAdminMarketingRouteImport } from './routes/_authenticated/admin.marketing'
@@ -208,6 +207,7 @@ import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo
 import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
 import { Route as AppStudentDocumentsIndexRouteImport } from './routes/app._student.documents.index'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated/admin.produtos.index'
+import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated/admin.pedidos.index'
 import { Route as AuthenticatedAdminMarketingIndexRouteImport } from './routes/_authenticated/admin.marketing.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated/admin.leads.index'
 import { Route as AuthenticatedAdminInstagramIndexRouteImport } from './routes/_authenticated/admin.instagram.index'
@@ -276,6 +276,7 @@ import { Route as AuthenticatedAdminProdutosPacotesRouteImport } from './routes/
 import { Route as AuthenticatedAdminProdutosImportarRouteImport } from './routes/_authenticated/admin.produtos.importar'
 import { Route as AuthenticatedAdminProdutosImagensRouteImport } from './routes/_authenticated/admin.produtos.imagens'
 import { Route as AuthenticatedAdminProdutosFaixaCalcRouteImport } from './routes/_authenticated/admin.produtos.faixa-calc'
+import { Route as AuthenticatedAdminPedidosOrderIdRouteImport } from './routes/_authenticated/admin.pedidos.$orderId'
 import { Route as AuthenticatedAdminMarketingMercadoRouteImport } from './routes/_authenticated/admin.marketing.mercado'
 import { Route as AuthenticatedAdminMarketingKpisRouteImport } from './routes/_authenticated/admin.marketing.kpis'
 import { Route as AuthenticatedAdminMarketingInteligenciaRouteImport } from './routes/_authenticated/admin.marketing.inteligencia'
@@ -1206,12 +1207,6 @@ const AuthenticatedAdminPerfilRoute =
     path: '/perfil',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminPedidosRoute =
-  AuthenticatedAdminPedidosRouteImport.update({
-    id: '/pedidos',
-    path: '/pedidos',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminOrcamentosRoute =
   AuthenticatedAdminOrcamentosRouteImport.update({
     id: '/orcamentos',
@@ -1382,6 +1377,12 @@ const AuthenticatedAdminProdutosIndexRoute =
   AuthenticatedAdminProdutosIndexRouteImport.update({
     id: '/produtos/',
     path: '/produtos/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPedidosIndexRoute =
+  AuthenticatedAdminPedidosIndexRouteImport.update({
+    id: '/pedidos/',
+    path: '/pedidos/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminMarketingIndexRoute =
@@ -1767,6 +1768,12 @@ const AuthenticatedAdminProdutosFaixaCalcRoute =
     path: '/produtos/faixa-calc',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPedidosOrderIdRoute =
+  AuthenticatedAdminPedidosOrderIdRouteImport.update({
+    id: '/pedidos/$orderId',
+    path: '/pedidos/$orderId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminMarketingMercadoRoute =
   AuthenticatedAdminMarketingMercadoRouteImport.update({
     id: '/mercado',
@@ -2122,7 +2129,6 @@ export interface FileRoutesByFullPath {
   '/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
   '/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
-  '/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
@@ -2282,6 +2288,7 @@ export interface FileRoutesByFullPath {
   '/admin/marketing/inteligencia': typeof AuthenticatedAdminMarketingInteligenciaRoute
   '/admin/marketing/kpis': typeof AuthenticatedAdminMarketingKpisRoute
   '/admin/marketing/mercado': typeof AuthenticatedAdminMarketingMercadoRoute
+  '/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
   '/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
@@ -2350,6 +2357,7 @@ export interface FileRoutesByFullPath {
   '/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
+  '/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
   '/app/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
@@ -2428,7 +2436,6 @@ export interface FileRoutesByTo {
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
   '/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
-  '/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
@@ -2580,6 +2587,7 @@ export interface FileRoutesByTo {
   '/admin/marketing/inteligencia': typeof AuthenticatedAdminMarketingInteligenciaRoute
   '/admin/marketing/kpis': typeof AuthenticatedAdminMarketingKpisRoute
   '/admin/marketing/mercado': typeof AuthenticatedAdminMarketingMercadoRoute
+  '/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
   '/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
@@ -2646,6 +2654,7 @@ export interface FileRoutesByTo {
   '/admin/instagram': typeof AuthenticatedAdminInstagramIndexRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/marketing': typeof AuthenticatedAdminMarketingIndexRoute
+  '/admin/pedidos': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
   '/app/documents': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
@@ -2737,7 +2746,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
   '/_authenticated/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
   '/_authenticated/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
-  '/_authenticated/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/_authenticated/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/_authenticated/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/_authenticated/admin/prospect': typeof AuthenticatedAdminProspectRoute
@@ -2897,6 +2905,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/marketing/inteligencia': typeof AuthenticatedAdminMarketingInteligenciaRoute
   '/_authenticated/admin/marketing/kpis': typeof AuthenticatedAdminMarketingKpisRoute
   '/_authenticated/admin/marketing/mercado': typeof AuthenticatedAdminMarketingMercadoRoute
+  '/_authenticated/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
   '/_authenticated/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/_authenticated/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/_authenticated/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
@@ -2965,6 +2974,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/_authenticated/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
+  '/_authenticated/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
   '/app/_student/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
@@ -3055,7 +3065,6 @@ export interface FileRouteTypes {
     | '/admin/marketing'
     | '/admin/notificacoes'
     | '/admin/orcamentos'
-    | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/producao'
     | '/admin/prospect'
@@ -3215,6 +3224,7 @@ export interface FileRouteTypes {
     | '/admin/marketing/inteligencia'
     | '/admin/marketing/kpis'
     | '/admin/marketing/mercado'
+    | '/admin/pedidos/$orderId'
     | '/admin/produtos/faixa-calc'
     | '/admin/produtos/imagens'
     | '/admin/produtos/importar'
@@ -3283,6 +3293,7 @@ export interface FileRouteTypes {
     | '/admin/instagram/'
     | '/admin/leads/'
     | '/admin/marketing/'
+    | '/admin/pedidos/'
     | '/admin/produtos/'
     | '/app/documents/'
     | '/dojo/app/competitions/'
@@ -3361,7 +3372,6 @@ export interface FileRouteTypes {
     | '/admin/loja'
     | '/admin/notificacoes'
     | '/admin/orcamentos'
-    | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/producao'
     | '/admin/prospect'
@@ -3513,6 +3523,7 @@ export interface FileRouteTypes {
     | '/admin/marketing/inteligencia'
     | '/admin/marketing/kpis'
     | '/admin/marketing/mercado'
+    | '/admin/pedidos/$orderId'
     | '/admin/produtos/faixa-calc'
     | '/admin/produtos/imagens'
     | '/admin/produtos/importar'
@@ -3579,6 +3590,7 @@ export interface FileRouteTypes {
     | '/admin/instagram'
     | '/admin/leads'
     | '/admin/marketing'
+    | '/admin/pedidos'
     | '/admin/produtos'
     | '/app/documents'
     | '/dojo/app/competitions'
@@ -3669,7 +3681,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/marketing'
     | '/_authenticated/admin/notificacoes'
     | '/_authenticated/admin/orcamentos'
-    | '/_authenticated/admin/pedidos'
     | '/_authenticated/admin/perfil'
     | '/_authenticated/admin/producao'
     | '/_authenticated/admin/prospect'
@@ -3829,6 +3840,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/marketing/inteligencia'
     | '/_authenticated/admin/marketing/kpis'
     | '/_authenticated/admin/marketing/mercado'
+    | '/_authenticated/admin/pedidos/$orderId'
     | '/_authenticated/admin/produtos/faixa-calc'
     | '/_authenticated/admin/produtos/imagens'
     | '/_authenticated/admin/produtos/importar'
@@ -3897,6 +3909,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/instagram/'
     | '/_authenticated/admin/leads/'
     | '/_authenticated/admin/marketing/'
+    | '/_authenticated/admin/pedidos/'
     | '/_authenticated/admin/produtos/'
     | '/app/_student/documents/'
     | '/dojo/app/competitions/'
@@ -5160,13 +5173,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPerfilRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/pedidos': {
-      id: '/_authenticated/admin/pedidos'
-      path: '/pedidos'
-      fullPath: '/admin/pedidos'
-      preLoaderRoute: typeof AuthenticatedAdminPedidosRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/orcamentos': {
       id: '/_authenticated/admin/orcamentos'
       path: '/orcamentos'
@@ -5382,6 +5388,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/admin/produtos/'
       preLoaderRoute: typeof AuthenticatedAdminProdutosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/pedidos/': {
+      id: '/_authenticated/admin/pedidos/'
+      path: '/pedidos'
+      fullPath: '/admin/pedidos/'
+      preLoaderRoute: typeof AuthenticatedAdminPedidosIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/marketing/': {
@@ -5858,6 +5871,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos/faixa-calc'
       fullPath: '/admin/produtos/faixa-calc'
       preLoaderRoute: typeof AuthenticatedAdminProdutosFaixaCalcRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/pedidos/$orderId': {
+      id: '/_authenticated/admin/pedidos/$orderId'
+      path: '/pedidos/$orderId'
+      fullPath: '/admin/pedidos/$orderId'
+      preLoaderRoute: typeof AuthenticatedAdminPedidosOrderIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/marketing/mercado': {
@@ -6394,7 +6414,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminMarketingRoute: typeof AuthenticatedAdminMarketingRouteWithChildren
   AuthenticatedAdminNotificacoesRoute: typeof AuthenticatedAdminNotificacoesRoute
   AuthenticatedAdminOrcamentosRoute: typeof AuthenticatedAdminOrcamentosRoute
-  AuthenticatedAdminPedidosRoute: typeof AuthenticatedAdminPedidosRoute
   AuthenticatedAdminPerfilRoute: typeof AuthenticatedAdminPerfilRoute
   AuthenticatedAdminProducaoRoute: typeof AuthenticatedAdminProducaoRoute
   AuthenticatedAdminProspectRoute: typeof AuthenticatedAdminProspectRoute
@@ -6408,12 +6427,14 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminLeadsMacroRoute: typeof AuthenticatedAdminLeadsMacroRoute
   AuthenticatedAdminLeadsPipelineRoute: typeof AuthenticatedAdminLeadsPipelineRoute
   AuthenticatedAdminLeadsQualificadosRoute: typeof AuthenticatedAdminLeadsQualificadosRoute
+  AuthenticatedAdminPedidosOrderIdRoute: typeof AuthenticatedAdminPedidosOrderIdRoute
   AuthenticatedAdminProdutosFaixaCalcRoute: typeof AuthenticatedAdminProdutosFaixaCalcRoute
   AuthenticatedAdminProdutosImagensRoute: typeof AuthenticatedAdminProdutosImagensRoute
   AuthenticatedAdminProdutosImportarRoute: typeof AuthenticatedAdminProdutosImportarRoute
   AuthenticatedAdminProdutosPacotesRoute: typeof AuthenticatedAdminProdutosPacotesRoute
   AuthenticatedAdminProdutosTamanhosRoute: typeof AuthenticatedAdminProdutosTamanhosRoute
   AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
+  AuthenticatedAdminPedidosIndexRoute: typeof AuthenticatedAdminPedidosIndexRoute
   AuthenticatedAdminProdutosIndexRoute: typeof AuthenticatedAdminProdutosIndexRoute
 }
 
@@ -6439,7 +6460,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminMarketingRouteWithChildren,
   AuthenticatedAdminNotificacoesRoute: AuthenticatedAdminNotificacoesRoute,
   AuthenticatedAdminOrcamentosRoute: AuthenticatedAdminOrcamentosRoute,
-  AuthenticatedAdminPedidosRoute: AuthenticatedAdminPedidosRoute,
   AuthenticatedAdminPerfilRoute: AuthenticatedAdminPerfilRoute,
   AuthenticatedAdminProducaoRoute: AuthenticatedAdminProducaoRoute,
   AuthenticatedAdminProspectRoute: AuthenticatedAdminProspectRoute,
@@ -6455,6 +6475,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminLeadsPipelineRoute: AuthenticatedAdminLeadsPipelineRoute,
   AuthenticatedAdminLeadsQualificadosRoute:
     AuthenticatedAdminLeadsQualificadosRoute,
+  AuthenticatedAdminPedidosOrderIdRoute: AuthenticatedAdminPedidosOrderIdRoute,
   AuthenticatedAdminProdutosFaixaCalcRoute:
     AuthenticatedAdminProdutosFaixaCalcRoute,
   AuthenticatedAdminProdutosImagensRoute:
@@ -6466,6 +6487,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminProdutosTamanhosRoute:
     AuthenticatedAdminProdutosTamanhosRoute,
   AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,
+  AuthenticatedAdminPedidosIndexRoute: AuthenticatedAdminPedidosIndexRoute,
   AuthenticatedAdminProdutosIndexRoute: AuthenticatedAdminProdutosIndexRoute,
 }
 
