@@ -204,6 +204,13 @@ function AdminOrdersPage() {
                       </td>
                       <td className="p-2 text-xs">{new Date(o.created_at).toLocaleString("pt-BR")}</td>
                       <td className="p-2 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                        <Button size="sm" variant="outline" asChild className="h-8 gap-1 px-2 text-xs">
+                          <Link to="/admin/pedidos/$orderId" params={{ orderId: o.id }}>
+                            <Eye className="h-3.5 w-3.5" />
+                            Ver pedido
+                          </Link>
+                        </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive" aria-label="Excluir pedido">
