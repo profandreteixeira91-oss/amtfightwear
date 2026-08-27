@@ -579,6 +579,10 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
   >([]);
   const id = String(order.id);
   const meStatus = String(order.melhor_envio_status ?? "");
+  const [showQuote, setShowQuote] = useState(false);
+  const chosenName = str(order.shipping_method) !== "—" ? String(order.shipping_method) : str(order.melhor_envio_service_name);
+  const chosenServiceId = Number(order.melhor_envio_service_id ?? 0) || null;
+  const chosenPrice = Number(order.shipping_cost ?? 0);
 
   const run = async (key: string, fn: () => Promise<void>) => {
     try {
