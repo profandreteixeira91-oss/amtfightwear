@@ -579,6 +579,10 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
   >([]);
   const id = String(order.id);
   const meStatus = String(order.melhor_envio_status ?? "");
+  const [showQuote, setShowQuote] = useState(false);
+  const chosenName = str(order.shipping_method) !== "—" ? String(order.shipping_method) : str(order.melhor_envio_service_name);
+  const chosenServiceId = Number(order.melhor_envio_service_id ?? 0) || null;
+  const chosenPrice = Number(order.shipping_cost ?? 0);
 
   const run = async (key: string, fn: () => Promise<void>) => {
     try {
@@ -594,7 +598,8 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
   return (
     <div className="space-y-4 text-sm">
       <div className="grid gap-3 rounded-md border bg-muted/40 p-3 sm:grid-cols-2">
-        <Field label="Serviço" value={str(order.melhor_envio_service_name)} />
+        <Field label="Serviço escolhido pelo cliente" value={chosenName} />
+        <Field label="Valor do frete" value={formatBRL(chosenPrice)} />
         <Field label="Status Melhor Envio" value={str(order.melhor_envio_status)} />
         <Field label="ID carrinho" value={str(order.melhor_envio_cart_id)} mono />
         <Field label="ID envio" value={str(order.melhor_envio_order_id)} mono />
@@ -604,23 +609,65 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
 
       {!order.melhor_envio_cart_id && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="font-semibold">1. Cotar frete</div>
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3">
+            <div className="min-w-0">
+              <div className="text-xs uppercase text-muted-foreground">Frete escolhido pelo cliente</div>
+              <div className="font-semibold">{chosenName}</div>
+              <div className="text-xs text-muted-foreground">
+                {formatBRL(chosenPrice)}
+                {chosenServiceId ? ` · serviço Melhor Envio #${chosenServiceId}` : " · serviço não identificado"}
+              </div>
+            </div>
             <Button
               size="sm"
-              variant="outline"
-              disabled={busy === "quote"}
+              disabled={!chosenServiceId || busy === "add-chosen"}
               onClick={() =>
-                run("quote", async () => {
-                  const opts = await quote({ data: { order_id: id } });
-                  setOptions(opts);
+                run("add-chosen", async () => {
+                  await addToCart({
+                    data: { order_id: id, service_id: chosenServiceId as number, service_name: chosenName },
+                  });
+                  toast.success("Envio adicionado ao carrinho do Melhor Envio");
+                  onChange();
                 })
               }
             >
-              <RefreshCw className="mr-1 h-3 w-3" /> {busy === "quote" ? "Cotando…" : "Cotar agora"}
+              <Truck className="mr-1 h-3 w-3" />
+              {busy === "add-chosen" ? "Enviando…" : "Contratar este frete"}
             </Button>
           </div>
-          {options.length > 0 && (
+
+          {!chosenServiceId && (
+            <div className="text-xs text-muted-foreground">
+              Este pedido foi criado antes do registro do serviço escolhido. Use a cotação para selecionar o
+              serviço equivalente.
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              className="text-xs font-medium text-muted-foreground underline"
+              onClick={() => setShowQuote((v) => !v)}
+            >
+              {showQuote ? "Ocultar cotação manual" : "Cotação manual (opcional)"}
+            </button>
+            {showQuote && (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy === "quote"}
+                onClick={() =>
+                  run("quote", async () => {
+                    const opts = await quote({ data: { order_id: id } });
+                    setOptions(opts);
+                  })
+                }
+              >
+                <RefreshCw className="mr-1 h-3 w-3" /> {busy === "quote" ? "Cotando…" : "Cotar agora"}
+              </Button>
+            )}
+          </div>
+          {showQuote && options.length > 0 && (
             <div className="divide-y rounded-md border">
               {options.map((o) => (
                 <div key={o.id} className="flex items-center justify-between gap-3 p-2">

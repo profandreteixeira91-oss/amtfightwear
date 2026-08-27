@@ -179,6 +179,7 @@ function CheckoutPage() {
           },
           shipping_cost: shipping.price,
           shipping_method: `${shipping.company} ${shipping.name}`,
+          shipping_service_id: Number(shipping.id),
           payment_method: paymentMethod,
           items: items.map((i) => ({
             product_id: i.product_id,
