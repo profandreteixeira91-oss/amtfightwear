@@ -21,7 +21,7 @@ import {
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { isEmailTeamMember, checkTeamMemberGate } from "@/lib/dojo/team.functions";
+import { isEmailTeamMember, checkTeamMemberGate, getMyTeamPermissions } from "@/lib/dojo/team.functions";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -38,10 +38,27 @@ export const Route = createFileRoute("/dojo/auth")({
   component: DojoAuthPage,
 });
 
-async function resolveDestination(_userId: string, requested?: string): Promise<string> {
-  // Onboarding é opcional — acesso total ao painel desde o primeiro login.
-  return requested && requested.startsWith("/dojo") ? requested : "/dojo/app";
+/**
+ * Colaboradores (professores/equipe) não são donos de dojo: o destino padrão
+ * deles é o Portal da Equipe (/dojo/staff), que mostra apenas os módulos
+ * liberados pelo dono na aba Equipe → Permissões.
+ */
+async function isStaffAccount(): Promise<boolean> {
+  try {
+    const perms = await getMyTeamPermissions();
+    return perms?.isOwner === false;
+  } catch {
+    return false;
+  }
 }
+
+async function resolveDestination(_userId: string, requested?: string): Promise<string> {
+  const staff = await isStaffAccount();
+  if (requested && requested.startsWith("/dojo")) return requested;
+  // Onboarding é opcional — acesso total ao painel desde o primeiro login.
+  return staff ? "/dojo/staff" : "/dojo/app";
+}
+
 
 function DojoAuthPage() {
   const search = Route.useSearch();
