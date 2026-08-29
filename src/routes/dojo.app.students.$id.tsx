@@ -578,7 +578,9 @@ function StudentDetail() {
             {/* Faixas atuais (uma por modalidade) */}
             <div className="p-4 space-y-3 text-sm">
               {(() => {
-                const currentBelts: any[] = (q.data as any)?.current_belts ?? [];
+                const currentBelts: any[] = ((q.data as any)?.current_belts ?? []).filter(
+                  (b: any) => b?.belt,
+                );
                 if (currentBelts.length === 0 && s.current_belt_id) {
                   const belt = (belts.data ?? []).find((b: any) => b.id === s.current_belt_id);
                   if (belt) {
