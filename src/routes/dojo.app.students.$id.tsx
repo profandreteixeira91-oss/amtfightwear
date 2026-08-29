@@ -578,7 +578,9 @@ function StudentDetail() {
             {/* Faixas atuais (uma por modalidade) */}
             <div className="p-4 space-y-3 text-sm">
               {(() => {
-                const currentBelts: any[] = (q.data as any)?.current_belts ?? [];
+                const currentBelts: any[] = ((q.data as any)?.current_belts ?? []).filter(
+                  (b: any) => b?.belt,
+                );
                 if (currentBelts.length === 0 && s.current_belt_id) {
                   const belt = (belts.data ?? []).find((b: any) => b.id === s.current_belt_id);
                   if (belt) {
@@ -603,9 +605,9 @@ function StudentDetail() {
                           />
                           <div className="min-w-0 text-center">
                             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                              {b.belt.modality ?? "jiu-jitsu"}
+                              {b.belt?.modality ?? "jiu-jitsu"}
                             </div>
-                            <div className="font-medium text-sm">{formatBeltName(b.belt.name, b.belt?.modality)}</div>
+                            <div className="font-medium text-sm">{formatBeltName(b.belt?.name ?? "Sem faixa", b.belt?.modality)}</div>
                             <div className="text-xs text-muted-foreground">
                               {formatDegree(b.degree, b.belt?.modality, b.belt?.name)}
                             </div>

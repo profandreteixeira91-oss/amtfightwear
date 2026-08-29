@@ -1754,7 +1754,7 @@ function StudentsPage() {
                       : [];
                   if (list.length === 0) return <span className="text-xs text-neutral-400">Sem graduação</span>;
                   return list.map((cb: any, i: number) => (
-                    <div key={cb.belt.id + i} className="flex items-center gap-3">
+                    <div key={`${cb.belt?.id ?? "sem-faixa"}-${i}`} className="flex items-center gap-3">
                       {/* Caixa de tamanho fixo: a ilustração (min 220px) é reduzida
                           proporcionalmente para nunca invadir o texto ao lado. */}
                       <div className="h-[24px] w-[154px] shrink-0 overflow-hidden">
@@ -1764,11 +1764,11 @@ function StudentsPage() {
                       </div>
                       <div className="min-w-0">
                         <div className="truncate text-xs font-medium text-neutral-800">
-                          {formatBeltFull(cb.belt.name, cb.belt?.modality, cb.degree ?? 0)}
+                          {formatBeltFull(cb.belt?.name ?? "Sem faixa", cb.belt?.modality, cb.degree ?? 0)}
                         </div>
                         {cb.belt?.modality ? (
                           <div className="truncate text-[10px] uppercase tracking-wide text-neutral-400">
-                            {cb.belt.modality}
+                            {cb.belt?.modality}
                           </div>
                         ) : null}
                       </div>
