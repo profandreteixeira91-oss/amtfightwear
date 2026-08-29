@@ -65,6 +65,7 @@ import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
 import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
+import { Route as DojoStaffAuthRouteImport } from './routes/dojo.staff.auth'
 import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoiceId'
 import { Route as DojoMatriculaSlugRouteImport } from './routes/dojo.matricula.$slug'
 import { Route as DojoCertificateEditorIdRouteImport } from './routes/dojo.certificate-editor.$id'
@@ -606,6 +607,11 @@ const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
   id: '/loja/categoria/$slug',
   path: '/loja/categoria/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DojoStaffAuthRoute = DojoStaffAuthRouteImport.update({
+  id: '/staff/auth',
+  path: '/staff/auth',
+  getParentRoute: () => DojoRoute,
 } as any)
 const DojoPayInvoiceIdRoute = DojoPayInvoiceIdRouteImport.update({
   id: '/pay/$invoiceId',
@@ -2247,6 +2253,7 @@ export interface FileRoutesByFullPath {
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
+  '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -2547,6 +2554,7 @@ export interface FileRoutesByTo {
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
+  '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -2866,6 +2874,7 @@ export interface FileRoutesById {
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
+  '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -3186,6 +3195,7 @@ export interface FileRouteTypes {
     | '/dojo/certificate-editor/$id'
     | '/dojo/matricula/$slug'
     | '/dojo/pay/$invoiceId'
+    | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
@@ -3486,6 +3496,7 @@ export interface FileRouteTypes {
     | '/dojo/certificate-editor/$id'
     | '/dojo/matricula/$slug'
     | '/dojo/pay/$invoiceId'
+    | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
@@ -3804,6 +3815,7 @@ export interface FileRouteTypes {
     | '/dojo/certificate-editor/$id'
     | '/dojo/matricula/$slug'
     | '/dojo/pay/$invoiceId'
+    | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
@@ -4407,6 +4419,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/loja/categoria/$slug'
       preLoaderRoute: typeof LojaCategoriaSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/staff/auth': {
+      id: '/dojo/staff/auth'
+      path: '/staff/auth'
+      fullPath: '/dojo/staff/auth'
+      preLoaderRoute: typeof DojoStaffAuthRouteImport
+      parentRoute: typeof DojoRoute
     }
     '/dojo/pay/$invoiceId': {
       id: '/dojo/pay/$invoiceId'
@@ -7131,6 +7150,7 @@ interface DojoRouteChildren {
   DojoCertificateEditorIdRoute: typeof DojoCertificateEditorIdRoute
   DojoMatriculaSlugRoute: typeof DojoMatriculaSlugRoute
   DojoPayInvoiceIdRoute: typeof DojoPayInvoiceIdRoute
+  DojoStaffAuthRoute: typeof DojoStaffAuthRoute
   DojoStaffIndexRoute: typeof DojoStaffIndexRoute
 }
 
@@ -7143,6 +7163,7 @@ const DojoRouteChildren: DojoRouteChildren = {
   DojoCertificateEditorIdRoute: DojoCertificateEditorIdRoute,
   DojoMatriculaSlugRoute: DojoMatriculaSlugRoute,
   DojoPayInvoiceIdRoute: DojoPayInvoiceIdRoute,
+  DojoStaffAuthRoute: DojoStaffAuthRoute,
   DojoStaffIndexRoute: DojoStaffIndexRoute,
 }
 
