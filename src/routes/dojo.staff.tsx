@@ -122,6 +122,10 @@ function StaffPortal() {
   const isOwner = q.data?.isOwner ?? false;
   const permissions = q.data?.permissions ?? null;
   const member = q.data?.member ?? null;
+  const academy = q.data?.academy ?? null;
+  const dojoName = academy?.trade_name || academy?.legal_name || "Meu dojo";
+  const dojoLocation = [academy?.city, academy?.state].filter(Boolean).join(" / ");
+  const brand = academy?.brand_primary || "#C1121F";
 
   const allowed = PERMISSION_MODULES.filter((m) => (isOwner ? true : canAccess(permissions, m.key, "read")));
   const firstName = (member?.full_name ?? "").split(" ")[0] || "Equipe";
@@ -130,10 +134,20 @@ function StaffPortal() {
     <div className="dojo-theme min-h-screen w-full bg-neutral-50 pb-16 text-[#111111]">
       <header className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
-          <DojoLogo className="h-8 w-auto" />
+          {academy?.logo_url ? (
+            <img
+              src={academy.logo_url}
+              alt={`Logo de ${dojoName}`}
+              className="h-9 w-9 rounded-xl border border-neutral-200 object-contain"
+              loading="lazy"
+            />
+          ) : (
+            <DojoLogo className="h-8 w-auto" />
+          )}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">Portal da Equipe</p>
+            <p className="truncate text-sm font-semibold">{dojoName}</p>
             <p className="truncate text-[11px] text-neutral-500">
+              Portal da Equipe ·{" "}
               {member?.role ? (ROLE_LABEL[member.role] ?? member.role) : isOwner ? "Dono do dojo" : "Colaborador"}
             </p>
           </div>
@@ -149,13 +163,21 @@ function StaffPortal() {
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-5">
-        <section className="rounded-2xl bg-gradient-to-br from-[#C1121F] to-[#7f0a14] p-5 text-white shadow-sm">
+        <section
+          className="rounded-2xl p-5 text-white shadow-sm"
+          style={{ background: `linear-gradient(135deg, ${brand}, ${academy?.brand_secondary || "#7f0a14"})` }}
+        >
           <p className="text-xs uppercase tracking-wider text-white/70">Bem-vindo(a)</p>
           <h1 className="mt-1 text-xl font-bold">{firstName}</h1>
+          <p className="mt-1 text-sm font-medium text-white/90">
+            {dojoName}
+            {dojoLocation ? ` — ${dojoLocation}` : ""}
+          </p>
           <p className="mt-2 text-sm text-white/85">
             Você tem acesso a {allowed.length} {allowed.length === 1 ? "módulo" : "módulos"} liberados pelo dono do dojo.
           </p>
         </section>
+
 
         {allowed.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-dashed bg-white p-8 text-center">
