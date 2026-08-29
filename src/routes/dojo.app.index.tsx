@@ -804,9 +804,16 @@ function DojoDashboard() {
               </li>
             )}
             {recent.map((s: any, idx: number) => {
+              // current_belts pode conter modalidades sem graduação (belt: null)
+              // quando o aluno só está matriculado em turmas. Filtramos antes
+              // de qualquer acesso a `belt.*` para não quebrar a tela.
+              const beltsRaw: any[] =
+                Array.isArray(s.current_belts) && s.current_belts.length > 0
+                  ? s.current_belts.filter((b: any) => b?.belt)
+                  : [];
               const belts =
-                s.current_belts && s.current_belts.length > 0
-                  ? s.current_belts
+                beltsRaw.length > 0
+                  ? beltsRaw
                   : s.belt
                   ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }]
                   : [];
