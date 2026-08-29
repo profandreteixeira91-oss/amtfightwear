@@ -35,7 +35,7 @@ import { getMyTeamPermissions } from "@/lib/dojo/team.functions";
 import { PERMISSION_MODULES, canAccess } from "@/lib/dojo/permissions";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 
-export const Route = createFileRoute("/dojo/staff")({
+export const Route = createFileRoute("/dojo/staff/")({
   head: () => ({
     meta: [
       { title: "Portal da Equipe — AMT Dojo Manager" },
@@ -57,7 +57,7 @@ export const Route = createFileRoute("/dojo/staff")({
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {
-      throw redirect({ to: "/dojo/auth", search: { redirect: location.href } });
+      throw redirect({ to: "/dojo/staff/auth", search: { redirect: location.href } });
     }
     return { user: data.user };
   },
@@ -103,12 +103,13 @@ function StaffPortal() {
   const q = useQuery({
     queryKey: ["dojo-staff-portal-permissions"],
     queryFn: () => permsFn(),
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   async function signOut() {
     await supabase.auth.signOut();
-    navigate({ to: "/dojo/auth", replace: true });
+    navigate({ to: "/dojo/staff/auth", replace: true });
   }
 
   if (q.isLoading) {

@@ -30,7 +30,6 @@ import { Route as LojaGuiaKimonoRouteImport } from './routes/loja.guia-kimono'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
-import { Route as DojoStaffRouteImport } from './routes/dojo.staff'
 import { Route as DojoOnboardingRouteImport } from './routes/dojo.onboarding'
 import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
@@ -55,6 +54,7 @@ import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ad
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
 import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
+import { Route as DojoStaffIndexRouteImport } from './routes/dojo.staff.index'
 import { Route as DojoAppIndexRouteImport } from './routes/dojo.app.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
@@ -432,11 +432,6 @@ const LojaAtacadoRoute = LojaAtacadoRouteImport.update({
   path: '/loja/atacado',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DojoStaffRoute = DojoStaffRouteImport.update({
-  id: '/staff',
-  path: '/staff',
-  getParentRoute: () => DojoRoute,
-} as any)
 const DojoOnboardingRoute = DojoOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -555,6 +550,11 @@ const LojaContaIndexRoute = LojaContaIndexRouteImport.update({
   id: '/loja/conta/',
   path: '/loja/conta/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DojoStaffIndexRoute = DojoStaffIndexRouteImport.update({
+  id: '/staff/',
+  path: '/staff/',
+  getParentRoute: () => DojoRoute,
 } as any)
 const DojoAppIndexRoute = DojoAppIndexRouteImport.update({
   id: '/',
@@ -2107,7 +2107,6 @@ export interface FileRoutesByFullPath {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/dojo/staff': typeof DojoStaffRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2258,6 +2257,7 @@ export interface FileRoutesByFullPath {
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
+  '/dojo/staff/': typeof DojoStaffIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
@@ -2420,7 +2420,6 @@ export interface FileRoutesByTo {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/dojo/staff': typeof DojoStaffRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2558,6 +2557,7 @@ export interface FileRoutesByTo {
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
   '/dojo/app': typeof DojoAppIndexRoute
+  '/dojo/staff': typeof DojoStaffIndexRoute
   '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
@@ -2726,7 +2726,6 @@ export interface FileRoutesById {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/dojo/staff': typeof DojoStaffRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2877,6 +2876,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
+  '/dojo/staff/': typeof DojoStaffIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
@@ -3046,7 +3046,6 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
-    | '/dojo/staff'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3197,6 +3196,7 @@ export interface FileRouteTypes {
     | '/prospect/'
     | '/store/'
     | '/dojo/app/'
+    | '/dojo/staff/'
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/admin/ads/anuncios'
@@ -3359,7 +3359,6 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
-    | '/dojo/staff'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3497,6 +3496,7 @@ export interface FileRouteTypes {
     | '/prospect'
     | '/store'
     | '/dojo/app'
+    | '/dojo/staff'
     | '/loja/conta'
     | '/loja/custom-shop'
     | '/admin/ads/anuncios'
@@ -3664,7 +3664,6 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
-    | '/dojo/staff'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3815,6 +3814,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
     | '/dojo/app/'
+    | '/dojo/staff/'
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/admin/ads/anuncios'
@@ -4163,13 +4163,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaAtacadoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dojo/staff': {
-      id: '/dojo/staff'
-      path: '/staff'
-      fullPath: '/dojo/staff'
-      preLoaderRoute: typeof DojoStaffRouteImport
-      parentRoute: typeof DojoRoute
-    }
     '/dojo/onboarding': {
       id: '/dojo/onboarding'
       path: '/onboarding'
@@ -4337,6 +4330,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/loja/conta/'
       preLoaderRoute: typeof LojaContaIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/staff/': {
+      id: '/dojo/staff/'
+      path: '/staff'
+      fullPath: '/dojo/staff/'
+      preLoaderRoute: typeof DojoStaffIndexRouteImport
+      parentRoute: typeof DojoRoute
     }
     '/dojo/app/': {
       id: '/dojo/app/'
@@ -7127,11 +7127,11 @@ interface DojoRouteChildren {
   DojoAuthRoute: typeof DojoAuthRoute
   DojoCheckoutRoute: typeof DojoCheckoutRoute
   DojoOnboardingRoute: typeof DojoOnboardingRoute
-  DojoStaffRoute: typeof DojoStaffRoute
   DojoIndexRoute: typeof DojoIndexRoute
   DojoCertificateEditorIdRoute: typeof DojoCertificateEditorIdRoute
   DojoMatriculaSlugRoute: typeof DojoMatriculaSlugRoute
   DojoPayInvoiceIdRoute: typeof DojoPayInvoiceIdRoute
+  DojoStaffIndexRoute: typeof DojoStaffIndexRoute
 }
 
 const DojoRouteChildren: DojoRouteChildren = {
@@ -7139,11 +7139,11 @@ const DojoRouteChildren: DojoRouteChildren = {
   DojoAuthRoute: DojoAuthRoute,
   DojoCheckoutRoute: DojoCheckoutRoute,
   DojoOnboardingRoute: DojoOnboardingRoute,
-  DojoStaffRoute: DojoStaffRoute,
   DojoIndexRoute: DojoIndexRoute,
   DojoCertificateEditorIdRoute: DojoCertificateEditorIdRoute,
   DojoMatriculaSlugRoute: DojoMatriculaSlugRoute,
   DojoPayInvoiceIdRoute: DojoPayInvoiceIdRoute,
+  DojoStaffIndexRoute: DojoStaffIndexRoute,
 }
 
 const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
