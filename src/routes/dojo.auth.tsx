@@ -125,20 +125,26 @@ function DojoAuthPage() {
         }
 
         // Se for um novo cadastro ou login sem vínculo, permitimos o fluxo de dojo_manager
-        // APENAS se não houver conflito de aluno (já validado acima).
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabase.auth.getUser();
-        if (userData.user) {
-          await supabaseAdmin
-            .from("dojo_users")
-            .upsert({
-              auth_user_id: userData.user.id,
-              owner_id: userData.user.id,
-              role: "owner",
-              email: userData.user.email,
-              name: userData.user.user_metadata?.full_name || name
-            }, { onConflict: "auth_user_id, owner_id" });
+        // APENAS se não houver conflito de aluno (já validado acima) e se a conta
+        // NÃO for de um colaborador (professor/equipe) criado pelo dono do dojo —
+        // esses logins nunca devem virar novos usuários/donos do Dojo Manager.
+        const isStaff = await isStaffAccount();
+        if (!isStaff) {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData.user) {
+            await supabaseAdmin
+              .from("dojo_users")
+              .upsert({
+                auth_user_id: userData.user.id,
+                owner_id: userData.user.id,
+                role: "owner",
+                email: userData.user.email,
+                name: userData.user.user_metadata?.full_name || name
+              }, { onConflict: "auth_user_id, owner_id" });
+          }
         }
+
 
         await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
       } else {
