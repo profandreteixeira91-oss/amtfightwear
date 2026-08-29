@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { calendarISO, todayISO, utcCalendarISO } from "@/lib/dates";
+import { normalizeCurrentBelts } from "@/lib/dojo/current-belts";
 
 // Owner-scoped helper: every user manages their own dojo. RLS enforces
 // `owner_id = auth.uid()` for reads/writes, so we only need to inject
@@ -258,7 +259,7 @@ async function attachCurrentBeltsByModality(
 
     return {
       ...s,
-      current_belts: Array.from(combined.values()),
+      current_belts: normalizeCurrentBelts(Array.from(combined.values())),
     };
   });
 }
@@ -330,7 +331,7 @@ export const getDojoStudent = createServerFn({ method: "GET" })
       invoices: invoices.data ?? [],
       certificates: certs.data ?? [],
       referencePhotos: photos.data ?? [],
-      current_belts: Array.from(currentByModality.values()),
+      current_belts: normalizeCurrentBelts(Array.from(currentByModality.values())),
     };
 
   });

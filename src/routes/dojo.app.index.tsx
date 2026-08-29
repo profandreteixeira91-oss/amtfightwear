@@ -25,6 +25,7 @@ import { attendanceStats } from "@/lib/dojo/attendance.functions";
 import { listClasses } from "@/lib/dojo/schedule.functions";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { formatBeltFull } from "@/lib/dojo/degree-label";
+import { currentBeltEntries, rankedBelts, beltLabel, beltEntryKey } from "@/lib/dojo/current-belts";
 
 import { useUnitScope } from "@/components/dojo/UnitScope";
 import {
@@ -807,16 +808,7 @@ function DojoDashboard() {
               // current_belts pode conter modalidades sem graduação (belt: null)
               // quando o aluno só está matriculado em turmas. Filtramos antes
               // de qualquer acesso a `belt.*` para não quebrar a tela.
-              const beltsRaw: any[] =
-                Array.isArray(s.current_belts) && s.current_belts.length > 0
-                  ? s.current_belts.filter((b: any) => b?.belt)
-                  : [];
-              const belts =
-                beltsRaw.length > 0
-                  ? beltsRaw
-                  : s.belt
-                  ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }]
-                  : [];
+              const belts = rankedBelts(s);
               const isActive = s.status === "active";
               return (
                 <li key={s.id}>
@@ -860,11 +852,7 @@ function DojoDashboard() {
                         {s.full_name}
                       </h3>
                       <p className="text-[11.5px] text-slate-500 truncate">
-                        {belts.length
-                          ? belts
-                              .map((b: any) => formatBeltFull(b.belt?.name ?? "Sem faixa", b.belt?.modality, b.degree))
-                              .join(" • ")
-                          : "Sem faixa"}
+                        {belts.length ? belts.map((b) => beltLabel(b)).join(" • ") : "Sem faixa"}
                       </p>
                     </div>
 

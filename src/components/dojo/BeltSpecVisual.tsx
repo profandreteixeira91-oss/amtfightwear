@@ -150,14 +150,14 @@ export function BeltAuto({
   belt, degree = 0, className,
 }: {
   belt?: {
-    name?: string;
+    name?: string | null;
     modality?: string | null;
-    color_hex?: string;
+    color_hex?: string | null;
     stripe_hex?: string | null;
     visual?: BeltSpec | null;
     variants?: Array<{ id?: string; name?: string; degree: number; kind?: "degree" | "variant"; visual?: BeltSpec | null }> | null;
-    max_degrees?: number;
-  };
+    max_degrees?: number | null;
+  } | null;
   degree?: number;
   className?: string;
 }) {
@@ -181,7 +181,7 @@ export function BeltAuto({
       stripeHex={belt.stripe_hex ?? null}
       degree={degree}
       maxDegrees={belt.max_degrees ?? 4}
-      name={belt.name}
+      name={belt.name ?? undefined}
       modality={belt.modality ?? undefined}
       className={className}
     />
