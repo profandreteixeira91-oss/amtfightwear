@@ -13615,6 +13615,7 @@ export type Database = {
         Args: { _email: string; _member_id: string }
         Returns: string
       }
+      dojo_my_staff_owner_id: { Args: never; Returns: string }
       dojo_my_team_permissions: {
         Args: never
         Returns: {
