@@ -364,26 +364,58 @@ export const checkTeamMemberGate = createServerFn({ method: "GET" })
 
 
 
+export type StaffAcademy = {
+  owner_id: string;
+  trade_name: string | null;
+  legal_name: string | null;
+  logo_url: string | null;
+  brand_primary: string | null;
+  brand_secondary: string | null;
+  city: string | null;
+  state: string | null;
+};
+
 export const getMyTeamPermissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     // Se o usuário é dono de um dojo (dojo_academy_profile.owner_id = auth.uid),
     // liberamos tudo. Caso contrário, retornamos permissões do team_member vinculado.
     const [{ data: ownerProfile }, { data: rows }] = await Promise.all([
-      context.supabase.from("dojo_academy_profile").select("owner_id").eq("owner_id", context.userId).maybeSingle(),
+      context.supabase
+        .from("dojo_academy_profile")
+        .select("owner_id, trade_name, legal_name, logo_url, brand_primary, brand_secondary, city, state")
+        .eq("owner_id", context.userId)
+        .maybeSingle(),
       context.supabase.rpc("dojo_my_team_permissions"),
     ]);
-    if (ownerProfile) return { isOwner: true as const, permissions: null, member: null };
+    if (ownerProfile) {
+      return {
+        isOwner: true as const,
+        permissions: null,
+        member: null,
+        academy: ownerProfile as StaffAcademy,
+      };
+    }
     const row = Array.isArray(rows) ? rows[0] : null;
     // Sem team_member vinculado = usuário autônomo (ex.: novo cadastro em trial).
     // Trata-se do dono da própria conta e recebe acesso total ao sistema.
-    if (!row) return { isOwner: true as const, permissions: null, member: null };
+    if (!row) return { isOwner: true as const, permissions: null, member: null, academy: null };
+
+    // Vínculo com o dojo pai: toda conta de equipe pertence a um owner_id.
+    const { data: academy } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("owner_id, trade_name, legal_name, logo_url, brand_primary, brand_secondary, city, state")
+      .eq("owner_id", row.owner_id)
+      .maybeSingle();
+
     return {
       isOwner: false as const,
       permissions: (row.permissions ?? {}) as Record<string, "none" | "read" | "write">,
-      member: { id: row.member_id, role: row.role, full_name: row.full_name },
+      member: { id: row.member_id, role: row.role, full_name: row.full_name, owner_id: row.owner_id },
+      academy: (academy ?? null) as StaffAcademy | null,
     };
   });
+
 
 // ============ PAYROLL CONFIG ============
 
