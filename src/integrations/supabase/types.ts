@@ -6882,6 +6882,56 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_staff_accounts: {
+        Row: {
+          auth_user_id: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          last_login_at: string | null
+          member_id: string
+          owner_id: string
+          role: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          last_login_at?: string | null
+          member_id: string
+          owner_id: string
+          role?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          last_login_at?: string | null
+          member_id?: string
+          owner_id?: string
+          role?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_staff_accounts_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_store_cart_items: {
         Row: {
           billable_to_student: boolean
@@ -13632,6 +13682,19 @@ export type Database = {
         Returns: undefined
       }
       dojo_slugify: { Args: { input: string }; Returns: string }
+      dojo_staff_session: {
+        Args: never
+        Returns: {
+          account_id: string
+          email: string
+          full_name: string
+          member_id: string
+          owner_id: string
+          permissions: Json
+          role: string
+          status: string
+        }[]
+      }
       ensure_my_student_credentials: {
         Args: never
         Returns: {
@@ -13698,6 +13761,20 @@ export type Database = {
           photo_url: string
           status: string
           student_id: string
+        }[]
+      }
+      get_dojo_staff_portal: {
+        Args: { _dojo: string }
+        Returns: {
+          brand_primary: string
+          brand_secondary: string
+          city: string
+          legal_name: string
+          logo_url: string
+          owner_id: string
+          slug: string
+          state: string
+          trade_name: string
         }[]
       }
       get_latest_apk_by_slug: {

@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { getMyTeamPermissions } from "@/lib/dojo/team.functions";
+import { getStaffSession } from "@/lib/dojo/staff-portal.functions";
 import { PERMISSION_MODULES, canAccess } from "@/lib/dojo/permissions";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 
@@ -99,17 +99,17 @@ const ROLE_LABEL: Record<string, string> = {
 
 function StaffPortal() {
   const navigate = useNavigate();
-  const permsFn = useServerFn(getMyTeamPermissions);
+  const sessionFn = useServerFn(getStaffSession);
   const q = useQuery({
-    queryKey: ["dojo-staff-portal-permissions"],
-    queryFn: () => permsFn(),
+    queryKey: ["dojo-staff-session"],
+    queryFn: () => sessionFn(),
     staleTime: 0,
     refetchOnMount: "always",
   });
 
   async function signOut() {
     await supabase.auth.signOut();
-    navigate({ to: "/dojo/staff/auth", replace: true });
+    navigate({ to: "/dojo/staff/auth", search: {}, replace: true });
   }
 
   if (q.isLoading) {
@@ -120,16 +120,39 @@ function StaffPortal() {
     );
   }
 
-  const isOwner = q.data?.isOwner ?? false;
-  const permissions = q.data?.permissions ?? null;
-  const member = q.data?.member ?? null;
-  const academy = q.data?.academy ?? null;
+  // Base de acesso própria: sem conta ativa em dojo_staff_accounts não há portal.
+  // Contas de dono do dojo caem aqui e NÃO são redirecionadas para o painel.
+  if (!q.data) {
+    return (
+      <div className="dojo-theme grid min-h-screen place-items-center bg-neutral-50 px-4 text-[#111111]">
+        <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white p-7 text-center shadow-sm">
+          <LifeBuoy className="mx-auto h-8 w-8 text-neutral-400" />
+          <h1 className="mt-3 text-lg font-bold">Acesso restrito à equipe</h1>
+          <p className="mt-2 text-sm text-neutral-500">
+            Esta conta não está cadastrada como equipe de um dojo. O login precisa ser criado pelo dono da academia em
+            Equipe → Permissões.
+          </p>
+          <button
+            type="button"
+            onClick={signOut}
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#C1121F] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#a30f1a]"
+          >
+            <LogOut className="h-4 w-4" /> Entrar com outra conta
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const permissions = q.data.permissions ?? null;
+  const member = { role: q.data.role, full_name: q.data.full_name };
+  const academy = q.data.academy;
   const dojoName = academy?.trade_name || academy?.legal_name || "Meu dojo";
   const dojoLocation = [academy?.city, academy?.state].filter(Boolean).join(" / ");
   const brand = academy?.brand_primary || "#C1121F";
 
-  const allowed = PERMISSION_MODULES.filter((m) => (isOwner ? true : canAccess(permissions, m.key, "read")));
-  const firstName = (member?.full_name ?? "").split(" ")[0] || "Equipe";
+  const allowed = PERMISSION_MODULES.filter((m) => canAccess(permissions, m.key, "read"));
+  const firstName = (member.full_name ?? "").split(" ")[0] || "Equipe";
 
   return (
     <div className="dojo-theme min-h-screen w-full bg-neutral-50 pb-16 text-[#111111]">
@@ -149,7 +172,7 @@ function StaffPortal() {
             <p className="truncate text-sm font-semibold">{dojoName}</p>
             <p className="truncate text-[11px] text-neutral-500">
               Portal da Equipe ·{" "}
-              {member?.role ? (ROLE_LABEL[member.role] ?? member.role) : isOwner ? "Dono do dojo" : "Colaborador"}
+              {member.role ? (ROLE_LABEL[member.role] ?? member.role) : "Colaborador"}
             </p>
           </div>
           <button
@@ -193,7 +216,7 @@ function StaffPortal() {
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {allowed.map((m) => {
               const Icon = MODULE_ICONS[m.key] ?? ClipboardList;
-              const level = isOwner ? "write" : (permissions?.[m.key] ?? "read");
+              const level = permissions?.[m.key] ?? "read";
               return (
                 <Link
                   key={m.key}
@@ -227,14 +250,6 @@ function StaffPortal() {
           >
             <Bell className="h-4 w-4" /> App & Notificações
           </Link>
-          {isOwner ? (
-            <Link
-              to="/dojo/app"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#C1121F] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#a30f1a]"
-            >
-              <LayoutDashboard className="h-4 w-4" /> Abrir painel completo
-            </Link>
-          ) : null}
         </div>
       </main>
 

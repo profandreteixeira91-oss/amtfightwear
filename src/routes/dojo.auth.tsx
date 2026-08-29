@@ -21,7 +21,8 @@ import {
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { isEmailTeamMember, checkTeamMemberGate, getMyTeamPermissions } from "@/lib/dojo/team.functions";
+import { isEmailTeamMember, checkTeamMemberGate } from "@/lib/dojo/team.functions";
+import { getStaffSession } from "@/lib/dojo/staff-portal.functions";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -39,14 +40,14 @@ export const Route = createFileRoute("/dojo/auth")({
 });
 
 /**
- * Colaboradores (professores/equipe) não são donos de dojo: o destino padrão
- * deles é o Portal da Equipe (/dojo/staff), que mostra apenas os módulos
- * liberados pelo dono na aba Equipe → Permissões.
+ * Colaboradores (professores/equipe) não são donos de dojo. A verificação lê a
+ * base própria da equipe (dojo_staff_accounts): quem tem conta ativa lá nunca
+ * recebe contexto de dono e é enviado ao Portal da Equipe (/dojo/staff).
  */
 async function isStaffAccount(): Promise<boolean> {
   try {
-    const perms = await getMyTeamPermissions();
-    return perms?.isOwner === false;
+    const session = await getStaffSession();
+    return !!session;
   } catch {
     return false;
   }

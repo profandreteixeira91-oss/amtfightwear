@@ -8,6 +8,7 @@ import {
   getTeamDashboard,
   updateTeamMemberStatus,
 } from "@/lib/dojo/team.functions";
+import { getMyStaffPortalLink } from "@/lib/dojo/staff-portal.functions";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,6 +82,8 @@ function TeamPage() {
 
   const list = useQuery({ queryKey: ["team-members"], queryFn: () => listFn() });
   const dash = useQuery({ queryKey: ["team-dashboard"], queryFn: () => dashFn() });
+  const staffLinkFn = useServerFn(getMyStaffPortalLink);
+  const staffLink = useQuery({ queryKey: ["staff-portal-link"], queryFn: () => staffLinkFn() });
 
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -303,8 +306,22 @@ function TeamPage() {
           </div>
 
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-            <Button variant="outline" asChild className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-              <Link to="/dojo/staff">Portal da Equipe</Link>
+            <Button
+              variant="outline"
+              className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              onClick={async () => {
+                const link = staffLink.data;
+                if (!link) return;
+                const url = `${window.location.origin}${link.path}`;
+                try {
+                  await navigator.clipboard.writeText(url);
+                  toast.success("Link do Portal da Equipe copiado", { description: url });
+                } catch {
+                  toast.info("Link do Portal da Equipe", { description: url });
+                }
+              }}
+            >
+              Link do Portal da Equipe
             </Button>
             <Button variant="outline" asChild className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
               <Link to="/dojo/app/team/schedules">Escalas</Link>
