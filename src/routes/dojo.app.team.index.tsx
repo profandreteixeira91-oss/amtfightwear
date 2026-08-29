@@ -81,6 +81,8 @@ function TeamPage() {
 
   const list = useQuery({ queryKey: ["team-members"], queryFn: () => listFn() });
   const dash = useQuery({ queryKey: ["team-dashboard"], queryFn: () => dashFn() });
+  const staffLinkFn = useServerFn(getMyStaffPortalLink);
+  const staffLink = useQuery({ queryKey: ["staff-portal-link"], queryFn: () => staffLinkFn() });
 
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
