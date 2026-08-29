@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.dojo_my_staff_owner_id() FROM anon;
