@@ -39,14 +39,14 @@ export const Route = createFileRoute("/dojo/auth")({
 });
 
 /**
- * Colaboradores (professores/equipe) não são donos de dojo: o destino padrão
- * deles é o Portal da Equipe (/dojo/staff), que mostra apenas os módulos
- * liberados pelo dono na aba Equipe → Permissões.
+ * Colaboradores (professores/equipe) não são donos de dojo. A verificação lê a
+ * base própria da equipe (dojo_staff_accounts): quem tem conta ativa lá nunca
+ * recebe contexto de dono e é enviado ao Portal da Equipe (/dojo/staff).
  */
 async function isStaffAccount(): Promise<boolean> {
   try {
-    const perms = await getMyTeamPermissions();
-    return perms?.isOwner === false;
+    const session = await getStaffSession();
+    return !!session;
   } catch {
     return false;
   }
