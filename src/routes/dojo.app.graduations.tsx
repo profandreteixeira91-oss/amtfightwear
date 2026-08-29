@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CheckCircle2, Award, Eye, Printer, GraduationCap, Users, ScrollText, Search, ArrowRight, ArrowLeft, RotateCcw, Info, Sparkles, DollarSign, Save } from "lucide-react";
 import { todayISO } from "@/lib/dates";
+import { currentBeltEntries, rankedBelts, beltLabel, beltEntryKey } from "@/lib/dojo/current-belts";
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   head: () => ({ meta: [{ title: "Graduações — AMT Dojo Manager" }] }),
@@ -192,10 +193,9 @@ function NewGraduationPage() {
     const q = search.trim().toLowerCase();
     return (students.data ?? []).filter((s: any) => {
       if (q && !s.full_name.toLowerCase().includes(q)) return false;
-      const beltsOfStudent: Array<{ modality?: string; belt?: any; degree?: number }> =
-        (s.current_belts && s.current_belts.length > 0)
-          ? s.current_belts
-          : (s.belt ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+      // Contrato único: nunca acessar `belt.x` direto — entradas de modalidade
+      // sem graduação chegam com `belt: null`.
+      const beltsOfStudent = currentBeltEntries(s);
       if (filterModality !== "all") {
         const has = beltsOfStudent.some(
           (b) => (b.belt?.modality ?? b.modality ?? "jiu-jitsu") === filterModality,
@@ -969,9 +969,8 @@ function NewGraduationPage() {
 
             <div className="max-h-[520px] divide-y divide-border overflow-y-auto rounded-xl border bg-background">
               {filteredStudents.map((s: any) => {
-                const belts = (s.current_belts && s.current_belts.length > 0)
-                  ? s.current_belts
-                  : (s.belt ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                const belts = currentBeltEntries(s);
+                const rankedLabel = rankedBelts(s).map((b) => beltLabel(b)).join(" • ");
                 const isSelected = selectedStudents.has(s.id);
                 return (
                   <label
@@ -995,12 +994,7 @@ function NewGraduationPage() {
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-bold text-foreground">{s.full_name}</div>
                         <div className="mt-0.5 truncate text-[10px] uppercase tracking-wider text-muted-foreground">
-                          {belts.filter((b: any) => b?.belt?.name).length === 0
-                            ? "Sem faixa"
-                            : belts
-                                .filter((b: any) => b?.belt?.name)
-                                .map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree))
-                                .join(" • ")}
+                          {rankedLabel || "Sem faixa"}
                         </div>
                       </div>
                     </div>

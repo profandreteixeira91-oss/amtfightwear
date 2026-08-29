@@ -42,6 +42,7 @@ import { maskCPF, maskCEP, maskPhone, clampDueDay, isValidCPF, isValidCEP, isVal
 import { toast } from "sonner";
 import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles, Link as LinkIcon, Copy, ExternalLink, Check } from "lucide-react";
 import { todayISO, brl } from "@/lib/format";
+import { currentBeltEntries, rankedBelts, beltLabel, beltEntryKey } from "@/lib/dojo/current-belts";
 
 
 export const Route = createFileRoute("/dojo/app/students/")({
@@ -314,7 +315,7 @@ function StudentsPage() {
     // Todas as modalidades do aluno (graduação mais recente de cada uma),
     // calculadas no servidor em `current_belts`. Fallback: faixa principal.
     const modalities: StudentForm["modalities"] = [];
-    const cbs = Array.isArray(s.current_belts) ? s.current_belts : [];
+    const cbs = currentBeltEntries(s);
     for (const cb of cbs) {
       if (!cb?.belt?.id && (!cb?.class_ids || cb.class_ids.length === 0)) continue;
       modalities.push({
@@ -1747,14 +1748,10 @@ function StudentsPage() {
               {/* Graduação — ilustração das faixas (todas as modalidades) */}
               <div className="mt-3 space-y-1.5 sm:mt-0">
                 {(() => {
-                  const list = Array.isArray(s.current_belts) && s.current_belts.length
-                    ? s.current_belts.filter((cb: any) => cb?.belt)
-                    : s.belt
-                      ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }]
-                      : [];
+                  const list = rankedBelts(s);
                   if (list.length === 0) return <span className="text-xs text-neutral-400">Sem graduação</span>;
-                  return list.map((cb: any, i: number) => (
-                    <div key={`${cb.belt?.id ?? "sem-faixa"}-${i}`} className="flex items-center gap-3">
+                  return list.map((cb, i) => (
+                    <div key={beltEntryKey(cb, i)} className="flex items-center gap-3">
                       {/* Caixa de tamanho fixo: a ilustração (min 220px) é reduzida
                           proporcionalmente para nunca invadir o texto ao lado. */}
                       <div className="h-[24px] w-[154px] shrink-0 overflow-hidden">
