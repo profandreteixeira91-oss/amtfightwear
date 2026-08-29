@@ -303,8 +303,22 @@ function TeamPage() {
           </div>
 
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-            <Button variant="outline" asChild className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-              <Link to="/dojo/staff">Portal da Equipe</Link>
+            <Button
+              variant="outline"
+              className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              onClick={async () => {
+                const link = staffLink.data;
+                if (!link) return;
+                const url = `${window.location.origin}${link.path}`;
+                try {
+                  await navigator.clipboard.writeText(url);
+                  toast.success("Link do Portal da Equipe copiado", { description: url });
+                } catch {
+                  toast.info("Link do Portal da Equipe", { description: url });
+                }
+              }}
+            >
+              Link do Portal da Equipe
             </Button>
             <Button variant="outline" asChild className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
               <Link to="/dojo/app/team/schedules">Escalas</Link>

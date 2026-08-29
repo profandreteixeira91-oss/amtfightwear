@@ -127,6 +127,11 @@ export const updateTeamMemberStatus = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("dojo_team_members")
       .update({ status: data.status }).eq("id", data.id);
     if (error) throw new Error(error.message);
+    // Espelha a situação na base de acesso do Portal da Equipe.
+    await context.supabase
+      .from("dojo_staff_accounts")
+      .update({ status: data.status === "active" ? "active" : "inactive" })
+      .eq("member_id", data.id);
     await context.supabase.from("dojo_team_history").insert({
       owner_id: context.userId, member_id: data.id,
       event_type: "profile_change", description: `Status: ${data.status}`,
@@ -144,8 +149,14 @@ export const deleteTeamMember = createServerFn({ method: "POST" })
       .update({ status: "terminated", termination_date: todayISO() })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
+    // Revoga o acesso ao Portal da Equipe imediatamente.
+    await context.supabase
+      .from("dojo_staff_accounts")
+      .update({ status: "inactive" })
+      .eq("member_id", data.id);
     return { ok: true };
   });
+
 
 // ============ PERMISSIONS ============
 
@@ -274,18 +285,27 @@ export const setTeamMemberLogin = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (linkErr) throw new Error(linkErr.message);
 
-    // CRÍTICO: Registra como dojo_user para habilitar o contexto administrativo
-    const { error: duErr } = await supabaseAdmin
-      .from("dojo_users")
-      .upsert({
-        auth_user_id: userId,
-        owner_id: member.owner_id,
-        role: member.role === "admin" || member.role === "manager" ? "admin" : "teacher",
-        email,
-        name: member.full_name
-      }, { onConflict: "auth_user_id, owner_id" });
+    // CRÍTICO: a conta de equipe vive em sua própria base (dojo_staff_accounts),
+    // vinculada ao dojo pai. Nunca é registrada em dojo_users — colaboradores
+    // não são usuários/donos do Dojo Manager e o login deles é independente.
+    const { error: saErr } = await supabaseAdmin
+      .from("dojo_staff_accounts")
+      .upsert(
+        {
+          owner_id: member.owner_id,
+          member_id: member.id,
+          auth_user_id: userId,
+          email,
+          full_name: member.full_name,
+          role: member.role,
+          status: "active",
+        },
+        { onConflict: "member_id" },
+      );
+    if (saErr) throw new Error(saErr.message);
 
-    if (duErr) console.error("Erro ao criar dojo_user:", duErr);
+    // Limpa qualquer contexto administrativo herdado de versões anteriores.
+    await supabaseAdmin.from("dojo_users").delete().eq("auth_user_id", userId).neq("role", "owner");
 
     await context.supabase.from("dojo_team_history").insert({
       owner_id: context.userId,
