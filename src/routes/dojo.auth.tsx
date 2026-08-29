@@ -21,7 +21,7 @@ import {
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { isEmailTeamMember, checkTeamMemberGate } from "@/lib/dojo/team.functions";
+import { isEmailTeamMember, checkTeamMemberGate, getMyTeamPermissions } from "@/lib/dojo/team.functions";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -38,10 +38,27 @@ export const Route = createFileRoute("/dojo/auth")({
   component: DojoAuthPage,
 });
 
-async function resolveDestination(_userId: string, requested?: string): Promise<string> {
-  // Onboarding é opcional — acesso total ao painel desde o primeiro login.
-  return requested && requested.startsWith("/dojo") ? requested : "/dojo/app";
+/**
+ * Colaboradores (professores/equipe) não são donos de dojo: o destino padrão
+ * deles é o Portal da Equipe (/dojo/staff), que mostra apenas os módulos
+ * liberados pelo dono na aba Equipe → Permissões.
+ */
+async function isStaffAccount(): Promise<boolean> {
+  try {
+    const perms = await getMyTeamPermissions();
+    return perms?.isOwner === false;
+  } catch {
+    return false;
+  }
 }
+
+async function resolveDestination(_userId: string, requested?: string): Promise<string> {
+  const staff = await isStaffAccount();
+  if (requested && requested.startsWith("/dojo")) return requested;
+  // Onboarding é opcional — acesso total ao painel desde o primeiro login.
+  return staff ? "/dojo/staff" : "/dojo/app";
+}
+
 
 function DojoAuthPage() {
   const search = Route.useSearch();
@@ -108,20 +125,26 @@ function DojoAuthPage() {
         }
 
         // Se for um novo cadastro ou login sem vínculo, permitimos o fluxo de dojo_manager
-        // APENAS se não houver conflito de aluno (já validado acima).
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabase.auth.getUser();
-        if (userData.user) {
-          await supabaseAdmin
-            .from("dojo_users")
-            .upsert({
-              auth_user_id: userData.user.id,
-              owner_id: userData.user.id,
-              role: "owner",
-              email: userData.user.email,
-              name: userData.user.user_metadata?.full_name || name
-            }, { onConflict: "auth_user_id, owner_id" });
+        // APENAS se não houver conflito de aluno (já validado acima) e se a conta
+        // NÃO for de um colaborador (professor/equipe) criado pelo dono do dojo —
+        // esses logins nunca devem virar novos usuários/donos do Dojo Manager.
+        const isStaff = await isStaffAccount();
+        if (!isStaff) {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData.user) {
+            await supabaseAdmin
+              .from("dojo_users")
+              .upsert({
+                auth_user_id: userData.user.id,
+                owner_id: userData.user.id,
+                role: "owner",
+                email: userData.user.email,
+                name: userData.user.user_metadata?.full_name || name
+              }, { onConflict: "auth_user_id, owner_id" });
+          }
         }
+
 
         await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
       } else {

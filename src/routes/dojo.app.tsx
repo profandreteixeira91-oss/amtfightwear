@@ -564,6 +564,13 @@ function DojoLayoutInner({
                   <AccountTrialInline />
                 </Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dojo/staff" className="flex items-center gap-2">
+                  <UsersRound className="mr-2 h-4 w-4" />
+                  <span className="flex-1">Portal da Equipe</span>
+                </Link>
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />

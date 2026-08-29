@@ -30,6 +30,7 @@ import { Route as LojaGuiaKimonoRouteImport } from './routes/loja.guia-kimono'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
+import { Route as DojoStaffRouteImport } from './routes/dojo.staff'
 import { Route as DojoOnboardingRouteImport } from './routes/dojo.onboarding'
 import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
@@ -430,6 +431,11 @@ const LojaAtacadoRoute = LojaAtacadoRouteImport.update({
   id: '/loja/atacado',
   path: '/loja/atacado',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DojoStaffRoute = DojoStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => DojoRoute,
 } as any)
 const DojoOnboardingRoute = DojoOnboardingRouteImport.update({
   id: '/onboarding',
@@ -2101,6 +2107,7 @@ export interface FileRoutesByFullPath {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/dojo/staff': typeof DojoStaffRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2413,6 +2420,7 @@ export interface FileRoutesByTo {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/dojo/staff': typeof DojoStaffRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2718,6 +2726,7 @@ export interface FileRoutesById {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/dojo/staff': typeof DojoStaffRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -3037,6 +3046,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/dojo/staff'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3349,6 +3359,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/dojo/staff'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3653,6 +3664,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/dojo/staff'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -4150,6 +4162,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/loja/atacado'
       preLoaderRoute: typeof LojaAtacadoRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/staff': {
+      id: '/dojo/staff'
+      path: '/staff'
+      fullPath: '/dojo/staff'
+      preLoaderRoute: typeof DojoStaffRouteImport
+      parentRoute: typeof DojoRoute
     }
     '/dojo/onboarding': {
       id: '/dojo/onboarding'
@@ -7108,6 +7127,7 @@ interface DojoRouteChildren {
   DojoAuthRoute: typeof DojoAuthRoute
   DojoCheckoutRoute: typeof DojoCheckoutRoute
   DojoOnboardingRoute: typeof DojoOnboardingRoute
+  DojoStaffRoute: typeof DojoStaffRoute
   DojoIndexRoute: typeof DojoIndexRoute
   DojoCertificateEditorIdRoute: typeof DojoCertificateEditorIdRoute
   DojoMatriculaSlugRoute: typeof DojoMatriculaSlugRoute
@@ -7119,6 +7139,7 @@ const DojoRouteChildren: DojoRouteChildren = {
   DojoAuthRoute: DojoAuthRoute,
   DojoCheckoutRoute: DojoCheckoutRoute,
   DojoOnboardingRoute: DojoOnboardingRoute,
+  DojoStaffRoute: DojoStaffRoute,
   DojoIndexRoute: DojoIndexRoute,
   DojoCertificateEditorIdRoute: DojoCertificateEditorIdRoute,
   DojoMatriculaSlugRoute: DojoMatriculaSlugRoute,
