@@ -149,7 +149,7 @@ export function BeltSpecVisual({
 export function BeltAuto({
   belt, degree = 0, className,
 }: {
-  belt: {
+  belt?: {
     name?: string;
     modality?: string | null;
     color_hex?: string;
@@ -161,6 +161,11 @@ export function BeltAuto({
   degree?: number;
   className?: string;
 }) {
+  // Aluno matriculado em turma sem graduação registrada chega aqui com belt
+  // nulo. Nunca lançar: renderiza um placeholder neutro.
+  if (!belt) {
+    return <div className={`h-8 w-full rounded-sm border border-dashed border-slate-300 ${className ?? ""}`} />;
+  }
   const degreeOverride = (belt.variants ?? []).find(
     (v) => v && v.kind === "degree" && Number(v.degree) === Number(degree) && !beltSpecIsEmpty(v.visual),
   );
