@@ -862,7 +862,7 @@ function DojoDashboard() {
                       <p className="text-[11.5px] text-slate-500 truncate">
                         {belts.length
                           ? belts
-                              .map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree))
+                              .map((b: any) => formatBeltFull(b.belt?.name ?? "Sem faixa", b.belt?.modality, b.degree))
                               .join(" • ")
                           : "Sem faixa"}
                       </p>
