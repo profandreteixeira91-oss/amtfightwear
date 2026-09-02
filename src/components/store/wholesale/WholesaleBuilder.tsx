@@ -209,19 +209,22 @@ export function WholesaleBuilder({
           <div>
             <span className={labelClass}>
               <span className="grid h-4 w-4 place-items-center rounded-full bg-primary/10 text-[9px] text-primary">3</span>
-              Produto
+              Cor
             </span>
             <select
-              aria-label="Produto"
+              aria-label="Cor"
               className={selectClass}
               disabled={!sub}
-              value={productId ?? ""}
-              onChange={(e) => setProductId(e.target.value || null)}
+              value={color ?? ""}
+              onChange={(e) => {
+                setColor(e.target.value || null);
+                setProductId(null);
+              }}
             >
-              <option value="">{sub ? "Selecione o produto" : "Escolha a subcategoria"}</option>
-              {(sub?.items ?? []).map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
+              <option value="">{sub ? "Selecione a cor" : "Escolha a subcategoria"}</option>
+              {colorOptions.map((c) => (
+                <option key={c} value={c}>
+                  {c} ({colorMap.get(c)?.length ?? 0})
                 </option>
               ))}
             </select>
@@ -233,8 +236,46 @@ export function WholesaleBuilder({
           <ChevronRight className="h-3 w-3" />
           <span>{sub?.name ?? "Subcategoria"}</span>
           <ChevronRight className="h-3 w-3" />
+          <span>{color ?? "Cor"}</span>
+          <ChevronRight className="h-3 w-3" />
           <span className={product ? "text-primary" : undefined}>{product?.name ?? "Produto"}</span>
         </div>
+
+        {color && (
+          <div className="mt-4 border-t pt-4">
+            <span className={labelClass}>Produtos na cor {color}</span>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {filtered.map((p) => {
+                const selected = p.id === productId;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setProductId(p.id)}
+                    aria-pressed={selected}
+                    className={`flex items-center gap-3 rounded-xl border p-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                      selected ? "border-primary bg-primary/5" : "hover:border-primary/50 hover:bg-muted/40"
+                    }`}
+                  >
+                    <span className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border bg-muted">
+                      <ProductImage src={p.image_url} alt={p.name} aspect="square" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-bold">{p.name}</span>
+                      <span className="block text-[11px] text-muted-foreground">
+                        {formatBRL(Number(p.price))}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+              {filtered.length === 0 && (
+                <p className="text-xs text-muted-foreground">Nenhum produto nesta cor.</p>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {product ? (
