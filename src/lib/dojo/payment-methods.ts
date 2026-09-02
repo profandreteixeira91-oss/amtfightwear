@@ -73,7 +73,21 @@ export type PlanRules = {
   suspend_checkin?: boolean;
   suspend_app?: boolean;
   requires_enrollment_fee?: boolean;
+  /** Dias de antecedência para geração automática da cobrança (1..60). */
+  billing_advance_days?: number | null;
 };
+
+/** Antecedência padrão (em dias) para gerar a cobrança antes do vencimento. */
+export const DEFAULT_BILLING_ADVANCE_DAYS = 5;
+
+/** Normaliza a antecedência configurada no plano. */
+export function planAdvanceDays(rules: unknown): number {
+  const raw = (rules as PlanRules | null | undefined)?.billing_advance_days;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_BILLING_ADVANCE_DAYS;
+  return Math.min(60, Math.round(n));
+}
+
 
 export type PlanFrequency =
   | "monthly"
@@ -102,6 +116,38 @@ export const FREQUENCY_MONTHS: Record<Exclude<PlanFrequency, "custom">, number> 
   semiannual: 6,
   annual: 12,
 };
+
+/** Duração do ciclo do plano em meses. */
+export function planCycleMonths(
+  frequency: string | null | undefined,
+  customMonths?: number | null,
+): number {
+  if (frequency === "custom") return Math.max(1, Math.round(Number(customMonths) || 1));
+  const key = (frequency ?? "monthly") as Exclude<PlanFrequency, "custom">;
+  return FREQUENCY_MONTHS[key] ?? 1;
+}
+
+/** Nº de parcelas (cobranças) geradas dentro do ciclo do plano. */
+export function planInstallments(
+  installments: number | null | undefined,
+  cycleMonths: number,
+): number {
+  const n = Math.round(Number(installments) || 1);
+  if (!Number.isFinite(n) || n < 1) return 1;
+  return Math.min(Math.max(1, cycleMonths), n);
+}
+
+/** Intervalo, em meses, entre duas cobranças do mesmo ciclo. */
+export function planChargeIntervalMonths(cycleMonths: number, installments: number): number {
+  return Math.max(1, Math.floor(cycleMonths / Math.max(1, installments)));
+}
+
+/** Valor de cada parcela dentro do ciclo (2 casas). */
+export function planChargeAmount(cycleAmount: number, installments: number): number {
+  const n = Math.max(1, installments);
+  return Math.round((Number(cycleAmount || 0) / n) * 100) / 100;
+}
+
 
 export type PaymentMethodDef = {
   code: PaymentMethodCode;
@@ -225,5 +271,7 @@ export function defaultPlanRules(): PlanRules {
     suspend_checkin: false,
     suspend_app: false,
     requires_enrollment_fee: false,
+    billing_advance_days: DEFAULT_BILLING_ADVANCE_DAYS,
+
   };
 }

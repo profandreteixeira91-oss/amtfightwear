@@ -23,7 +23,14 @@ import {
   FREQUENCY_MONTHS,
   CONFIG_LABELS,
   type PaymentMethodConfig,
+  DEFAULT_BILLING_ADVANCE_DAYS,
+  planCycleMonths,
+  planInstallments,
+  planChargeIntervalMonths,
+  planChargeAmount,
 } from "@/lib/dojo/payment-methods";
+
+
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 
 import { Button } from "@/components/ui/button";
@@ -213,6 +220,19 @@ function PlansPage() {
     }
     return (FREQUENCY_MONTHS[form.frequency as Exclude<PlanFrequency, "custom">] ?? 1) * 30;
   }, [form.frequency, form.custom_months]);
+
+  const cycleMonths = useMemo(
+    () => planCycleMonths(form.frequency, Number(form.custom_months) || 1),
+    [form.frequency, form.custom_months],
+  );
+  const installmentsPreview = useMemo(
+    () => planInstallments(Number(form.installments) || 1, cycleMonths),
+    [form.installments, cycleMonths],
+  );
+  const chargeIntervalMonths = planChargeIntervalMonths(cycleMonths, installmentsPreview);
+  const chargePreview = planChargeAmount(Number(form.amount) || 0, installmentsPreview);
+
+
 
   const onSave = async () => {
     if (!form.name.trim()) return toast.error("Informe o nome do plano");
@@ -472,16 +492,24 @@ function PlansPage() {
                           onChange={(e) => patch({ custom_months: e.target.value })}
                         />
                       </Field>
-                    ) : (
-                      <Field label="Nº de parcelas" hint="Quantidade de cobranças geradas por ciclo">
-                        <Input
-                          type="number"
-                          min="1"
-                          value={form.installments}
-                          onChange={(e) => patch({ installments: e.target.value })}
-                        />
-                      </Field>
-                    )}
+                    ) : null}
+                    <Field
+                      label="Nº de parcelas"
+                      hint={`Cobranças geradas dentro do ciclo de ${cycleMonths} ${cycleMonths === 1 ? "mês" : "meses"}${
+                        installmentsPreview > 1
+                          ? ` — 1 cobrança a cada ${chargeIntervalMonths} ${chargeIntervalMonths === 1 ? "mês" : "meses"} de ${brl(chargePreview)}`
+                          : ""
+                      }`}
+                    >
+                      <Input
+                        type="number"
+                        min="1"
+                        max={cycleMonths}
+                        value={form.installments}
+                        onChange={(e) => patch({ installments: e.target.value })}
+                      />
+                    </Field>
+
                   </div>
                 </SectionCard>
 
@@ -767,7 +795,29 @@ function PlansPage() {
                         }
                       />
                     </div>
+                    <div className="flex items-center gap-3 rounded-md border p-3">
+                      <div className="min-w-0 flex-1">
+                        <Label className="text-sm">Gerar cobrança com antecedência de</Label>
+                        <p className="text-[11px] text-muted-foreground">
+                          Dias antes do vencimento (padrão {DEFAULT_BILLING_ADVANCE_DAYS} dias)
+                        </p>
+                      </div>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="60"
+                        className="h-8 w-20"
+                        value={form.rules.billing_advance_days ?? DEFAULT_BILLING_ADVANCE_DAYS}
+                        onChange={(e) =>
+                          patchRule(
+                            "billing_advance_days",
+                            e.target.value === "" ? null : Number(e.target.value),
+                          )
+                        }
+                      />
+                    </div>
                   </div>
+
                 </SectionCard>
 
                 {/* Rodapé — salvar novamente */}
