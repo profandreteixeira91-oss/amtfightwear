@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, ShieldAlert } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { staffSupabase as supabase } from "@/lib/dojo/staff-auth/staff-client";
 import { getStaffSession } from "@/lib/dojo/staff-portal.functions";
 import { StaffProvider } from "@/components/dojo/staff/staff-context";
 import { StaffShell } from "@/components/dojo/staff/StaffShell";
