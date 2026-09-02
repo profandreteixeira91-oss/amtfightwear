@@ -271,5 +271,7 @@ export function defaultPlanRules(): PlanRules {
     suspend_checkin: false,
     suspend_app: false,
     requires_enrollment_fee: false,
+    billing_advance_days: DEFAULT_BILLING_ADVANCE_DAYS,
+
   };
 }
