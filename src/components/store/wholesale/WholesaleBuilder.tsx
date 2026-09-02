@@ -56,11 +56,34 @@ export function WholesaleBuilder({
   onAdd,
 }: Props) {
   const [subKey, setSubKey] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
   const [productId, setProductId] = useState<string | null>(null);
 
   const root = roots.find((r) => r.id === activeRoot) ?? null;
   const sub = root?.subs.find((s) => s.key === subKey) ?? null;
-  const product = sub?.items.find((p) => p.id === productId) ?? null;
+
+  // Mapa cor → produtos da subcategoria selecionada.
+  const colorMap = useMemo(() => {
+    const m = new Map<string, WholesaleProduct[]>();
+    for (const p of sub?.items ?? []) {
+      for (const c of colorsOfProduct(p, variantsOf(p.id))) {
+        const arr = m.get(c) ?? [];
+        arr.push(p);
+        m.set(c, arr);
+      }
+    }
+    return new Map(
+      Array.from(m.entries()).sort((a, b) => {
+        if (a[0] === UNCOLORED) return 1;
+        if (b[0] === UNCOLORED) return -1;
+        return a[0].localeCompare(b[0]);
+      }),
+    );
+  }, [sub, variantsOf]);
+
+  const colorOptions = Array.from(colorMap.keys());
+  const filtered = color ? (colorMap.get(color) ?? []) : [];
+  const product = filtered.find((p) => p.id === productId) ?? null;
 
   // Auto-avança quando existe apenas uma opção, mantendo o fluxo mais curto.
   useEffect(() => {
@@ -77,16 +100,25 @@ export function WholesaleBuilder({
 
   useEffect(() => {
     if (!sub) {
+      setColor(null);
       setProductId(null);
       return;
     }
-    if (!sub.items.some((p) => p.id === productId)) {
-      setProductId(sub.items.length === 1 ? sub.items[0].id : null);
+    if (!color || !colorMap.has(color)) {
+      setColor(colorOptions.length === 1 ? colorOptions[0] : null);
+      setProductId(null);
     }
-  }, [sub, productId]);
+  }, [sub, color, colorMap, colorOptions]);
+
+  useEffect(() => {
+    if (!filtered.some((p) => p.id === productId)) {
+      setProductId(filtered.length === 1 ? filtered[0].id : null);
+    }
+  }, [filtered, productId]);
 
   const subQty = sub ? subcategoryQty(sub.key) : 0;
   const subOk = subQty >= minPerSubcategory;
+
 
   return (
     <section className="space-y-4" aria-labelledby="montador-atacado">
