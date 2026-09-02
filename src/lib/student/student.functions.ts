@@ -404,7 +404,17 @@ export const getMyAgenda = createServerFn({ method: "GET" })
       }
     }
 
-    const all = [...(matOcc ?? []), ...derived];
+    // Deduplica por turma + dia + horário de início: uma aula por registro.
+    // Ocorrências materializadas têm prioridade sobre as derivadas do calendário.
+    const dedupeKey = (o: any) =>
+      `${o.class_id}|${o.occurrence_date}|${(o.start_time ?? "").slice(0, 5)}`;
+    const unique = new Map<string, any>();
+    for (const occ of [...(matOcc ?? []), ...derived]) {
+      const key = dedupeKey(occ);
+      if (!unique.has(key)) unique.set(key, occ);
+    }
+
+    const all = [...unique.values()];
     all.sort((a: any, b: any) => {
       if (a.occurrence_date !== b.occurrence_date) return a.occurrence_date < b.occurrence_date ? -1 : 1;
       return (a.start_time ?? "") < (b.start_time ?? "") ? -1 : 1;
