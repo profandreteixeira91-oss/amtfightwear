@@ -23,6 +23,14 @@ export const checkinByUnitQr = createServerFn({ method: "POST" })
           .min(16, "Token inválido")
           .max(128, "Token inválido")
           .regex(/^[a-f0-9]+$/i, "Token inválido"),
+        // Turma escolhida pelo aluno quando há mais de uma aula na janela atual.
+        classId: z
+          .string()
+          .regex(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+            "Turma inválida",
+          )
+          .nullish(),
       })
       .parse(i),
   )
@@ -64,43 +72,56 @@ export const checkinByUnitQr = createServerFn({ method: "POST" })
     }
     const minInterval = (settings as any)?.min_interval_minutes ?? 30;
 
-    const { data: last } = await supabaseAdmin
-      .from("dojo_attendance")
-      .select("checked_in_at")
-      .eq("student_id", me.id)
-      .order("checked_in_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (last?.checked_in_at) {
-      const diffMin = (Date.now() - new Date(last.checked_in_at).getTime()) / 60000;
-      if (diffMin < minInterval) {
-        throw new Error(
-          `Aguarde ${Math.ceil(minInterval - diffMin)} minuto(s) para um novo check-in.`,
-        );
-      }
-    }
-
-    // 5) Resolve a turma (janela, matrícula, duplicidade)
+    // 5) Resolve a turma (janela, matrícula, duplicidade).
+    // Se o aluno está no horário de mais de uma turma, devolvemos a lista para
+    // que o app exiba o seletor — o check-in é validado após a escolha.
     const { validateAndResolveCheckin } = await import("@/lib/dojo/attendance.functions");
     const validation = await validateAndResolveCheckin(
       supabaseAdmin,
       me.id,
       tokenRow.owner_id,
+      false,
+      data.classId ?? null,
     );
     if (!validation.isValid) {
+      if (validation.reason === "multiple_classes") {
+        return {
+          ok: false as const,
+          error: "MULTIPLE_CLASSES" as const,
+          availableClasses: validation.availableClasses ?? [],
+        };
+      }
       if (validation.reason === "outside_window") {
         throw new Error("Fora da janela permitida para check-in.");
       }
       if (validation.reason === "duplicate_checkin") {
         throw new Error("Você já realizou o check-in desta aula.");
       }
-      if (validation.reason === "multiple_classes") {
-        throw new Error("Múltiplas aulas disponíveis agora. Use outro método para escolher a turma.");
-      }
       if (validation.reason === "student_not_enrolled") {
         throw new Error("Você não está matriculado em nenhuma turma.");
       }
       throw new Error("Não há nenhuma aula disponível para check-in neste momento.");
+    }
+
+    // 6) Intervalo mínimo: aplica-se apenas a novos check-ins da MESMA turma.
+    // Turmas distintas em horários próximos podem receber check-ins próprios.
+    const { data: last } = await supabaseAdmin
+      .from("dojo_attendance")
+      .select("checked_in_at, class_id")
+      .eq("student_id", me.id)
+      .order("checked_in_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const sameClassAsLast =
+      !!last && (last as any).class_id != null && (last as any).class_id === validation.classId;
+    const noClassContext = !validation.classId || !last || (last as any).class_id == null;
+    if (last?.checked_in_at && (sameClassAsLast || noClassContext)) {
+      const diffMin = (Date.now() - new Date(last.checked_in_at).getTime()) / 60000;
+      if (diffMin < minInterval) {
+        throw new Error(
+          `Aguarde ${Math.ceil(minInterval - diffMin)} minuto(s) para um novo check-in.`,
+        );
+      }
     }
 
     // 6) Grava a presença — owner_id e unit_id vêm do token no servidor.
