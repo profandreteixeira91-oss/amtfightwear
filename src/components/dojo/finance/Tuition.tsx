@@ -87,23 +87,17 @@ export function FinanceTuition() {
 
   return (
     <div className="space-y-3">
-      <Card className="p-4 border border-[color:var(--dojo-border)]">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-primary" />
-            <div>
-              <div className="font-semibold text-sm">Gerar mensalidades (matrículas manuais)</div>
-              <div className="text-xs text-muted-foreground">
-                Assinaturas AMT Pay são cobradas automaticamente pelo gateway.
-              </div>
-            </div>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            <Input type="month" value={refMonth} onChange={(e) => setRefMonth(e.target.value)} className="w-40 h-9" />
-            <Button onClick={handleGenerate}>Gerar</Button>
-          </div>
+      <Card className="p-3 border border-[color:var(--dojo-border)]">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Info className="h-3.5 w-3.5 text-primary shrink-0" />
+          <span>
+            As mensalidades são geradas automaticamente conforme a periodicidade do plano. Aqui você apenas confirma o
+            recebimento.
+          </span>
         </div>
       </Card>
+
+
 
       <div className="relative">
         <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
