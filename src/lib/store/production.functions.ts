@@ -5,7 +5,6 @@ import {
   STAGES,
   URGENCIES,
   ORDER_TYPES,
-  CANCELLED_ORDER_STATUS,
   PRODUCIBLE_QUOTE_STATUS,
   isPaidOrderForProduction,
 } from "@/lib/store/production-stages";
@@ -127,9 +126,6 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true })
       .limit(1000);
     if (oErr) throw new Error(oErr.message);
-    const isCancelledOrder = (o: { status?: string | null; payment_status?: string | null }) =>
-      CANCELLED_ORDER_STATUS.includes(String(o.status ?? "").toLowerCase()) ||
-      CANCELLED_ORDER_STATUS.includes(String(o.payment_status ?? "").toLowerCase());
     const isQuoteOrder = (o: { metadata?: unknown }) =>
       String(((o.metadata ?? {}) as Record<string, unknown>)["channel"] ?? "").toLowerCase() === "quote";
     // REGRA: somente pedido com pagamento confirmado produz.
