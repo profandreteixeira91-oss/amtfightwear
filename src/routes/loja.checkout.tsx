@@ -67,7 +67,7 @@ function CheckoutPage() {
       const authed = !!data.session;
       setSignedIn(authed);
       if (!authed) {
-        navigate({ to: "/auth", search: { redirect: "/loja/checkout" }, replace: true });
+        navigate({ to: "/loja/entrar", search: { redirect: "/loja/checkout" }, replace: true });
         return;
       }
       loadProfile().then((p) => {

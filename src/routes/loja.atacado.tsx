@@ -480,7 +480,7 @@ function WholesalePage() {
     if (signedIn === null) return; // still resolving
     if (!signedIn) {
       toast.info("Entre ou crie sua conta para finalizar o pedido");
-      navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+      navigate({ to: "/loja/entrar", search: { redirect: "/loja/atacado?resume=1" } });
       return;
     }
     setStep("checkout");
@@ -525,7 +525,7 @@ function WholesalePage() {
     e.preventDefault();
     if (!canProceed) return toast.error("Regra de atacado não atendida");
     if (!signedIn) {
-      navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+      navigate({ to: "/loja/entrar", search: { redirect: "/loja/atacado?resume=1" } });
       return;
     }
     if (paymentMethod === "CREDIT_CARD") {
@@ -803,7 +803,7 @@ function WholesalePage() {
             signedIn={signedIn}
             onCheckout={() => {
               if (!signedIn) {
-                navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+                navigate({ to: "/loja/entrar", search: { redirect: "/loja/atacado?resume=1" } });
                 return;
               }
               setStep("checkout");
@@ -834,7 +834,7 @@ function WholesalePage() {
         onOpenDetails={() => setSheetOpen(true)}
         onCheckout={() => {
           if (!signedIn) {
-            navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+            navigate({ to: "/loja/entrar", search: { redirect: "/loja/atacado?resume=1" } });
             return;
           }
           setStep("checkout");

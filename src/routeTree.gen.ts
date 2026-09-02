@@ -27,6 +27,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as PayInvoiceIdRouteImport } from './routes/pay.$invoiceId'
 import { Route as MatriculaSlugRouteImport } from './routes/matricula.$slug'
 import { Route as LojaGuiaKimonoRouteImport } from './routes/loja.guia-kimono'
+import { Route as LojaEntrarRouteImport } from './routes/loja.entrar'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
@@ -425,6 +426,11 @@ const MatriculaSlugRoute = MatriculaSlugRouteImport.update({
 const LojaGuiaKimonoRoute = LojaGuiaKimonoRouteImport.update({
   id: '/loja/guia-kimono',
   path: '/loja/guia-kimono',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaEntrarRoute = LojaEntrarRouteImport.update({
+  id: '/loja/entrar',
+  path: '/loja/entrar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
@@ -2174,6 +2180,7 @@ export interface FileRoutesByFullPath {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/entrar': typeof LojaEntrarRoute
   '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
   '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
@@ -2497,6 +2504,7 @@ export interface FileRoutesByTo {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/entrar': typeof LojaEntrarRoute
   '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
   '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
@@ -2812,6 +2820,7 @@ export interface FileRoutesById {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/entrar': typeof LojaEntrarRoute
   '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
   '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
@@ -3142,6 +3151,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/loja/entrar'
     | '/loja/guia-kimono'
     | '/matricula/$slug'
     | '/pay/$invoiceId'
@@ -3465,6 +3475,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/loja/entrar'
     | '/loja/guia-kimono'
     | '/matricula/$slug'
     | '/pay/$invoiceId'
@@ -3779,6 +3790,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/loja/entrar'
     | '/loja/guia-kimono'
     | '/matricula/$slug'
     | '/pay/$invoiceId'
@@ -4090,6 +4102,7 @@ export interface RootRouteChildren {
   LojaAtacadoRoute: typeof LojaAtacadoRoute
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
+  LojaEntrarRoute: typeof LojaEntrarRoute
   LojaGuiaKimonoRoute: typeof LojaGuiaKimonoRoute
   MatriculaSlugRoute: typeof MatriculaSlugRoute
   PayInvoiceIdRoute: typeof PayInvoiceIdRoute
@@ -4262,6 +4275,13 @@ declare module '@tanstack/react-router' {
       path: '/loja/guia-kimono'
       fullPath: '/loja/guia-kimono'
       preLoaderRoute: typeof LojaGuiaKimonoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/entrar': {
+      id: '/loja/entrar'
+      path: '/loja/entrar'
+      fullPath: '/loja/entrar'
+      preLoaderRoute: typeof LojaEntrarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/checkout': {
@@ -7388,6 +7408,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaAtacadoRoute: LojaAtacadoRoute,
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
+  LojaEntrarRoute: LojaEntrarRoute,
   LojaGuiaKimonoRoute: LojaGuiaKimonoRoute,
   MatriculaSlugRoute: MatriculaSlugRoute,
   PayInvoiceIdRoute: PayInvoiceIdRoute,
