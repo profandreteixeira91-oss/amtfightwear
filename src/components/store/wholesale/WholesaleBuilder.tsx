@@ -130,7 +130,7 @@ export function WholesaleBuilder({
               Monte seu pedido em 3 passos
             </h2>
             <p className="text-sm text-muted-foreground">
-              Escolha a categoria, a subcategoria e o produto. Sem rolagem infinita.
+              Escolha a categoria, a subcategoria e a cor. Sem rolagem infinita.
             </p>
           </div>
           {sub && (
