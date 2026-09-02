@@ -109,18 +109,3 @@ export function resolveStaffPermissions(
   if (Object.keys(map).length > 0) return map;
   return defaultPermissionsForRole(role ?? null);
 }
-
-/** Barreira de permissão de módulo. `need` padrão: leitura. */
-export function assertStaffCan(
-  staff: StaffContext,
-  moduleKey: string,
-  need: AccessLevel = "read",
-): void {
-  if (!canAccess(staff.permissions, moduleKey, need)) {
-    throw new StaffPermissionError(
-      need === "write"
-        ? "Você tem acesso somente leitura neste módulo. Solicite liberação ao dono do dojo."
-        : "Você não possui permissão para acessar este recurso.",
-    );
-  }
-}

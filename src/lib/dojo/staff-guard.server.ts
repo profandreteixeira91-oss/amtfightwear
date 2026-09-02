@@ -65,3 +65,17 @@ export async function requireStaff(
   };
 }
 
+/** Barreira de permissão de módulo. `need` padrão: leitura. */
+export function assertStaffCan(
+  staff: StaffContext,
+  moduleKey: string,
+  need: AccessLevel = "read",
+): void {
+  if (!canAccess(staff.permissions, moduleKey, need)) {
+    throw new StaffPermissionError(
+      need === "write"
+        ? "Você tem acesso somente leitura neste módulo. Solicite liberação ao dono do dojo."
+        : "Você não possui permissão para acessar este recurso.",
+    );
+  }
+}
