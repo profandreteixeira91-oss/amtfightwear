@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { generateMonthlyInvoices, markDojoInvoicePaid, deleteDojoInvoice } from "@/lib/dojo/dojo.functions";
+import { markDojoInvoicePaid, deleteDojoInvoice } from "@/lib/dojo/dojo.functions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import { Search, Zap, CalendarIcon, CheckCircle2 } from "lucide-react";
+import { Search, Info, CalendarIcon, CheckCircle2 } from "lucide-react";
 import { useInvoices, type InvoiceRow } from "./shared";
 import { TuitionByStudent, type TuitionInvoice } from "./TuitionList";
 
@@ -23,9 +23,6 @@ const brl = (n: number | null | undefined) =>
   Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export function FinanceTuition() {
-  const now = new Date();
-  const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const [refMonth, setRefMonth] = useState(defaultMonth);
   const [q, setQ] = useState("");
   const [payTarget, setPayTarget] = useState<TuitionInvoice | null>(null);
   const [payDate, setPayDate] = useState<Date>(new Date());
@@ -33,7 +30,6 @@ export function FinanceTuition() {
   const [paying, setPaying] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
   const invs = useInvoices("all");
-  const genFn = useServerFn(generateMonthlyInvoices);
   const payFn = useServerFn(markDojoInvoicePaid);
   const delFn = useServerFn(deleteDojoInvoice);
   const qc = useQueryClient();
@@ -49,13 +45,6 @@ export function FinanceTuition() {
     ? rows.filter((r) => (r.student?.full_name ?? "").toLowerCase().includes(term))
     : rows;
 
-  const handleGenerate = async () => {
-    try {
-      const r = await genFn({ data: { reference_month: refMonth } });
-      toast.success(`${r.created} cobranças geradas`);
-      refresh();
-    } catch (e: any) { toast.error(e.message); }
-  };
   const openPay = (id: string) => {
     const row = rows.find((r) => r.id === id) ?? null;
     if (!row) return;
@@ -87,23 +76,17 @@ export function FinanceTuition() {
 
   return (
     <div className="space-y-3">
-      <Card className="p-4 border border-[color:var(--dojo-border)]">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-primary" />
-            <div>
-              <div className="font-semibold text-sm">Gerar mensalidades (matrículas manuais)</div>
-              <div className="text-xs text-muted-foreground">
-                Assinaturas AMT Pay são cobradas automaticamente pelo gateway.
-              </div>
-            </div>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            <Input type="month" value={refMonth} onChange={(e) => setRefMonth(e.target.value)} className="w-40 h-9" />
-            <Button onClick={handleGenerate}>Gerar</Button>
-          </div>
+      <Card className="p-3 border border-[color:var(--dojo-border)]">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Info className="h-3.5 w-3.5 text-primary shrink-0" />
+          <span>
+            As mensalidades são geradas automaticamente conforme a periodicidade do plano. Aqui você apenas confirma o
+            recebimento.
+          </span>
         </div>
       </Card>
+
+
 
       <div className="relative">
         <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
