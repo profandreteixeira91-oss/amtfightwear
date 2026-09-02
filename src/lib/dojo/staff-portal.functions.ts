@@ -78,6 +78,7 @@ export const getStaffSession = createServerFn({ method: "GET" })
         }
       | null;
     if (!row) return null;
+    const permissions = resolveStaffPermissions(row.permissions, row.role);
 
     const { data: brandRows } = await context.supabase.rpc("get_dojo_staff_portal", {
       _dojo: row.owner_id,
