@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { generateMonthlyInvoices, markDojoInvoicePaid, deleteDojoInvoice } from "@/lib/dojo/dojo.functions";
+import { markDojoInvoicePaid, deleteDojoInvoice } from "@/lib/dojo/dojo.functions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import { Search, Zap, CalendarIcon, CheckCircle2 } from "lucide-react";
+import { Search, Info, CalendarIcon, CheckCircle2 } from "lucide-react";
 import { useInvoices, type InvoiceRow } from "./shared";
 import { TuitionByStudent, type TuitionInvoice } from "./TuitionList";
 
@@ -23,9 +23,6 @@ const brl = (n: number | null | undefined) =>
   Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export function FinanceTuition() {
-  const now = new Date();
-  const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const [refMonth, setRefMonth] = useState(defaultMonth);
   const [q, setQ] = useState("");
   const [payTarget, setPayTarget] = useState<TuitionInvoice | null>(null);
   const [payDate, setPayDate] = useState<Date>(new Date());
@@ -33,7 +30,6 @@ export function FinanceTuition() {
   const [paying, setPaying] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
   const invs = useInvoices("all");
-  const genFn = useServerFn(generateMonthlyInvoices);
   const payFn = useServerFn(markDojoInvoicePaid);
   const delFn = useServerFn(deleteDojoInvoice);
   const qc = useQueryClient();
@@ -49,13 +45,6 @@ export function FinanceTuition() {
     ? rows.filter((r) => (r.student?.full_name ?? "").toLowerCase().includes(term))
     : rows;
 
-  const handleGenerate = async () => {
-    try {
-      const r = await genFn({ data: { reference_month: refMonth } });
-      toast.success(`${r.created} cobranças geradas`);
-      refresh();
-    } catch (e: any) { toast.error(e.message); }
-  };
   const openPay = (id: string) => {
     const row = rows.find((r) => r.id === id) ?? null;
     if (!row) return;
