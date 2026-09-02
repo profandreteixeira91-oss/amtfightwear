@@ -739,22 +739,19 @@ function PlansPage() {
 
                 {/* Regras */}
                 <SectionCard title="Regras do Plano" icon={Info}>
+                  <div className="mb-3 rounded-md border border-primary/30 bg-primary/5 p-3 text-[12px] text-muted-foreground">
+                    <strong className="text-foreground">Renovação automática sempre ativa.</strong>{" "}
+                    Todo plano renova de acordo com a sua recorrência e as mensalidades são geradas
+                    automaticamente. As cobranças só param quando a matrícula do aluno é cancelada
+                    ou o aluno é removido do sistema.
+                  </div>
                   <div className="grid gap-3 md:grid-cols-2">
                     <RuleCheck
                       label="Permitir pagamento antecipado"
                       checked={form.rules.allow_prepay}
                       onChange={(v) => patchRule("allow_prepay", v)}
                     />
-                    <RuleCheck
-                      label="Renovação automática"
-                      checked={form.rules.auto_renew}
-                      onChange={(v) => patchRule("auto_renew", v)}
-                    />
-                    <RuleCheck
-                      label="Gerar cobrança automaticamente"
-                      checked={form.rules.auto_generate_invoice}
-                      onChange={(v) => patchRule("auto_generate_invoice", v)}
-                    />
+
                     <RuleCheck
                       label="Permitir inadimplência"
                       checked={form.rules.allow_default}
