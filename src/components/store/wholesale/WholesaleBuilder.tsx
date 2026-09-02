@@ -13,6 +13,7 @@ import {
 import { ProductImage } from "@/components/store/ProductImage";
 import { formatBRL } from "@/lib/store/cart-store";
 import { variantLabel, type WholesaleProduct, type WholesaleVariant } from "./WholesaleProductCard";
+import { colorsOfProduct, UNCOLORED } from "./product-color";
 
 export type BuilderSub = { key: string; name: string; items: WholesaleProduct[] };
 export type BuilderRoot = { id: string; name: string; subs: BuilderSub[] };
@@ -56,11 +57,34 @@ export function WholesaleBuilder({
   onAdd,
 }: Props) {
   const [subKey, setSubKey] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
   const [productId, setProductId] = useState<string | null>(null);
 
   const root = roots.find((r) => r.id === activeRoot) ?? null;
   const sub = root?.subs.find((s) => s.key === subKey) ?? null;
-  const product = sub?.items.find((p) => p.id === productId) ?? null;
+
+  // Mapa cor → produtos da subcategoria selecionada.
+  const colorMap = useMemo(() => {
+    const m = new Map<string, WholesaleProduct[]>();
+    for (const p of sub?.items ?? []) {
+      for (const c of colorsOfProduct(p, variantsOf(p.id))) {
+        const arr = m.get(c) ?? [];
+        arr.push(p);
+        m.set(c, arr);
+      }
+    }
+    return new Map(
+      Array.from(m.entries()).sort((a, b) => {
+        if (a[0] === UNCOLORED) return 1;
+        if (b[0] === UNCOLORED) return -1;
+        return a[0].localeCompare(b[0]);
+      }),
+    );
+  }, [sub, variantsOf]);
+
+  const colorOptions = Array.from(colorMap.keys());
+  const filtered = color ? (colorMap.get(color) ?? []) : [];
+  const product = filtered.find((p) => p.id === productId) ?? null;
 
   // Auto-avança quando existe apenas uma opção, mantendo o fluxo mais curto.
   useEffect(() => {
@@ -77,16 +101,25 @@ export function WholesaleBuilder({
 
   useEffect(() => {
     if (!sub) {
+      setColor(null);
       setProductId(null);
       return;
     }
-    if (!sub.items.some((p) => p.id === productId)) {
-      setProductId(sub.items.length === 1 ? sub.items[0].id : null);
+    if (!color || !colorMap.has(color)) {
+      setColor(colorOptions.length === 1 ? colorOptions[0] : null);
+      setProductId(null);
     }
-  }, [sub, productId]);
+  }, [sub, color, colorMap, colorOptions]);
+
+  useEffect(() => {
+    if (!filtered.some((p) => p.id === productId)) {
+      setProductId(filtered.length === 1 ? filtered[0].id : null);
+    }
+  }, [filtered, productId]);
 
   const subQty = sub ? subcategoryQty(sub.key) : 0;
   const subOk = subQty >= minPerSubcategory;
+
 
   return (
     <section className="space-y-4" aria-labelledby="montador-atacado">
@@ -97,7 +130,7 @@ export function WholesaleBuilder({
               Monte seu pedido em 3 passos
             </h2>
             <p className="text-sm text-muted-foreground">
-              Escolha a categoria, a subcategoria e o produto. Sem rolagem infinita.
+              Escolha a categoria, a subcategoria e a cor. Sem rolagem infinita.
             </p>
           </div>
           {sub && (
@@ -158,6 +191,7 @@ export function WholesaleBuilder({
               value={subKey ?? ""}
               onChange={(e) => {
                 setSubKey(e.target.value || null);
+                setColor(null);
                 setProductId(null);
               }}
             >
@@ -177,19 +211,22 @@ export function WholesaleBuilder({
           <div>
             <span className={labelClass}>
               <span className="grid h-4 w-4 place-items-center rounded-full bg-primary/10 text-[9px] text-primary">3</span>
-              Produto
+              Cor
             </span>
             <select
-              aria-label="Produto"
+              aria-label="Cor"
               className={selectClass}
               disabled={!sub}
-              value={productId ?? ""}
-              onChange={(e) => setProductId(e.target.value || null)}
+              value={color ?? ""}
+              onChange={(e) => {
+                setColor(e.target.value || null);
+                setProductId(null);
+              }}
             >
-              <option value="">{sub ? "Selecione o produto" : "Escolha a subcategoria"}</option>
-              {(sub?.items ?? []).map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
+              <option value="">{sub ? "Selecione a cor" : "Escolha a subcategoria"}</option>
+              {colorOptions.map((c) => (
+                <option key={c} value={c}>
+                  {c} ({colorMap.get(c)?.length ?? 0})
                 </option>
               ))}
             </select>
@@ -201,8 +238,46 @@ export function WholesaleBuilder({
           <ChevronRight className="h-3 w-3" />
           <span>{sub?.name ?? "Subcategoria"}</span>
           <ChevronRight className="h-3 w-3" />
+          <span>{color ?? "Cor"}</span>
+          <ChevronRight className="h-3 w-3" />
           <span className={product ? "text-primary" : undefined}>{product?.name ?? "Produto"}</span>
         </div>
+
+        {color && (
+          <div className="mt-4 border-t pt-4">
+            <span className={labelClass}>Produtos na cor {color}</span>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {filtered.map((p) => {
+                const selected = p.id === productId;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setProductId(p.id)}
+                    aria-pressed={selected}
+                    className={`flex items-center gap-3 rounded-xl border p-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                      selected ? "border-primary bg-primary/5" : "hover:border-primary/50 hover:bg-muted/40"
+                    }`}
+                  >
+                    <span className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border bg-muted">
+                      <ProductImage src={p.image_url} alt={p.name} aspect="square" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-bold">{p.name}</span>
+                      <span className="block text-[11px] text-muted-foreground">
+                        {formatBRL(Number(p.price))}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+              {filtered.length === 0 && (
+                <p className="text-xs text-muted-foreground">Nenhum produto nesta cor.</p>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {product ? (
