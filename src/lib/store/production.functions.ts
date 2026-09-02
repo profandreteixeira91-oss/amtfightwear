@@ -1,7 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { STAGES, URGENCIES, ORDER_TYPES, CANCELLED_ORDER_STATUS } from "@/lib/store/production-stages";
+import {
+  STAGES,
+  URGENCIES,
+  ORDER_TYPES,
+  PRODUCIBLE_QUOTE_STATUS,
+  isPaidOrderForProduction,
+} from "@/lib/store/production-stages";
 import type { OrderType, Stage, Urgency } from "@/lib/store/production-stages";
 
 export type ProductionJob = {
@@ -120,23 +126,21 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true })
       .limit(1000);
     if (oErr) throw new Error(oErr.message);
-    const isCancelledOrder = (o: { status?: string | null; payment_status?: string | null }) =>
-      CANCELLED_ORDER_STATUS.includes(String(o.status ?? "").toLowerCase()) ||
-      CANCELLED_ORDER_STATUS.includes(String(o.payment_status ?? "").toLowerCase());
     const isQuoteOrder = (o: { metadata?: unknown }) =>
       String(((o.metadata ?? {}) as Record<string, unknown>)["channel"] ?? "").toLowerCase() === "quote";
+    // REGRA: somente pedido com pagamento confirmado produz.
     // Pedidos gerados por orçamento já entram na fila pela origem "quote".
-    const validOrders = (orders ?? []).filter((o) => !isCancelledOrder(o) && !isQuoteOrder(o));
+    const validOrders = (orders ?? []).filter((o) => isPaidOrderForProduction(o) && !isQuoteOrder(o));
 
-    // Pedidos cancelados (pelo cliente ou pelo admin) saem da fila de produção.
-    const cancelledIds = (orders ?? []).filter(isCancelledOrder).map((o) => o.id);
-    if (cancelledIds.length) {
-      const stale = (existing ?? [])
-        .filter((j) => j.source === "order" && j.source_id && cancelledIds.includes(j.source_id))
-        .map((j) => j.id);
-      if (stale.length) {
-        await supabase.from("store_production_jobs").delete().in("id", stale);
-        for (const id of stale) seen.delete(id);
+    // Pedido sem pagamento confirmado (pendente, cancelado, estornado) sai da fila.
+    const validOrderIds = new Set(validOrders.map((o) => o.id));
+    const staleOrderJobs = (existing ?? [])
+      .filter((j) => j.source === "order" && (!j.source_id || !validOrderIds.has(j.source_id)))
+      .map((j) => j.id);
+    if (staleOrderJobs.length) {
+      await supabase.from("store_production_jobs").delete().in("id", staleOrderJobs);
+      for (const j of existing ?? []) {
+        if (staleOrderJobs.includes(j.id)) seen.delete(`${j.source}:${j.source_id}:${j.source_item_key}`);
       }
     }
 
@@ -210,10 +214,24 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
     const { data: quotes, error: qErr } = await supabase
       .from("store_quotes")
       .select("id, quote_number, customer_name, customer_company, items, status, created_at")
-      .in("status", ["approved", "paid_50", "paid_100", "sent", "draft"])
+      .in("status", PRODUCIBLE_QUOTE_STATUS)
       .order("created_at", { ascending: true })
       .limit(1000);
     if (qErr) throw new Error(qErr.message);
+
+    // Orçamentos que não estão pagos (rascunho, enviado, aprovado, recusado,
+    // expirado) são removidos da fila — nunca produzem.
+    const paidQuoteIds = new Set((quotes ?? []).map((q) => q.id));
+    const staleQuoteJobs = (existing ?? [])
+      .filter((j) => j.source === "quote" && (!j.source_id || !paidQuoteIds.has(j.source_id)))
+      .map((j) => j.id);
+    if (staleQuoteJobs.length) {
+      await supabase.from("store_production_jobs").delete().in("id", staleQuoteJobs);
+      for (const j of existing ?? []) {
+        if (staleQuoteJobs.includes(j.id)) seen.delete(`${j.source}:${j.source_id}:${j.source_item_key}`);
+      }
+    }
+
     for (const q of quotes ?? []) {
       const items = Array.isArray(q.items) ? (q.items as Record<string, unknown>[]) : [];
       items.forEach((it, idx) => {

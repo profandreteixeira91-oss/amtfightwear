@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { PRODUCIBLE_QUOTE_STATUS } from "@/lib/store/production-stages";
+
 type AnyClient = SupabaseClient<any, any, any>;
 
 export type QuoteRow = {
@@ -20,8 +22,11 @@ export type QuoteRow = {
   created_at?: string | null;
 };
 
-/** Status que mantêm o orçamento vivo na operação (fila de produção). */
-const ACTIVE_STATUSES = ["draft", "sent", "approved", "paid_50", "paid_100"];
+/**
+ * Somente orçamento PAGO produz: `paid_50` ou `paid_100`.
+ * Rascunho, enviado, aprovado, recusado e expirado ficam FORA da fila.
+ */
+const ACTIVE_STATUSES = PRODUCIBLE_QUOTE_STATUS;
 export const PAID_RATIO: Record<string, number> = { paid_50: 0.5, paid_100: 1 };
 
 function quoteItems(quote: QuoteRow) {
