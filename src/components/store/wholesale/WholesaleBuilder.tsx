@@ -13,6 +13,7 @@ import {
 import { ProductImage } from "@/components/store/ProductImage";
 import { formatBRL } from "@/lib/store/cart-store";
 import { variantLabel, type WholesaleProduct, type WholesaleVariant } from "./WholesaleProductCard";
+import { colorsOfProduct, UNCOLORED } from "./product-color";
 
 export type BuilderSub = { key: string; name: string; items: WholesaleProduct[] };
 export type BuilderRoot = { id: string; name: string; subs: BuilderSub[] };
