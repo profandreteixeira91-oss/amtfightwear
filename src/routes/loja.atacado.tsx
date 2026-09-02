@@ -12,13 +12,12 @@ import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/custome
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, useCart } from "@/lib/store/cart-store";
 import { KimonoGuideCallout } from "@/components/store/KimonoGuideLink";
-import { ProductImage } from "@/components/store/ProductImage";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight, LogIn } from "lucide-react";
+import { Upload, X, AlertCircle, Package, ShoppingBag, ArrowRight, LogIn } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { z } from "zod";
-import { WholesaleProductCard } from "@/components/store/wholesale/WholesaleProductCard";
+import { WholesaleBuilder, type BuilderRoot } from "@/components/store/wholesale/WholesaleBuilder";
 import { WholesaleHero } from "@/components/store/wholesale/WholesaleHero";
 import { WholesaleSteps } from "@/components/store/wholesale/WholesaleSteps";
 import { WholesaleSavingsBar } from "@/components/store/wholesale/WholesaleSavingsBar";
@@ -222,25 +221,30 @@ function WholesalePage() {
     });
   }, [grouped, rootOf]);
 
+  // Estrutura enxuta para os dropdowns em cascata (categoria → subcategoria → produto).
+  const builderRoots = useMemo<BuilderRoot[]>(
+    () =>
+      rootGroups.map(([rid, rg]) => ({
+        id: rid,
+        name: rg.root?.name ?? "Sem categoria",
+        subs: rg.subs.map(([key, g]) => ({
+          key,
+          name: g.cat?.name ?? "Sem categoria",
+          items: [...g.items].sort((a, b) => a.name.localeCompare(b.name)),
+        })),
+      })),
+    [rootGroups],
+  );
+
   // qty keyed by `${productId}::${variantId|__none__}`
   const [qty, setQty] = useState<Record<string, number>>({});
   const setLineQty = (pid: string, vid: string | null, q: number) =>
     setQty((s) => ({ ...s, [keyOf(pid, vid)]: Math.max(0, q) }));
-  const productTotal = (pid: string) => {
-    const vs = variantsByProduct.get(pid);
-    if (!vs || vs.length === 0) return qty[keyOf(pid, null)] ?? 0;
-    return vs.reduce((a, v) => a + (qty[keyOf(pid, v.id)] ?? 0), 0);
-  };
-
 
   // Visualization controls
-  const [search, setSearch] = useState("");
   const [activeRoot, setActiveRoot] = useState<string | null>(null);
-  const [activeCatFilter, setActiveCatFilter] = useState<string | null>(null);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [zoomImg, setZoomImg] = useState<{ src: string; alt: string } | null>(null);
-  const toggleCollapse = (key: string) =>
-    setCollapsed((s) => ({ ...s, [key]: !s[key] }));
+
 
 
   // Totals per subcategory (aggregating variant-level quantities)
@@ -649,178 +653,23 @@ function WholesalePage() {
           )}
 
           {step === "cart" ? (
-            <div className="space-y-6">
-              {activeRoot === null ? (
-                <div>
-                  <div className="mb-4">
-                    <h2 className="text-lg font-black">Escolha uma categoria</h2>
-                    <p className="text-sm text-muted-foreground">Selecione a categoria para ver os produtos e subcategorias disponíveis.</p>
-                  </div>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {rootGroups.map(([rid, rg]) => {
-                      const rootQty = rg.subs.reduce((a, [k]) => a + (catTotals.get(k)?.qty ?? 0), 0);
-                      return (
-                        <button
-                          key={rid}
-                          type="button"
-                          onClick={() => { setActiveRoot(rid); setActiveCatFilter(null); }}
-                          className="group flex items-center justify-between gap-3 rounded-xl border bg-card p-4 text-left transition hover:border-primary hover:shadow-md"
-                        >
-                          <span>
-                            <span className="block text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Categoria</span>
-                            <span className="block text-base font-black">{rg.root?.name ?? "Sem categoria"}</span>
-                            <span className="block text-xs text-muted-foreground">
-                              {rg.subs.length} subcategoria{rg.subs.length === 1 ? "" : "s"} · {rg.totalProducts} produtos
-                            </span>
-                          </span>
-                          <span className="flex items-center gap-2">
-                            {rootQty > 0 && (
-                              <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{rootQty} un.</span>
-                            )}
-                            <ChevronDown className="h-5 w-5 -rotate-90 text-muted-foreground transition group-hover:text-primary" />
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {rootGroups.length === 0 && (
-                    <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
-                      Nenhum produto disponível no momento.
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <>
-                  {(() => {
-                    const rg = rootGroups.find(([rid]) => rid === activeRoot)?.[1];
-                    if (!rg) return null;
-                    return (
-                      <>
-                        {/* Header: back + search + subcategory chips */}
-                        <div className="sticky top-[calc(var(--header-h,140px))] z-10 space-y-2 rounded-xl border bg-card/95 p-2 backdrop-blur">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => { setActiveRoot(null); setActiveCatFilter(null); }}
-                              className="rounded-md border px-3 py-2 text-xs font-semibold hover:bg-accent"
-                            >
-                              ← Categorias
-                            </button>
-                            <div className="flex flex-1 items-center gap-2 rounded-md border bg-background px-3">
-                              <Search className="h-4 w-4 text-muted-foreground" />
-                              <input
-                                type="text"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder={`Buscar em ${rg.root?.name ?? "categoria"}...`}
-                                className="w-full bg-transparent px-1 py-2 text-sm outline-none"
-                              />
-                              {search && (
-                                <button type="button" onClick={() => setSearch("")} className="rounded p-1 hover:bg-accent" aria-label="Limpar">
-                                  <X className="h-3.5 w-3.5" />
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                          <select
-                            value={activeCatFilter ?? ""}
-                            onChange={(e) => setActiveCatFilter(e.target.value || null)}
-                            className="w-full rounded-md border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
-                          >
-                            <option value="">Todas as subcategorias ({rg.subs.length})</option>
-                            {rg.subs.map(([key, g]) => {
-                              const qty = catTotals.get(key)?.qty ?? 0;
-                              return (
-                                <option key={key} value={key}>
-                                  {g.cat?.name ?? "Sem categoria"}{qty > 0 ? ` · ${qty} un.` : ""}
-                                </option>
-                              );
-                            })}
-                          </select>
+            <WholesaleBuilder
+              roots={builderRoots}
+              variantsOf={(pid) => variantsByProduct.get(pid) ?? []}
+              qtyOf={(pid, vid) => qty[keyOf(pid, vid)] ?? 0}
+              setQty={(pid, vid, q) => setLineQty(pid, vid, q)}
+              discountPercentOf={(p) => productPct(p as Prod)}
+              subcategoryQty={(key) => catTotals.get(key)?.qty ?? 0}
+              minPerSubcategory={MIN_PER_SUBCAT}
+              activeRoot={activeRoot}
+              onActiveRootChange={setActiveRoot}
+              onZoom={setZoomImg}
+              onAdd={(p, q) => {
+                setSheetOpen(true);
+                trackAddToCart(p as Prod, q || 1);
+              }}
+            />
 
-                        </div>
-
-                        {rg.subs
-                          .filter(([key]) => activeCatFilter === null || activeCatFilter === key)
-                          .map(([key, g]) => {
-                            const totals = catTotals.get(key);
-                            const groupQty = totals?.qty ?? 0;
-                            const ok = groupQty >= MIN_PER_SUBCAT;
-                            const q = search.trim().toLowerCase();
-                            const items = q ? g.items.filter((p) => p.name.toLowerCase().includes(q)) : g.items;
-                            if (items.length === 0) return null;
-                            const isCollapsed = collapsed[key];
-                            return (
-
-                    <section key={key} id={`cat-${key}`} className="rounded-xl border bg-card">
-                      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
-                        <button
-                          type="button"
-                          onClick={() => toggleCollapse(key)}
-                          className="flex flex-1 items-center gap-3 text-left"
-                        >
-                          <span className="grid h-7 w-7 place-items-center rounded-md border">
-                            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                          </span>
-                          <span>
-                            <span className="block text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Subcategoria</span>
-                            <span className="block text-lg font-black">{g.cat?.name ?? "Sem categoria"}</span>
-                            <span className="block text-xs text-muted-foreground">{items.length} produtos</span>
-                          </span>
-                        </button>
-                        <div
-                          className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-bold ${
-                            groupQty === 0
-                              ? "bg-muted text-muted-foreground"
-                              : ok
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                          }`}
-                        >
-                          {groupQty === 0 ? (
-                            <>Mínimo {MIN_PER_SUBCAT} unidades</>
-                          ) : ok ? (
-                            <>
-                              <CheckCircle2 className="h-3.5 w-3.5" /> {groupQty} un. · OK
-                            </>
-                          ) : (
-                            <>
-                              <AlertCircle className="h-3.5 w-3.5" /> {groupQty}/{MIN_PER_SUBCAT} un.
-                            </>
-                          )}
-                        </div>
-                      </header>
-                      {!isCollapsed && (
-                        <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-                          {items.map((p) => (
-                            <WholesaleProductCard
-                              key={p.id}
-                              product={p}
-                              variants={variantsByProduct.get(p.id) ?? []}
-                              qtyOf={(vid) => qty[keyOf(p.id, vid)] ?? 0}
-                              setQty={(vid, q) => setLineQty(p.id, vid, q)}
-                              discountPercent={productPct(p)}
-                              categoryName={g.cat?.name ?? null}
-                              minPerSubcategory={MIN_PER_SUBCAT}
-                              onZoom={setZoomImg}
-                              onAdd={() => {
-                                setSheetOpen(true);
-                                trackAddToCart(p, productTotal(p.id) || 1);
-                              }}
-                            />
-                          ))}
-                        </div>
-                      )}
-
-                    </section>
-                  );
-                          })}
-                      </>
-                    );
-                  })()}
-                </>
-              )}
-            </div>
 
           ) : (
             <form onSubmit={submit} className="space-y-4">
