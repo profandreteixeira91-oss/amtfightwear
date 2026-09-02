@@ -576,9 +576,11 @@ function DojoLayoutInner({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/dojo/staff" className="flex items-center gap-2">
+                {/* O dono não entra no Portal da Equipe (login separado): aqui
+                    ele gerencia colaboradores e compartilha o link do portal. */}
+                <Link to="/dojo/app/team" className="flex items-center gap-2">
                   <UsersRound className="mr-2 h-4 w-4" />
-                  <span className="flex-1">Portal da Equipe</span>
+                  <span className="flex-1">Equipe e Portal do Professor</span>
                 </Link>
               </DropdownMenuItem>
 
