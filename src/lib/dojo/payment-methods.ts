@@ -66,7 +66,9 @@ export type PlanPaymentMethod = {
 
 export type PlanRules = {
   allow_prepay?: boolean;
+  /** @deprecated Renovação automática é obrigatória em todos os planos (sempre true). */
   auto_renew?: boolean;
+  /** @deprecated Geração automática de mensalidade é obrigatória (sempre true). */
   auto_generate_invoice?: boolean;
   allow_default?: boolean;
   block_after_days?: number | null;
@@ -264,7 +266,7 @@ export function normalizePlanPaymentMethods(raw: unknown): PlanPaymentMethod[] {
 export function defaultPlanRules(): PlanRules {
   return {
     allow_prepay: true,
-    auto_renew: false,
+    auto_renew: true,
     auto_generate_invoice: true,
     allow_default: true,
     block_after_days: null,

@@ -41,7 +41,7 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
         const { data: enrolls, error } = await supabaseAdmin
           .from("dojo_enrollments")
           .select(
-            "id, owner_id, student_id, due_day, start_date, custom_amount, next_run_at, paused_until, installments_total, installments_generated, asaas_subscription_id, plan:dojo_plans(amount, name, frequency, custom_months, installments, rules), student:dojo_students(unit_id)",
+            "id, owner_id, student_id, due_day, start_date, custom_amount, next_run_at, paused_until, installments_total, installments_generated, asaas_subscription_id, plan:dojo_plans(amount, name, frequency, custom_months, installments, rules), student:dojo_students(unit_id, status, cancelled_at)",
           )
           .eq("status", "active")
           .is("asaas_subscription_id", null)
@@ -54,15 +54,14 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
           const e = raw;
           // Respeita pausa temporária.
           if (e.paused_until && e.paused_until >= todayISO) { skipped++; continue; }
-          // Respeita limite de parcelas configurado na regra.
-          if (e.installments_total && (e.installments_generated ?? 0) >= e.installments_total) {
-            skipped++;
-            continue;
-          }
+          // Renovação automática obrigatória: `installments_total` NÃO interrompe
+          // a recorrência. As cobranças só param quando a matrícula é cancelada
+          // (status != active) ou o aluno é removido/cancelado do sistema.
+          const studentStatus = String(e.student?.status ?? "active");
+          if (studentStatus === "cancelled" || e.student?.cancelled_at) { skipped++; continue; }
 
           const plan = e.plan ?? {};
           const rules = plan.rules ?? {};
-          if (rules.auto_generate_invoice === false) { skipped++; continue; }
 
           const cycleMonths = planCycleMonths(plan.frequency, plan.custom_months);
           const installments = planInstallments(plan.installments, cycleMonths);

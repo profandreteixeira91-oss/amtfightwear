@@ -510,6 +510,13 @@ export const deleteDojoStudent = createServerFn({ method: "POST" })
       .update({ status: "cancelled", cancelled_at: new Date().toISOString(), frozen_since: null, frozen_until: null })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
+    // Invariante: matrícula cancelada => recorrência encerrada. Sem isso o cron
+    // continuaria gerando mensalidades para um aluno removido do sistema.
+    await context.supabase
+      .from("dojo_enrollments")
+      .update({ status: "cancelled", cancelled_at: new Date().toISOString(), next_run_at: null } as never)
+      .eq("student_id", data.id)
+      .neq("status", "cancelled");
     try {
       const owner = ownerId(context);
       const { sendPushToDojoOwner } = await import("@/lib/push/dojo-owner-push.server");
@@ -586,6 +593,12 @@ export const restoreDojoStudent = createServerFn({ method: "POST" })
       .update({ status: "active", cancelled_at: null, frozen_since: null, frozen_until: null })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
+    // Restaurar o aluno reativa a recorrência das matrículas canceladas.
+    await context.supabase
+      .from("dojo_enrollments")
+      .update({ status: "active", cancelled_at: null } as never)
+      .eq("student_id", data.id)
+      .eq("status", "cancelled");
     return { ok: true };
   });
 
