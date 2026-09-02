@@ -54,8 +54,8 @@ export function detectColor(text: string | null | undefined): string | null {
 }
 
 /**
- * Cores de um produto: prioriza as cores cadastradas nas variantes e cai para a
- * detecção pelo nome quando o cadastro não traz cor (maioria do catálogo).
+ * Cores de um produto: usa a cor detectada no nome e recorre às variantes
+ * quando o nome não traz cor.
  */
 export function colorsOfProduct(p: WholesaleProduct, variants: WholesaleVariant[]): string[] {
   // O nome do produto descreve a cor da peça; a cor da variante costuma ser
