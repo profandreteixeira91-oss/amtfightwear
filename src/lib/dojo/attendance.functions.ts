@@ -145,7 +145,13 @@ export async function validateAndResolveCheckin(
       classId: null, 
       isValid: false, 
       reason: "multiple_classes", 
-      availableClasses: validMatches.map(m => ({ id: m.class_id, name: m.dojo_classes?.name }))
+      availableClasses: validMatches.map(m => ({
+        id: m.class_id,
+        name: m.dojo_classes?.name,
+        modality: m.dojo_classes?.modality ?? null,
+        start_time: m.start_time,
+        end_time: m.end_time,
+      }))
     };
   }
 
