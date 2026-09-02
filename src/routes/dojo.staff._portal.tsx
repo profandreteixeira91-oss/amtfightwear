@@ -30,16 +30,23 @@ export const Route = createFileRoute("/dojo/staff/_portal")({
 
 function StaffPortalLayout() {
   const sessionFn = useServerFn(getStaffSession);
+  // Permissões nunca são cacheadas de forma agressiva: se o dono alterar o
+  // nível de acesso, o professor reflete a mudança ao focar a aba ou navegar.
   const { data, isLoading, isError } = useQuery({
     queryKey: ["staff-session"],
     queryFn: () => sessionFn(),
-    staleTime: 30_000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchInterval: 60_000,
   });
 
+  // Nenhum módulo é renderizado antes das permissões estarem carregadas.
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <p className="text-xs text-muted-foreground">Carregando suas permissões...</p>
       </div>
     );
   }
