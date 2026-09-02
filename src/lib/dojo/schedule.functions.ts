@@ -71,6 +71,18 @@ const classSchema = z.object({
   schedules: z.array(scheduleSchema).min(1),
 });
 
+/**
+ * Normaliza "HH:MM", "HH:MM:SS" ou "H:MM" em minutos desde 00:00.
+ * Sem isso, a comparação era feita entre strings de formatos diferentes
+ * ("19:00" do formulário vs "19:00:00" do banco), e "19:00" < "19:00:00"
+ * marcava falsamente sobreposição em turmas encostadas (18–19 e 19–20).
+ */
+function toMinutes(time: string): number {
+  const m = String(time).match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return -1;
+  return Number(m[1]) * 60 + Number(m[2]);
+}
+
 async function detectConflict(
   supabase: any,
   ownerId: string,
@@ -88,10 +100,18 @@ async function detectConflict(
   if (error) return null;
   const conflicts = (existing ?? []).filter((r: any) => r.class_id !== classId && r.dojo_classes?.status !== "inactive");
   for (const s of schedules) {
+    const sStart = toMinutes(s.start_time);
+    const sEnd = toMinutes(s.end_time);
+    if (sStart < 0 || sEnd < 0) continue;
     for (const e of conflicts) {
-      if (e.weekday !== s.weekday) continue;
-      const overlap = s.start_time < e.end_time && s.end_time > e.start_time;
+      if (Number(e.weekday) !== Number(s.weekday)) continue;
+      const eStart = toMinutes(e.start_time);
+      const eEnd = toMinutes(e.end_time);
+      if (eStart < 0 || eEnd < 0) continue;
+      // Intervalos semiabertos [início, fim): tocar nas bordas não é conflito.
+      const overlap = sStart < eEnd && sEnd > eStart;
       if (!overlap) continue;
+
       if (spaceId && e.dojo_classes?.space_id === spaceId) {
         return `Conflito de espaço com a turma "${e.dojo_classes.name}".`;
       }
