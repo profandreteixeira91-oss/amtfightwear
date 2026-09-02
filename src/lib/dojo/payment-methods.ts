@@ -73,7 +73,21 @@ export type PlanRules = {
   suspend_checkin?: boolean;
   suspend_app?: boolean;
   requires_enrollment_fee?: boolean;
+  /** Dias de antecedência para geração automática da cobrança (1..60). */
+  billing_advance_days?: number | null;
 };
+
+/** Antecedência padrão (em dias) para gerar a cobrança antes do vencimento. */
+export const DEFAULT_BILLING_ADVANCE_DAYS = 5;
+
+/** Normaliza a antecedência configurada no plano. */
+export function planAdvanceDays(rules: unknown): number {
+  const raw = (rules as PlanRules | null | undefined)?.billing_advance_days;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_BILLING_ADVANCE_DAYS;
+  return Math.min(60, Math.round(n));
+}
+
 
 export type PlanFrequency =
   | "monthly"
