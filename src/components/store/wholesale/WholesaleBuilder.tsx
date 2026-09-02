@@ -191,6 +191,7 @@ export function WholesaleBuilder({
               value={subKey ?? ""}
               onChange={(e) => {
                 setSubKey(e.target.value || null);
+                setColor(null);
                 setProductId(null);
               }}
             >
