@@ -54,15 +54,14 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
           const e = raw;
           // Respeita pausa temporária.
           if (e.paused_until && e.paused_until >= todayISO) { skipped++; continue; }
-          // Respeita limite de parcelas configurado na regra.
-          if (e.installments_total && (e.installments_generated ?? 0) >= e.installments_total) {
-            skipped++;
-            continue;
-          }
+          // Renovação automática obrigatória: `installments_total` NÃO interrompe
+          // a recorrência. As cobranças só param quando a matrícula é cancelada
+          // (status != active) ou o aluno é removido/cancelado do sistema.
+          const studentStatus = String(e.student?.status ?? "active");
+          if (studentStatus === "cancelled" || e.student?.cancelled_at) { skipped++; continue; }
 
           const plan = e.plan ?? {};
           const rules = plan.rules ?? {};
-          if (rules.auto_generate_invoice === false) { skipped++; continue; }
 
           const cycleMonths = planCycleMonths(plan.frequency, plan.custom_months);
           const installments = planInstallments(plan.installments, cycleMonths);
