@@ -126,6 +126,31 @@ export function parseScannedCode(raw: string): string {
 /** Status de pedido que NÃO devem entrar na fila de produção. */
 export const CANCELLED_ORDER_STATUS = ["cancelled", "canceled", "refunded"];
 
+/**
+ * REGRA ÚNICA DE ENTRADA NA FILA DE PRODUÇÃO:
+ * - pedido da loja: somente com pagamento confirmado;
+ * - orçamento: somente `paid_50` ou `paid_100`.
+ * Rascunho, enviado e aprovado NUNCA produzem.
+ */
+export const PAID_ORDER_PAYMENT_STATUS = ["paid", "approved", "received", "confirmed"];
+
+/** Status de orçamento liberados para produção. */
+export const PRODUCIBLE_QUOTE_STATUS = ["paid_50", "paid_100"];
+
+export function isPaidOrderForProduction(order: {
+  status?: string | null;
+  payment_status?: string | null;
+}): boolean {
+  const status = String(order.status ?? "").toLowerCase();
+  const pay = String(order.payment_status ?? "").toLowerCase();
+  if (CANCELLED_ORDER_STATUS.includes(status) || CANCELLED_ORDER_STATUS.includes(pay)) return false;
+  return PAID_ORDER_PAYMENT_STATUS.includes(pay) || PAID_ORDER_PAYMENT_STATUS.includes(status);
+}
+
+export function isProducibleQuoteStatus(status?: string | null): boolean {
+  return PRODUCIBLE_QUOTE_STATUS.includes(String(status ?? "").toLowerCase());
+}
+
 /** Situação de pagamento do pedido de origem, exibida na fila de produção. */
 export const PAYMENT_LABEL: Record<string, string> = {
   pending: "Pagamento pendente",
