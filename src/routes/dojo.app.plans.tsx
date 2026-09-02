@@ -767,7 +767,29 @@ function PlansPage() {
                         }
                       />
                     </div>
+                    <div className="flex items-center gap-3 rounded-md border p-3">
+                      <div className="min-w-0 flex-1">
+                        <Label className="text-sm">Gerar cobrança com antecedência de</Label>
+                        <p className="text-[11px] text-muted-foreground">
+                          Dias antes do vencimento (padrão {DEFAULT_BILLING_ADVANCE_DAYS} dias)
+                        </p>
+                      </div>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="60"
+                        className="h-8 w-20"
+                        value={form.rules.billing_advance_days ?? DEFAULT_BILLING_ADVANCE_DAYS}
+                        onChange={(e) =>
+                          patchRule(
+                            "billing_advance_days",
+                            e.target.value === "" ? null : Number(e.target.value),
+                          )
+                        }
+                      />
+                    </div>
                   </div>
+
                 </SectionCard>
 
                 {/* Rodapé — salvar novamente */}
