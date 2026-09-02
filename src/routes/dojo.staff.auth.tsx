@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
-import { supabase } from "@/integrations/supabase/client";
+import { staffSupabase as supabase } from "@/lib/dojo/staff-auth/staff-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -170,7 +170,8 @@ export const updateTeamMemberPermissions = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("dojo_team_members")
       .update({ permissions: data.permissions as never })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
     await context.supabase.from("dojo_team_history").insert({
       owner_id: context.userId,

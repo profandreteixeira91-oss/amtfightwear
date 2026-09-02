@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { staffSupabase as supabase } from "@/lib/dojo/staff-auth/staff-client";
 import { useStaff } from "@/components/dojo/staff/staff-context";
 import { StaffPageHeader } from "@/components/dojo/staff/StaffShell";
 import { STAFF_MODULES } from "@/lib/dojo/staff-modules";

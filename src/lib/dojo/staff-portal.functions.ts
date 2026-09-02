@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { resolveStaffPermissions } from "@/lib/dojo/permissions";
 import type { Database } from "@/integrations/supabase/types";
 
 /**
@@ -78,6 +79,7 @@ export const getStaffSession = createServerFn({ method: "GET" })
         }
       | null;
     if (!row) return null;
+    const permissions = resolveStaffPermissions(row.permissions, row.role);
 
     const { data: brandRows } = await context.supabase.rpc("get_dojo_staff_portal", {
       _dojo: row.owner_id,
@@ -91,7 +93,7 @@ export const getStaffSession = createServerFn({ method: "GET" })
       role: row.role,
       full_name: row.full_name,
       email: row.email,
-      permissions: row.permissions ?? {},
+      permissions,
       academy: academy ?? null,
     };
   });

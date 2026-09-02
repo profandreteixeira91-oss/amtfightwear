@@ -92,3 +92,20 @@ export function findModuleForPath(pathname: string): PermissionModule | null {
   }
   return null;
 }
+
+/**
+ * Permissões efetivas do professor.
+ *
+ * Fonte única da verdade: `dojo_team_members.permissions`, gravada pelo dono em
+ * `/dojo/app/team/:id`. Quando o dono ainda NÃO configurou nada (mapa vazio),
+ * aplicamos o padrão do cargo — nunca um mapa vazio, que deixaria o portal sem
+ * nenhum módulo. Qualquer chave persistida sempre prevalece sobre o padrão.
+ */
+export function resolveStaffPermissions(
+  persisted: PermissionMap | null | undefined,
+  role: string | null | undefined,
+): PermissionMap {
+  const map = (persisted ?? {}) as PermissionMap;
+  if (Object.keys(map).length > 0) return map;
+  return defaultPermissionsForRole(role ?? null);
+}

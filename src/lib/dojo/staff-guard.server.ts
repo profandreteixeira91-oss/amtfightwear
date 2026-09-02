@@ -10,7 +10,12 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { canAccess, type AccessLevel, type PermissionMap } from "@/lib/dojo/permissions";
+import {
+  canAccess,
+  resolveStaffPermissions,
+  type AccessLevel,
+  type PermissionMap,
+} from "@/lib/dojo/permissions";
 import type { Database } from "@/integrations/supabase/types";
 
 export type StaffContext = {
@@ -56,7 +61,7 @@ export async function requireStaff(
     role: row.role,
     full_name: row.full_name,
     email: row.email,
-    permissions: (row.permissions ?? {}) as PermissionMap,
+    permissions: resolveStaffPermissions(row.permissions, row.role),
   };
 }
 
