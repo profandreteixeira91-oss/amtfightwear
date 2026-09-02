@@ -58,7 +58,7 @@ function CheckinPage() {
   const { data: history, isLoading } = useQuery({ queryKey: ["student", "attendance"], queryFn: () => listFn({}) });
   const [submitting, setSubmitting] = useState<Method | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
-  const [multipleClasses, setMultipleClasses] = useState<{ availableClasses: any[], method: Exclude<Method, "fixed_qr">, payload?: any } | null>(null);
+  const [multipleClasses, setMultipleClasses] = useState<{ availableClasses: any[], method: Method, payload?: any, token?: string } | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
 
@@ -113,13 +113,23 @@ function CheckinPage() {
     }
   }
 
-  async function doUnitQrCheckin(token: string) {
+  async function doUnitQrCheckin(token: string, classId?: string | null) {
     if (submitting) return;
     setSubmitting("fixed_qr");
     try {
-      await unitQrCheckinFn({ data: { token } });
+      const res = await unitQrCheckinFn({ data: { token, classId: classId ?? null } });
+      if (res && (res as any).error === "MULTIPLE_CLASSES") {
+        setMultipleClasses({
+          availableClasses: (res as any).availableClasses ?? [],
+          method: "fixed_qr",
+          token,
+        });
+        return;
+      }
       toast.success("Check-in registrado!");
       qc.invalidateQueries({ queryKey: ["student"] });
+      setMultipleClasses(null);
+      setSelectedClassId(null);
     } catch (e) {
       toast.error("Falha no check-in", { description: (e as Error).message });
     } finally {
@@ -248,7 +258,14 @@ function CheckinPage() {
           <DialogFooter>
             <Button
               disabled={!selectedClassId || submitting !== null}
-              onClick={() => multipleClasses && doCheckin(multipleClasses.method, selectedClassId)}
+              onClick={() => {
+                if (!multipleClasses) return;
+                if (multipleClasses.method === "fixed_qr") {
+                  doUnitQrCheckin(multipleClasses.token!, selectedClassId);
+                  return;
+                }
+                doCheckin(multipleClasses.method as Exclude<Method, "fixed_qr">, selectedClassId);
+              }}
               className="w-full rounded-2xl py-6 font-bold uppercase tracking-widest"
             >
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Confirmar Presença"}
