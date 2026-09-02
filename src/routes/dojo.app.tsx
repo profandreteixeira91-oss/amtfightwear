@@ -95,6 +95,17 @@ export const Route = createFileRoute("/dojo/app")({
     if (studentRows && studentRows.length > 0) {
       throw redirect({ to: "/app" });
     }
+    // Bloqueia contas de equipe (professores): o login da equipe tem base e
+    // portal próprios. Mesmo digitando a URL do painel do dono, a conta é
+    // devolvida ao Portal da Equipe.
+    const { data: staffRows } = await supabase
+      .from("dojo_staff_accounts")
+      .select("id")
+      .eq("auth_user_id", data.user.id)
+      .limit(1);
+    if (staffRows && staffRows.length > 0) {
+      throw redirect({ to: "/dojo/staff" });
+    }
     return { user: data.user };
   },
   component: DojoLayout,
@@ -565,9 +576,11 @@ function DojoLayoutInner({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/dojo/staff" className="flex items-center gap-2">
+                {/* O dono não entra no Portal da Equipe (login separado): aqui
+                    ele gerencia colaboradores e compartilha o link do portal. */}
+                <Link to="/dojo/app/team" className="flex items-center gap-2">
                   <UsersRound className="mr-2 h-4 w-4" />
-                  <span className="flex-1">Portal da Equipe</span>
+                  <span className="flex-1">Equipe e Portal do Professor</span>
                 </Link>
               </DropdownMenuItem>
 
