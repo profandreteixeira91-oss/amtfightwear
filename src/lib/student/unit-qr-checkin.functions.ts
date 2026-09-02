@@ -23,6 +23,14 @@ export const checkinByUnitQr = createServerFn({ method: "POST" })
           .min(16, "Token inválido")
           .max(128, "Token inválido")
           .regex(/^[a-f0-9]+$/i, "Token inválido"),
+        // Turma escolhida pelo aluno quando há mais de uma aula na janela atual.
+        classId: z
+          .string()
+          .regex(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+            "Turma inválida",
+          )
+          .nullish(),
       })
       .parse(i),
   )
