@@ -54,7 +54,6 @@ import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ad
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
 import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
-import { Route as DojoStaffIndexRouteImport } from './routes/dojo.staff.index'
 import { Route as DojoAppIndexRouteImport } from './routes/dojo.app.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
@@ -66,6 +65,7 @@ import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-sho
 import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as DojoStaffAuthRouteImport } from './routes/dojo.staff.auth'
+import { Route as DojoStaffPortalRouteImport } from './routes/dojo.staff._portal'
 import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoiceId'
 import { Route as DojoMatriculaSlugRouteImport } from './routes/dojo.matricula.$slug'
 import { Route as DojoCertificateEditorIdRouteImport } from './routes/dojo.certificate-editor.$id'
@@ -197,6 +197,7 @@ import { Route as AuthenticatedAdminAtendimentoRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminAtacadoRouteImport } from './routes/_authenticated/admin.atacado'
 import { Route as AuthenticatedAdminAnunciosRouteImport } from './routes/_authenticated/admin.anuncios'
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
+import { Route as DojoStaffPortalIndexRouteImport } from './routes/dojo.staff._portal.index'
 import { Route as DojoAppVideosIndexRouteImport } from './routes/dojo.app.videos.index'
 import { Route as DojoAppUnitsIndexRouteImport } from './routes/dojo.app.units.index'
 import { Route as DojoAppTeamIndexRouteImport } from './routes/dojo.app.team.index'
@@ -218,6 +219,13 @@ import { Route as AuthenticatedAdminAdsIndexRouteImport } from './routes/_authen
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as DojoStaffPortalStudentsRouteImport } from './routes/dojo.staff._portal.students'
+import { Route as DojoStaffPortalScheduleRouteImport } from './routes/dojo.staff._portal.schedule'
+import { Route as DojoStaffPortalGraduationsRouteImport } from './routes/dojo.staff._portal.graduations'
+import { Route as DojoStaffPortalEvaluationsRouteImport } from './routes/dojo.staff._portal.evaluations'
+import { Route as DojoStaffPortalCompetitionsRouteImport } from './routes/dojo.staff._portal.competitions'
+import { Route as DojoStaffPortalCheckinRouteImport } from './routes/dojo.staff._portal.checkin'
+import { Route as DojoStaffPortalAnnouncementsRouteImport } from './routes/dojo.staff._portal.announcements'
 import { Route as DojoAppVideosNovoRouteImport } from './routes/dojo.app.videos.novo'
 import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.videos.favoritos'
 import { Route as DojoAppVideosCategoriasRouteImport } from './routes/dojo.app.videos.categorias'
@@ -552,11 +560,6 @@ const LojaContaIndexRoute = LojaContaIndexRouteImport.update({
   path: '/loja/conta/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DojoStaffIndexRoute = DojoStaffIndexRouteImport.update({
-  id: '/staff/',
-  path: '/staff/',
-  getParentRoute: () => DojoRoute,
-} as any)
 const DojoAppIndexRoute = DojoAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -611,6 +614,11 @@ const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
 const DojoStaffAuthRoute = DojoStaffAuthRouteImport.update({
   id: '/staff/auth',
   path: '/staff/auth',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoStaffPortalRoute = DojoStaffPortalRouteImport.update({
+  id: '/staff/_portal',
+  path: '/staff',
   getParentRoute: () => DojoRoute,
 } as any)
 const DojoPayInvoiceIdRoute = DojoPayInvoiceIdRouteImport.update({
@@ -1327,6 +1335,11 @@ const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const DojoStaffPortalIndexRoute = DojoStaffPortalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
 const DojoAppVideosIndexRoute = DojoAppVideosIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -1443,6 +1456,45 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DojoStaffPortalStudentsRoute = DojoStaffPortalStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalScheduleRoute = DojoStaffPortalScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalGraduationsRoute =
+  DojoStaffPortalGraduationsRouteImport.update({
+    id: '/graduations',
+    path: '/graduations',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalEvaluationsRoute =
+  DojoStaffPortalEvaluationsRouteImport.update({
+    id: '/evaluations',
+    path: '/evaluations',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalCompetitionsRoute =
+  DojoStaffPortalCompetitionsRouteImport.update({
+    id: '/competitions',
+    path: '/competitions',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalCheckinRoute = DojoStaffPortalCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalAnnouncementsRoute =
+  DojoStaffPortalAnnouncementsRouteImport.update({
+    id: '/announcements',
+    path: '/announcements',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
 const DojoAppVideosNovoRoute = DojoAppVideosNovoRouteImport.update({
   id: '/novo',
   path: '/novo',
@@ -2253,6 +2305,7 @@ export interface FileRoutesByFullPath {
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
+  '/dojo/staff': typeof DojoStaffPortalRouteWithChildren
   '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
@@ -2264,7 +2317,6 @@ export interface FileRoutesByFullPath {
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
-  '/dojo/staff/': typeof DojoStaffIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
@@ -2363,6 +2415,13 @@ export interface FileRoutesByFullPath {
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
+  '/dojo/staff/announcements': typeof DojoStaffPortalAnnouncementsRoute
+  '/dojo/staff/checkin': typeof DojoStaffPortalCheckinRoute
+  '/dojo/staff/competitions': typeof DojoStaffPortalCompetitionsRoute
+  '/dojo/staff/evaluations': typeof DojoStaffPortalEvaluationsRoute
+  '/dojo/staff/graduations': typeof DojoStaffPortalGraduationsRoute
+  '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
+  '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -2384,6 +2443,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/team/': typeof DojoAppTeamIndexRoute
   '/dojo/app/units/': typeof DojoAppUnitsIndexRoute
   '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
+  '/dojo/staff/': typeof DojoStaffPortalIndexRoute
   '/admin/anuncios/campanhas/$id': typeof AuthenticatedAdminAnunciosCampanhasIdRoute
   '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
@@ -2565,7 +2625,6 @@ export interface FileRoutesByTo {
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
   '/dojo/app': typeof DojoAppIndexRoute
-  '/dojo/staff': typeof DojoStaffIndexRoute
   '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
@@ -2662,6 +2721,13 @@ export interface FileRoutesByTo {
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
+  '/dojo/staff/announcements': typeof DojoStaffPortalAnnouncementsRoute
+  '/dojo/staff/checkin': typeof DojoStaffPortalCheckinRoute
+  '/dojo/staff/competitions': typeof DojoStaffPortalCompetitionsRoute
+  '/dojo/staff/evaluations': typeof DojoStaffPortalEvaluationsRoute
+  '/dojo/staff/graduations': typeof DojoStaffPortalGraduationsRoute
+  '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
+  '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -2683,6 +2749,7 @@ export interface FileRoutesByTo {
   '/dojo/app/team': typeof DojoAppTeamIndexRoute
   '/dojo/app/units': typeof DojoAppUnitsIndexRoute
   '/dojo/app/videos': typeof DojoAppVideosIndexRoute
+  '/dojo/staff': typeof DojoStaffPortalIndexRoute
   '/admin/anuncios/campanhas/$id': typeof AuthenticatedAdminAnunciosCampanhasIdRoute
   '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
@@ -2874,6 +2941,7 @@ export interface FileRoutesById {
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
+  '/dojo/staff/_portal': typeof DojoStaffPortalRouteWithChildren
   '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
@@ -2885,7 +2953,6 @@ export interface FileRoutesById {
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
-  '/dojo/staff/': typeof DojoStaffIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
@@ -2984,6 +3051,13 @@ export interface FileRoutesById {
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
+  '/dojo/staff/_portal/announcements': typeof DojoStaffPortalAnnouncementsRoute
+  '/dojo/staff/_portal/checkin': typeof DojoStaffPortalCheckinRoute
+  '/dojo/staff/_portal/competitions': typeof DojoStaffPortalCompetitionsRoute
+  '/dojo/staff/_portal/evaluations': typeof DojoStaffPortalEvaluationsRoute
+  '/dojo/staff/_portal/graduations': typeof DojoStaffPortalGraduationsRoute
+  '/dojo/staff/_portal/schedule': typeof DojoStaffPortalScheduleRoute
+  '/dojo/staff/_portal/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -3005,6 +3079,7 @@ export interface FileRoutesById {
   '/dojo/app/team/': typeof DojoAppTeamIndexRoute
   '/dojo/app/units/': typeof DojoAppUnitsIndexRoute
   '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
+  '/dojo/staff/_portal/': typeof DojoStaffPortalIndexRoute
   '/_authenticated/admin/anuncios/campanhas/$id': typeof AuthenticatedAdminAnunciosCampanhasIdRoute
   '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
@@ -3195,6 +3270,7 @@ export interface FileRouteTypes {
     | '/dojo/certificate-editor/$id'
     | '/dojo/matricula/$slug'
     | '/dojo/pay/$invoiceId'
+    | '/dojo/staff'
     | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
@@ -3206,7 +3282,6 @@ export interface FileRouteTypes {
     | '/prospect/'
     | '/store/'
     | '/dojo/app/'
-    | '/dojo/staff/'
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/admin/ads/anuncios'
@@ -3305,6 +3380,13 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/categorias'
     | '/dojo/app/videos/favoritos'
     | '/dojo/app/videos/novo'
+    | '/dojo/staff/announcements'
+    | '/dojo/staff/checkin'
+    | '/dojo/staff/competitions'
+    | '/dojo/staff/evaluations'
+    | '/dojo/staff/graduations'
+    | '/dojo/staff/schedule'
+    | '/dojo/staff/students'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3326,6 +3408,7 @@ export interface FileRouteTypes {
     | '/dojo/app/team/'
     | '/dojo/app/units/'
     | '/dojo/app/videos/'
+    | '/dojo/staff/'
     | '/admin/anuncios/campanhas/$id'
     | '/api/public/app/$slug/download'
     | '/api/public/dojo/partner-checkin/$provider'
@@ -3507,7 +3590,6 @@ export interface FileRouteTypes {
     | '/prospect'
     | '/store'
     | '/dojo/app'
-    | '/dojo/staff'
     | '/loja/conta'
     | '/loja/custom-shop'
     | '/admin/ads/anuncios'
@@ -3604,6 +3686,13 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/categorias'
     | '/dojo/app/videos/favoritos'
     | '/dojo/app/videos/novo'
+    | '/dojo/staff/announcements'
+    | '/dojo/staff/checkin'
+    | '/dojo/staff/competitions'
+    | '/dojo/staff/evaluations'
+    | '/dojo/staff/graduations'
+    | '/dojo/staff/schedule'
+    | '/dojo/staff/students'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3625,6 +3714,7 @@ export interface FileRouteTypes {
     | '/dojo/app/team'
     | '/dojo/app/units'
     | '/dojo/app/videos'
+    | '/dojo/staff'
     | '/admin/anuncios/campanhas/$id'
     | '/api/public/app/$slug/download'
     | '/api/public/dojo/partner-checkin/$provider'
@@ -3815,6 +3905,7 @@ export interface FileRouteTypes {
     | '/dojo/certificate-editor/$id'
     | '/dojo/matricula/$slug'
     | '/dojo/pay/$invoiceId'
+    | '/dojo/staff/_portal'
     | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
@@ -3826,7 +3917,6 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
     | '/dojo/app/'
-    | '/dojo/staff/'
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/admin/ads/anuncios'
@@ -3925,6 +4015,13 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/categorias'
     | '/dojo/app/videos/favoritos'
     | '/dojo/app/videos/novo'
+    | '/dojo/staff/_portal/announcements'
+    | '/dojo/staff/_portal/checkin'
+    | '/dojo/staff/_portal/competitions'
+    | '/dojo/staff/_portal/evaluations'
+    | '/dojo/staff/_portal/graduations'
+    | '/dojo/staff/_portal/schedule'
+    | '/dojo/staff/_portal/students'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3946,6 +4043,7 @@ export interface FileRouteTypes {
     | '/dojo/app/team/'
     | '/dojo/app/units/'
     | '/dojo/app/videos/'
+    | '/dojo/staff/_portal/'
     | '/_authenticated/admin/anuncios/campanhas/$id'
     | '/api/public/app/$slug/download'
     | '/api/public/dojo/partner-checkin/$provider'
@@ -4343,13 +4441,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaContaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dojo/staff/': {
-      id: '/dojo/staff/'
-      path: '/staff'
-      fullPath: '/dojo/staff/'
-      preLoaderRoute: typeof DojoStaffIndexRouteImport
-      parentRoute: typeof DojoRoute
-    }
     '/dojo/app/': {
       id: '/dojo/app/'
       path: '/'
@@ -4425,6 +4516,13 @@ declare module '@tanstack/react-router' {
       path: '/staff/auth'
       fullPath: '/dojo/staff/auth'
       preLoaderRoute: typeof DojoStaffAuthRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/staff/_portal': {
+      id: '/dojo/staff/_portal'
+      path: '/staff'
+      fullPath: '/dojo/staff'
+      preLoaderRoute: typeof DojoStaffPortalRouteImport
       parentRoute: typeof DojoRoute
     }
     '/dojo/pay/$invoiceId': {
@@ -5344,6 +5442,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/dojo/staff/_portal/': {
+      id: '/dojo/staff/_portal/'
+      path: '/'
+      fullPath: '/dojo/staff/'
+      preLoaderRoute: typeof DojoStaffPortalIndexRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
     '/dojo/app/videos/': {
       id: '/dojo/app/videos/'
       path: '/'
@@ -5490,6 +5595,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/auth/preview'
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/staff/_portal/students': {
+      id: '/dojo/staff/_portal/students'
+      path: '/students'
+      fullPath: '/dojo/staff/students'
+      preLoaderRoute: typeof DojoStaffPortalStudentsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/schedule': {
+      id: '/dojo/staff/_portal/schedule'
+      path: '/schedule'
+      fullPath: '/dojo/staff/schedule'
+      preLoaderRoute: typeof DojoStaffPortalScheduleRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/graduations': {
+      id: '/dojo/staff/_portal/graduations'
+      path: '/graduations'
+      fullPath: '/dojo/staff/graduations'
+      preLoaderRoute: typeof DojoStaffPortalGraduationsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/evaluations': {
+      id: '/dojo/staff/_portal/evaluations'
+      path: '/evaluations'
+      fullPath: '/dojo/staff/evaluations'
+      preLoaderRoute: typeof DojoStaffPortalEvaluationsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/competitions': {
+      id: '/dojo/staff/_portal/competitions'
+      path: '/competitions'
+      fullPath: '/dojo/staff/competitions'
+      preLoaderRoute: typeof DojoStaffPortalCompetitionsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/checkin': {
+      id: '/dojo/staff/_portal/checkin'
+      path: '/checkin'
+      fullPath: '/dojo/staff/checkin'
+      preLoaderRoute: typeof DojoStaffPortalCheckinRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/announcements': {
+      id: '/dojo/staff/_portal/announcements'
+      path: '/announcements'
+      fullPath: '/dojo/staff/announcements'
+      preLoaderRoute: typeof DojoStaffPortalAnnouncementsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
     }
     '/dojo/app/videos/novo': {
       id: '/dojo/app/videos/novo'
@@ -7141,6 +7295,32 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
 const DojoAppRouteWithChildren =
   DojoAppRoute._addFileChildren(DojoAppRouteChildren)
 
+interface DojoStaffPortalRouteChildren {
+  DojoStaffPortalAnnouncementsRoute: typeof DojoStaffPortalAnnouncementsRoute
+  DojoStaffPortalCheckinRoute: typeof DojoStaffPortalCheckinRoute
+  DojoStaffPortalCompetitionsRoute: typeof DojoStaffPortalCompetitionsRoute
+  DojoStaffPortalEvaluationsRoute: typeof DojoStaffPortalEvaluationsRoute
+  DojoStaffPortalGraduationsRoute: typeof DojoStaffPortalGraduationsRoute
+  DojoStaffPortalScheduleRoute: typeof DojoStaffPortalScheduleRoute
+  DojoStaffPortalStudentsRoute: typeof DojoStaffPortalStudentsRoute
+  DojoStaffPortalIndexRoute: typeof DojoStaffPortalIndexRoute
+}
+
+const DojoStaffPortalRouteChildren: DojoStaffPortalRouteChildren = {
+  DojoStaffPortalAnnouncementsRoute: DojoStaffPortalAnnouncementsRoute,
+  DojoStaffPortalCheckinRoute: DojoStaffPortalCheckinRoute,
+  DojoStaffPortalCompetitionsRoute: DojoStaffPortalCompetitionsRoute,
+  DojoStaffPortalEvaluationsRoute: DojoStaffPortalEvaluationsRoute,
+  DojoStaffPortalGraduationsRoute: DojoStaffPortalGraduationsRoute,
+  DojoStaffPortalScheduleRoute: DojoStaffPortalScheduleRoute,
+  DojoStaffPortalStudentsRoute: DojoStaffPortalStudentsRoute,
+  DojoStaffPortalIndexRoute: DojoStaffPortalIndexRoute,
+}
+
+const DojoStaffPortalRouteWithChildren = DojoStaffPortalRoute._addFileChildren(
+  DojoStaffPortalRouteChildren,
+)
+
 interface DojoRouteChildren {
   DojoAppRoute: typeof DojoAppRouteWithChildren
   DojoAuthRoute: typeof DojoAuthRoute
@@ -7150,8 +7330,8 @@ interface DojoRouteChildren {
   DojoCertificateEditorIdRoute: typeof DojoCertificateEditorIdRoute
   DojoMatriculaSlugRoute: typeof DojoMatriculaSlugRoute
   DojoPayInvoiceIdRoute: typeof DojoPayInvoiceIdRoute
+  DojoStaffPortalRoute: typeof DojoStaffPortalRouteWithChildren
   DojoStaffAuthRoute: typeof DojoStaffAuthRoute
-  DojoStaffIndexRoute: typeof DojoStaffIndexRoute
 }
 
 const DojoRouteChildren: DojoRouteChildren = {
@@ -7163,8 +7343,8 @@ const DojoRouteChildren: DojoRouteChildren = {
   DojoCertificateEditorIdRoute: DojoCertificateEditorIdRoute,
   DojoMatriculaSlugRoute: DojoMatriculaSlugRoute,
   DojoPayInvoiceIdRoute: DojoPayInvoiceIdRoute,
+  DojoStaffPortalRoute: DojoStaffPortalRouteWithChildren,
   DojoStaffAuthRoute: DojoStaffAuthRoute,
-  DojoStaffIndexRoute: DojoStaffIndexRoute,
 }
 
 const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
