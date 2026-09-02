@@ -216,6 +216,19 @@ function PlansPage() {
     return (FREQUENCY_MONTHS[form.frequency as Exclude<PlanFrequency, "custom">] ?? 1) * 30;
   }, [form.frequency, form.custom_months]);
 
+  const cycleMonths = useMemo(
+    () => planCycleMonths(form.frequency, Number(form.custom_months) || 1),
+    [form.frequency, form.custom_months],
+  );
+  const installmentsPreview = useMemo(
+    () => planInstallments(Number(form.installments) || 1, cycleMonths),
+    [form.installments, cycleMonths],
+  );
+  const chargeIntervalMonths = planChargeIntervalMonths(cycleMonths, installmentsPreview);
+  const chargePreview = planChargeAmount(Number(form.amount) || 0, installmentsPreview);
+
+
+
   const onSave = async () => {
     if (!form.name.trim()) return toast.error("Informe o nome do plano");
     if (!(Number(form.amount) >= 0) || form.amount === "") return toast.error("Informe um valor válido");
