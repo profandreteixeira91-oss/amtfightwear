@@ -221,6 +221,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as DojoStaffPortalStudentsRouteImport } from './routes/dojo.staff._portal.students'
 import { Route as DojoStaffPortalScheduleRouteImport } from './routes/dojo.staff._portal.schedule'
+import { Route as DojoStaffPortalProfileRouteImport } from './routes/dojo.staff._portal.profile'
 import { Route as DojoStaffPortalGraduationsRouteImport } from './routes/dojo.staff._portal.graduations'
 import { Route as DojoStaffPortalEvaluationsRouteImport } from './routes/dojo.staff._portal.evaluations'
 import { Route as DojoStaffPortalCompetitionsRouteImport } from './routes/dojo.staff._portal.competitions'
@@ -1466,6 +1467,11 @@ const DojoStaffPortalScheduleRoute = DojoStaffPortalScheduleRouteImport.update({
   path: '/schedule',
   getParentRoute: () => DojoStaffPortalRoute,
 } as any)
+const DojoStaffPortalProfileRoute = DojoStaffPortalProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
 const DojoStaffPortalGraduationsRoute =
   DojoStaffPortalGraduationsRouteImport.update({
     id: '/graduations',
@@ -2420,6 +2426,7 @@ export interface FileRoutesByFullPath {
   '/dojo/staff/competitions': typeof DojoStaffPortalCompetitionsRoute
   '/dojo/staff/evaluations': typeof DojoStaffPortalEvaluationsRoute
   '/dojo/staff/graduations': typeof DojoStaffPortalGraduationsRoute
+  '/dojo/staff/profile': typeof DojoStaffPortalProfileRoute
   '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
   '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -2726,6 +2733,7 @@ export interface FileRoutesByTo {
   '/dojo/staff/competitions': typeof DojoStaffPortalCompetitionsRoute
   '/dojo/staff/evaluations': typeof DojoStaffPortalEvaluationsRoute
   '/dojo/staff/graduations': typeof DojoStaffPortalGraduationsRoute
+  '/dojo/staff/profile': typeof DojoStaffPortalProfileRoute
   '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
   '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -3056,6 +3064,7 @@ export interface FileRoutesById {
   '/dojo/staff/_portal/competitions': typeof DojoStaffPortalCompetitionsRoute
   '/dojo/staff/_portal/evaluations': typeof DojoStaffPortalEvaluationsRoute
   '/dojo/staff/_portal/graduations': typeof DojoStaffPortalGraduationsRoute
+  '/dojo/staff/_portal/profile': typeof DojoStaffPortalProfileRoute
   '/dojo/staff/_portal/schedule': typeof DojoStaffPortalScheduleRoute
   '/dojo/staff/_portal/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -3385,6 +3394,7 @@ export interface FileRouteTypes {
     | '/dojo/staff/competitions'
     | '/dojo/staff/evaluations'
     | '/dojo/staff/graduations'
+    | '/dojo/staff/profile'
     | '/dojo/staff/schedule'
     | '/dojo/staff/students'
     | '/lovable/email/auth/preview'
@@ -3691,6 +3701,7 @@ export interface FileRouteTypes {
     | '/dojo/staff/competitions'
     | '/dojo/staff/evaluations'
     | '/dojo/staff/graduations'
+    | '/dojo/staff/profile'
     | '/dojo/staff/schedule'
     | '/dojo/staff/students'
     | '/lovable/email/auth/preview'
@@ -4020,6 +4031,7 @@ export interface FileRouteTypes {
     | '/dojo/staff/_portal/competitions'
     | '/dojo/staff/_portal/evaluations'
     | '/dojo/staff/_portal/graduations'
+    | '/dojo/staff/_portal/profile'
     | '/dojo/staff/_portal/schedule'
     | '/dojo/staff/_portal/students'
     | '/lovable/email/auth/preview'
@@ -5608,6 +5620,13 @@ declare module '@tanstack/react-router' {
       path: '/schedule'
       fullPath: '/dojo/staff/schedule'
       preLoaderRoute: typeof DojoStaffPortalScheduleRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/profile': {
+      id: '/dojo/staff/_portal/profile'
+      path: '/profile'
+      fullPath: '/dojo/staff/profile'
+      preLoaderRoute: typeof DojoStaffPortalProfileRouteImport
       parentRoute: typeof DojoStaffPortalRoute
     }
     '/dojo/staff/_portal/graduations': {
@@ -7301,6 +7320,7 @@ interface DojoStaffPortalRouteChildren {
   DojoStaffPortalCompetitionsRoute: typeof DojoStaffPortalCompetitionsRoute
   DojoStaffPortalEvaluationsRoute: typeof DojoStaffPortalEvaluationsRoute
   DojoStaffPortalGraduationsRoute: typeof DojoStaffPortalGraduationsRoute
+  DojoStaffPortalProfileRoute: typeof DojoStaffPortalProfileRoute
   DojoStaffPortalScheduleRoute: typeof DojoStaffPortalScheduleRoute
   DojoStaffPortalStudentsRoute: typeof DojoStaffPortalStudentsRoute
   DojoStaffPortalIndexRoute: typeof DojoStaffPortalIndexRoute
@@ -7312,6 +7332,7 @@ const DojoStaffPortalRouteChildren: DojoStaffPortalRouteChildren = {
   DojoStaffPortalCompetitionsRoute: DojoStaffPortalCompetitionsRoute,
   DojoStaffPortalEvaluationsRoute: DojoStaffPortalEvaluationsRoute,
   DojoStaffPortalGraduationsRoute: DojoStaffPortalGraduationsRoute,
+  DojoStaffPortalProfileRoute: DojoStaffPortalProfileRoute,
   DojoStaffPortalScheduleRoute: DojoStaffPortalScheduleRoute,
   DojoStaffPortalStudentsRoute: DojoStaffPortalStudentsRoute,
   DojoStaffPortalIndexRoute: DojoStaffPortalIndexRoute,

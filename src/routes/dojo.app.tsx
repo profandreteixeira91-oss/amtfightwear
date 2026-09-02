@@ -95,6 +95,17 @@ export const Route = createFileRoute("/dojo/app")({
     if (studentRows && studentRows.length > 0) {
       throw redirect({ to: "/app" });
     }
+    // Bloqueia contas de equipe (professores): o login da equipe tem base e
+    // portal próprios. Mesmo digitando a URL do painel do dono, a conta é
+    // devolvida ao Portal da Equipe.
+    const { data: staffRows } = await supabase
+      .from("dojo_staff_accounts")
+      .select("id")
+      .eq("auth_user_id", data.user.id)
+      .limit(1);
+    if (staffRows && staffRows.length > 0) {
+      throw redirect({ to: "/dojo/staff" });
+    }
     return { user: data.user };
   },
   component: DojoLayout,
