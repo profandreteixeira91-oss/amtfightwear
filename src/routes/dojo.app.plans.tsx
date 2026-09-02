@@ -23,7 +23,9 @@ import {
   FREQUENCY_MONTHS,
   CONFIG_LABELS,
   type PaymentMethodConfig,
+  DEFAULT_BILLING_ADVANCE_DAYS,
 } from "@/lib/dojo/payment-methods";
+
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 
 import { Button } from "@/components/ui/button";
