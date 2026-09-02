@@ -10,7 +10,12 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { canAccess, type AccessLevel, type PermissionMap } from "@/lib/dojo/permissions";
+import {
+  canAccess,
+  defaultPermissionsForRole,
+  type AccessLevel,
+  type PermissionMap,
+} from "@/lib/dojo/permissions";
 import type { Database } from "@/integrations/supabase/types";
 
 export type StaffContext = {
