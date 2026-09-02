@@ -243,7 +243,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
               </div>
             ) : (
               <Link
-                to="/auth"
+                to="/loja/entrar"
                 search={{ redirect: "/loja/conta" }}
                 aria-label="Entrar"
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 sm:px-3"

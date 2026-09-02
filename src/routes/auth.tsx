@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch, redirect as routerRedirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +22,17 @@ const authSearchSchema = z.object({
 
 export const Route = createFileRoute("/auth")({
   validateSearch: authSearchSchema,
+  // Clientes da loja nunca usam a tela interna do Growth Engine.
+  beforeLoad: ({ search }) => {
+    const target = search.redirect;
+    if (target && /^\/(?!\/)/.test(target) && target.split("?")[0]!.startsWith("/loja")) {
+      throw routerRedirect({
+        to: "/loja/entrar",
+        search: { redirect: target },
+        replace: true,
+      });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Entrar — AMT Growth Engine" },
@@ -31,6 +42,7 @@ export const Route = createFileRoute("/auth")({
   }),
   component: AuthPage,
 });
+
 
 const signInSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -56,6 +68,7 @@ function AuthPage() {
       }
     });
   }, [navigate, redirect]);
+
 
   const signInForm = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),

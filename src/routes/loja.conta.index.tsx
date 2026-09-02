@@ -53,7 +53,7 @@ function AccountPage() {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) {
-        navigate({ to: "/auth", search: { redirect: "/loja/conta" }, replace: true });
+        navigate({ to: "/loja/entrar", search: { redirect: "/loja/conta" }, replace: true });
         return;
       }
       setChecking(false);

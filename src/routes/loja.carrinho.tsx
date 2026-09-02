@@ -565,7 +565,7 @@ function CartPage() {
                     {loginLoading ? "Entrando..." : "Entrar e comprar"}
                   </Button>
                   <div className="text-center text-[11px] text-muted-foreground">
-                    <Link to="/auth" search={{ redirect: "/loja/checkout" }} className="hover:text-primary">
+                    <Link to="/loja/entrar" search={{ redirect: "/loja/checkout" }} className="hover:text-primary">
                       Esqueci minha senha
                     </Link>
                   </div>

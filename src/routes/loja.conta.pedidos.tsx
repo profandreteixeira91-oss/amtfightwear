@@ -42,7 +42,7 @@ function OrdersPage() {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) {
-        navigate({ to: "/auth", search: { redirect: "/loja/conta/pedidos" }, replace: true });
+        navigate({ to: "/loja/entrar", search: { redirect: "/loja/conta/pedidos" }, replace: true });
         return;
       }
       setChecking(false);
