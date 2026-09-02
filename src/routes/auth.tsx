@@ -47,7 +47,18 @@ function AuthPage() {
     rawRedirect && /^\/(?!\/)/.test(rawRedirect) ? rawRedirect : undefined;
   const [checking, setChecking] = useState(true);
 
+  // Clientes da loja têm login exclusivo — nunca compartilham a tela do Growth Engine.
+  const isStoreTarget = !!redirect && redirect.split("?")[0]!.startsWith("/loja");
+
   useEffect(() => {
+    if (isStoreTarget) {
+      navigate({
+        to: "/loja/entrar",
+        search: redirect ? { redirect } : {},
+        replace: true,
+      });
+      return;
+    }
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
         navigate({ to: redirect ?? "/dashboard", replace: true });
@@ -55,7 +66,8 @@ function AuthPage() {
         setChecking(false);
       }
     });
-  }, [navigate, redirect]);
+  }, [navigate, redirect, isStoreTarget]);
+
 
   const signInForm = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
