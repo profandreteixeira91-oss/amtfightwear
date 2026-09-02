@@ -474,16 +474,24 @@ function PlansPage() {
                           onChange={(e) => patch({ custom_months: e.target.value })}
                         />
                       </Field>
-                    ) : (
-                      <Field label="Nº de parcelas" hint="Quantidade de cobranças geradas por ciclo">
-                        <Input
-                          type="number"
-                          min="1"
-                          value={form.installments}
-                          onChange={(e) => patch({ installments: e.target.value })}
-                        />
-                      </Field>
-                    )}
+                    ) : null}
+                    <Field
+                      label="Nº de parcelas"
+                      hint={`Cobranças geradas dentro do ciclo de ${cycleMonths} ${cycleMonths === 1 ? "mês" : "meses"}${
+                        installmentsPreview > 1
+                          ? ` — 1 cobrança a cada ${chargeIntervalMonths} ${chargeIntervalMonths === 1 ? "mês" : "meses"} de ${brl(chargePreview)}`
+                          : ""
+                      }`}
+                    >
+                      <Input
+                        type="number"
+                        min="1"
+                        max={cycleMonths}
+                        value={form.installments}
+                        onChange={(e) => patch({ installments: e.target.value })}
+                      />
+                    </Field>
+
                   </div>
                 </SectionCard>
 
