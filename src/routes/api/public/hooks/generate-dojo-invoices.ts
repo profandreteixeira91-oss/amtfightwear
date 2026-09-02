@@ -41,7 +41,7 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
         const { data: enrolls, error } = await supabaseAdmin
           .from("dojo_enrollments")
           .select(
-            "id, owner_id, student_id, due_day, start_date, custom_amount, next_run_at, paused_until, installments_total, installments_generated, asaas_subscription_id, plan:dojo_plans(amount, name, frequency, custom_months, installments, rules), student:dojo_students(unit_id)",
+            "id, owner_id, student_id, due_day, start_date, custom_amount, next_run_at, paused_until, installments_total, installments_generated, asaas_subscription_id, plan:dojo_plans(amount, name, frequency, custom_months, installments, rules), student:dojo_students(unit_id, status, cancelled_at)",
           )
           .eq("status", "active")
           .is("asaas_subscription_id", null)
