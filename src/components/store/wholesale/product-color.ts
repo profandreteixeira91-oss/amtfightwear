@@ -58,12 +58,14 @@ export function detectColor(text: string | null | undefined): string | null {
  * detecção pelo nome quando o cadastro não traz cor (maioria do catálogo).
  */
 export function colorsOfProduct(p: WholesaleProduct, variants: WholesaleVariant[]): string[] {
+  // O nome do produto descreve a cor da peça; a cor da variante costuma ser
+  // apenas a linha/bordado, por isso só é usada como fallback.
+  const fromName = detectColor(p.name);
+  if (fromName) return [fromName];
   const fromVariants = new Set<string>();
   for (const v of variants) {
     const c = detectColor(v.color) ?? (v.color ? v.color.trim() : null);
     if (c) fromVariants.add(c);
   }
-  if (fromVariants.size > 0) return Array.from(fromVariants);
-  const fromName = detectColor(p.name);
-  return fromName ? [fromName] : [UNCOLORED];
+  return fromVariants.size > 0 ? Array.from(fromVariants) : [UNCOLORED];
 }
