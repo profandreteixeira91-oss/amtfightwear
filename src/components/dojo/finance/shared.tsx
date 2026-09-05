@@ -223,9 +223,11 @@ export function useFinanceKpis() {
     // 12 months evolution
     const months: { key: string; label: string; receitas: number; despesas: number; saldo: number }[] = [];
     for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      const label = d.toLocaleDateString("pt-BR", { month: "short" });
+      const start = monthStartISO(addMonthsISO(today, -i));
+      const key = start.slice(0, 7);
+      const year = parseInt(key.slice(0, 4));
+      const mo = parseInt(key.slice(5, 7));
+      const label = new Date(Date.UTC(year, mo - 1, 12)).toLocaleDateString("pt-BR", { month: "short", timeZone: "UTC" });
       const inThisMonth = (dt?: string | null) => (dt ?? "").startsWith(key);
       const receitas = invoices
         .filter((iv) => iv.status === "paid" && (inThisMonth(iv.paid_at) || inThisMonth(iv.due_date)))

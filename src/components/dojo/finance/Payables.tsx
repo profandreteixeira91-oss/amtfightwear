@@ -245,7 +245,7 @@ export function FinancePayables() {
               </div>
               <div className="divide-y divide-[color:var(--dojo-border)]">
                 {rows.map((r) => {
-                  const overdueDays = r.status !== "paid" ? Math.max(0, daysBetween(r.due_date, isoDate())) : 0;
+                  const overdueDays = r.status !== "paid" ? Math.max(0, daysBetween(r.due_date, todayISO())) : 0;
                   return (
                     <div
                       key={r.id}

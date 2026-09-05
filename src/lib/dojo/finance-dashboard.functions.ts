@@ -244,24 +244,22 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
     const upcomingByDay = new Map<string, number>();
     for (const iv of openInvoices) {
       const k = dayISO(iv.due_date);
-      const d = isoToDate(k);
-      if (k < todayISO() || d > in60) continue;
+      if (k < today || k > in60) continue;
       upcomingByDay.set(k, (upcomingByDay.get(k) ?? 0) + num(iv.amount));
     }
     for (const r of recurring) {
       if (!r.next_run_at) continue;
       const k = dayISO(r.next_run_at);
-      const d = isoToDate(k);
-      if (k < todayISO() || d > in60) continue;
+      if (k < today || k > in60) continue;
       const amt = r.custom_amount != null ? num(r.custom_amount) : num(r.plan?.amount);
       if (!amt) continue;
       upcomingByDay.set(k, (upcomingByDay.get(k) ?? 0) + amt);
     }
     const sumWithin = (days: number) => {
-      const limit = new Date(now.getTime() + days * 86_400_000);
+      const limit = addDaysISO(today, days);
       let s = 0;
       for (const [dk, v] of upcomingByDay) {
-        if (new Date(dk) <= limit) s += v;
+        if (dk <= limit) s += v;
       }
       return s;
     };

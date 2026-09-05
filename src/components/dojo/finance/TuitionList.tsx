@@ -39,15 +39,15 @@ export type TuitionInvoice = {
   provider?: string | null;
 };
 
+import { diffDaysISO, todayISO } from "@/lib/dates";
+
 const DUE_SOON_DAYS = 5;
 
 function effectiveStatus(i: TuitionInvoice) {
   if (i.status === "paid" || i.status === "cancelled") return i.status;
-  const today = new Date(isoDate());
-  const due = new Date(i.due_date);
-  const diffDays = Math.ceil((due.getTime() - today.getTime()) / 86_400_000);
-  if (diffDays < 0) return "overdue";
-  if (diffDays <= DUE_SOON_DAYS) return "due_soon";
+  const diff = diffDaysISO(todayISO(), i.due_date);
+  if (diff < 0) return "overdue";
+  if (diff <= DUE_SOON_DAYS) return "due_soon";
   return "pending";
 }
 
