@@ -40,23 +40,24 @@ export const Route = createFileRoute("/api/public/hooks/publish-scheduled-posts"
         if (error) return Response.json({ error: error.message }, { status: 500 });
         if (!due?.length) return Response.json({ processed: 0 });
 
-        const { data: conn } = await supabaseAdmin
-          .from("meta_connections")
-          .select("page_access_token, instagram_business_account_id")
-          .eq("status", "active")
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (!conn?.page_access_token || !conn.instagram_business_account_id) {
-          return Response.json({ error: "No active Meta connection" }, { status: 400 });
-        }
-
         let ok = 0;
         let fail = 0;
         for (const post of due) {
           await supabaseAdmin.from("scheduled_posts").update({ status: "publishing" }).eq("id", post.id);
           try {
+            const { data: conn } = await supabaseAdmin
+              .from("meta_connections")
+              .select("page_access_token, instagram_business_account_id")
+              .eq("user_id", post.user_id)
+              .eq("status", "active")
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (!conn?.page_access_token || !conn.instagram_business_account_id) {
+              throw new Error("Nenhuma conexão Meta ativa encontrada para o autor deste post.");
+            }
+
             const res = await publish(conn.instagram_business_account_id, conn.page_access_token, post.caption, post.image_url);
             await supabaseAdmin.from("scheduled_posts").update({
               status: "published",

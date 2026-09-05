@@ -50,9 +50,12 @@ export const Route = createFileRoute("/api/dojo/apk-upload")({
           if (
             mime !== "application/vnd.android.package-archive" &&
             mime !== "application/octet-stream" &&
-            mime !== "application/x-authorware-bin"
+            mime !== "application/x-authorware-bin" &&
+            mime !== "application/java-archive" &&
+            mime !== "application/zip" &&
+            mime !== "application/x-zip-compressed"
           ) {
-            return Response.json({ error: "Tipo de arquivo não permitido" }, { status: 400 });
+            return Response.json({ error: "Tipo de arquivo não permitido: " + mime }, { status: 400 });
           }
 
           const safeName = file.name.replace(/[^a-zA-Z0-9_.-]+/g, "_");

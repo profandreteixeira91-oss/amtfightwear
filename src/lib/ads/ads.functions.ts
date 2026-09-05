@@ -868,7 +868,10 @@ export const publishCampaignToMeta = createServerFn({ method: "POST" })
             link: data.linkUrl,
             name: copy.headline,
             description: copy.description ?? undefined,
-            call_to_action: { type: copy.cta?.replace(/\s+/g, "_").toUpperCase() ?? "LEARN_MORE" },
+            call_to_action: { 
+              type: copy.cta?.replace(/\s+/g, "_").toUpperCase() ?? "LEARN_MORE",
+              value: { link: data.linkUrl }
+            },
             ...(creative?.image_url ? { picture: creative.image_url } : {}),
           },
         },
