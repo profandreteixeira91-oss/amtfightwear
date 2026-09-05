@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Award, CalendarDays, ClipboardList, Loader2, Megaphone, QrCode, Trophy, Users } from "lucide-react";
 
-import { getStaffDashboardStats } from "@/lib/dojo/staff-data.functions";
+import { getStaffDashboard } from "@/lib/dojo/staff-data.functions";
 import { useStaff, useStaffLevel } from "@/components/dojo/staff/staff-context";
 import { StaffNoAccess, StaffPageHeader } from "@/components/dojo/staff/StaffShell";
 import { Card } from "@/components/ui/card";
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/dojo/staff/_portal/")({
 function StaffDashboard() {
   const staff = useStaff();
   const level = useStaffLevel("dashboard");
-  const statsFn = useServerFn(getStaffDashboardStats);
+  const statsFn = useServerFn(getStaffDashboard);
 
   const { data, isLoading } = useQuery({
     queryKey: ["staff-dashboard"],
@@ -60,7 +60,7 @@ function StaffDashboard() {
                 <span className="text-xs text-muted-foreground">Total de Alunos</span>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </div>
-              <div className="mt-2 text-2xl font-bold">{data?.totalStudents ?? 0}</div>
+              <div className="mt-2 text-2xl font-bold">{data?.students ?? 0}</div>
             </Card>
           )}
           {canCheckin && (
@@ -69,7 +69,7 @@ function StaffDashboard() {
                 <span className="text-xs text-muted-foreground">Presenças Hoje</span>
                 <QrCode className="h-4 w-4 text-muted-foreground" />
               </div>
-              <div className="mt-2 text-2xl font-bold">{data?.todayCheckins ?? 0}</div>
+              <div className="mt-2 text-2xl font-bold">{data?.checkinsToday ?? 0}</div>
             </Card>
           )}
           {canSchedule && (
@@ -78,7 +78,7 @@ function StaffDashboard() {
                 <span className="text-xs text-muted-foreground">Turmas Ativas</span>
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
               </div>
-              <div className="mt-2 text-2xl font-bold">{data?.activeClasses ?? 0}</div>
+              <div className="mt-2 text-2xl font-bold">{data?.classes ?? 0}</div>
             </Card>
           )}
           {canAnnouncements && (
@@ -87,7 +87,7 @@ function StaffDashboard() {
                 <span className="text-xs text-muted-foreground">Avisos Recentes</span>
                 <Megaphone className="h-4 w-4 text-muted-foreground" />
               </div>
-              <div className="mt-2 text-2xl font-bold">{data?.recentAnnouncements ?? 0}</div>
+              <div className="mt-2 text-2xl font-bold">{data?.announcements.length ?? 0}</div>
             </Card>
           )}
         </div>
