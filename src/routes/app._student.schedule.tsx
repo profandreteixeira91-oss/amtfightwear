@@ -47,11 +47,24 @@ type Slot = {
 const hhmm = (v: string | null) => (v ? v.slice(0, 5) : "");
 
 function SchedulePage() {
+  const qc = useQueryClient();
   const fn = useServerFn(getDojoClassGrid);
   const { data, isLoading } = useQuery({
     queryKey: ["student", "class-grid"],
     queryFn: () => fn({}),
   });
+
+  useEffect(() => {
+    const chan = supabase.channel("student-schedule-grid")
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_classes" }, () => {
+        qc.invalidateQueries({ queryKey: ["student", "class-grid"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_class_schedules" }, () => {
+        qc.invalidateQueries({ queryKey: ["student", "class-grid"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(chan); };
+  }, [qc]);
 
   const todayIdx = new Date().getDay();
   const [day, setDay] = useState<number>(todayIdx);

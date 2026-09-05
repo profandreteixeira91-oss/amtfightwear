@@ -47,6 +47,24 @@ function SchedulePage() {
   const listSpacesFn = useServerFn(listSpaces);
   const listUnitsFn = useServerFn(listDojoUnits);
   const statsFn = useServerFn(scheduleStats);
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    const chan = supabase.channel("dojo-schedule-pg")
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_classes" }, () => {
+        qc.invalidateQueries({ queryKey: ["dojo-classes"] });
+        qc.invalidateQueries({ queryKey: ["dojo-schedule-stats"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_class_schedules" }, () => {
+        qc.invalidateQueries({ queryKey: ["dojo-classes"] });
+        qc.invalidateQueries({ queryKey: ["dojo-schedule-stats"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_class_occurrences" }, () => {
+        qc.invalidateQueries({ queryKey: ["dojo-occurrences"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(chan); };
+  }, [qc]);
 
   const range = useMemo(() => {
     if (view === "day") return { from: ymd(cursor), to: ymd(cursor), start: cursor };

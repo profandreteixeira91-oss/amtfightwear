@@ -10,8 +10,24 @@ export const Route = createFileRoute("/app/_student/agenda")({
 });
 
 function AgendaPage() {
+  const qc = useQueryClient();
   const fn = useServerFn(getMyAgenda);
   const { data, isLoading } = useQuery({ queryKey: ["student", "agenda"], queryFn: () => fn({}) });
+
+  useEffect(() => {
+    const chan = supabase.channel("student-agenda-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_classes" }, () => {
+        qc.invalidateQueries({ queryKey: ["student", "agenda"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_class_schedules" }, () => {
+        qc.invalidateQueries({ queryKey: ["student", "agenda"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_class_occurrences" }, () => {
+        qc.invalidateQueries({ queryKey: ["student", "agenda"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(chan); };
+  }, [qc]);
 
   const grouped = new Map<string, typeof data>();
   (data ?? []).forEach((occ) => {

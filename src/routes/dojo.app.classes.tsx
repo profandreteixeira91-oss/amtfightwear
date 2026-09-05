@@ -72,6 +72,14 @@ function ClassesPage() {
   const spaces = useQuery({ queryKey: ["dojo-spaces"], queryFn: () => listSpacesFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => listUnitsFn() });
 
+  useEffect(() => {
+    const chan = supabase.channel("dojo-classes-pg")
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_classes" }, () => qc.invalidateQueries({ queryKey: ["dojo-classes"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_class_schedules" }, () => qc.invalidateQueries({ queryKey: ["dojo-classes"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(chan); };
+  }, [qc]);
+
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["dojo-classes"] });
     qc.invalidateQueries({ queryKey: ["dojo-occurrences"] });
