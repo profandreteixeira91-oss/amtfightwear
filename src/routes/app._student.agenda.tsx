@@ -34,6 +34,9 @@ function AgendaPage() {
   const grouped = new Map<string, any[]>();
   (data ?? []).forEach((occ) => {
     if (!occ) return;
+    const cls = occ.dojo_classes;
+    if (!cls || (cls as any).status === "inactive") return;
+    if (occ.status === "cancelled") return;
     const key = occ.occurrence_date || "sem-data";
     const arr = grouped.get(key) ?? [];
     arr.push(occ);
@@ -44,7 +47,7 @@ function AgendaPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Minha agenda</h1>
       {isLoading && <p className="text-sm text-neutral-500">Carregando…</p>}
-      {!isLoading && (!data || data.length === 0) && (
+      {!isLoading && grouped.size === 0 && (
         <div className="rounded-2xl bg-white p-8 text-center ring-1 ring-neutral-100">
           <CalendarDays className="mx-auto h-10 w-10 text-neutral-300" />
           <p className="mt-3 text-sm text-neutral-500">Nenhuma turma encontrada para este aluno.</p>

@@ -223,6 +223,10 @@ export const deleteClass = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
+    await context.supabase.from("dojo_class_occurrences").delete().eq("class_id", data.id);
+    await context.supabase.from("dojo_class_schedules").delete().eq("class_id", data.id);
+    await context.supabase.from("dojo_class_students").delete().eq("class_id", data.id);
+
     const { error } = await context.supabase.from("dojo_classes").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };

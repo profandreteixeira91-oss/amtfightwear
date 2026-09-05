@@ -81,6 +81,7 @@ function SchedulePage() {
     const map = new Map<number, Slot[]>();
     const mineSet = new Set(data?.myClassIds ?? []);
     (data?.classes ?? []).forEach((c: any) => {
+      if (!c || c.status === "inactive") return;
       (c.schedules ?? []).forEach((s: any) => {
         const arr = map.get(s.weekday) ?? [];
         arr.push({
