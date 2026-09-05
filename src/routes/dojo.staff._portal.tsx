@@ -5,9 +5,10 @@
  * navegação própria, sessão própria. Não reutiliza o layout do dono do dojo.
  */
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, ShieldAlert } from "lucide-react";
+import { useEffect } from "react";
 
 import { staffSupabase as supabase } from "@/lib/dojo/staff-auth/staff-client";
 import { getStaffSession } from "@/lib/dojo/staff-portal.functions";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/dojo/staff/_portal")({
 });
 
 function StaffPortalLayout() {
+  const qc = useQueryClient();
   const sessionFn = useServerFn(getStaffSession);
   // Permissões nunca são cacheadas de forma agressiva: se o dono alterar o
   // nível de acesso, o professor reflete a mudança ao focar a aba ou navegar.
@@ -40,6 +42,30 @@ function StaffPortalLayout() {
     refetchOnWindowFocus: true,
     refetchInterval: 60_000,
   });
+
+  const memberId = data?.member?.id;
+
+  useEffect(() => {
+    if (!memberId) return;
+    const channel = supabase.channel(`staff-perms-${memberId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "dojo_team_members",
+          filter: `id=eq.${memberId}`
+        },
+        () => {
+          qc.invalidateQueries({ queryKey: ["staff-session"] });
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [memberId, qc]);
 
   // Nenhum módulo é renderizado antes das permissões estarem carregadas.
   if (isLoading) {

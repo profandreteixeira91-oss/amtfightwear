@@ -108,6 +108,28 @@ function TeamMemberDetail() {
     if (q.data?.payroll) setPayroll(q.data.payroll);
   }, [q.data]);
 
+  useEffect(() => {
+    if (!id) return;
+    const channel = supabase.channel(`team-member-${id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "dojo_team_members", filter: `id=eq.${id}` },
+        () => qc.invalidateQueries({ queryKey: ["team-member", id] })
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "dojo_team_payroll_config", filter: `member_id=eq.${id}` },
+        () => qc.invalidateQueries({ queryKey: ["team-member", id] })
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "dojo_team_history", filter: `member_id=eq.${id}` },
+        () => qc.invalidateQueries({ queryKey: ["team-member-history", id] })
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [id, qc]);
+
   const firstOfMonth = new Date().toISOString().slice(0, 8) + "01";
   const today = todayISO();
   const [newPay, setNewPay] = useState<any>({

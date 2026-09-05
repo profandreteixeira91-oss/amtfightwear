@@ -1,8 +1,9 @@
-import { createContext, useContext, type ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyTeamPermissions } from "@/lib/dojo/team.functions";
 import { canAccess, type AccessLevel, type PermissionMap } from "@/lib/dojo/permissions";
+import { supabase } from "@/integrations/supabase/client";
 
 type Ctx = {
   isOwner: boolean;
@@ -14,6 +15,7 @@ type Ctx = {
 const PermissionContext = createContext<Ctx | null>(null);
 
 export function DojoPermissionsProvider({ children }: { children: ReactNode }) {
+  const qc = useQueryClient();
   const fn = useServerFn(getMyTeamPermissions);
   const q = useQuery({
     queryKey: ["dojo-my-permissions"],
@@ -23,6 +25,29 @@ export function DojoPermissionsProvider({ children }: { children: ReactNode }) {
 
   const isOwner = q.data?.isOwner ?? false;
   const permissions = (q.data?.permissions ?? null) as PermissionMap | null;
+  const memberId = q.data?.member?.id;
+
+  useEffect(() => {
+    if (!memberId) return;
+    const channel = supabase.channel(`dojo-perms-${memberId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "dojo_team_members",
+          filter: `id=eq.${memberId}`
+        },
+        () => {
+          qc.invalidateQueries({ queryKey: ["dojo-my-permissions"] });
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [memberId, qc]);
 
   const can = (moduleKey: string, need: AccessLevel = "read") => {
     if (q.isLoading) return true; // não bloqueia UI enquanto carrega
