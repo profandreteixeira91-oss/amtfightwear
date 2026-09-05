@@ -43,7 +43,7 @@ function StaffPortalLayout() {
     refetchInterval: 60_000,
   });
 
-  const memberId = data?.member?.id;
+  const memberId = data?.member_id;
 
   useEffect(() => {
     if (!memberId) return;
