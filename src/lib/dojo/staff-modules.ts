@@ -84,13 +84,52 @@ export const STAFF_MODULES: StaffModule[] = [
   },
 ];
 
+/**
+ * Converte os valores aceitos pela tela de permissões para o formato usado
+ * pelos gates do portal. Isso mantém compatibilidade com registros antigos
+ * que possam ter salvo o rótulo visível em vez do valor interno.
+ */
+function normalizeAccessLevel(value: unknown): AccessLevel {
+  if (value === "write" || value === "read" || value === "none") {
+    return value;
+  }
+
+  if (typeof value !== "string") return "none";
+
+  const normalized = value.trim().toLowerCase();
+
+  if (["acesso total", "acesso_total", "full", "full_access", "admin"].includes(normalized)) {
+    return "write";
+  }
+
+  if (["somente leitura", "somente_leitura", "read only", "read_only", "readonly"].includes(normalized)) {
+    return "read";
+  }
+
+  if (["sem acesso", "sem_acesso", "no access", "no_access"].includes(normalized)) {
+    return "none";
+  }
+
+  return "none";
+}
+
+function normalizedPermissions(perms: PermissionMap | null | undefined): PermissionMap | null {
+  if (!perms) return null;
+
+  return Object.fromEntries(
+    Object.entries(perms).map(([key, value]) => [key, normalizeAccessLevel(value)]),
+  ) as PermissionMap;
+}
+
 /** Módulos visíveis (nível >= leitura) para a navegação do professor. */
 export function visibleStaffModules(perms: PermissionMap | null | undefined): StaffModule[] {
-  return STAFF_MODULES.filter((m) => canAccess(perms, m.key, "read"));
+  const effectivePermissions = normalizedPermissions(perms);
+
+  return STAFF_MODULES.filter((module) => canAccess(effectivePermissions, module.key, "read"));
 }
 
 /** Nível efetivo do professor em um módulo. */
 export function staffLevel(perms: PermissionMap | null | undefined, key: string): AccessLevel {
-  if (!perms) return "none";
-  return perms[key] ?? "none";
+  const effectivePermissions = normalizedPermissions(perms);
+  return effectivePermissions?.[key] ?? "none";
 }
