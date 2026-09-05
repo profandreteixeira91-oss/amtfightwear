@@ -176,15 +176,18 @@ export const saveClass = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     // Remove ocorrências agendadas de hoje em diante para limpar horários fantasmas ao alterar a grade
-    await context.supabase
+    const { error: delOccErr } = await context.supabase
       .from("dojo_class_occurrences")
       .delete()
       .eq("class_id", classRow.id)
       .eq("status", "scheduled")
       .gte("occurrence_date", todayISO());
+    if (delOccErr) throw new Error(delOccErr.message);
 
     // replace schedules
-    await context.supabase.from("dojo_class_schedules").delete().eq("class_id", classRow.id);
+    const { error: delSchErr } = await context.supabase.from("dojo_class_schedules").delete().eq("class_id", classRow.id);
+    if (delSchErr) throw new Error(delSchErr.message);
+
     if (schedules.length) {
       const rows = schedules.map((s) => ({ ...s, class_id: classRow.id, owner_id: context.userId }));
       const { error: err2 } = await context.supabase.from("dojo_class_schedules").insert(rows);
