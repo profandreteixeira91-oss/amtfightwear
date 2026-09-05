@@ -13325,7 +13325,7 @@
       "file_type": "code",
       "norm_label": "emptystate()",
       "source_file": "src/routes/app._student.schedule.tsx",
-      "source_location": "L187"
+      "source_location": "L200"
     },
     {
       "id": "src_routes_app_student_schedule_hhmm",
@@ -13358,7 +13358,7 @@
       "file_type": "code",
       "norm_label": "slotcard()",
       "source_file": "src/routes/app._student.schedule.tsx",
-      "source_location": "L315"
+      "source_location": "L328"
     },
     {
       "id": "src_routes_app_student_schedule_weekagenda",
@@ -13369,7 +13369,7 @@
       "file_type": "code",
       "norm_label": "weekagenda()",
       "source_file": "src/routes/app._student.schedule.tsx",
-      "source_location": "L197"
+      "source_location": "L210"
     },
     {
       "id": "src_routes_authenticated_market_pricing_fetchproducts",
@@ -16867,7 +16867,7 @@
       "file_type": "code",
       "norm_label": "kpi()",
       "source_file": "src/routes/dojo.app.classes.tsx",
-      "source_location": "L386"
+      "source_location": "L394"
     },
     {
       "id": "src_routes_dojo_app_schedule_classestable",
@@ -16878,7 +16878,7 @@
       "file_type": "code",
       "norm_label": "classestable()",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L469"
+      "source_location": "L487"
     },
     {
       "id": "src_routes_dojo_app_schedule_dayview",
@@ -16889,7 +16889,7 @@
       "file_type": "code",
       "norm_label": "dayview()",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L379"
+      "source_location": "L397"
     },
     {
       "id": "src_routes_dojo_app_schedule_filter",
@@ -16900,7 +16900,7 @@
       "file_type": "code",
       "norm_label": "filter()",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L370"
+      "source_location": "L388"
     },
     {
       "id": "src_routes_dojo_app_schedule_kpi",
@@ -16911,7 +16911,7 @@
       "file_type": "code",
       "norm_label": "kpi()",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L353"
+      "source_location": "L371"
     },
     {
       "id": "src_routes_dojo_app_schedule_monthview",
@@ -16922,7 +16922,7 @@
       "file_type": "code",
       "norm_label": "monthview()",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L407"
+      "source_location": "L425"
     },
     {
       "id": "src_routes_dojo_app_schedule_schedulepage",
@@ -85779,7 +85779,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/app._student.schedule.tsx",
-      "source_location": "L337",
+      "source_location": "L350",
       "weight": 1.0
     },
     {
@@ -85791,7 +85791,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/app._student.schedule.tsx",
-      "source_location": "L260",
+      "source_location": "L273",
       "weight": 1.0
     },
     {
@@ -89007,7 +89007,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/dojo.app.classes.tsx",
-      "source_location": "L298",
+      "source_location": "L306",
       "weight": 1.0
     },
     {
@@ -90219,7 +90219,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L501",
+      "source_location": "L519",
       "weight": 1.0
     },
     {
@@ -90231,7 +90231,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L391",
+      "source_location": "L409",
       "weight": 1.0
     },
     {
@@ -90243,7 +90243,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L431",
+      "source_location": "L449",
       "weight": 1.0
     },
     {
@@ -90255,7 +90255,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L454",
+      "source_location": "L472",
       "weight": 1.0
     },
     {
@@ -90279,7 +90279,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L52",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -90291,7 +90291,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L54",
+      "source_location": "L72",
       "weight": 1.0
     },
     {
@@ -244372,7 +244372,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/app._student.schedule.tsx",
-      "source_location": "L187",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -244383,7 +244383,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/app._student.schedule.tsx",
-      "source_location": "L197",
+      "source_location": "L210",
       "weight": 1.0
     },
     {
@@ -244399,17 +244399,6 @@
     },
     {
       "source": "src_routes_app_student_schedule",
-      "target": "src_routes_app_student_schedule_slotcard",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/routes/app._student.schedule.tsx",
-      "source_location": "L315",
-      "weight": 1.0
-    },
-    {
-      "source": "src_routes_app_student_schedule",
       "target": "src_routes_app_student_schedule_slot",
       "relation": "contains",
       "_origin": "ast",
@@ -244417,6 +244406,17 @@
       "confidence_score": 1.0,
       "source_file": "src/routes/app._student.schedule.tsx",
       "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "src_routes_app_student_schedule",
+      "target": "src_routes_app_student_schedule_slotcard",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/app._student.schedule.tsx",
+      "source_location": "L328",
       "weight": 1.0
     },
     {
@@ -249861,7 +249861,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/dojo.app.classes.tsx",
-      "source_location": "L386",
+      "source_location": "L394",
       "weight": 1.0
     },
     {
@@ -251808,7 +251808,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L353",
+      "source_location": "L371",
       "weight": 1.0
     },
     {
@@ -251819,7 +251819,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L370",
+      "source_location": "L388",
       "weight": 1.0
     },
     {
@@ -251830,7 +251830,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L379",
+      "source_location": "L397",
       "weight": 1.0
     },
     {
@@ -251841,7 +251841,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L407",
+      "source_location": "L425",
       "weight": 1.0
     },
     {
@@ -251852,7 +251852,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/dojo.app.schedule.tsx",
-      "source_location": "L469",
+      "source_location": "L487",
       "weight": 1.0
     },
     {
@@ -264834,5 +264834,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "1807b5727643989c0e60ac51c7e8e85d15a49204"
+  "built_at_commit": "72290fc5d8d29baa73874cd4a37cc6833f2d9b7b"
 }
