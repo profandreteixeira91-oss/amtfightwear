@@ -1,49 +1,51 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarDays, Loader2, Megaphone, Trophy, Users, QrCode } from "lucide-react";
+import { Award, CalendarDays, ClipboardList, Loader2, Megaphone, QrCode, Trophy, Users } from "lucide-react";
 
-import { getStaffDashboard } from "@/lib/dojo/staff-data.functions";
-import { useStaff } from "@/components/dojo/staff/staff-context";
-import { StaffPageHeader } from "@/components/dojo/staff/StaffShell";
-import { visibleStaffModules } from "@/lib/dojo/staff-modules";
+import { getStaffDashboardStats } from "@/lib/dojo/staff-data.functions";
+import { useStaff, useStaffLevel } from "@/components/dojo/staff/staff-context";
+import { StaffNoAccess, StaffPageHeader } from "@/components/dojo/staff/StaffShell";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { formatBR } from "@/lib/dates";
+import { canAccess } from "@/lib/dojo/permissions";
 
 export const Route = createFileRoute("/dojo/staff/_portal/")({
   head: () => ({
     meta: [
-      { title: "Portal da Equipe — AMT Dojo Manager" },
-      {
-        name: "description",
-        content: "Área exclusiva do professor: alunos, turmas, frequência e graduações liberadas pelo dono do dojo.",
-      },
-      { property: "og:title", content: "Portal da Equipe — AMT Dojo Manager" },
-      {
-        property: "og:description",
-        content: "Portal independente do professor, com acesso somente aos módulos autorizados pelo dojo.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { title: "Painel da Equipe — Dojo Manager" },
+      { name: "description", content: "Visão geral e atalhos de trabalho do professor do dojo." },
     ],
   }),
-  component: StaffHome,
+  component: StaffDashboard,
 });
 
-function StaffHome() {
+function StaffDashboard() {
   const staff = useStaff();
-  const dashFn = useServerFn(getStaffDashboard);
-  const { data, isLoading } = useQuery({ queryKey: ["staff-dashboard"], queryFn: () => dashFn() });
-  const modules = visibleStaffModules(staff.permissions).filter((m) => m.key !== "dashboard");
+  const level = useStaffLevel("dashboard");
+  const statsFn = useServerFn(getStaffDashboardStats);
 
-  const firstName = (staff.full_name ?? staff.email).split(" ")[0];
+  const { data, isLoading } = useQuery({
+    queryKey: ["staff-dashboard"],
+    queryFn: () => statsFn(),
+    enabled: level !== "none",
+  });
+
+  if (level === "none") return <StaffNoAccess label="Painel" />;
+
+  const canCheckin = canAccess(staff.permissions, "checkin", "read");
+  const canStudents = canAccess(staff.permissions, "students", "read");
+  const canSchedule = canAccess(staff.permissions, "schedule", "read");
+  const canGraduations = canAccess(staff.permissions, "graduations", "read");
+  const canEvaluations = canAccess(staff.permissions, "evaluations", "read");
+  const canAnnouncements = canAccess(staff.permissions, "announcements", "read");
+  const canCompetitions = canAccess(staff.permissions, "competitions", "read");
 
   return (
     <div className="space-y-4">
       <StaffPageHeader
-        title={`Olá, ${firstName}!`}
-        subtitle={`Resumo da sua atuação em ${staff.academy?.trade_name ?? "seu dojo"}`}
+        title={`Olá, ${staff.full_name?.split(" ")[0] ?? "Professor"}`}
+        subtitle="Bem-vindo ao Portal da Equipe"
+        readOnly={level === "read"}
       />
 
       {isLoading ? (
@@ -51,122 +53,142 @@ function StaffHome() {
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </Card>
       ) : (
-        <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {data?.students != null && (
-              <Metric icon={Users} label="Alunos ativos" value={data.students} />
-            )}
-            {data?.classes != null && (
-              <Metric icon={CalendarDays} label="Turmas ativas" value={data.classes} />
-            )}
-            {data?.todayClasses.length ? (
-              <Metric icon={CalendarDays} label="Aulas de hoje" value={data.todayClasses.length} />
-            ) : null}
-            {data?.checkinsToday != null && (
-              <Metric icon={QrCode} label="Check-ins hoje" value={data.checkinsToday} />
-            )}
-          </div>
-
-          {data?.todayClasses.length ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {canStudents && (
             <Card className="p-4">
-              <div className="mb-2 text-sm font-semibold">Aulas de hoje</div>
-              <ul className="divide-y divide-border text-sm">
-                {data.todayClasses.map((c) => (
-                  <li key={`${c.id}-${c.start_time}`} className="flex items-center justify-between py-2">
-                    <span className="truncate">{c.name}</span>
-                    <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                      {c.start_time}
-                      {c.end_time ? `–${c.end_time}` : ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          ) : null}
-
-          {data?.announcements.length ? (
-            <Card className="p-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
-                <Megaphone className="h-4 w-4" /> Comunicados recentes
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Total de Alunos</span>
+                <Users className="h-4 w-4 text-muted-foreground" />
               </div>
-              <ul className="space-y-2 text-sm">
-                {data.announcements.map((a) => (
-                  <li key={a.id} className="flex items-center justify-between gap-2">
-                    <span className="truncate">{a.title}</span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {a.publish_at ? formatBR(a.publish_at) : ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-2 text-2xl font-bold">{data?.totalStudents ?? 0}</div>
             </Card>
-          ) : null}
-
-          {data?.competitions.length ? (
+          )}
+          {canCheckin && (
             <Card className="p-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
-                <Trophy className="h-4 w-4" /> Próximas competições
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Presenças Hoje</span>
+                <QrCode className="h-4 w-4 text-muted-foreground" />
               </div>
-              <ul className="space-y-2 text-sm">
-                {data.competitions.map((c) => (
-                  <li key={c.id} className="flex items-center justify-between gap-2">
-                    <span className="truncate">{c.name}</span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {c.starts_at ? formatBR(c.starts_at) : ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-2 text-2xl font-bold">{data?.todayCheckins ?? 0}</div>
             </Card>
-          ) : null}
-        </>
+          )}
+          {canSchedule && (
+            <Card className="p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Turmas Ativas</span>
+                <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="mt-2 text-2xl font-bold">{data?.activeClasses ?? 0}</div>
+            </Card>
+          )}
+          {canAnnouncements && (
+            <Card className="p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Avisos Recentes</span>
+                <Megaphone className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="mt-2 text-2xl font-bold">{data?.recentAnnouncements ?? 0}</div>
+            </Card>
+          )}
+        </div>
       )}
 
-      <Card className="p-4">
-        <div className="mb-3 text-sm font-semibold">Seus módulos</div>
-        {modules.length === 0 ? (
-          <p className="text-xs text-muted-foreground">
-            O dono do dojo ainda não liberou módulos para a sua conta.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {modules.map((m) => (
-              <Link
-                key={m.key}
-                to={m.to}
-                className="flex items-center justify-between rounded-md border border-border p-3 transition-colors hover:bg-muted"
-              >
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium">{m.label}</div>
-                  <div className="truncate text-[11px] text-muted-foreground">{m.description}</div>
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold text-muted-foreground">Acesso Rápido</h2>
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+          {canCheckin && (
+            <Link to="/dojo/staff/checkin">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <QrCode className="h-5 w-5" />
                 </div>
-                <Badge variant={staff.permissions[m.key] === "write" ? "default" : "secondary"}>
-                  {staff.permissions[m.key] === "write" ? "Acesso total" : "Leitura"}
-                </Badge>
-              </Link>
-            ))}
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-}
-
-function Metric({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: number;
-}) {
-  return (
-    <Card className="p-3">
-      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-        <Icon className="h-3.5 w-3.5" /> {label}
+                <div>
+                  <div className="text-sm font-medium">Frequência / Check-in</div>
+                  <div className="text-xs text-muted-foreground">Registrar ou consultar presenças</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canStudents && (
+            <Link to="/dojo/staff/students">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Alunos</div>
+                  <div className="text-xs text-muted-foreground">Consultar cadastros da academia</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canSchedule && (
+            <Link to="/dojo/staff/schedule">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <CalendarDays className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Grade de Turmas</div>
+                  <div className="text-xs text-muted-foreground">Horários e dias de treino</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canGraduations && (
+            <Link to="/dojo/staff/graduations">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Award className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Graduações</div>
+                  <div className="text-xs text-muted-foreground">Histórico e trocas de faixa</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canEvaluations && (
+            <Link to="/dojo/staff/evaluations">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <ClipboardList className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Avaliações</div>
+                  <div className="text-xs text-muted-foreground">Modelos e testes técnicos</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canAnnouncements && (
+            <Link to="/dojo/staff/announcements">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Megaphone className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Quadro de Avisos</div>
+                  <div className="text-xs text-muted-foreground">Comunicados para a equipe</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canCompetitions && (
+            <Link to="/dojo/staff/competitions">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Trophy className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Competições</div>
+                  <div className="text-xs text-muted-foreground">Próximos torneios e eventos</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+        </div>
       </div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
-    </Card>
+    </div>
   );
 }
