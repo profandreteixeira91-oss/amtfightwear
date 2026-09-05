@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getDojoClassGrid } from "@/lib/student/student.functions";
 import { CalendarRange, ChevronDown, Clock, MapPin, Users } from "lucide-react";
+import { studentSupabase as supabase } from "@/lib/student-auth/student-client";
 
 export const Route = createFileRoute("/app/_student/schedule")({
   head: () => ({
