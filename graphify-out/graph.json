@@ -34931,7 +34931,7 @@
       "file_type": "code",
       "norm_label": "addclassstudent",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L269"
+      "source_location": "L272"
     },
     {
       "id": "src_lib_dojo_schedule_functions_getclass",
@@ -34961,7 +34961,7 @@
       "file_type": "code",
       "norm_label": "removeclassstudent",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L294"
+      "source_location": "L297"
     },
     {
       "id": "src_lib_dojo_schedule_functions_searchstudents",
@@ -34971,7 +34971,7 @@
       "file_type": "code",
       "norm_label": "searchstudents",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L442"
+      "source_location": "L445"
     },
     {
       "id": "src_lib_dojo_subscription_functions_plan_amount",
@@ -43091,7 +43091,7 @@
       "file_type": "code",
       "norm_label": "canceloccurrence",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L352"
+      "source_location": "L355"
     },
     {
       "id": "src_lib_dojo_schedule_functions_classschema",
@@ -43111,7 +43111,7 @@
       "file_type": "code",
       "norm_label": "deleteclass",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L230"
+      "source_location": "L233"
     },
     {
       "id": "src_lib_dojo_schedule_functions_deletespace",
@@ -43131,7 +43131,7 @@
       "file_type": "code",
       "norm_label": "duplicateclass",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L243"
+      "source_location": "L246"
     },
     {
       "id": "src_lib_dojo_schedule_functions_listoccurrences",
@@ -43141,7 +43141,7 @@
       "file_type": "code",
       "norm_label": "listoccurrences",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L382"
+      "source_location": "L385"
     },
     {
       "id": "src_lib_dojo_schedule_functions_liststudentclasses",
@@ -43151,7 +43151,7 @@
       "file_type": "code",
       "norm_label": "liststudentclasses",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L486"
+      "source_location": "L489"
     },
     {
       "id": "src_lib_dojo_schedule_functions_listtodayclassoccurrences",
@@ -43161,7 +43161,7 @@
       "file_type": "code",
       "norm_label": "listtodayclassoccurrences",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L399"
+      "source_location": "L402"
     },
     {
       "id": "src_lib_dojo_schedule_functions_saveclass",
@@ -43191,7 +43191,7 @@
       "file_type": "code",
       "norm_label": "schedulestats",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L463"
+      "source_location": "L466"
     },
     {
       "id": "src_lib_dojo_schedule_functions_syncstudentclasses",
@@ -43201,7 +43201,7 @@
       "file_type": "code",
       "norm_label": "syncstudentclasses",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L303"
+      "source_location": "L306"
     },
     {
       "id": "src_lib_dojo_schedule_functions_upsertspace",
@@ -79998,7 +79998,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L408",
+      "source_location": "L411",
       "weight": 1.0
     },
     {
@@ -80034,7 +80034,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L198",
+      "source_location": "L201",
       "weight": 1.0
     },
     {
@@ -80046,7 +80046,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L205",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -80058,7 +80058,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L206",
+      "source_location": "L209",
       "weight": 1.0
     },
     {
@@ -253996,7 +253996,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L230",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
@@ -254007,7 +254007,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L243",
+      "source_location": "L246",
       "weight": 1.0
     },
     {
@@ -254018,7 +254018,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L269",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -254029,7 +254029,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L294",
+      "source_location": "L297",
       "weight": 1.0
     },
     {
@@ -254040,7 +254040,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L303",
+      "source_location": "L306",
       "weight": 1.0
     },
     {
@@ -254051,7 +254051,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L352",
+      "source_location": "L355",
       "weight": 1.0
     },
     {
@@ -254062,7 +254062,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L382",
+      "source_location": "L385",
       "weight": 1.0
     },
     {
@@ -254073,7 +254073,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L399",
+      "source_location": "L402",
       "weight": 1.0
     },
     {
@@ -254095,7 +254095,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L442",
+      "source_location": "L445",
       "weight": 1.0
     },
     {
@@ -254106,7 +254106,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L463",
+      "source_location": "L466",
       "weight": 1.0
     },
     {
@@ -254117,7 +254117,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/schedule.functions.ts",
-      "source_location": "L486",
+      "source_location": "L489",
       "weight": 1.0
     },
     {
@@ -287070,5 +287070,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0f91d6d5770be2102a9c4333c11d215712e04d5e"
+  "built_at_commit": "138fe8b1a93919b1fb3f3d1412d726c7267473a8"
 }
