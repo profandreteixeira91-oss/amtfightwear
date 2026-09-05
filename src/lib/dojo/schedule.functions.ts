@@ -175,6 +175,14 @@ export const saveClass = createServerFn({ method: "POST" })
       : await context.supabase.from("dojo_classes").insert(payload).select().single();
     if (error) throw new Error(error.message);
 
+    // Remove ocorrências agendadas de hoje em diante para limpar horários fantasmas ao alterar a grade
+    await context.supabase
+      .from("dojo_class_occurrences")
+      .delete()
+      .eq("class_id", classRow.id)
+      .eq("status", "scheduled")
+      .gte("occurrence_date", todayISO());
+
     // replace schedules
     await context.supabase.from("dojo_class_schedules").delete().eq("class_id", classRow.id);
     if (schedules.length) {
