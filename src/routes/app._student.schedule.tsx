@@ -147,7 +147,7 @@ function SchedulePage() {
         </div>
       )}
 
-      {!isLoading && total === 0 && <EmptyState label="Nenhuma turma cadastrada nesta semana." />}
+      {!isLoading && total === 0 && <EmptyState label="Nenhuma turma encontrada para este aluno." />}
 
       {!isLoading && total > 0 && view === "week" && (
         <WeekAgenda byDay={byDay} unitName={unitName} todayIdx={todayIdx} />

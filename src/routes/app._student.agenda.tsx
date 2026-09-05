@@ -29,22 +29,23 @@ function AgendaPage() {
     return () => { supabase.removeChannel(chan); };
   }, [qc]);
 
-  const grouped = new Map<string, typeof data>();
+  const grouped = new Map<string, any[]>();
   (data ?? []).forEach((occ) => {
-    const key = occ.occurrence_date;
+    if (!occ) return;
+    const key = occ.occurrence_date || "sem-data";
     const arr = grouped.get(key) ?? [];
     arr.push(occ);
-    grouped.set(key, arr as never);
+    grouped.set(key, arr);
   });
 
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Minha agenda</h1>
       {isLoading && <p className="text-sm text-neutral-500">Carregando…</p>}
-      {!isLoading && (data?.length ?? 0) === 0 && (
+      {!isLoading && (!data || data.length === 0) && (
         <div className="rounded-2xl bg-white p-8 text-center ring-1 ring-neutral-100">
           <CalendarDays className="mx-auto h-10 w-10 text-neutral-300" />
-          <p className="mt-3 text-sm text-neutral-500">Sem aulas nas próximas 2 semanas.</p>
+          <p className="mt-3 text-sm text-neutral-500">Nenhuma turma encontrada para este aluno.</p>
         </div>
       )}
       {[...grouped.entries()].map(([date, list]) => (
