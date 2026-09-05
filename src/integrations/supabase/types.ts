@@ -3727,7 +3727,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "dojo_class_occurrences_class_id_fkey"
+            foreignKeyName: "dojo_class_occurrences_class_id_fk"
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "dojo_classes"
@@ -3885,7 +3885,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "dojo_class_schedules_class_id_fkey"
+            foreignKeyName: "dojo_class_schedules_class_id_fk"
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "dojo_classes"
@@ -3920,7 +3920,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "dojo_class_students_class_id_fkey"
+            foreignKeyName: "dojo_class_students_class_id_fk"
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "dojo_classes"
@@ -13589,7 +13589,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "dojo_class_occurrences_class_id_fkey"
+            foreignKeyName: "dojo_class_occurrences_class_id_fk"
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "dojo_classes"
