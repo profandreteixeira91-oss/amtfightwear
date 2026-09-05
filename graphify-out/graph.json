@@ -1477,7 +1477,7 @@
       "file_type": "code",
       "norm_label": "metainsight",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L983"
+      "source_location": "L986"
     },
     {
       "id": "src_lib_ads_ads_scale_insight",
@@ -9629,7 +9629,7 @@
       "file_type": "code",
       "norm_label": "parseinsights()",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L995"
+      "source_location": "L998"
     },
     {
       "id": "src_lib_ads_ads_functions_setmetastatus",
@@ -9640,7 +9640,7 @@
       "file_type": "code",
       "norm_label": "setmetastatus()",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L913"
+      "source_location": "L916"
     },
     {
       "id": "src_lib_ads_ads_functions_synccampaigninsightsinternal",
@@ -9651,7 +9651,7 @@
       "file_type": "code",
       "norm_label": "synccampaigninsightsinternal()",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1020"
+      "source_location": "L1023"
     },
     {
       "id": "src_lib_ads_ads_scale_decidescale",
@@ -38341,7 +38341,7 @@
       "file_type": "code",
       "norm_label": "abtestinput",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1256"
+      "source_location": "L1259"
     },
     {
       "id": "src_lib_ads_ads_functions_applyoptimization",
@@ -38351,7 +38351,7 @@
       "file_type": "code",
       "norm_label": "applyoptimization",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1184"
+      "source_location": "L1187"
     },
     {
       "id": "src_lib_ads_ads_functions_backfillwinnerembeddings",
@@ -38361,7 +38361,7 @@
       "file_type": "code",
       "norm_label": "backfillwinnerembeddings",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1522"
+      "source_location": "L1525"
     },
     {
       "id": "src_lib_ads_ads_functions_briefinginput",
@@ -38391,7 +38391,7 @@
       "file_type": "code",
       "norm_label": "createabtest",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1274"
+      "source_location": "L1277"
     },
     {
       "id": "src_lib_ads_ads_functions_createbriefing",
@@ -38421,7 +38421,7 @@
       "file_type": "code",
       "norm_label": "deleteabtest",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1339"
+      "source_location": "L1342"
     },
     {
       "id": "src_lib_ads_ads_functions_deletecampaign",
@@ -38431,7 +38431,7 @@
       "file_type": "code",
       "norm_label": "deletecampaign",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1097"
+      "source_location": "L1100"
     },
     {
       "id": "src_lib_ads_ads_functions_deletecopy",
@@ -38461,7 +38461,7 @@
       "file_type": "code",
       "norm_label": "dismissalert",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1147"
+      "source_location": "L1150"
     },
     {
       "id": "src_lib_ads_ads_functions_dismissoptimization",
@@ -38471,7 +38471,7 @@
       "file_type": "code",
       "norm_label": "dismissoptimization",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1242"
+      "source_location": "L1245"
     },
     {
       "id": "src_lib_ads_ads_functions_endabtest",
@@ -38481,7 +38481,7 @@
       "file_type": "code",
       "norm_label": "endabtest",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1321"
+      "source_location": "L1324"
     },
     {
       "id": "src_lib_ads_ads_functions_estimatebudget",
@@ -38541,7 +38541,7 @@
       "file_type": "code",
       "norm_label": "getcampaign",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1075"
+      "source_location": "L1078"
     },
     {
       "id": "src_lib_ads_ads_functions_listabtests",
@@ -38551,7 +38551,7 @@
       "file_type": "code",
       "norm_label": "listabtests",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1305"
+      "source_location": "L1308"
     },
     {
       "id": "src_lib_ads_ads_functions_listalerts",
@@ -38561,7 +38561,7 @@
       "file_type": "code",
       "norm_label": "listalerts",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1112"
+      "source_location": "L1115"
     },
     {
       "id": "src_lib_ads_ads_functions_listcampaigns",
@@ -38601,7 +38601,7 @@
       "file_type": "code",
       "norm_label": "listoptimizations",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1158"
+      "source_location": "L1161"
     },
     {
       "id": "src_lib_ads_ads_functions_listscalehistory",
@@ -38611,7 +38611,7 @@
       "file_type": "code",
       "norm_label": "listscalehistory",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1354"
+      "source_location": "L1357"
     },
     {
       "id": "src_lib_ads_ads_functions_listwinners",
@@ -38621,7 +38621,7 @@
       "file_type": "code",
       "norm_label": "listwinners",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1372"
+      "source_location": "L1375"
     },
     {
       "id": "src_lib_ads_ads_functions_markalertread",
@@ -38631,7 +38631,7 @@
       "file_type": "code",
       "norm_label": "markalertread",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1124"
+      "source_location": "L1127"
     },
     {
       "id": "src_lib_ads_ads_functions_markallalertsread",
@@ -38641,7 +38641,7 @@
       "file_type": "code",
       "norm_label": "markallalertsread",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1136"
+      "source_location": "L1139"
     },
     {
       "id": "src_lib_ads_ads_functions_objective_map",
@@ -38671,7 +38671,7 @@
       "file_type": "code",
       "norm_label": "pausecampaign",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L955"
+      "source_location": "L958"
     },
     {
       "id": "src_lib_ads_ads_functions_publishcampaigntometa",
@@ -38701,7 +38701,7 @@
       "file_type": "code",
       "norm_label": "resumecampaign",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L968"
+      "source_location": "L971"
     },
     {
       "id": "src_lib_ads_ads_functions_runscalenow",
@@ -38711,7 +38711,7 @@
       "file_type": "code",
       "norm_label": "runscalenow",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1404"
+      "source_location": "L1407"
     },
     {
       "id": "src_lib_ads_ads_functions_savecreative",
@@ -38741,7 +38741,7 @@
       "file_type": "code",
       "norm_label": "suggestfromwinners",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1438"
+      "source_location": "L1441"
     },
     {
       "id": "src_lib_ads_ads_functions_synccampaigninsights",
@@ -38751,7 +38751,7 @@
       "file_type": "code",
       "norm_label": "synccampaigninsights",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1054"
+      "source_location": "L1057"
     },
     {
       "id": "src_lib_ads_ads_functions_syncmetaadaccounts",
@@ -40841,7 +40841,7 @@
       "file_type": "code",
       "norm_label": "runoptimizationnow",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1170"
+      "source_location": "L1173"
     },
     {
       "id": "src_lib_ads_ads_optimization",
@@ -74382,7 +74382,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1216",
+      "source_location": "L1219",
       "weight": 1.0
     },
     {
@@ -74394,7 +74394,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1570",
+      "source_location": "L1573",
       "weight": 1.0
     },
     {
@@ -74526,7 +74526,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L959",
+      "source_location": "L962",
       "weight": 1.0
     },
     {
@@ -74550,7 +74550,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L972",
+      "source_location": "L975",
       "weight": 1.0
     },
     {
@@ -74562,7 +74562,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1177",
+      "source_location": "L1180",
       "weight": 1.0
     },
     {
@@ -74574,7 +74574,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1428",
+      "source_location": "L1431",
       "weight": 1.0
     },
     {
@@ -74586,7 +74586,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L951",
+      "source_location": "L954",
       "weight": 1.0
     },
     {
@@ -74622,7 +74622,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1453",
+      "source_location": "L1456",
       "weight": 1.0
     },
     {
@@ -74634,7 +74634,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1498",
+      "source_location": "L1501",
       "weight": 1.0
     },
     {
@@ -74646,7 +74646,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1515",
+      "source_location": "L1518",
       "weight": 1.0
     },
     {
@@ -74658,7 +74658,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1072",
+      "source_location": "L1075",
       "weight": 1.0
     },
     {
@@ -74670,7 +74670,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1031",
+      "source_location": "L1034",
       "weight": 1.0
     },
     {
@@ -74682,7 +74682,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1036",
+      "source_location": "L1039",
       "weight": 1.0
     },
     {
@@ -84630,7 +84630,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/api/public/hooks/publish-scheduled-posts.ts",
-      "source_location": "L60",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -121499,7 +121499,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1108",
+      "source_location": "L1111",
       "weight": 1.0
     },
     {
@@ -121511,7 +121511,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1351",
+      "source_location": "L1354",
       "weight": 1.0
     },
     {
@@ -121523,7 +121523,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1351",
+      "source_location": "L1354",
       "weight": 1.0
     },
     {
@@ -121535,7 +121535,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1351",
+      "source_location": "L1354",
       "weight": 1.0
     },
     {
@@ -121547,7 +121547,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1352",
+      "source_location": "L1355",
       "weight": 1.0
     },
     {
@@ -184312,7 +184312,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1108",
+      "source_location": "L1111",
       "weight": 1.0
     },
     {
@@ -184324,7 +184324,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1351",
+      "source_location": "L1354",
       "weight": 1.0
     },
     {
@@ -184336,7 +184336,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1352",
+      "source_location": "L1355",
       "weight": 1.0
     },
     {
@@ -242964,7 +242964,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1020",
+      "source_location": "L1023",
       "weight": 1.0
     },
     {
@@ -242975,7 +242975,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1054",
+      "source_location": "L1057",
       "weight": 1.0
     },
     {
@@ -242986,7 +242986,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1075",
+      "source_location": "L1078",
       "weight": 1.0
     },
     {
@@ -242997,7 +242997,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1097",
+      "source_location": "L1100",
       "weight": 1.0
     },
     {
@@ -243008,7 +243008,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1112",
+      "source_location": "L1115",
       "weight": 1.0
     },
     {
@@ -243019,7 +243019,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1124",
+      "source_location": "L1127",
       "weight": 1.0
     },
     {
@@ -243030,7 +243030,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1136",
+      "source_location": "L1139",
       "weight": 1.0
     },
     {
@@ -243052,7 +243052,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1147",
+      "source_location": "L1150",
       "weight": 1.0
     },
     {
@@ -243063,7 +243063,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1158",
+      "source_location": "L1161",
       "weight": 1.0
     },
     {
@@ -243074,7 +243074,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1170",
+      "source_location": "L1173",
       "weight": 1.0
     },
     {
@@ -243085,7 +243085,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1184",
+      "source_location": "L1187",
       "weight": 1.0
     },
     {
@@ -243096,7 +243096,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1242",
+      "source_location": "L1245",
       "weight": 1.0
     },
     {
@@ -243107,7 +243107,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1256",
+      "source_location": "L1259",
       "weight": 1.0
     },
     {
@@ -243118,7 +243118,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1274",
+      "source_location": "L1277",
       "weight": 1.0
     },
     {
@@ -243129,7 +243129,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1305",
+      "source_location": "L1308",
       "weight": 1.0
     },
     {
@@ -243140,7 +243140,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1321",
+      "source_location": "L1324",
       "weight": 1.0
     },
     {
@@ -243151,7 +243151,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1339",
+      "source_location": "L1342",
       "weight": 1.0
     },
     {
@@ -243162,7 +243162,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1354",
+      "source_location": "L1357",
       "weight": 1.0
     },
     {
@@ -243173,7 +243173,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1372",
+      "source_location": "L1375",
       "weight": 1.0
     },
     {
@@ -243184,7 +243184,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1404",
+      "source_location": "L1407",
       "weight": 1.0
     },
     {
@@ -243195,7 +243195,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1438",
+      "source_location": "L1441",
       "weight": 1.0
     },
     {
@@ -243206,7 +243206,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L1522",
+      "source_location": "L1525",
       "weight": 1.0
     },
     {
@@ -243536,7 +243536,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L913",
+      "source_location": "L916",
       "weight": 1.0
     },
     {
@@ -243547,7 +243547,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L955",
+      "source_location": "L958",
       "weight": 1.0
     },
     {
@@ -243558,7 +243558,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L968",
+      "source_location": "L971",
       "weight": 1.0
     },
     {
@@ -243569,7 +243569,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L983",
+      "source_location": "L986",
       "weight": 1.0
     },
     {
@@ -243591,7 +243591,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/ads/ads.functions.ts",
-      "source_location": "L995",
+      "source_location": "L998",
       "weight": 1.0
     },
     {
@@ -287082,5 +287082,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "79feaade991bf7b7c1434bb3abd922388f411cae"
+  "built_at_commit": "899692ec67d3a9efe3d088cb9d522588789a4ac0"
 }
