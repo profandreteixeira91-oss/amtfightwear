@@ -7,7 +7,7 @@
  * `/dojo/app/team/:id`, de modo que a navegação é derivada das permissões.
  */
 import type { AccessLevel, PermissionMap } from "@/lib/dojo/permissions";
-import { canAccess } from "@/lib/dojo/permissions";
+import { canAccess, resolveStaffPermissions } from "@/lib/dojo/permissions";
 
 export type StaffModule = {
   key: string;

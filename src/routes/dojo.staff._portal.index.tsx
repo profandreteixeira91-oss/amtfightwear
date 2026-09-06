@@ -40,6 +40,10 @@ function StaffDashboard() {
   const canEvaluations = canAccess(effectivePerms, "evaluations", "read");
   const canAnnouncements = canAccess(effectivePerms, "announcements", "read");
   const canCompetitions = canAccess(effectivePerms, "competitions", "read");
+  const canBelts = canAccess(effectivePerms, "belts", "read");
+  const canCertificates = canAccess(effectivePerms, "certificates", "read");
+  const canStore = canAccess(effectivePerms, "store", "read");
+  const canSales = canAccess(effectivePerms, "sales", "read");
 
   return (
     <div className="space-y-4">
