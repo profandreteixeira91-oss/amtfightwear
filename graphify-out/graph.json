@@ -7704,7 +7704,7 @@
       "file_type": "code",
       "norm_label": "emptystate()",
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L712"
+      "source_location": "L758"
     },
     {
       "id": "src_routes_authenticated_admin_loja_financerow",
@@ -7715,7 +7715,7 @@
       "file_type": "code",
       "norm_label": "financerow()",
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L688"
+      "source_location": "L734"
     },
     {
       "id": "src_routes_authenticated_admin_loja_integrationcard",
@@ -7726,7 +7726,7 @@
       "file_type": "code",
       "norm_label": "integrationcard()",
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L734"
+      "source_location": "L780"
     },
     {
       "id": "src_routes_authenticated_admin_loja_kpicard",
@@ -7737,7 +7737,7 @@
       "file_type": "code",
       "norm_label": "kpicard()",
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L622"
+      "source_location": "L668"
     },
     {
       "id": "src_routes_authenticated_admin_loja_ministat",
@@ -7748,7 +7748,7 @@
       "file_type": "code",
       "norm_label": "ministat()",
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L703"
+      "source_location": "L749"
     },
     {
       "id": "src_routes_authenticated_admin_loja_num",
@@ -7770,7 +7770,7 @@
       "file_type": "code",
       "norm_label": "paymentbadge()",
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L720"
+      "source_location": "L766"
     },
     {
       "id": "src_routes_authenticated_admin_loja_storedashboard",
@@ -87571,7 +87571,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L696",
+      "source_location": "L742",
       "weight": 1.0
     },
     {
@@ -269030,7 +269030,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L622",
+      "source_location": "L668",
       "weight": 1.0
     },
     {
@@ -269041,7 +269041,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L688",
+      "source_location": "L734",
       "weight": 1.0
     },
     {
@@ -269052,7 +269052,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L703",
+      "source_location": "L749",
       "weight": 1.0
     },
     {
@@ -269063,7 +269063,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L712",
+      "source_location": "L758",
       "weight": 1.0
     },
     {
@@ -269074,7 +269074,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L720",
+      "source_location": "L766",
       "weight": 1.0
     },
     {
@@ -269085,7 +269085,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/_authenticated/admin.loja.tsx",
-      "source_location": "L734",
+      "source_location": "L780",
       "weight": 1.0
     },
     {
@@ -287144,5 +287144,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "9eaa05e490d06fe931b33d732630acd06ecc8f00"
+  "built_at_commit": "cc26218601be302e8d8e8a78ec2107e95584ab7b"
 }
