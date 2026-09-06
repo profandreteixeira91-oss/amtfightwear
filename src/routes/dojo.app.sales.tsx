@@ -75,7 +75,7 @@ const STATUS_LABELS: Record<string, string> = {
   canceled: "Cancelado",
 };
 
-function SalesPage() {
+export function SalesPage() {
   const [tab, setTab] = useState("sales");
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);

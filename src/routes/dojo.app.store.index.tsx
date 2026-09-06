@@ -12,7 +12,7 @@ export const Route = createFileRoute("/dojo/app/store/")({ component: StoreHome 
 
 type Cat = { id: string; slug: string; name: string; parent_id: string | null };
 
-function StoreHome() {
+export function StoreHome() {
   const listCats = useServerFn(dsListCategories);
   const listProducts = useServerFn(dsListProducts);
 

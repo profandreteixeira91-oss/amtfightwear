@@ -43,7 +43,7 @@ const CATEGORIES = [
   { id: "personalizado", label: "Personalizado" },
 ];
 
-function CertificatesPage() {
+export function CertificatesPage() {
   const listFn = useServerFn(listCertificateTemplates);
   const saveFn = useServerFn(saveCertificateTemplate);
   const delFn = useServerFn(deleteCertificateTemplate);

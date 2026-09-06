@@ -76,7 +76,7 @@ const emptyForm = {
   scope: "own" as "own" | "global",
 };
 
-function BeltsPage() {
+export function BeltsPage() {
   const listFn = useServerFn(listDojoBelts);
   const saveFn = useServerFn(saveDojoBelt);
   const delFn = useServerFn(deleteDojoBelt);
