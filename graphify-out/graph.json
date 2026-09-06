@@ -21652,7 +21652,7 @@
       "file_type": "code",
       "norm_label": "sectionheader()",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L77"
+      "source_location": "L73"
     },
     {
       "id": "src_routes_index_storehomepage",
@@ -21663,7 +21663,7 @@
       "file_type": "code",
       "norm_label": "storehomepage()",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L96"
+      "source_location": "L92"
     },
     {
       "id": "src_routes_loja_produto_slug_productpage",
@@ -55600,7 +55600,7 @@
       "file_type": "code",
       "norm_label": "catsquery",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L34"
+      "source_location": "L30"
     },
     {
       "id": "src_routes_index_homequery",
@@ -55610,7 +55610,7 @@
       "file_type": "code",
       "norm_label": "homequery",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L30"
+      "source_location": "L26"
     },
     {
       "id": "src_routes_index_route",
@@ -55620,7 +55620,7 @@
       "file_type": "code",
       "norm_label": "route",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L39"
+      "source_location": "L35"
     },
     {
       "id": "src_routes_loja_produto_slug",
@@ -92395,7 +92395,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L36",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -92407,7 +92407,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L32",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -161069,18 +161069,6 @@
     },
     {
       "source": "src_routes_index",
-      "target": "src_components_ui_button_button",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/routes/index.tsx",
-      "source_location": "L10",
-      "weight": 1.0
-    },
-    {
-      "source": "src_routes_index",
       "target": "src_components_store_kimonoguidelink_kimonoguidecallout",
       "relation": "imports",
       "_origin": "ast",
@@ -161088,7 +161076,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L24",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -161100,7 +161088,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L25",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -161112,7 +161100,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L26",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -161124,7 +161112,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L8",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -161136,7 +161124,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L8",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -161148,7 +161136,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L9",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -161160,7 +161148,19 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L9",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_routes_index",
+      "target": "src_components_ui_button_button",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/routes/index.tsx",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -220810,26 +220810,14 @@
     },
     {
       "source": "src_routes_index",
-      "target": "src_components_ui_button",
+      "target": "ref_tanstack_react_router",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L10",
-      "weight": 1.0
-    },
-    {
-      "source": "src_routes_index",
-      "target": "ref_lucide_react",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/routes/index.tsx",
-      "source_location": "L11",
+      "source_location": "L1",
       "weight": 1.0
     },
     {
@@ -220841,7 +220829,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L24",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -220853,7 +220841,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L25",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -220865,19 +220853,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L26",
-      "weight": 1.0
-    },
-    {
-      "source": "src_routes_index",
-      "target": "ref_tanstack_react_router",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/routes/index.tsx",
-      "source_location": "L5",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -220889,7 +220865,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L7",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -220901,7 +220877,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L8",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -220913,7 +220889,31 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L9",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_routes_index",
+      "target": "src_components_ui_button",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/routes/index.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_routes_index",
+      "target": "ref_lucide_react",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/routes/index.tsx",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -276290,7 +276290,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/index.tsx",
-      "source_location": "L30",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -276301,7 +276301,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/index.tsx",
-      "source_location": "L34",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -276312,7 +276312,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/index.tsx",
-      "source_location": "L39",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
@@ -276323,7 +276323,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/routes/index.tsx",
-      "source_location": "L77",
+      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -286803,7 +286803,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "src/routes/index.tsx",
-      "source_location": "L72",
+      "source_location": "L68",
       "weight": 1.0
     },
     {
@@ -287144,5 +287144,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "cc26218601be302e8d8e8a78ec2107e95584ab7b"
+  "built_at_commit": "8ec4ec4965f36cde70e20fd1ceffd5aa5a6b0d9e"
 }
