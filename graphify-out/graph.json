@@ -8870,7 +8870,7 @@
       "file_type": "code",
       "norm_label": "staffshell()",
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L39"
+      "source_location": "L43"
     },
     {
       "id": "src_lib_dojo_staff_modules_visiblestaffmodules",
@@ -8881,7 +8881,7 @@
       "file_type": "code",
       "norm_label": "visiblestaffmodules()",
       "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L88"
+      "source_location": "L120"
     },
     {
       "id": "src_routes_dojo_staff_portal_index_staffdashboard",
@@ -28208,7 +28208,7 @@
       "file_type": "code",
       "norm_label": "stafflevel()",
       "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L95"
+      "source_location": "L127"
     },
     {
       "id": "src_lib_auth_is_saas_owner_issaasowner",
@@ -28901,7 +28901,7 @@
       "file_type": "code",
       "norm_label": "staffempty()",
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L198"
+      "source_location": "L202"
     },
     {
       "id": "src_components_dojo_staff_staffshell_staffnoaccess",
@@ -28912,7 +28912,7 @@
       "file_type": "code",
       "norm_label": "staffnoaccess()",
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L181"
+      "source_location": "L185"
     },
     {
       "id": "src_components_dojo_staff_staffshell_staffpageheader",
@@ -28923,7 +28923,7 @@
       "file_type": "code",
       "norm_label": "staffpageheader()",
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L152"
+      "source_location": "L156"
     },
     {
       "id": "src_routes_dojo_staff_portal_announcements_staffannouncements",
@@ -62800,7 +62800,7 @@
       "file_type": "code",
       "norm_label": "staff_modules",
       "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L28"
+      "source_location": "L32"
     },
     {
       "id": "src_lib_dojo_team_functions_getmyteampermissions",
@@ -69847,7 +69847,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L104",
+      "source_location": "L108",
       "weight": 1.0
     },
     {
@@ -69859,7 +69859,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L40",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -69871,7 +69871,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L46",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -80479,7 +80479,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L96",
+      "source_location": "L128",
       "weight": 1.0
     },
     {
@@ -80491,7 +80491,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L89",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -80503,7 +80503,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L91",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -236916,7 +236916,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L152",
+      "source_location": "L156",
       "weight": 1.0
     },
     {
@@ -236927,7 +236927,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L181",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -236938,7 +236938,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L198",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -236960,7 +236960,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/dojo/staff/StaffShell.tsx",
-      "source_location": "L39",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -254642,24 +254642,13 @@
     },
     {
       "source": "src_lib_dojo_staff_modules",
-      "target": "src_lib_dojo_staff_modules_staff_modules",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L28",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_dojo_staff_modules",
       "target": "src_lib_dojo_staff_modules_visiblestaffmodules",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L88",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -254670,7 +254659,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/dojo/staff-modules.ts",
-      "source_location": "L95",
+      "source_location": "L127",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_dojo_staff_modules",
+      "target": "src_lib_dojo_staff_modules_staff_modules",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/dojo/staff-modules.ts",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -287084,5 +287084,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "564c8f152558168715f17afecd10b4bc420cfbb6"
+  "built_at_commit": "d3916adb6cb2f614aed63cc7bb21fdd000262c47"
 }
