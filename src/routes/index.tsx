@@ -1,7 +1,3 @@
-/**
- * Execute esta instrucao no projeto: Calculadora de faixas > corrija a calculadora dentro de composição para que os cálculos sejam efetuados corretamente. Os custos de marketing e pro labore são calculados com base no preço final do produto, o mesmo do site
- */
-
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
