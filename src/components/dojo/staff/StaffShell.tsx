@@ -34,6 +34,10 @@ const ICONS: Record<StaffModule["icon"], React.ComponentType<{ className?: strin
   evaluations: ClipboardList,
   announcements: Megaphone,
   competitions: Trophy,
+  belts: Layers,
+  certificates: FileBadge,
+  store: Store,
+  sales: Tag,
 };
 
 export function StaffShell({ children }: { children: ReactNode }) {

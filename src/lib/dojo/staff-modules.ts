@@ -22,7 +22,11 @@ export type StaffModule = {
     | "graduations"
     | "evaluations"
     | "announcements"
-    | "competitions";
+    | "competitions"
+    | "belts"
+    | "certificates"
+    | "store"
+    | "sales";
 };
 
 export const STAFF_MODULES: StaffModule[] = [
@@ -81,6 +85,34 @@ export const STAFF_MODULES: StaffModule[] = [
     description: "Calendário competitivo",
     to: "/dojo/staff/competitions",
     icon: "competitions",
+  },
+  {
+    key: "belts",
+    label: "Modalidades e Faixas",
+    description: "Configuração das faixas",
+    to: "/dojo/staff/belts",
+    icon: "belts",
+  },
+  {
+    key: "certificates",
+    label: "Certificados",
+    description: "Modelos e emissões",
+    to: "/dojo/staff/certificates",
+    icon: "certificates",
+  },
+  {
+    key: "store",
+    label: "AMT Store",
+    description: "Vendas de produtos",
+    to: "/dojo/staff/store",
+    icon: "store",
+  },
+  {
+    key: "sales",
+    label: "Vendas",
+    description: "Registro de vendas internas",
+    to: "/dojo/staff/sales",
+    icon: "sales",
   },
 ];
 

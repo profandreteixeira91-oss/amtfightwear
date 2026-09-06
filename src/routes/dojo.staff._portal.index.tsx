@@ -188,6 +188,58 @@ function StaffDashboard() {
               </Card>
             </Link>
           )}
+          {canBelts && (
+            <Link to="/dojo/staff/belts">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Layers className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Modalidades e Faixas</div>
+                  <div className="text-xs text-muted-foreground">Configurações de modalidades</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canCertificates && (
+            <Link to="/dojo/staff/certificates">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <FileBadge className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Certificados</div>
+                  <div className="text-xs text-muted-foreground">Modelos e emissões</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canStore && (
+            <Link to="/dojo/staff/store">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Store className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">AMT Store</div>
+                  <div className="text-xs text-muted-foreground">Vendas de produtos</div>
+                </div>
+              </Card>
+            </Link>
+          )}
+          {canSales && (
+            <Link to="/dojo/staff/sales">
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Tag className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Vendas</div>
+                  <div className="text-xs text-muted-foreground">Registro de contas a receber</div>
+                </div>
+              </Card>
+            </Link>
+          )}
         </div>
       </div>
     </div>
