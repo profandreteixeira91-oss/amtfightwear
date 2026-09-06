@@ -1,7 +1,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 
 import type { StaffSession } from "@/lib/dojo/staff-portal.functions";
-import { canAccess, type AccessLevel } from "@/lib/dojo/permissions";
+import { canAccess, type AccessLevel, resolveStaffPermissions } from "@/lib/dojo/permissions";
 
 const StaffCtx = createContext<StaffSession | null>(null);
 
@@ -19,10 +19,12 @@ export function useStaff(): StaffSession {
 /** Nível de acesso do professor em um módulo (`none` | `read` | `write`). */
 export function useStaffLevel(moduleKey: string): AccessLevel {
   const staff = useStaff();
-  return staff.permissions[moduleKey] ?? "none";
+  const perms = resolveStaffPermissions(staff.permissions as any, (staff as any).role);
+  return perms[moduleKey] ?? "none";
 }
 
 export function useStaffCan(moduleKey: string, need: AccessLevel = "read"): boolean {
   const staff = useStaff();
-  return canAccess(staff.permissions, moduleKey, need);
+  const perms = resolveStaffPermissions(staff.permissions as any, (staff as any).role);
+  return canAccess(perms, moduleKey, need);
 }

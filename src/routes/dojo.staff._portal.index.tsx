@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Award, CalendarDays, ClipboardList, Loader2, Megaphone, QrCode, Trophy, Users } from "lucide-react";
+import { Award, CalendarDays, ClipboardList, Loader2, Megaphone, QrCode, Trophy, Users, Layers, FileBadge, Store, Tag } from "lucide-react";
 
 import { getStaffDashboard } from "@/lib/dojo/staff-data.functions";
 import { useStaff, useStaffLevel } from "@/components/dojo/staff/staff-context";
 import { StaffNoAccess, StaffPageHeader } from "@/components/dojo/staff/StaffShell";
 import { Card } from "@/components/ui/card";
-import { canAccess } from "@/lib/dojo/permissions";
+import { canAccess, resolveStaffPermissions } from "@/lib/dojo/permissions";
 
 export const Route = createFileRoute("/dojo/staff/_portal/")({
   head: () => ({
