@@ -220,30 +220,76 @@ function StoreDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Resumo financeiro</CardTitle>
-            <CardDescription>Somente pedidos pagos no período</CardDescription>
+        <Card className="relative overflow-hidden shadow-sm ring-1 ring-neutral-200">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 to-emerald-400" />
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Calculator className="h-4 w-4 text-emerald-600" />
+              Resultado & Faturamento
+            </CardTitle>
+            <CardDescription>Receita vs Custo de Produção (itens finalizados)</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <FinanceRow label="Receita bruta" value={data?.finance.gross_revenue} loading={isLoading} />
-            <FinanceRow label="Descontos" value={data?.finance.discounts} loading={isLoading} negative />
-            <FinanceRow label="Fretes" value={data?.finance.shipping} loading={isLoading} />
-            <FinanceRow label="Receita líquida" value={data?.finance.net_revenue} loading={isLoading} highlight />
-            <FinanceRow
-              label="Produção finalizada"
-              value={data?.finance.production_revenue}
-              loading={isLoading}
-            />
-            <div className="flex items-center justify-between border-t pt-3 text-sm">
-              <span className="text-muted-foreground">Pedidos pagos</span>
-              <span className="font-bold">{data ? NUM(data.finance.paid_orders) : "—"}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Itens finalizados na produção</span>
-              <span className="font-bold">{data ? NUM(data.finance.production_entries) : "—"}</span>
-            </div>
+          <CardContent className="space-y-5">
+            {isLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-1 border-l-2 border-primary pl-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Receita Líquida (A)
+                  </div>
+                  <div className="text-2xl font-bold tracking-tight text-neutral-900">
+                    {BRL(data?.finance.net_revenue ?? 0)}
+                  </div>
+                </div>
 
+                <div className="flex flex-col gap-1 border-l-2 border-red-500 pl-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Custo de Produção (B)
+                  </div>
+                  <div className="text-xl font-bold tracking-tight text-red-600">
+                    − {BRL(data?.finance.production_revenue ?? 0)}
+                  </div>
+                  <p className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
+                    Custo repassado pela fábrica para os itens entregues.
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-neutral-900 p-4 text-white shadow-inner">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                    Lucro Bruto (A − B)
+                  </div>
+                  <div className="mt-1 text-3xl font-black tracking-tight text-emerald-400">
+                    {BRL((data?.finance.net_revenue ?? 0) - (data?.finance.production_revenue ?? 0))}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="inline-flex items-center rounded-md bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white">
+                      Margem: {data?.finance.net_revenue ? (((data.finance.net_revenue - data.finance.production_revenue) / data.finance.net_revenue) * 100).toFixed(1) : 0}%
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 border-t pt-3 text-sm">
+                  <FinanceRow label="Receita Bruta" value={data?.finance.gross_revenue} loading={false} />
+                  <FinanceRow label="Descontos" value={data?.finance.discounts} loading={false} negative />
+                  <FinanceRow label="Frete Recebido" value={data?.finance.shipping} loading={false} />
+                  <div className="mt-2 flex flex-col gap-1 border-t pt-2 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Pedidos convertidos (pagos):</span>
+                      <span className="font-bold">{NUM(data?.finance.paid_orders ?? 0)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Registros de produção:</span>
+                      <span className="font-bold">{NUM(data?.finance.production_entries ?? 0)}</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
