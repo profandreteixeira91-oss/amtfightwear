@@ -42,9 +42,8 @@ export function StaffShell({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   // A lista é calculada a partir do mapa efetivo recebido da sessão.
-  // O helper também normaliza registros antigos que salvaram os rótulos
-  // "Acesso total" e "Somente leitura" diretamente no JSON de permissions.
-  const modules = visibleStaffModules(staff.permissions);
+  // O helper também aplica defaults de cargo para registros vazios.
+  const modules = visibleStaffModules(staff.permissions, (staff as any).role);
 
   const signOut = async () => {
     await qc.cancelQueries();

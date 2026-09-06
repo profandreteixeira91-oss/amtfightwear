@@ -32,13 +32,14 @@ function StaffDashboard() {
 
   if (level === "none") return <StaffNoAccess label="Painel" />;
 
-  const canCheckin = canAccess(staff.permissions, "checkin", "read");
-  const canStudents = canAccess(staff.permissions, "students", "read");
-  const canSchedule = canAccess(staff.permissions, "schedule", "read");
-  const canGraduations = canAccess(staff.permissions, "graduations", "read");
-  const canEvaluations = canAccess(staff.permissions, "evaluations", "read");
-  const canAnnouncements = canAccess(staff.permissions, "announcements", "read");
-  const canCompetitions = canAccess(staff.permissions, "competitions", "read");
+  const effectivePerms = resolveStaffPermissions(staff.permissions, (staff as any).role);
+  const canCheckin = canAccess(effectivePerms, "checkin", "read");
+  const canStudents = canAccess(effectivePerms, "students", "read");
+  const canSchedule = canAccess(effectivePerms, "schedule", "read");
+  const canGraduations = canAccess(effectivePerms, "graduations", "read");
+  const canEvaluations = canAccess(effectivePerms, "evaluations", "read");
+  const canAnnouncements = canAccess(effectivePerms, "announcements", "read");
+  const canCompetitions = canAccess(effectivePerms, "competitions", "read");
 
   return (
     <div className="space-y-4">
