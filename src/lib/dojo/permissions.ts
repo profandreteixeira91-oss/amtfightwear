@@ -74,9 +74,18 @@ export function defaultPermissionsForRole(role?: string | null): PermissionMap {
   }
 }
 
+export function normalizeAccessLevel(value: unknown): AccessLevel {
+  if (value === "write" || value === "read" || value === "none") return value as AccessLevel;
+  if (typeof value !== "string") return "none";
+  const normalized = value.trim().toLowerCase();
+  if (["acesso total", "acesso_total", "full", "full_access", "admin"].includes(normalized)) return "write";
+  if (["somente leitura", "somente_leitura", "read only", "read_only", "readonly"].includes(normalized)) return "read";
+  return "none";
+}
+
 export function canAccess(perms: PermissionMap | null | undefined, moduleKey: string, need: AccessLevel = "read"): boolean {
   if (!perms) return false;
-  const lvl = perms[moduleKey] ?? "none";
+  const lvl = normalizeAccessLevel(perms[moduleKey]);
   if (need === "none") return true;
   if (need === "read") return lvl === "read" || lvl === "write";
   return lvl === "write";
@@ -106,6 +115,12 @@ export function resolveStaffPermissions(
   role: string | null | undefined,
 ): PermissionMap {
   const map = (persisted ?? {}) as PermissionMap;
-  if (Object.keys(map).length > 0) return map;
+  if (Object.keys(map).length > 0) {
+    const normalized: PermissionMap = {};
+    for (const [k, v] of Object.entries(map)) {
+      normalized[k] = normalizeAccessLevel(v);
+    }
+    return normalized;
+  }
   return defaultPermissionsForRole(role ?? null);
 }
