@@ -240,6 +240,7 @@ function CheckoutPage() {
                   payment_method_id: cardToken.paymentMethodId || undefined,
                   issuer_id: cardToken.issuerId ?? undefined,
                   card_last4: cardToken.last4,
+                  card_bin: cardToken.bin,
                 }
               : {}),
           },
