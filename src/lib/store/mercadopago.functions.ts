@@ -178,6 +178,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
         payment_method_id: z.string().min(2).optional(),
         issuer_id: z.string().min(1).optional(),
         card_last4: z.string().regex(/^\d{4}$/).optional(),
+        card_bin: z.string().regex(/^\d{6,8}$/).optional(),
         remote_ip: z.string().optional(),
       })
       .parse(i),
