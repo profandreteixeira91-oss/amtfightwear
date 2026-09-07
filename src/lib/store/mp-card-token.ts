@@ -94,17 +94,24 @@ export async function tokenizeStoreCard(
 
   const mp = await getMp(publicKey);
 
-  const bin = number.slice(0, 8);
+  const bin = number.slice(0, 6);
   let paymentMethodId = "";
   let issuerId: string | null = null;
-  try {
-    const methods = await mp.getPaymentMethods({ bin });
-    const first = methods?.results?.[0];
-    if (first?.id) paymentMethodId = String(first.id);
-    if (first?.issuer?.id != null) issuerId = String(first.issuer.id);
-  } catch {
-    /* resolvido no servidor como fallback */
+  // Tenta 6 e 8 dígitos: o Mercado Pago reconhece parte dos emissores só no BIN estendido.
+  for (const probe of [bin, number.slice(0, 8)]) {
+    if (paymentMethodId) break;
+    try {
+      const methods = await mp.getPaymentMethods({ bin: probe });
+      const results = methods?.results ?? [];
+      const credit = results.find((r) => String(r.id ?? "") !== "" && r.payment_type_id === "credit_card");
+      const hit = credit ?? results[0];
+      if (hit?.id) paymentMethodId = String(hit.id);
+      if (hit?.issuer?.id != null) issuerId = String(hit.issuer.id);
+    } catch {
+      /* segue para o fallback do servidor */
+    }
   }
+
 
   const token = await mp.createCardToken({
     cardNumber: number,
