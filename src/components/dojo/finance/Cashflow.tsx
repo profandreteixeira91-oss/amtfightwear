@@ -49,7 +49,6 @@ export function FinanceCashflow() {
         .filter((e) => e.status === "paid" && (e.paid_at?.slice(0, 10) ?? e.due_date) === day)
         .reduce((s, e) => s + Number(e.amount || 0), 0);
       arr.push({ day, label, entradas, saidas, saldo: entradas - saidas });
-      cur = addDaysISO(cur, 1);
     }
     return arr;
   }, [period.from, period.to, k.invoices, k.expenses]);
