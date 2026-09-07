@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories, createStoreOrder } from "@/lib/store/store.functions";
-import { createMercadopagoPayment } from "@/lib/store/mercadopago.functions";
+import { createMercadopagoPayment, getStoreMpPublicKey } from "@/lib/store/mercadopago.functions";
+import { tokenizeStoreCard } from "@/lib/store/mp-card-token";
 import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { useEffect, useState } from "react";
@@ -37,6 +38,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const createOrder = useServerFn(createStoreOrder);
   const createPayment = useServerFn(createMercadopagoPayment);
+  const loadMpKey = useServerFn(getStoreMpPublicKey);
   const loadProfile = useServerFn(getMyCustomerProfile);
   const saveProfile = useServerFn(saveMyCustomerProfile);
   const [mounted, setMounted] = useState(false);
@@ -164,9 +166,25 @@ function CheckoutPage() {
       if (!card.holderName || !card.number || !card.expiryMonth || !card.expiryYear || !card.ccv) {
         return toast.error("Preencha os dados do cartão");
       }
+      if (!form.customer_document) {
+        return toast.error("Informe o CPF do titular para pagar com cartão de crédito");
+      }
     }
     setLoading(true);
     try {
+      // Cartão: tokeniza no navegador antes de criar o pedido — os dados do
+      // cartão nunca passam pelo nosso servidor e a bandeira vem do Mercado Pago.
+      let cardToken: Awaited<ReturnType<typeof tokenizeStoreCard>> | null = null;
+      if (paymentMethod === "CREDIT_CARD") {
+        try {
+          const { publicKey } = await loadMpKey({});
+          cardToken = await tokenizeStoreCard(publicKey, { ...card, document: form.customer_document });
+        } catch (tokErr) {
+          toast.error(tokErr instanceof Error ? tokErr.message : "Não foi possível validar o cartão");
+          setLoading(false);
+          return;
+        }
+      }
       const res = await createOrder({
         data: {
           customer_name: form.customer_name,
@@ -209,14 +227,22 @@ function CheckoutPage() {
         } catch { /* não bloqueia o pedido */ }
       }
 
-      // Cria cobrança no Asaas
+      // Cria cobrança no Mercado Pago
       try {
         await createPayment({
           data: {
             order_id: res.id,
             method: paymentMethod,
             installments: paymentMethod === "CREDIT_CARD" ? installments : undefined,
-            card: paymentMethod === "CREDIT_CARD" ? card : undefined,
+            ...(cardToken
+              ? {
+                  card_token: cardToken.cardToken,
+                  payment_method_id: cardToken.paymentMethodId || undefined,
+                  issuer_id: cardToken.issuerId ?? undefined,
+                  card_last4: cardToken.last4,
+                  card_bin: cardToken.bin,
+                }
+              : {}),
           },
         });
       } catch (payErr) {

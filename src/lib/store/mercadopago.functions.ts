@@ -92,15 +92,32 @@ async function createPayment(
   }
 }
 
-/** Detecta payment_method_id do Mercado Pago por IIN (Brasil). */
-function detectBrand(cardNumber: string): string {
+function storePublicKey(): string {
+  const key = process.env.STORE_MERCADOPAGO_PUBLIC_KEY || process.env.MERCADOPAGO_PUBLIC_KEY;
+  if (!key) throw new Error("STORE_MERCADOPAGO_PUBLIC_KEY não configurada");
+  return key;
+}
+
+/** Chave pública da loja para tokenizar o cartão no navegador (SDK MercadoPago.js v2). */
+export const getStoreMpPublicKey = createServerFn({ method: "GET" }).handler(async () => ({
+  publicKey: storePublicKey(),
+}));
+
+/**
+ * Fallback de bandeira por IIN — usado APENAS quando o navegador não conseguiu
+ * resolver o `payment_method_id` pelo SDK do Mercado Pago (fonte de verdade).
+ * A busca server-side por BIN (`/v1/payment_methods/search?bin=`) não filtra por
+ * BIN nesta conta (retorna sempre o mesmo primeiro resultado), portanto não é
+ * confiável e não é usada.
+ */
+function detectBrandFallback(cardNumber: string): string {
   const n = onlyDigits(cardNumber);
   if (/^3[47]/.test(n)) return "amex";
   if (/^(636368|438935|504175|451416|636297|5067|4576|4011|506699)/.test(n)) return "elo";
   if (/^(38|60)/.test(n)) return "hipercard";
   if (/^4/.test(n)) return "visa";
   if (/^(5[1-5]|2[2-7])/.test(n)) return "master";
-  if (/^(30[0-5]|36|38)/.test(n)) return "diners";
+  if (/^(30[0-5]|36)/.test(n)) return "diners";
   return "visa";
 }
 
@@ -156,6 +173,12 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
         method: z.enum(["PIX", "CREDIT_CARD", "BOLETO"]),
         installments: z.number().int().min(1).max(10).optional(),
         card: CardSchema.optional(),
+        /** Token gerado no navegador pelo SDK do Mercado Pago (caminho preferido). */
+        card_token: z.string().min(10).optional(),
+        payment_method_id: z.string().min(2).optional(),
+        issuer_id: z.string().min(1).optional(),
+        card_last4: z.string().regex(/^\d{4}$/).optional(),
+        card_bin: z.string().regex(/^\d{6,8}$/).optional(),
         remote_ip: z.string().optional(),
       })
       .parse(i),
@@ -222,12 +245,30 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
         date_of_expiration: expires.toISOString(),
       };
     } else {
-      if (!data.card) throw new Error("Dados do cartão obrigatórios");
-      const token = await createCardToken({
-        ...data.card,
-        document: order.customer_document ?? "",
-      });
-      const brand = detectBrand(data.card.number);
+      // Caminho preferido: token gerado no navegador (SDK MP), com bandeira/emissor
+      // resolvidos pelo próprio Mercado Pago. Fallback: tokenização no servidor
+      // com consulta oficial de BIN — nunca mais bandeira adivinhada por regex.
+      let token = data.card_token ?? null;
+      let brand = data.payment_method_id ?? null;
+      let issuerId = data.issuer_id ?? null;
+
+      if (!token) {
+        if (!data.card) throw new Error("Dados do cartão obrigatórios");
+        token = await createCardToken({
+          ...data.card,
+          document: order.customer_document ?? "",
+        });
+      }
+      if (!brand) {
+        const src = data.card?.number ?? data.card_bin ?? "";
+        if (!src) {
+          throw new Error(
+            "Não foi possível identificar a bandeira do cartão. Recarregue a página e tente novamente.",
+          );
+        }
+        brand = detectBrandFallback(src);
+      }
+
       // Regras de parcelamento sem juros: 3x ≥ R$200, 5x ≥ R$600, 10x ≥ R$1000.
       const requested = data.installments ?? 1;
       const maxAllowed = total >= 1000 ? 10 : total >= 600 ? 5 : total >= 200 ? 3 : 1;
@@ -239,6 +280,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
         payment_method_id: brand,
         capture: true,
       };
+      if (issuerId) paymentPayload.issuer_id = issuerId;
     }
 
     const headers: Record<string, string> = {
@@ -269,8 +311,8 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
       asaas_pix_copy_paste: pixCopy,
       asaas_pix_expires_at: pixExp,
       card_last4:
-        data.method === "CREDIT_CARD" && data.card
-          ? onlyDigits(data.card.number).slice(-4)
+        data.method === "CREDIT_CARD"
+          ? (data.card_last4 ?? (data.card ? onlyDigits(data.card.number).slice(-4) : null))
           : null,
       payment_raw: payment,
     };
