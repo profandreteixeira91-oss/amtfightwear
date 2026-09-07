@@ -221,12 +221,16 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as DojoStaffPortalStudentsRouteImport } from './routes/dojo.staff._portal.students'
+import { Route as DojoStaffPortalStoreRouteImport } from './routes/dojo.staff._portal.store'
 import { Route as DojoStaffPortalScheduleRouteImport } from './routes/dojo.staff._portal.schedule'
+import { Route as DojoStaffPortalSalesRouteImport } from './routes/dojo.staff._portal.sales'
 import { Route as DojoStaffPortalProfileRouteImport } from './routes/dojo.staff._portal.profile'
 import { Route as DojoStaffPortalGraduationsRouteImport } from './routes/dojo.staff._portal.graduations'
 import { Route as DojoStaffPortalEvaluationsRouteImport } from './routes/dojo.staff._portal.evaluations'
 import { Route as DojoStaffPortalCompetitionsRouteImport } from './routes/dojo.staff._portal.competitions'
 import { Route as DojoStaffPortalCheckinRouteImport } from './routes/dojo.staff._portal.checkin'
+import { Route as DojoStaffPortalCertificatesRouteImport } from './routes/dojo.staff._portal.certificates'
+import { Route as DojoStaffPortalBeltsRouteImport } from './routes/dojo.staff._portal.belts'
 import { Route as DojoStaffPortalAnnouncementsRouteImport } from './routes/dojo.staff._portal.announcements'
 import { Route as DojoAppVideosNovoRouteImport } from './routes/dojo.app.videos.novo'
 import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.videos.favoritos'
@@ -1468,9 +1472,19 @@ const DojoStaffPortalStudentsRoute = DojoStaffPortalStudentsRouteImport.update({
   path: '/students',
   getParentRoute: () => DojoStaffPortalRoute,
 } as any)
+const DojoStaffPortalStoreRoute = DojoStaffPortalStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
 const DojoStaffPortalScheduleRoute = DojoStaffPortalScheduleRouteImport.update({
   id: '/schedule',
   path: '/schedule',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalSalesRoute = DojoStaffPortalSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
   getParentRoute: () => DojoStaffPortalRoute,
 } as any)
 const DojoStaffPortalProfileRoute = DojoStaffPortalProfileRouteImport.update({
@@ -1499,6 +1513,17 @@ const DojoStaffPortalCompetitionsRoute =
 const DojoStaffPortalCheckinRoute = DojoStaffPortalCheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalCertificatesRoute =
+  DojoStaffPortalCertificatesRouteImport.update({
+    id: '/certificates',
+    path: '/certificates',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalBeltsRoute = DojoStaffPortalBeltsRouteImport.update({
+  id: '/belts',
+  path: '/belts',
   getParentRoute: () => DojoStaffPortalRoute,
 } as any)
 const DojoStaffPortalAnnouncementsRoute =
@@ -2429,12 +2454,16 @@ export interface FileRoutesByFullPath {
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/dojo/staff/announcements': typeof DojoStaffPortalAnnouncementsRoute
+  '/dojo/staff/belts': typeof DojoStaffPortalBeltsRoute
+  '/dojo/staff/certificates': typeof DojoStaffPortalCertificatesRoute
   '/dojo/staff/checkin': typeof DojoStaffPortalCheckinRoute
   '/dojo/staff/competitions': typeof DojoStaffPortalCompetitionsRoute
   '/dojo/staff/evaluations': typeof DojoStaffPortalEvaluationsRoute
   '/dojo/staff/graduations': typeof DojoStaffPortalGraduationsRoute
   '/dojo/staff/profile': typeof DojoStaffPortalProfileRoute
+  '/dojo/staff/sales': typeof DojoStaffPortalSalesRoute
   '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
+  '/dojo/staff/store': typeof DojoStaffPortalStoreRoute
   '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -2737,12 +2766,16 @@ export interface FileRoutesByTo {
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/dojo/staff/announcements': typeof DojoStaffPortalAnnouncementsRoute
+  '/dojo/staff/belts': typeof DojoStaffPortalBeltsRoute
+  '/dojo/staff/certificates': typeof DojoStaffPortalCertificatesRoute
   '/dojo/staff/checkin': typeof DojoStaffPortalCheckinRoute
   '/dojo/staff/competitions': typeof DojoStaffPortalCompetitionsRoute
   '/dojo/staff/evaluations': typeof DojoStaffPortalEvaluationsRoute
   '/dojo/staff/graduations': typeof DojoStaffPortalGraduationsRoute
   '/dojo/staff/profile': typeof DojoStaffPortalProfileRoute
+  '/dojo/staff/sales': typeof DojoStaffPortalSalesRoute
   '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
+  '/dojo/staff/store': typeof DojoStaffPortalStoreRoute
   '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -3069,12 +3102,16 @@ export interface FileRoutesById {
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
   '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/dojo/staff/_portal/announcements': typeof DojoStaffPortalAnnouncementsRoute
+  '/dojo/staff/_portal/belts': typeof DojoStaffPortalBeltsRoute
+  '/dojo/staff/_portal/certificates': typeof DojoStaffPortalCertificatesRoute
   '/dojo/staff/_portal/checkin': typeof DojoStaffPortalCheckinRoute
   '/dojo/staff/_portal/competitions': typeof DojoStaffPortalCompetitionsRoute
   '/dojo/staff/_portal/evaluations': typeof DojoStaffPortalEvaluationsRoute
   '/dojo/staff/_portal/graduations': typeof DojoStaffPortalGraduationsRoute
   '/dojo/staff/_portal/profile': typeof DojoStaffPortalProfileRoute
+  '/dojo/staff/_portal/sales': typeof DojoStaffPortalSalesRoute
   '/dojo/staff/_portal/schedule': typeof DojoStaffPortalScheduleRoute
+  '/dojo/staff/_portal/store': typeof DojoStaffPortalStoreRoute
   '/dojo/staff/_portal/students': typeof DojoStaffPortalStudentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -3400,12 +3437,16 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/favoritos'
     | '/dojo/app/videos/novo'
     | '/dojo/staff/announcements'
+    | '/dojo/staff/belts'
+    | '/dojo/staff/certificates'
     | '/dojo/staff/checkin'
     | '/dojo/staff/competitions'
     | '/dojo/staff/evaluations'
     | '/dojo/staff/graduations'
     | '/dojo/staff/profile'
+    | '/dojo/staff/sales'
     | '/dojo/staff/schedule'
+    | '/dojo/staff/store'
     | '/dojo/staff/students'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -3708,12 +3749,16 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/favoritos'
     | '/dojo/app/videos/novo'
     | '/dojo/staff/announcements'
+    | '/dojo/staff/belts'
+    | '/dojo/staff/certificates'
     | '/dojo/staff/checkin'
     | '/dojo/staff/competitions'
     | '/dojo/staff/evaluations'
     | '/dojo/staff/graduations'
     | '/dojo/staff/profile'
+    | '/dojo/staff/sales'
     | '/dojo/staff/schedule'
+    | '/dojo/staff/store'
     | '/dojo/staff/students'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -4039,12 +4084,16 @@ export interface FileRouteTypes {
     | '/dojo/app/videos/favoritos'
     | '/dojo/app/videos/novo'
     | '/dojo/staff/_portal/announcements'
+    | '/dojo/staff/_portal/belts'
+    | '/dojo/staff/_portal/certificates'
     | '/dojo/staff/_portal/checkin'
     | '/dojo/staff/_portal/competitions'
     | '/dojo/staff/_portal/evaluations'
     | '/dojo/staff/_portal/graduations'
     | '/dojo/staff/_portal/profile'
+    | '/dojo/staff/_portal/sales'
     | '/dojo/staff/_portal/schedule'
+    | '/dojo/staff/_portal/store'
     | '/dojo/staff/_portal/students'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -5635,11 +5684,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoStaffPortalStudentsRouteImport
       parentRoute: typeof DojoStaffPortalRoute
     }
+    '/dojo/staff/_portal/store': {
+      id: '/dojo/staff/_portal/store'
+      path: '/store'
+      fullPath: '/dojo/staff/store'
+      preLoaderRoute: typeof DojoStaffPortalStoreRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
     '/dojo/staff/_portal/schedule': {
       id: '/dojo/staff/_portal/schedule'
       path: '/schedule'
       fullPath: '/dojo/staff/schedule'
       preLoaderRoute: typeof DojoStaffPortalScheduleRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/sales': {
+      id: '/dojo/staff/_portal/sales'
+      path: '/sales'
+      fullPath: '/dojo/staff/sales'
+      preLoaderRoute: typeof DojoStaffPortalSalesRouteImport
       parentRoute: typeof DojoStaffPortalRoute
     }
     '/dojo/staff/_portal/profile': {
@@ -5675,6 +5738,20 @@ declare module '@tanstack/react-router' {
       path: '/checkin'
       fullPath: '/dojo/staff/checkin'
       preLoaderRoute: typeof DojoStaffPortalCheckinRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/certificates': {
+      id: '/dojo/staff/_portal/certificates'
+      path: '/certificates'
+      fullPath: '/dojo/staff/certificates'
+      preLoaderRoute: typeof DojoStaffPortalCertificatesRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/belts': {
+      id: '/dojo/staff/_portal/belts'
+      path: '/belts'
+      fullPath: '/dojo/staff/belts'
+      preLoaderRoute: typeof DojoStaffPortalBeltsRouteImport
       parentRoute: typeof DojoStaffPortalRoute
     }
     '/dojo/staff/_portal/announcements': {
@@ -7336,24 +7413,32 @@ const DojoAppRouteWithChildren =
 
 interface DojoStaffPortalRouteChildren {
   DojoStaffPortalAnnouncementsRoute: typeof DojoStaffPortalAnnouncementsRoute
+  DojoStaffPortalBeltsRoute: typeof DojoStaffPortalBeltsRoute
+  DojoStaffPortalCertificatesRoute: typeof DojoStaffPortalCertificatesRoute
   DojoStaffPortalCheckinRoute: typeof DojoStaffPortalCheckinRoute
   DojoStaffPortalCompetitionsRoute: typeof DojoStaffPortalCompetitionsRoute
   DojoStaffPortalEvaluationsRoute: typeof DojoStaffPortalEvaluationsRoute
   DojoStaffPortalGraduationsRoute: typeof DojoStaffPortalGraduationsRoute
   DojoStaffPortalProfileRoute: typeof DojoStaffPortalProfileRoute
+  DojoStaffPortalSalesRoute: typeof DojoStaffPortalSalesRoute
   DojoStaffPortalScheduleRoute: typeof DojoStaffPortalScheduleRoute
+  DojoStaffPortalStoreRoute: typeof DojoStaffPortalStoreRoute
   DojoStaffPortalStudentsRoute: typeof DojoStaffPortalStudentsRoute
   DojoStaffPortalIndexRoute: typeof DojoStaffPortalIndexRoute
 }
 
 const DojoStaffPortalRouteChildren: DojoStaffPortalRouteChildren = {
   DojoStaffPortalAnnouncementsRoute: DojoStaffPortalAnnouncementsRoute,
+  DojoStaffPortalBeltsRoute: DojoStaffPortalBeltsRoute,
+  DojoStaffPortalCertificatesRoute: DojoStaffPortalCertificatesRoute,
   DojoStaffPortalCheckinRoute: DojoStaffPortalCheckinRoute,
   DojoStaffPortalCompetitionsRoute: DojoStaffPortalCompetitionsRoute,
   DojoStaffPortalEvaluationsRoute: DojoStaffPortalEvaluationsRoute,
   DojoStaffPortalGraduationsRoute: DojoStaffPortalGraduationsRoute,
   DojoStaffPortalProfileRoute: DojoStaffPortalProfileRoute,
+  DojoStaffPortalSalesRoute: DojoStaffPortalSalesRoute,
   DojoStaffPortalScheduleRoute: DojoStaffPortalScheduleRoute,
+  DojoStaffPortalStoreRoute: DojoStaffPortalStoreRoute,
   DojoStaffPortalStudentsRoute: DojoStaffPortalStudentsRoute,
   DojoStaffPortalIndexRoute: DojoStaffPortalIndexRoute,
 }
