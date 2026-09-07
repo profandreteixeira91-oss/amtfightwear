@@ -260,7 +260,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
         });
       }
       if (!brand) {
-        const src = data.card?.number ?? "";
+        const src = data.card?.number ?? data.card_bin ?? "";
         if (!src) {
           throw new Error(
             "Não foi possível identificar a bandeira do cartão. Recarregue a página e tente novamente.",
