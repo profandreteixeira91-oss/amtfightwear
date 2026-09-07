@@ -13,7 +13,7 @@
 type MpInstance = {
   createCardToken: (data: Record<string, unknown>) => Promise<{ id?: string; error?: { message?: string } }>;
   getPaymentMethods: (data: { bin: string }) => Promise<{
-    results?: Array<{ id?: string; issuer?: { id?: number | string } }>;
+    results?: Array<{ id?: string; payment_type_id?: string; issuer?: { id?: number | string } }>;
   }>;
 };
 
