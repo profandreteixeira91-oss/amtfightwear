@@ -4,7 +4,7 @@ import { StaffNoAccess } from "@/components/dojo/staff/StaffShell";
 import { CertificatesPage } from "./dojo.app.certificates";
 
 export const Route = createFileRoute("/dojo/staff/_portal/certificates")({
-  meta: () => [{ title: "Certificados — Portal da Equipe" }],
+  head: () => ({ meta: [{ title: "Certificados — Portal da Equipe" }] }),
   component: StaffCertificatesRoute,
 });
 

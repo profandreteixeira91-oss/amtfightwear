@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   ExternalLink, RefreshCw, TrendingUp, TrendingDown, ShoppingCart, Users,
   Eye, DollarSign, Package, AlertTriangle, Sparkles, ArrowRight, Activity,
-  ShoppingBag, Clock,
+  ShoppingBag, Clock, Calculator,
 } from "lucide-react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,

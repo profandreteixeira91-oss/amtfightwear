@@ -4,7 +4,7 @@ import { StaffNoAccess } from "@/components/dojo/staff/StaffShell";
 import { SalesPage } from "./dojo.app.sales";
 
 export const Route = createFileRoute("/dojo/staff/_portal/sales")({
-  meta: () => [{ title: "Vendas — Portal da Equipe" }],
+  head: () => ({ meta: [{ title: "Vendas — Portal da Equipe" }] }),
   component: StaffSalesRoute,
 });
 

@@ -1,4 +1,4 @@
-import { calendarISO, todayISO } from "@/lib/dates";
+import { calendarISO, todayISO, monthStartISO, addMonthsISO } from "@/lib/dates";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -223,7 +223,7 @@ export function useFinanceKpis() {
     // 12 months evolution
     const months: { key: string; label: string; receitas: number; despesas: number; saldo: number }[] = [];
     for (let i = 11; i >= 0; i--) {
-      const start = monthStartISO(addMonthsISO(today, -i));
+      const start = monthStartISO(addMonthsISO(todayISO(), -i));
       const key = start.slice(0, 7);
       const year = parseInt(key.slice(0, 4));
       const mo = parseInt(key.slice(5, 7));
