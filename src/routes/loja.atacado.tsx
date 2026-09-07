@@ -7,7 +7,8 @@ import {
   listWholesaleCatalog,
   createWholesaleOrder,
 } from "@/lib/store/store.functions";
-import { createMercadopagoPayment } from "@/lib/store/mercadopago.functions";
+import { createMercadopagoPayment, getStoreMpPublicKey } from "@/lib/store/mercadopago.functions";
+import { tokenizeStoreCard } from "@/lib/store/mp-card-token";
 import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, useCart } from "@/lib/store/cart-store";
@@ -325,6 +326,7 @@ function WholesalePage() {
   const loadProfile = useServerFn(getMyCustomerProfile);
   const saveProfile = useServerFn(saveMyCustomerProfile);
   const createPayment = useServerFn(createMercadopagoPayment);
+  const loadMpKey = useServerFn(getStoreMpPublicKey);
   const routeSearch = Route.useSearch();
   const resumeFlag = !!routeSearch.resume;
 
@@ -532,9 +534,24 @@ function WholesalePage() {
       if (!card.holderName || !card.number || !card.expiryMonth || !card.expiryYear || !card.ccv) {
         return toast.error("Preencha os dados do cartão");
       }
+      if (!form.customer_document) {
+        return toast.error("Informe o CPF/CNPJ do titular para pagar com cartão de crédito");
+      }
     }
     setLoading(true);
     try {
+      // Tokenização do cartão no navegador (SDK Mercado Pago).
+      let cardToken: Awaited<ReturnType<typeof tokenizeStoreCard>> | null = null;
+      if (paymentMethod === "CREDIT_CARD") {
+        try {
+          const { publicKey } = await loadMpKey({});
+          cardToken = await tokenizeStoreCard(publicKey, { ...card, document: form.customer_document });
+        } catch (tokErr) {
+          toast.error(tokErr instanceof Error ? tokErr.message : "Não foi possível validar o cartão");
+          setLoading(false);
+          return;
+        }
+      }
       const items = Object.entries(qty)
         .filter(([, q]) => q > 0)
         .map(([k, quantity]) => {
@@ -580,14 +597,21 @@ function WholesalePage() {
         });
       } catch { /* ignore */ }
 
-      // Create Asaas charge.
+      // Cria cobrança no Mercado Pago.
       try {
         await createPayment({
           data: {
             order_id: res.id,
             method: paymentMethod,
             installments: paymentMethod === "CREDIT_CARD" ? installments : undefined,
-            card: paymentMethod === "CREDIT_CARD" ? card : undefined,
+            ...(cardToken
+              ? {
+                  card_token: cardToken.cardToken,
+                  payment_method_id: cardToken.paymentMethodId || undefined,
+                  issuer_id: cardToken.issuerId ?? undefined,
+                  card_last4: cardToken.last4,
+                }
+              : {}),
           },
         });
       } catch (payErr) {
