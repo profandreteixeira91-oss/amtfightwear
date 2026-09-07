@@ -4,7 +4,7 @@ import { StaffNoAccess } from "@/components/dojo/staff/StaffShell";
 import { StoreHome } from "./dojo.app.store.index";
 
 export const Route = createFileRoute("/dojo/staff/_portal/store")({
-  meta: () => [{ title: "AMT Store — Portal da Equipe" }],
+  head: () => ({ meta: [{ title: "AMT Store — Portal da Equipe" }] }),
   component: StaffStoreRoute,
 });
 

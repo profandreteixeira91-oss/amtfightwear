@@ -4,7 +4,7 @@ import { StaffNoAccess } from "@/components/dojo/staff/StaffShell";
 import { BeltsPage } from "./dojo.app.belts";
 
 export const Route = createFileRoute("/dojo/staff/_portal/belts")({
-  meta: () => [{ title: "Modalidades e Faixas — Portal da Equipe" }],
+  head: () => ({ meta: [{ title: "Modalidades e Faixas — Portal da Equipe" }] }),
   component: StaffBeltsRoute,
 });
 

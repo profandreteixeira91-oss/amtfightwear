@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Search, Plus, CheckCircle2, Trash2, Eye } from "lucide-react";
 import { brl, brDate, daysBetween, isoDate, useExpenses, useFinanceSettings, type ExpenseRow } from "./shared";
+import { todayISO } from "@/lib/dates";
 import { EntryDrawer } from "./EntryDrawer";
 
 export function FinancePayables() {
