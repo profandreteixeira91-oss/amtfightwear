@@ -49,7 +49,9 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
     const rangeStart = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
-    const in60 = new Date(now.getTime() + 60 * 86_400_000);
+    // Dias de calendário (YYYY-MM-DD, fuso do Brasil) para a projeção de fluxo
+    const today = todayISO();
+    const in60 = addDaysISO(today, 60);
 
     // -----------------------------------------------------------------
     // 1) Ledger — saldo real
