@@ -132,5 +132,6 @@ export async function tokenizeStoreCard(
     paymentMethodId,
     issuerId,
     last4: number.slice(-4),
+    bin,
   };
 }
