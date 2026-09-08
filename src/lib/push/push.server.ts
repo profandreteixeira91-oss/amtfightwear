@@ -25,7 +25,8 @@ export type StudentNotificationCategory =
   | "attendance_confirmed"
   | "contract"
   | "competition"
-  | "plan_change";
+  | "plan_change"
+  | "schedule_change";
 
 async function isCategoryEnabledForStudent(
   studentId: string,

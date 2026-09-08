@@ -13,7 +13,8 @@ export type NotificationCategoryKey =
   | "attendance_confirmed"
   | "contract"
   | "competition"
-  | "plan_change";
+  | "plan_change"
+  | "schedule_change";
 
 export const DEFAULT_NOTIFICATION_CATEGORIES: Record<NotificationCategoryKey, boolean> = {
   class_reminder: true,
@@ -28,6 +29,7 @@ export const DEFAULT_NOTIFICATION_CATEGORIES: Record<NotificationCategoryKey, bo
   contract: true,
   competition: true,
   plan_change: true,
+  schedule_change: true,
 };
 
 export const NOTIFICATION_CATEGORY_META: Array<{
@@ -38,6 +40,7 @@ export const NOTIFICATION_CATEGORY_META: Array<{
 }> = [
   { key: "class_reminder", label: "Lembrete de aula", description: "Avisa o aluno antes do início da aula, com base nos horários abaixo.", group: "Aulas & Presença" },
   { key: "attendance_confirmed", label: "Check-in confirmado", description: "Confirmação enviada após presença registrada.", group: "Aulas & Presença" },
+  { key: "schedule_change", label: "Alteração na grade", description: "Avisa os alunos da turma quando horários mudam, a turma sai da grade ou uma aula é cancelada.", group: "Aulas & Presença" },
 
   { key: "invoice_due_soon", label: "Cobrança a vencer", description: "Aviso automático de faturas próximas do vencimento.", group: "Financeiro" },
   { key: "invoice_overdue", label: "Cobrança vencida", description: "Alerta quando o pagamento passa da data.", group: "Financeiro" },
