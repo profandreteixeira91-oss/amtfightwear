@@ -227,6 +227,16 @@ export const saveClass = createServerFn({ method: "POST" })
       }
     }
 
+    // Alteração de grade em turma existente → avisa os alunos matriculados.
+    if (id) {
+      const { notifyScheduleChange } = await import("@/lib/dojo/schedule-notify.server");
+      await notifyScheduleChange(context.supabase, {
+        ownerId: context.userId,
+        classId: classRow.id,
+        kind: "updated",
+      });
+    }
+
     return classRow;
   });
 
@@ -234,6 +244,14 @@ export const deleteClass = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
+    // Avisa ANTES de remover os vínculos — depois não há mais destinatários.
+    const { notifyScheduleChange } = await import("@/lib/dojo/schedule-notify.server");
+    await notifyScheduleChange(context.supabase, {
+      ownerId: context.userId,
+      classId: data.id,
+      kind: "deleted",
+    });
+
     await context.supabase.from("dojo_class_occurrences").delete().eq("class_id", data.id);
     await context.supabase.from("dojo_class_schedules").delete().eq("class_id", data.id);
     await context.supabase.from("dojo_class_students").delete().eq("class_id", data.id);
@@ -379,6 +397,20 @@ export const cancelOccurrence = createServerFn({ method: "POST" })
       { onConflict: "class_id,occurrence_date,schedule_id" },
     );
     if (error) throw new Error(error.message);
+
+    const dateBR = (() => {
+      const iso = String(data.occurrence_date).slice(0, 10);
+      const [y, m, d] = iso.split("-");
+      return d && m && y ? `${d}/${m}/${y}` : iso;
+    })();
+    const { notifyScheduleChange } = await import("@/lib/dojo/schedule-notify.server");
+    await notifyScheduleChange(context.supabase, {
+      ownerId: context.userId,
+      classId: data.class_id,
+      kind: "cancelled",
+      detail: `Aula de ${dateBR} cancelada — ${data.cancel_reason}`,
+    });
+
     return { ok: true };
   });
 

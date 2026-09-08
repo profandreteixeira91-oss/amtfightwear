@@ -149,6 +149,39 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
               next_run_at: addMonthsISO(dueDate, intervalMonths),
             } as never)
             .eq("id", e.id);
+
+          // Avisa o aluno da mensalidade recém-gerada (in-app + push).
+          try {
+            const [dy, dm, dd] = dueDate.split("-");
+            const amountFmt = new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(Number(amount ?? 0));
+            const body = `${invPayload.description} — ${amountFmt} · vence em ${dd}/${dm}/${dy}`;
+            await supabaseAdmin.from("dojo_student_notifications").insert({
+              owner_id: e.owner_id,
+              student_id: e.student_id,
+              type: "invoice_created",
+              title: "Nova mensalidade disponível",
+              message: body,
+              link: "/app/financeiro",
+            } as never);
+            const { sendPushToStudent } = await import("@/lib/push/push.server");
+            await sendPushToStudent(
+              e.student_id,
+              {
+                title: "Nova mensalidade disponível",
+                body,
+                url: "/app/financeiro",
+                tag: `invoice-${invPayload.id}`,
+                data: { invoiceId: invPayload.id },
+              },
+              "invoice_due_soon",
+            );
+          } catch (err: any) {
+            console.warn("[recurring] push da fatura falhou", invPayload.id, err?.message ?? err);
+          }
+
           created++;
         }
 
