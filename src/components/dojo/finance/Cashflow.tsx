@@ -4,44 +4,43 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { brl, isoDate, useFinanceKpis } from "./shared";
+import { brl, useFinanceKpis } from "./shared";
 import { ArrowDownRight, ArrowUpRight, Wallet } from "lucide-react";
+import {
+  todayISO,
+  monthStartISO,
+  monthEndISO,
+  addDaysISO,
+  eachDayISO,
+  isoToDate,
+  ymd,
+} from "@/lib/dates";
 
 type Range = "today" | "week" | "month" | "year" | "custom";
 
 export function FinanceCashflow() {
   const k = useFinanceKpis();
   const [range, setRange] = useState<Range>("month");
-  const [from, setFrom] = useState(isoDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)));
-  const [to, setTo] = useState(isoDate());
+  const [from, setFrom] = useState(monthStartISO());
+  const [to, setTo] = useState(todayISO());
 
   const period = useMemo(() => {
-    const now = new Date();
-    if (range === "today") return { from: isoDate(now), to: isoDate(now) };
-    if (range === "week") {
-      const d = new Date(now);
-      d.setDate(now.getDate() - 6);
-      return { from: isoDate(d), to: isoDate(now) };
-    }
-    if (range === "month") {
-      return {
-        from: isoDate(new Date(now.getFullYear(), now.getMonth(), 1)),
-        to: isoDate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
-      };
-    }
+    const today = todayISO();
+    if (range === "today") return { from: today, to: today };
+    if (range === "week") return { from: addDaysISO(today, -6), to: today };
+    if (range === "month") return { from: monthStartISO(today), to: monthEndISO(today) };
     if (range === "year") {
-      return { from: isoDate(new Date(now.getFullYear(), 0, 1)), to: isoDate(new Date(now.getFullYear(), 11, 31)) };
+      const year = isoToDate(today).getUTCFullYear();
+      return { from: ymd(year, 1, 1), to: ymd(year, 12, 31) };
     }
     return { from, to };
   }, [range, from, to]);
 
   const days = useMemo(() => {
-    const start = new Date(period.from);
-    const end = new Date(period.to);
     const arr: { day: string; label: string; entradas: number; saidas: number; saldo: number }[] = [];
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const day = isoDate(d);
-      const label = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+    for (const day of eachDayISO(period.from, period.to)) {
+      const [, mm, dd] = day.split("-");
+      const label = `${dd}/${mm}`;
       const entradas = k.invoices
         .filter((i) => i.status === "paid" && (i.paid_at?.slice(0, 10) ?? i.due_date) === day)
         .reduce((s, i) => s + Number(i.amount || 0), 0);
