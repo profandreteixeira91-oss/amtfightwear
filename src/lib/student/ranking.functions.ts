@@ -78,7 +78,8 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
     const { count: myTotal } = await supabaseAdmin
       .from("dojo_attendance")
       .select("id", { count: "exact", head: true })
-      .eq("student_id", me.id);
+      .eq("student_id", me.id)
+      .in("status", PRESENT_STATUSES as unknown as string[]);
 
     // 4) Janela temporal (calendário civil no fuso do Brasil)
     const { since: sinceIso, until: untilIso } = resolvePeriodRange(data.period);
