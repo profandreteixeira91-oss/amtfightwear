@@ -5,6 +5,29 @@ import { resolvePeriodRange } from "@/lib/dojo/periods";
 
 import { fetchActiveStudent } from "./_me";
 
+/** Status que contam como presença efetiva no ranking. */
+const PRESENT_STATUSES = ["present", "late"] as const;
+
+/**
+ * PostgREST devolve no máximo 1000 linhas por requisição. Sem paginação, o
+ * ranking de academias com mais de 1000 check-ins no período era TRUNCADO,
+ * subcontando os alunos (causa da divergência "48 no histórico × 38 no total").
+ */
+const PAGE = 1000;
+async function collectAttendance(
+  build: () => any,
+): Promise<{ student_id: string | null }[]> {
+  const out: { student_id: string | null }[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await build().range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    const rows = (data ?? []) as { student_id: string | null }[];
+    out.push(...rows);
+    if (rows.length < PAGE) break;
+  }
+  return out;
+}
+
 /**
  * Ranking do aluno (portal do aluno):
  * - Lista as turmas em que o aluno está matriculado
