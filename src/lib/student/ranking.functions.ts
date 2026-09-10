@@ -94,14 +94,17 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .is("cancelled_at", null);
     const academyIds = (academyStudents ?? []).map((s: any) => s.id as string);
 
-    let attOverallQuery = supabaseAdmin
-      .from("dojo_attendance")
-      .select("student_id")
-      .eq("owner_id", me.owner_id);
-    if (sinceIso) attOverallQuery = attOverallQuery.gte("checked_in_at", sinceIso);
-    if (untilIso) attOverallQuery = attOverallQuery.lt("checked_in_at", untilIso);
-
-    const { data: attOverall } = await attOverallQuery;
+    const attOverall = await collectAttendance(() => {
+      let q = supabaseAdmin
+        .from("dojo_attendance")
+        .select("student_id")
+        .eq("owner_id", me.owner_id)
+        .in("status", PRESENT_STATUSES as unknown as string[])
+        .order("id", { ascending: true });
+      if (sinceIso) q = q.gte("checked_in_at", sinceIso);
+      if (untilIso) q = q.lt("checked_in_at", untilIso);
+      return q;
+    });
     const overallCounts: Record<string, number> = {};
     for (const id of academyIds) overallCounts[id] = 0;
     for (const a of attOverall ?? []) {
