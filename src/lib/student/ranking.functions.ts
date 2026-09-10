@@ -5,6 +5,29 @@ import { resolvePeriodRange } from "@/lib/dojo/periods";
 
 import { fetchActiveStudent } from "./_me";
 
+/** Status que contam como presença efetiva no ranking. */
+const PRESENT_STATUSES = ["present", "late"] as const;
+
+/**
+ * PostgREST devolve no máximo 1000 linhas por requisição. Sem paginação, o
+ * ranking de academias com mais de 1000 check-ins no período era TRUNCADO,
+ * subcontando os alunos (causa da divergência "48 no histórico × 38 no total").
+ */
+const PAGE = 1000;
+async function collectAttendance(
+  build: () => any,
+): Promise<{ student_id: string | null }[]> {
+  const out: { student_id: string | null }[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await build().range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    const rows = (data ?? []) as { student_id: string | null }[];
+    out.push(...rows);
+    if (rows.length < PAGE) break;
+  }
+  return out;
+}
+
 /**
  * Ranking do aluno (portal do aluno):
  * - Lista as turmas em que o aluno está matriculado
@@ -55,7 +78,8 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
     const { count: myTotal } = await supabaseAdmin
       .from("dojo_attendance")
       .select("id", { count: "exact", head: true })
-      .eq("student_id", me.id);
+      .eq("student_id", me.id)
+      .in("status", PRESENT_STATUSES as unknown as string[]);
 
     // 4) Janela temporal (calendário civil no fuso do Brasil)
     const { since: sinceIso, until: untilIso } = resolvePeriodRange(data.period);
@@ -70,14 +94,17 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       .is("cancelled_at", null);
     const academyIds = (academyStudents ?? []).map((s: any) => s.id as string);
 
-    let attOverallQuery = supabaseAdmin
-      .from("dojo_attendance")
-      .select("student_id")
-      .eq("owner_id", me.owner_id);
-    if (sinceIso) attOverallQuery = attOverallQuery.gte("checked_in_at", sinceIso);
-    if (untilIso) attOverallQuery = attOverallQuery.lt("checked_in_at", untilIso);
-
-    const { data: attOverall } = await attOverallQuery;
+    const attOverall = await collectAttendance(() => {
+      let q = supabaseAdmin
+        .from("dojo_attendance")
+        .select("student_id")
+        .eq("owner_id", me.owner_id)
+        .in("status", PRESENT_STATUSES as unknown as string[])
+        .order("id", { ascending: true });
+      if (sinceIso) q = q.gte("checked_in_at", sinceIso);
+      if (untilIso) q = q.lt("checked_in_at", untilIso);
+      return q;
+    });
     const overallCounts: Record<string, number> = {};
     for (const id of academyIds) overallCounts[id] = 0;
     for (const a of attOverall ?? []) {
@@ -148,16 +175,18 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
     if (stErr) throw new Error(stErr.message);
 
     // 7) Check-ins (mesma lógica do admin: reflete o total exibido na ficha do aluno)
-    let attQuery = supabaseAdmin
-      .from("dojo_attendance")
-      .select("student_id")
-      .in("student_id", studentIds);
-    attQuery = attQuery.in("status", ["present", "late"] as string[]);
-    if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
-    if (untilIso) attQuery = attQuery.lt("checked_in_at", untilIso);
+    const attendance = await collectAttendance(() => {
+      let q = supabaseAdmin
+        .from("dojo_attendance")
+        .select("student_id")
+        .in("student_id", studentIds)
+        .in("status", PRESENT_STATUSES as unknown as string[])
+        .order("id", { ascending: true });
+      if (sinceIso) q = q.gte("checked_in_at", sinceIso);
+      if (untilIso) q = q.lt("checked_in_at", untilIso);
+      return q;
+    });
 
-    const { data: attendance, error: attErr } = await attQuery;
-    if (attErr) throw new Error(attErr.message);
 
     const counts: Record<string, number> = {};
     for (const id of studentIds) counts[id] = 0;
