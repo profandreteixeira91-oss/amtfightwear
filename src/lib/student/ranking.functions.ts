@@ -175,16 +175,18 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
     if (stErr) throw new Error(stErr.message);
 
     // 7) Check-ins (mesma lógica do admin: reflete o total exibido na ficha do aluno)
-    let attQuery = supabaseAdmin
-      .from("dojo_attendance")
-      .select("student_id")
-      .in("student_id", studentIds);
-    attQuery = attQuery.in("status", ["present", "late"] as string[]);
-    if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
-    if (untilIso) attQuery = attQuery.lt("checked_in_at", untilIso);
+    const attendance = await collectAttendance(() => {
+      let q = supabaseAdmin
+        .from("dojo_attendance")
+        .select("student_id")
+        .in("student_id", studentIds)
+        .in("status", PRESENT_STATUSES as unknown as string[])
+        .order("id", { ascending: true });
+      if (sinceIso) q = q.gte("checked_in_at", sinceIso);
+      if (untilIso) q = q.lt("checked_in_at", untilIso);
+      return q;
+    });
 
-    const { data: attendance, error: attErr } = await attQuery;
-    if (attErr) throw new Error(attErr.message);
 
     const counts: Record<string, number> = {};
     for (const id of studentIds) counts[id] = 0;
