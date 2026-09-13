@@ -125,6 +125,7 @@ import { Route as AppStudentAnnouncementsRouteImport } from './routes/app._stude
 import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
 import { Route as ApiPublicDojoManifestDotwebmanifestRouteImport } from './routes/api/public/dojo-manifest[.]webmanifest'
 import { Route as ApiDojoApkUploadRouteImport } from './routes/api/dojo/apk-upload'
+import { Route as ApiDesktopQuotesRouteImport } from './routes/api/desktop/quotes'
 import { Route as ApiDesktopProductsRouteImport } from './routes/api/desktop/products'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
 import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
@@ -286,6 +287,7 @@ import { Route as ApiPublicHooksApplyScheduledGraduationsRouteImport } from './r
 import { Route as ApiPublicHooksAdminPushRouteImport } from './routes/api/public/hooks/admin-push'
 import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
 import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
+import { Route as ApiDesktopQuotesIdRouteImport } from './routes/api/desktop/quotes.$id'
 import { Route as ApiDesktopProductsIdRouteImport } from './routes/api/desktop/products.$id'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as AuthenticatedAdminSaasSuporteRouteImport } from './routes/_authenticated/admin.saas.suporte'
@@ -925,6 +927,11 @@ const ApiPublicDojoManifestDotwebmanifestRoute =
 const ApiDojoApkUploadRoute = ApiDojoApkUploadRouteImport.update({
   id: '/api/dojo/apk-upload',
   path: '/api/dojo/apk-upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDesktopQuotesRoute = ApiDesktopQuotesRouteImport.update({
+  id: '/api/desktop/quotes',
+  path: '/api/desktop/quotes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDesktopProductsRoute = ApiDesktopProductsRouteImport.update({
@@ -1834,6 +1841,11 @@ const ApiPublicAppManifestDotwebmanifestRoute =
     path: '/api/public/app/manifest.webmanifest',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDesktopQuotesIdRoute = ApiDesktopQuotesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiDesktopQuotesRoute,
+} as any)
 const ApiDesktopProductsIdRoute = ApiDesktopProductsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -2298,6 +2310,7 @@ export interface FileRoutesByFullPath {
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/desktop/products': typeof ApiDesktopProductsRouteWithChildren
+  '/api/desktop/quotes': typeof ApiDesktopQuotesRouteWithChildren
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
   '/app/agenda': typeof AppStudentAgendaRoute
@@ -2414,6 +2427,7 @@ export interface FileRoutesByFullPath {
   '/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
+  '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
@@ -2623,6 +2637,7 @@ export interface FileRoutesByTo {
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/desktop/products': typeof ApiDesktopProductsRouteWithChildren
+  '/api/desktop/quotes': typeof ApiDesktopQuotesRouteWithChildren
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
   '/app/agenda': typeof AppStudentAgendaRoute
@@ -2730,6 +2745,7 @@ export interface FileRoutesByTo {
   '/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
+  '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
@@ -2950,6 +2966,7 @@ export interface FileRoutesById {
   '/_authenticated/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/desktop/products': typeof ApiDesktopProductsRouteWithChildren
+  '/api/desktop/quotes': typeof ApiDesktopQuotesRouteWithChildren
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
   '/app/_student/agenda': typeof AppStudentAgendaRoute
@@ -3066,6 +3083,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
+  '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
@@ -3287,6 +3305,7 @@ export interface FileRouteTypes {
     | '/store/sizes'
     | '/store/wholesale'
     | '/api/desktop/products'
+    | '/api/desktop/quotes'
     | '/api/dojo/apk-upload'
     | '/api/public/dojo-manifest.webmanifest'
     | '/app/agenda'
@@ -3403,6 +3422,7 @@ export interface FileRouteTypes {
     | '/admin/saas/suporte'
     | '/ads/campaigns/$id'
     | '/api/desktop/products/$id'
+    | '/api/desktop/quotes/$id'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
@@ -3612,6 +3632,7 @@ export interface FileRouteTypes {
     | '/store/sizes'
     | '/store/wholesale'
     | '/api/desktop/products'
+    | '/api/desktop/quotes'
     | '/api/dojo/apk-upload'
     | '/api/public/dojo-manifest.webmanifest'
     | '/app/agenda'
@@ -3719,6 +3740,7 @@ export interface FileRouteTypes {
     | '/admin/saas/suporte'
     | '/ads/campaigns/$id'
     | '/api/desktop/products/$id'
+    | '/api/desktop/quotes/$id'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
@@ -3938,6 +3960,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/sizes'
     | '/_authenticated/store/wholesale'
     | '/api/desktop/products'
+    | '/api/desktop/quotes'
     | '/api/dojo/apk-upload'
     | '/api/public/dojo-manifest.webmanifest'
     | '/app/_student/agenda'
@@ -4054,6 +4077,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/saas/suporte'
     | '/_authenticated/ads/campaigns/$id'
     | '/api/desktop/products/$id'
+    | '/api/desktop/quotes/$id'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
@@ -4181,6 +4205,7 @@ export interface RootRouteChildren {
   PayInvoiceIdRoute: typeof PayInvoiceIdRoute
   LojaIndexRoute: typeof LojaIndexRoute
   ApiDesktopProductsRoute: typeof ApiDesktopProductsRouteWithChildren
+  ApiDesktopQuotesRoute: typeof ApiDesktopQuotesRouteWithChildren
   ApiDojoApkUploadRoute: typeof ApiDojoApkUploadRoute
   ApiPublicDojoManifestDotwebmanifestRoute: typeof ApiPublicDojoManifestDotwebmanifestRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
@@ -5035,6 +5060,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dojo/apk-upload'
       fullPath: '/api/dojo/apk-upload'
       preLoaderRoute: typeof ApiDojoApkUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/desktop/quotes': {
+      id: '/api/desktop/quotes'
+      path: '/api/desktop/quotes'
+      fullPath: '/api/desktop/quotes'
+      preLoaderRoute: typeof ApiDesktopQuotesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/desktop/products': {
@@ -6163,6 +6195,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/app/manifest.webmanifest'
       preLoaderRoute: typeof ApiPublicAppManifestDotwebmanifestRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/desktop/quotes/$id': {
+      id: '/api/desktop/quotes/$id'
+      path: '/$id'
+      fullPath: '/api/desktop/quotes/$id'
+      preLoaderRoute: typeof ApiDesktopQuotesIdRouteImport
+      parentRoute: typeof ApiDesktopQuotesRoute
     }
     '/api/desktop/products/$id': {
       id: '/api/desktop/products/$id'
@@ -7525,6 +7564,17 @@ const ApiDesktopProductsRouteChildren: ApiDesktopProductsRouteChildren = {
 const ApiDesktopProductsRouteWithChildren =
   ApiDesktopProductsRoute._addFileChildren(ApiDesktopProductsRouteChildren)
 
+interface ApiDesktopQuotesRouteChildren {
+  ApiDesktopQuotesIdRoute: typeof ApiDesktopQuotesIdRoute
+}
+
+const ApiDesktopQuotesRouteChildren: ApiDesktopQuotesRouteChildren = {
+  ApiDesktopQuotesIdRoute: ApiDesktopQuotesIdRoute,
+}
+
+const ApiDesktopQuotesRouteWithChildren =
+  ApiDesktopQuotesRoute._addFileChildren(ApiDesktopQuotesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -7549,6 +7599,7 @@ const rootRouteChildren: RootRouteChildren = {
   PayInvoiceIdRoute: PayInvoiceIdRoute,
   LojaIndexRoute: LojaIndexRoute,
   ApiDesktopProductsRoute: ApiDesktopProductsRouteWithChildren,
+  ApiDesktopQuotesRoute: ApiDesktopQuotesRouteWithChildren,
   ApiDojoApkUploadRoute: ApiDojoApkUploadRoute,
   ApiPublicDojoManifestDotwebmanifestRoute:
     ApiPublicDojoManifestDotwebmanifestRoute,
