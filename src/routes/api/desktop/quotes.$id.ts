@@ -89,7 +89,7 @@ export const Route = createFileRoute("/api/desktop/quotes/$id")({
 
         const { data, error } = await auth.supabase
           .from("store_quotes")
-          .update(patch)
+          .update(patch as never)
           .eq("id", params.id)
           .eq("owner_id", auth.userId)
           .select(QUOTE_SELECT)
