@@ -15,9 +15,12 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import { Search, Info, CalendarIcon, CheckCircle2 } from "lucide-react";
+import { Search, Info, CalendarIcon, CheckCircle2, CalendarClock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { listDojoPlans } from "@/lib/dojo/dojo.functions";
 import { useInvoices, type InvoiceRow } from "./shared";
 import { TuitionByStudent, type TuitionInvoice } from "./TuitionList";
+import { PrepayDialog } from "./PrepayDialog";
 
 const brl = (n: number | null | undefined) =>
   Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
