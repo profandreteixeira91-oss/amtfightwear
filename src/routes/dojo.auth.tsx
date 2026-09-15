@@ -23,6 +23,7 @@ import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/compo
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { isEmailTeamMember, checkTeamMemberGate } from "@/lib/dojo/team.functions";
 import { getStaffSession } from "@/lib/dojo/staff-portal.functions";
+import { registerDojoOwner } from "@/lib/dojo/owner-register.functions";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
