@@ -7,6 +7,8 @@ import { studentSupabase as supabase } from "@/lib/student-auth/student-client";
 import { BottomNav } from "@/components/student/BottomNav";
 import { StudentThemeProvider } from "@/components/student/StudentThemeProvider";
 import { getMyBranding, getMyStudent } from "@/lib/student/student.functions";
+import { getMyAccessBlock } from "@/lib/student/access.functions";
+import { toast } from "sonner";
 import { getStudentAppConfig } from "@/lib/student-app/config.functions";
 import { DEFAULT_CONFIG, type FeatureKey } from "@/lib/student-app/schema";
 import { Bell, LogOut } from "lucide-react";
