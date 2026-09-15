@@ -353,17 +353,14 @@ function DojoAuthPage() {
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.user) {
-      // Registra o novo dono na tabela de contexto administrativo
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin
-        .from("dojo_users")
-        .insert({
-          auth_user_id: data.user.id,
-          owner_id: data.user.id,
-          role: "owner",
-          email: data.user.email,
-          name: name
-        });
+      // Registra o novo dono na tabela de contexto administrativo (no servidor)
+      try {
+        await registerDojoOwner({ data: { name } });
+      } catch {
+        // Sem sessão ativa (confirmação de e-mail pendente) o registro
+        // acontece no primeiro login válido.
+      }
+
 
       toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
       window.location.assign("/dojo/app");
