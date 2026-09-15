@@ -57,15 +57,30 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     const { data: authPage, error: authError } = authResult;
     if (authError) throw new Error(`Não foi possível listar as contas: ${authError.message}`);
 
-    const { data: dojoUsers } = await supabaseAdmin
-      .from("dojo_users")
-      .select("auth_user_id, role")
-      .eq("status", "active");
-    const activeAdminIds = new Set((dojoUsers ?? []).map((u: any) => u.auth_user_id));
+    // Uma conta de dono de dojo é identificada por QUALQUER sinal real do módulo:
+    // registro administrativo (dojo_users role=owner), academia, assinatura, alunos
+    // ou unidades. Depender apenas de dojo_users congelava a listagem, porque esse
+    // registro nem sempre é criado no cadastro (falha silenciosa no signup).
+    const [dojoUsersRes, ownerStudentsRes, ownerUnitsRes] = await Promise.all([
+      supabaseAdmin.from("dojo_users").select("auth_user_id, role, status").limit(5000),
+      supabaseAdmin.from("dojo_students").select("owner_id").limit(50000),
+      supabaseAdmin.from("dojo_units").select("owner_id").limit(5000),
+    ]);
+
+    const dojoOwnerIds = new Set<string>();
+    for (const u of dojoUsersRes.data ?? []) {
+      if ((u as any).status === "active" && (u as any).role === "owner") {
+        dojoOwnerIds.add((u as any).auth_user_id);
+      }
+    }
+    for (const a of academiesRes.data ?? []) dojoOwnerIds.add((a as any).owner_id);
+    for (const s of subsRes.data ?? []) dojoOwnerIds.add((s as any).owner_id);
+    for (const r of ownerStudentsRes.data ?? []) dojoOwnerIds.add((r as any).owner_id);
+    for (const r of ownerUnitsRes.data ?? []) dojoOwnerIds.add((r as any).owner_id);
 
     const authUsers = authPage.users.filter(
       (user) =>
-        activeAdminIds.has(user.id) &&
+        dojoOwnerIds.has(user.id) &&
         user.email !== "igor.reboredo@gmail.com" &&
         user.email !== "profandreteixeira91@gmail.com"
     );
