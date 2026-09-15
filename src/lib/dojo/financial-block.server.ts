@@ -63,7 +63,7 @@ export async function evaluateFinancialBlock(
   for (const e of (enrollments ?? []) as any[]) {
     if (e?.cancelled_at) continue;
     if (e?.status && !["active", "overdue", "trial", "pending"].includes(String(e.status))) continue;
-    const rules = ((e?.plan?.rules ?? {}) as PlanRules) ?? {};
+    const rules = (e?.plan?.rules ?? {}) as PlanRules;
 
     if (rules.suspend_checkin) {
       const threshold = normDays(rules.suspend_checkin_days) ?? 0;
