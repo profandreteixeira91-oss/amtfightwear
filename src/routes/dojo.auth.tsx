@@ -23,6 +23,7 @@ import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/compo
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { isEmailTeamMember, checkTeamMemberGate } from "@/lib/dojo/team.functions";
 import { getStaffSession } from "@/lib/dojo/staff-portal.functions";
+import { registerDojoOwner } from "@/lib/dojo/owner-register.functions";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -131,18 +132,18 @@ function DojoAuthPage() {
         // esses logins nunca devem virar novos usuários/donos do Dojo Manager.
         const isStaff = await isStaffAccount();
         if (!isStaff) {
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const { data: userData } = await supabase.auth.getUser();
-          if (userData.user) {
-            await supabaseAdmin
-              .from("dojo_users")
-              .upsert({
-                auth_user_id: userData.user.id,
-                owner_id: userData.user.id,
-                role: "owner",
-                email: userData.user.email,
-                name: userData.user.user_metadata?.full_name || name
-              }, { onConflict: "auth_user_id, owner_id" });
+          try {
+            await registerDojoOwner({
+              data: {
+                name:
+                  (userData.user?.user_metadata?.full_name as string | undefined) ||
+                  name ||
+                  undefined,
+              },
+            });
+          } catch {
+            // Falha no registro não deve travar o login do dono.
           }
         }
 
@@ -282,17 +283,14 @@ function DojoAuthPage() {
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.user) {
-      // Registra o novo dono na tabela de contexto administrativo
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin
-        .from("dojo_users")
-        .insert({
-          auth_user_id: data.user.id,
-          owner_id: data.user.id,
-          role: "owner",
-          email: data.user.email,
-          name: name
-        });
+      // Registra o novo dono na tabela de contexto administrativo (no servidor)
+      try {
+        await registerDojoOwner({ data: { name } });
+      } catch {
+        // Sem sessão ativa (confirmação de e-mail pendente) o registro
+        // acontece no primeiro login válido.
+      }
+
 
       toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
       window.location.assign("/dojo/app");
@@ -355,17 +353,14 @@ function DojoAuthPage() {
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.user) {
-      // Registra o novo dono na tabela de contexto administrativo
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin
-        .from("dojo_users")
-        .insert({
-          auth_user_id: data.user.id,
-          owner_id: data.user.id,
-          role: "owner",
-          email: data.user.email,
-          name: name
-        });
+      // Registra o novo dono na tabela de contexto administrativo (no servidor)
+      try {
+        await registerDojoOwner({ data: { name } });
+      } catch {
+        // Sem sessão ativa (confirmação de e-mail pendente) o registro
+        // acontece no primeiro login válido.
+      }
+
 
       toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
       window.location.assign("/dojo/app");

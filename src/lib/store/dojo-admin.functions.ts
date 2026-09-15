@@ -61,11 +61,15 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     // registro administrativo (dojo_users role=owner), academia, assinatura, alunos
     // ou unidades. Depender apenas de dojo_users congelava a listagem, porque esse
     // registro nem sempre é criado no cadastro (falha silenciosa no signup).
-    const [dojoUsersRes, ownerStudentsRes, ownerUnitsRes] = await Promise.all([
-      supabaseAdmin.from("dojo_users").select("auth_user_id, role, status").limit(5000),
-      supabaseAdmin.from("dojo_students").select("owner_id").limit(50000),
-      supabaseAdmin.from("dojo_units").select("owner_id").limit(5000),
-    ]);
+    const [dojoUsersRes, ownerStudentsRes, ownerUnitsRes, studentAccRes, staffAccRes, teamRes] =
+      await Promise.all([
+        supabaseAdmin.from("dojo_users").select("auth_user_id, role, status").limit(5000),
+        supabaseAdmin.from("dojo_students").select("owner_id").limit(50000),
+        supabaseAdmin.from("dojo_units").select("owner_id").limit(5000),
+        supabaseAdmin.from("student_accounts").select("auth_user_id, email").limit(50000),
+        supabaseAdmin.from("dojo_staff_accounts").select("auth_user_id, email").limit(5000),
+        supabaseAdmin.from("dojo_team_members").select("user_id, email").limit(20000),
+      ]);
 
     const dojoOwnerIds = new Set<string>();
     for (const u of dojoUsersRes.data ?? []) {
@@ -78,12 +82,31 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     for (const r of ownerStudentsRes.data ?? []) dojoOwnerIds.add((r as any).owner_id);
     for (const r of ownerUnitsRes.data ?? []) dojoOwnerIds.add((r as any).owner_id);
 
-    const authUsers = authPage.users.filter(
-      (user) =>
-        dojoOwnerIds.has(user.id) &&
-        user.email !== "igor.reboredo@gmail.com" &&
-        user.email !== "profandreteixeira91@gmail.com"
-    );
+    // Contas criadas DENTRO do sistema de um dono (alunos e equipe/professores)
+    // nunca são donos de dojo, mesmo que apareçam nos sinais acima.
+    const excludedIds = new Set<string>();
+    const excludedEmails = new Set<string>(["igor.reboredo@gmail.com", "profandreteixeira91@gmail.com"]);
+    const addExcluded = (rows: any[] | null, idKey: string) => {
+      for (const r of rows ?? []) {
+        if (r?.[idKey]) excludedIds.add(r[idKey]);
+        if (r?.email) excludedEmails.add(String(r.email).toLowerCase());
+      }
+    };
+    addExcluded(studentAccRes.data as any[], "auth_user_id");
+    addExcluded(staffAccRes.data as any[], "auth_user_id");
+    addExcluded(teamRes.data as any[], "user_id");
+    for (const u of dojoUsersRes.data ?? []) {
+      if ((u as any).role !== "owner" && (u as any).auth_user_id) {
+        excludedIds.add((u as any).auth_user_id);
+      }
+    }
+
+    const authUsers = authPage.users.filter((user) => {
+      if (!dojoOwnerIds.has(user.id)) return false;
+      if (excludedIds.has(user.id)) return false;
+      const email = user.email?.toLowerCase();
+      return !(email && excludedEmails.has(email));
+    });
     const ownerIds = authUsers.map((user) => user.id);
     if (ownerIds.length === 0) return [] as DojoAccountRow[];
 
