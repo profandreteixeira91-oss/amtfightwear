@@ -757,16 +757,30 @@ function PlansPage() {
                       checked={form.rules.allow_default}
                       onChange={(v) => patchRule("allow_default", v)}
                     />
-                    <RuleCheck
-                      label="Suspender check-in automaticamente"
-                      checked={form.rules.suspend_checkin}
-                      onChange={(v) => patchRule("suspend_checkin", v)}
-                    />
-                    <RuleCheck
-                      label="Suspender acesso ao App do aluno"
-                      checked={form.rules.suspend_app}
-                      onChange={(v) => patchRule("suspend_app", v)}
-                    />
+                    <div className="flex items-center gap-3 rounded-md border p-3">
+                      <RuleCheck
+                        label="Suspender check-ins após"
+                        checked={form.rules.suspend_checkin}
+                        onChange={(v) => patchRule("suspend_checkin", v)}
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        max="365"
+                        className="h-8 w-16 shrink-0"
+                        placeholder="0"
+                        value={form.rules.suspend_checkin_days ?? ""}
+                        onChange={(e) =>
+                          patchRule(
+                            "suspend_checkin_days",
+                            e.target.value === "" ? null : Number(e.target.value),
+                          )
+                        }
+                      />
+                      <span className="shrink-0 text-[11px] text-muted-foreground">
+                        dias de inadimplência
+                      </span>
+                    </div>
                     <RuleCheck
                       label="Necessita matrícula"
                       checked={form.rules.requires_enrollment_fee}
