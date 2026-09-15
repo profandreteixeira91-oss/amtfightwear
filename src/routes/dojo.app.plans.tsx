@@ -757,12 +757,13 @@ function PlansPage() {
                       checked={form.rules.allow_default}
                       onChange={(v) => patchRule("allow_default", v)}
                     />
-                    <div className="flex items-center gap-3 rounded-md border p-3">
-                      <RuleCheck
-                        label="Suspender check-ins após"
-                        checked={form.rules.suspend_checkin}
-                        onChange={(v) => patchRule("suspend_checkin", v)}
+                    <div className="flex items-center gap-2 rounded-md border p-3 sm:gap-3">
+                      <Checkbox
+                        checked={!!form.rules.suspend_checkin}
+                        onCheckedChange={(v) => patchRule("suspend_checkin", v === true)}
+                        className="h-4 w-4 shrink-0"
                       />
+                      <Label className="shrink-0 text-xs sm:text-sm">Suspender check-ins após</Label>
                       <Input
                         type="number"
                         min="0"
