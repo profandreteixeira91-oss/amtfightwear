@@ -132,18 +132,18 @@ function DojoAuthPage() {
         // esses logins nunca devem virar novos usuários/donos do Dojo Manager.
         const isStaff = await isStaffAccount();
         if (!isStaff) {
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const { data: userData } = await supabase.auth.getUser();
-          if (userData.user) {
-            await supabaseAdmin
-              .from("dojo_users")
-              .upsert({
-                auth_user_id: userData.user.id,
-                owner_id: userData.user.id,
-                role: "owner",
-                email: userData.user.email,
-                name: userData.user.user_metadata?.full_name || name
-              }, { onConflict: "auth_user_id, owner_id" });
+          try {
+            await registerDojoOwner({
+              data: {
+                name:
+                  (userData.user?.user_metadata?.full_name as string | undefined) ||
+                  name ||
+                  undefined,
+              },
+            });
+          } catch {
+            // Falha no registro não deve travar o login do dono.
           }
         }
 
