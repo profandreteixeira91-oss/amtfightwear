@@ -28,10 +28,23 @@ export const checkStudentAccess = createServerFn({ method: "POST" })
     const eligible = list.filter((r) =>
       !r.status || ["active", "trial", "invited"].includes(r.status as string),
     );
+
+    // Regra do plano: "Bloquear acesso após X dias corridos do vencimento".
+    // O acesso só é liberado se ao menos uma ficha elegível não estiver bloqueada.
+    let financeBlocked = false;
+    if (eligible.length > 0) {
+      const { evaluateFinancialBlock } = await import("@/lib/dojo/financial-block.server");
+      const results = await Promise.all(
+        eligible.map((r) => evaluateFinancialBlock(supabaseAdmin, r.id)),
+      );
+      financeBlocked = results.every((r) => r.loginBlocked);
+    }
+
     return {
       exists: true as const,
       activated: list.some((r) => !!r.user_id),
       blocked: eligible.length === 0,
+      financeBlocked,
     };
   });
 

@@ -7,6 +7,8 @@ import { studentSupabase as supabase } from "@/lib/student-auth/student-client";
 import { BottomNav } from "@/components/student/BottomNav";
 import { StudentThemeProvider } from "@/components/student/StudentThemeProvider";
 import { getMyBranding, getMyStudent } from "@/lib/student/student.functions";
+import { getMyAccessBlock } from "@/lib/student/access.functions";
+import { toast } from "sonner";
 import { getStudentAppConfig } from "@/lib/student-app/config.functions";
 import { DEFAULT_CONFIG, type FeatureKey } from "@/lib/student-app/schema";
 import { Bell, LogOut } from "lucide-react";
@@ -56,6 +58,25 @@ function StudentShell() {
       navigate({ to: "/app/login", replace: true });
     })();
   }, [studentLoaded, student, navigate]);
+
+  // Regra do plano "Bloquear acesso após X dias do vencimento": mesmo com sessão
+  // ativa, o aluno inadimplente é desconectado e volta para o login.
+  const accessBlockFn = useServerFn(getMyAccessBlock);
+  const { data: accessBlock } = useQuery({
+    queryKey: ["student", "access-block"],
+    queryFn: () => accessBlockFn(),
+    staleTime: 60_000,
+  });
+  useEffect(() => {
+    if (!accessBlock?.blocked) return;
+    (async () => {
+      toast.error("Acesso bloqueado", { description: accessBlock.message ?? undefined });
+      try {
+        await supabase.auth.signOut();
+      } catch { /* noop */ }
+      navigate({ to: "/app/login", replace: true });
+    })();
+  }, [accessBlock, navigate]);
 
   // Realtime: quando o aluno é adicionado/removido de uma turma, refresca agenda, home e ranking imediatamente.
   useEffect(() => {

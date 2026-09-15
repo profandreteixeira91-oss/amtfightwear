@@ -49,6 +49,13 @@ function LoginPage() {
         toast.error("Acesso indisponível", { description: "Sua matrícula está inativa. Fale com sua academia." });
         return;
       }
+      if ((res as { financeBlocked?: boolean }).financeBlocked) {
+        toast.error("Acesso bloqueado", {
+          description:
+            "Seu acesso está bloqueado por pendências financeiras. Regularize com a sua academia para voltar a usar o app.",
+        });
+        return;
+      }
       setPassword("");
       setPasswordConfirm("");
       setStep(res.activated ? "password" : "activate");

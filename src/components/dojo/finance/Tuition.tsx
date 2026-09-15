@@ -15,9 +15,12 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import { Search, Info, CalendarIcon, CheckCircle2 } from "lucide-react";
+import { Search, Info, CalendarIcon, CheckCircle2, CalendarClock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { listDojoPlans } from "@/lib/dojo/dojo.functions";
 import { useInvoices, type InvoiceRow } from "./shared";
 import { TuitionByStudent, type TuitionInvoice } from "./TuitionList";
+import { PrepayDialog } from "./PrepayDialog";
 
 const brl = (n: number | null | undefined) =>
   Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -29,7 +32,14 @@ export function FinanceTuition() {
   const [payMethod, setPayMethod] = useState<string>("cash");
   const [paying, setPaying] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
+  const [prepayOpen, setPrepayOpen] = useState(false);
   const invs = useInvoices("all");
+  const plansFn = useServerFn(listDojoPlans);
+  const plans = useQuery({ queryKey: ["dojo-plans", "prepay-flag"], queryFn: () => plansFn() });
+  // Botão de antecipação só existe se algum plano permitir pagamento antecipado.
+  const anyPrepay = (plans.data ?? []).some(
+    (p: any) => (p?.rules as { allow_prepay?: boolean } | null)?.allow_prepay === true,
+  );
   const payFn = useServerFn(markDojoInvoicePaid);
   const delFn = useServerFn(deleteDojoInvoice);
   const qc = useQueryClient();
@@ -88,10 +98,20 @@ export function FinanceTuition() {
 
 
 
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-        <Input placeholder="Buscar aluno…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8 h-9" />
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input placeholder="Buscar aluno…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8 h-9" />
+        </div>
+        {anyPrepay && (
+          <Button size="sm" className="h-9 shrink-0" onClick={() => setPrepayOpen(true)}>
+            <CalendarClock className="mr-1.5 h-4 w-4" />
+            Antecipar Mensalidade
+          </Button>
+        )}
       </div>
+
+      <PrepayDialog open={prepayOpen} onOpenChange={setPrepayOpen} onDone={refresh} />
 
       {invs.isLoading ? (
         <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>

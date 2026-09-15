@@ -73,6 +73,9 @@ export type PlanRules = {
   allow_default?: boolean;
   block_after_days?: number | null;
   suspend_checkin?: boolean;
+  /** Dias de inadimplência necessários para suspender os check-ins (0 = imediatamente após vencer). */
+  suspend_checkin_days?: number | null;
+  /** @deprecated Regra removida do produto. Mantido apenas para compatibilidade de leitura. */
   suspend_app?: boolean;
   requires_enrollment_fee?: boolean;
   /** Dias de antecedência para geração automática da cobrança (1..60). */
@@ -271,7 +274,7 @@ export function defaultPlanRules(): PlanRules {
     allow_default: true,
     block_after_days: null,
     suspend_checkin: false,
-    suspend_app: false,
+    suspend_checkin_days: null,
     requires_enrollment_fee: false,
     billing_advance_days: DEFAULT_BILLING_ADVANCE_DAYS,
 

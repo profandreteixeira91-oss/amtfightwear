@@ -298,6 +298,12 @@ export const checkinByCode = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!student) throw new Error("Aluno não encontrado para este código");
 
+    // Regra do plano: suspensão de check-ins por inadimplência
+    {
+      const { assertCheckinAllowed } = await import("@/lib/dojo/financial-block.server");
+      await assertCheckinAllowed(context.supabase, student.id);
+    }
+
     const validation = await validateAndResolveCheckin(
       context.supabase,
       student.id,
