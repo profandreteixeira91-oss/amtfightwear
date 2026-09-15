@@ -98,10 +98,20 @@ export function FinanceTuition() {
 
 
 
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-        <Input placeholder="Buscar aluno…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8 h-9" />
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input placeholder="Buscar aluno…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8 h-9" />
+        </div>
+        {anyPrepay && (
+          <Button size="sm" className="h-9 shrink-0" onClick={() => setPrepayOpen(true)}>
+            <CalendarClock className="mr-1.5 h-4 w-4" />
+            Antecipar Mensalidade
+          </Button>
+        )}
       </div>
+
+      <PrepayDialog open={prepayOpen} onOpenChange={setPrepayOpen} onDone={refresh} />
 
       {invs.isLoading ? (
         <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
