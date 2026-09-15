@@ -72,6 +72,12 @@ export const checkinByUnitQr = createServerFn({ method: "POST" })
     }
     const minInterval = (settings as any)?.min_interval_minutes ?? 30;
 
+    // 4.1) Regra do plano: suspensão de check-ins por inadimplência
+    {
+      const { assertCheckinAllowed } = await import("@/lib/dojo/financial-block.server");
+      await assertCheckinAllowed(supabaseAdmin, me.id);
+    }
+
     // 5) Resolve a turma (janela, matrícula, duplicidade).
     // Se o aluno está no horário de mais de uma turma, devolvemos a lista para
     // que o app exiba o seletor — o check-in é validado após a escolha.
