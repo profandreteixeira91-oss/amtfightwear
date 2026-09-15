@@ -32,7 +32,14 @@ export function FinanceTuition() {
   const [payMethod, setPayMethod] = useState<string>("cash");
   const [paying, setPaying] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
+  const [prepayOpen, setPrepayOpen] = useState(false);
   const invs = useInvoices("all");
+  const plansFn = useServerFn(listDojoPlans);
+  const plans = useQuery({ queryKey: ["dojo-plans", "prepay-flag"], queryFn: () => plansFn() });
+  // Botão de antecipação só existe se algum plano permitir pagamento antecipado.
+  const anyPrepay = (plans.data ?? []).some(
+    (p: any) => (p?.rules as { allow_prepay?: boolean } | null)?.allow_prepay === true,
+  );
   const payFn = useServerFn(markDojoInvoicePaid);
   const delFn = useServerFn(deleteDojoInvoice);
   const qc = useQueryClient();
