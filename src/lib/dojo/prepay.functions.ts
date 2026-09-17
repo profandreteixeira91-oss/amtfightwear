@@ -148,7 +148,9 @@ export const createPrepaidInvoice = createServerFn({ method: "POST" })
         paid_at: data.paidAt ?? new Date().toISOString(),
         method: data.method,
         owner_id: context.userId,
-        source: "prepay",
+        // `source` aceita apenas student/affiliate/sale/other (dojo_invoices_source_check);
+        // mensalidade antecipada continua sendo cobrança de aluno.
+        source: "student",
       })
       .select("id")
       .single();
