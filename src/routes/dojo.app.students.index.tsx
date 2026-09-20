@@ -566,7 +566,7 @@ function StudentsPage() {
 
 
   const onDelete = async (id: string) => {
-    if (!confirm("Excluir aluno? Esta ação apaga histórico de graduações e mensalidades.")) return;
+    if (!confirm("Cancelar a matrícula e excluir o aluno? Todos os registros (presenças, mensalidades, contratos, graduações, fotos) e o acesso ao app do aluno serão apagados. Esta ação não pode ser desfeita.")) return;
     await delFn({ data: { id } });
     qc.invalidateQueries({ queryKey: ["dojo-students"] });
   };
