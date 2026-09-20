@@ -499,38 +499,36 @@ export const deleteDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
-    // Cancelamento reversível (soft-delete): mantém dados por 30 dias.
-    const { data: prev } = await context.supabase
+    // Matrícula cancelada => exclusão definitiva: nenhum registro do aluno
+    // permanece e o acesso ao app do aluno é removido.
+    // A leitura abaixo passa pela RLS do dono, garantindo que só o dono
+    // (ou equipe autorizada) pode excluir a ficha.
+    const { data: prev, error: findErr } = await context.supabase
       .from("dojo_students")
-      .select("full_name")
+      .select("id, full_name")
       .eq("id", data.id)
       .maybeSingle();
-    const { error } = await context.supabase
-      .from("dojo_students")
-      .update({ status: "cancelled", cancelled_at: new Date().toISOString(), frozen_since: null, frozen_until: null })
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-    // Invariante: matrícula cancelada => recorrência encerrada. Sem isso o cron
-    // continuaria gerando mensalidades para um aluno removido do sistema.
-    await context.supabase
-      .from("dojo_enrollments")
-      .update({ status: "cancelled", cancelled_at: new Date().toISOString(), next_run_at: null } as never)
-      .eq("student_id", data.id)
-      .neq("status", "cancelled");
+    if (findErr) throw new Error(findErr.message);
+    if (!prev) throw new Error("Aluno não encontrado");
+
+    const { purgeStudentCompletely } = await import("@/lib/dojo/student-purge.server");
+    const result = await purgeStudentCompletely(data.id);
+
     try {
       const owner = ownerId(context);
       const { sendPushToDojoOwner } = await import("@/lib/push/dojo-owner-push.server");
       void sendPushToDojoOwner(owner, "enrollments", {
         title: "Matrícula cancelada",
-        body: `${prev?.full_name ?? "Aluno"} teve a matrícula cancelada (dados preservados por 30 dias)`,
+        body: `${prev.full_name ?? "Aluno"} foi excluído(a) definitivamente do sistema`,
         url: `/dojo/app/students`,
         tag: `dojo-student-cancel-${data.id}`,
       }).catch((e) => console.warn("[owner-push] cancel enrollment failed", e));
     } catch (e) {
       console.warn("[owner-push] cancel enrollment import failed", e);
     }
-    return { ok: true };
+    return { ok: true, purged: result };
   });
+
 
 export const freezeDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
