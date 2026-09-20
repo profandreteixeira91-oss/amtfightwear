@@ -287,7 +287,7 @@ function StudentDetail() {
         refresh();
       } else {
         await delStudent({ data: { id } });
-        toast.success("Matrícula cancelada", { description: "Dados preservados por 30 dias." });
+        toast.success("Matrícula cancelada", { description: "Todos os registros e o acesso ao app do aluno foram excluídos." });
         setCancelDialog((d) => ({ ...d, open: false }));
         navigate({ to: "/dojo/app/students" });
       }
@@ -541,7 +541,7 @@ function StudentDetail() {
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-red-700 dark:text-red-300">Cancelar definitivamente</div>
                   <div className="text-xs text-muted-foreground">
-                    Encerra a matrícula. Os dados do aluno ficam preservados por 30 dias — dentro desse prazo você pode restaurar o cadastro sem perdas.
+                    Encerra a matrícula e apaga <strong>todos</strong> os registros do aluno (presenças, mensalidades, contratos, graduações, avaliações, fotos) e o acesso ao app do aluno. Esta ação não pode ser desfeita.
                   </div>
                 </div>
               </div>
