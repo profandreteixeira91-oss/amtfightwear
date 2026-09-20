@@ -14,6 +14,21 @@ function fmtBRL(n: any): string {
   return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+/** Normaliza valores booleanos vindos do banco (true/"true"/1/"t"/"sim"). */
+function isTruthyConsent(v: unknown): boolean {
+  if (v === true) return true;
+  if (typeof v === "number") return v === 1;
+  if (typeof v === "string") return ["true", "t", "1", "sim", "yes", "y"].includes(v.trim().toLowerCase());
+  return false;
+}
+function consentFlag(v: unknown): string {
+  return isTruthyConsent(v) ? "AUTORIZO" : "NÃO AUTORIZO";
+}
+function consentYesNo(v: unknown): string {
+  return isTruthyConsent(v) ? "Sim" : "Não";
+}
+
+
 function resolveTokens(html: string, values: Record<string, string>): string {
   if (!html) return "";
   return html.replace(/\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g, (_m, key) => {
@@ -120,8 +135,23 @@ export async function resolveStudentContract(supabase: SupabaseClient, id: strin
     contrato_prazo: c.term ?? "Indeterminado",
     contrato_prazo_aviso_dias: c.notice_days ? String(c.notice_days) : "30",
     contrato_foro: c.forum ?? a.city ?? "",
-    contrato_autoriza_imagem: c.image_authorization ? "AUTORIZO" : "NÃO AUTORIZO",
+    contrato_autoriza_imagem: consentFlag(s.image_rights_consent),
+
+    // consentimentos — refletem exatamente o cadastro do aluno feito pelo dono do dojo
+    consent_imagem: consentFlag(s.image_rights_consent),
+    consent_lgpd: consentFlag(s.lgpd_consent),
+    consent_biometria: consentFlag(s.facial_recognition_consent),
+    consent_termos: consentFlag(s.terms_accepted),
+    consent_imagem_sn: consentYesNo(s.image_rights_consent),
+    consent_lgpd_sn: consentYesNo(s.lgpd_consent),
+    consent_biometria_sn: consentYesNo(s.facial_recognition_consent),
+    consent_termos_sn: consentYesNo(s.terms_accepted),
+    consent_imagem_data: fmtDatePT(s.image_rights_consent_at ?? s.image_rights_consent_date),
+    consent_lgpd_data: fmtDatePT(s.lgpd_consent_at ?? s.lgpd_consent_date),
+    consent_biometria_data: fmtDatePT(s.facial_recognition_consent_at),
+    consent_termos_data: fmtDatePT(s.terms_accepted_at ?? s.terms_accepted_date),
   };
+
 
   return {
     ...row,
