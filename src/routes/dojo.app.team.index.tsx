@@ -430,6 +430,63 @@ function TeamPage() {
         })}
       </div>
 
+      {/* Barra de seleção em massa */}
+      {selectMode && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-red-200 bg-red-50/70 p-3 shadow-sm">
+          <Checkbox
+            checked={filtered.length > 0 && filtered.every((m: any) => selected.includes(m.id))}
+            onCheckedChange={(v) =>
+              setSelected(v ? filtered.map((m: any) => m.id) : [])
+            }
+            aria-label="Selecionar todos os colaboradores listados"
+          />
+          <span className="text-sm font-medium text-neutral-800">
+            {selected.length === 0
+              ? "Selecione os colaboradores a excluir"
+              : `${selected.length} selecionado(s)`}
+          </span>
+          <div className="ml-auto flex gap-2">
+            <Button variant="outline" size="sm" onClick={exitSelectMode}>
+              Cancelar
+            </Button>
+            <Button
+              size="sm"
+              className="bg-red-600 text-white hover:bg-red-500"
+              disabled={selected.length === 0 || purgeBusy}
+              onClick={() => setConfirmPurge(true)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Excluir selecionados
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <AlertDialog open={confirmPurge} onOpenChange={setConfirmPurge}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir {selected.length} colaborador(es)?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação é definitiva. Todos os registros dos colaboradores selecionados serão
+              apagados: folha de pagamento, pagamentos, presenças, documentos, assinaturas,
+              histórico, contratos e o acesso ao Portal da Equipe. Não é possível desfazer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={purgeBusy}>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-500"
+              disabled={purgeBusy}
+              onClick={(e) => {
+                e.preventDefault();
+                void onPurge();
+              }}
+            >
+              {purgeBusy ? "Excluindo..." : "Confirmar exclusão"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Filters */}
       <div className="flex flex-col gap-2 rounded-2xl border border-neutral-200/70 bg-white/80 p-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative w-full min-w-0 flex-1 sm:min-w-[220px]">
