@@ -30,7 +30,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, GraduationCap, UserSquare2, ShieldCheck, Cake, Wallet, Search, Plus } from "lucide-react";
+import { Users, GraduationCap, UserSquare2, ShieldCheck, Cake, Wallet, Search, Plus, Trash2, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dojo/app/team/")({
