@@ -7,6 +7,7 @@ import {
   upsertTeamMember,
   getTeamDashboard,
   updateTeamMemberStatus,
+  purgeTeamMembers,
 } from "@/lib/dojo/team.functions";
 import { getMyStaffPortalLink } from "@/lib/dojo/staff-portal.functions";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
