@@ -483,6 +483,13 @@ function TeamPage() {
             key={m.id}
             className="group flex flex-wrap items-center gap-3 border-b border-neutral-200/70 p-3 transition-colors last:border-0 hover:bg-red-50/40"
           >
+            {selectMode && (
+              <Checkbox
+                checked={selected.includes(m.id)}
+                onCheckedChange={() => toggleSelected(m.id)}
+                aria-label={`Selecionar ${m.full_name}`}
+              />
+            )}
             <Avatar className="h-11 w-11 ring-2 ring-white shadow-sm">
               <AvatarImage src={m.photo_url ?? undefined} />
               <AvatarFallback className="bg-gradient-to-br from-neutral-900 to-neutral-700 text-white">
