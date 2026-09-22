@@ -90,7 +90,13 @@ function TeamPage() {
   const dashFn = useServerFn(getTeamDashboard);
   const saveFn = useServerFn(upsertTeamMember);
   const statusFn = useServerFn(updateTeamMemberStatus);
+  const purgeFn = useServerFn(purgeTeamMembers);
   const qc = useQueryClient();
+
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [confirmPurge, setConfirmPurge] = useState(false);
+  const [purgeBusy, setPurgeBusy] = useState(false);
 
   const list = useQuery({ queryKey: ["team-members"], queryFn: () => listFn() });
   const dash = useQuery({ queryKey: ["team-dashboard"], queryFn: () => dashFn() });
@@ -187,6 +193,42 @@ function TeamPage() {
       qc.invalidateQueries({ queryKey: ["team-dashboard"] });
     } catch (e: any) {
       toast.error(e.message);
+    }
+  };
+
+  const toggleSelected = (id: string) =>
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  const exitSelectMode = () => {
+    setSelectMode(false);
+    setSelected([]);
+  };
+
+  const onPurge = async () => {
+    if (selected.length === 0) return;
+    setPurgeBusy(true);
+    try {
+      const r = await purgeFn({ data: { ids: selected } });
+      if (r.purged_count > 0) {
+        toast.success(
+          r.purged_count === 1
+            ? "Colaborador excluído definitivamente"
+            : `${r.purged_count} colaboradores excluídos definitivamente`,
+        );
+      }
+      if (r.failed.length > 0) {
+        toast.error(`${r.failed.length} não pôde(ram) ser excluído(s)`, {
+          description: r.failed[0]?.error,
+        });
+      }
+      setConfirmPurge(false);
+      exitSelectMode();
+      qc.invalidateQueries({ queryKey: ["team-members"] });
+      qc.invalidateQueries({ queryKey: ["team-dashboard"] });
+    } catch (e: any) {
+      toast.error(e.message ?? "Falha ao excluir");
+    } finally {
+      setPurgeBusy(false);
     }
   };
 
