@@ -157,6 +157,42 @@ export const deleteTeamMember = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Exclusão definitiva (em massa) de colaboradores.
+ * Apaga TODOS os registros de cada membro: folha, pagamentos, presenças,
+ * documentos, assinaturas, histórico, contratos e o acesso ao Portal da Equipe.
+ */
+export const purgeTeamMembers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ ids: z.array(uuid).min(1).max(200) }).parse(i))
+  .handler(async ({ data, context }) => {
+    // RLS do dono confirma a titularidade antes de qualquer operação privilegiada.
+    const { data: owned, error } = await context.supabase
+      .from("dojo_team_members")
+      .select("id, full_name")
+      .in("id", data.ids);
+    if (error) throw new Error(error.message);
+    const ownedIds = new Set((owned ?? []).map((m) => m.id));
+    if (ownedIds.size === 0) throw new Error("Nenhum colaborador encontrado");
+
+    const { purgeTeamMemberCompletely } = await import("@/lib/dojo/team-purge.server");
+    const purged: string[] = [];
+    const failed: { id: string; error: string }[] = [];
+    for (const id of data.ids) {
+      if (!ownedIds.has(id)) {
+        failed.push({ id, error: "Colaborador não encontrado" });
+        continue;
+      }
+      try {
+        const r = await purgeTeamMemberCompletely(id, context.userId);
+        purged.push(r.member_id);
+      } catch (e) {
+        failed.push({ id, error: e instanceof Error ? e.message : "Falha ao excluir" });
+      }
+    }
+    return { ok: failed.length === 0, purged_count: purged.length, purged, failed };
+  });
+
 
 // ============ PERMISSIONS ============
 
