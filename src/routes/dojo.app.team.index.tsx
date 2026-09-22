@@ -383,6 +383,23 @@ function TeamPage() {
             <Button variant="outline" asChild className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
               <Link to="/dojo/app/team/payroll">Folha</Link>
             </Button>
+            {selectMode ? (
+              <Button
+                variant="outline"
+                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                onClick={exitSelectMode}
+              >
+                <X className="mr-2 h-4 w-4" /> Cancelar seleção
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="border-red-400/40 bg-red-500/10 text-red-100 hover:bg-red-500/20 hover:text-white"
+                onClick={() => setSelectMode(true)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Excluir
+              </Button>
+            )}
 
             {createDialog}
           </div>
