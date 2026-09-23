@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import QRCode from "qrcode";
+import { qrToDataURL } from "@/lib/qrcode-lazy";
 import { QrCode, Hash, Award, Calendar, IdCard, MapPin } from "lucide-react";
 import { getMyDigitalCard } from "@/lib/student/student.functions";
 import { getStudentAppConfig } from "@/lib/student-app/config.functions";
@@ -36,7 +36,7 @@ function DigitalCardPage() {
   useEffect(() => {
     const token = data?.student?.qr_token;
     if (!token) return setQrUrl(null);
-    QRCode.toDataURL(token, {
+    qrToDataURL(token, {
       width: 512,
       margin: 1,
       color: { dark: "#0a0a0a", light: "#ffffff" },

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { AnyElement, EditorSchema, TextElement, ImageElement, ShapeElement, QrElement, DateElement } from "@/components/dojo/certificate-editor/types";
 import { useStudioStore } from "@/lib/dojo/certificates/studio-store";
 import { resolveText, sampleValues } from "@/lib/dojo/certificates/export";
-import QRCode from "qrcode";
+import { qrToDataURL } from "@/lib/qrcode-lazy";
 
 /** Renders a single element in natural page coordinates (px). */
 export function ElementView({ el, values, editable = false }: { el: AnyElement; values: Record<string, string>; editable?: boolean }) {
@@ -170,7 +170,7 @@ function QrView({ el, values, style }: { el: QrElement; values: Record<string, s
   const [src, setSrc] = useState<string>("");
   useEffect(() => {
     const val = resolveText(el.qrValue || "https://amtfightwear.com.br", values);
-    QRCode.toDataURL(val, { margin: 0, color: { dark: el.color || "#000000", light: el.bg || "#ffffff" }, width: 512 })
+    qrToDataURL(val, { margin: 0, color: { dark: el.color || "#000000", light: el.bg || "#ffffff" }, width: 512 })
       .then(setSrc).catch(() => setSrc(""));
   }, [el.qrValue, el.color, el.bg, values]);
   return <div style={{ ...style, background: el.bg || "transparent" }}>

@@ -4,7 +4,7 @@ import { Printer, FileDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { toBlob } from "html-to-image";
-import QRCode from "qrcode";
+import { qrToDataURL } from "@/lib/qrcode-lazy";
 import { CertificateRenderer } from "@/components/dojo/certificates-studio/CertificateRenderer";
 
 export type CertificateField = {
@@ -49,7 +49,7 @@ function resolveText(f: CertificateField, values: Record<string, string>): strin
 function QrImg({ value, color = "#000", bg = "#fff" }: { value: string; color?: string; bg?: string }) {
   const [url, setUrl] = useState("");
   useEffect(() => {
-    QRCode.toDataURL(value || " ", { width: 256, margin: 1, color: { dark: color, light: bg } }).then(setUrl);
+    qrToDataURL(value || " ", { width: 256, margin: 1, color: { dark: color, light: bg } }).then(setUrl);
   }, [value, color, bg]);
   return url ? <img src={url} className="pointer-events-none" style={{ width: "100%", height: "100%", objectFit: "contain" }} alt="QR" /> : null;
 }

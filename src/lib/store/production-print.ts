@@ -1,4 +1,4 @@
-import QRCode from "qrcode";
+import { qrToDataURL } from "@/lib/qrcode-lazy";
 import { jsPDF } from "jspdf";
 import { formatBR } from "@/lib/dates";
 import { jobCode, ORDER_TYPE_LABEL, STAGE_LABEL, URGENCY_LABEL } from "@/lib/store/production-stages";
@@ -6,7 +6,7 @@ import type { ProductionJob } from "@/lib/store/production.functions";
 import type { OrderType, Stage, Urgency } from "@/lib/store/production-stages";
 
 async function qrDataUrl(text: string): Promise<string> {
-  return QRCode.toDataURL(text, { margin: 0, width: 240, errorCorrectionLevel: "M" });
+  return qrToDataURL(text, { margin: 0, width: 240, errorCorrectionLevel: "M" });
 }
 
 /**

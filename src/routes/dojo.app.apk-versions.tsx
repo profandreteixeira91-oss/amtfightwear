@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import QRCode from "qrcode";
+import { qrToCanvas } from "@/lib/qrcode-lazy";
 import {
   Upload,
   CheckCircle2,
@@ -173,7 +173,7 @@ function ApkVersionsPage() {
   const qrRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     if (!qrRef.current || !publicPageUrl) return;
-    QRCode.toCanvas(qrRef.current, publicPageUrl, {
+    qrToCanvas(qrRef.current, publicPageUrl, {
       width: 220,
       margin: 1,
       errorCorrectionLevel: "H",

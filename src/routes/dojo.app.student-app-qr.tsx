@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import QRCode from "qrcode";
+import { qrToDataURL, qrToCanvas } from "@/lib/qrcode-lazy";
 import { Printer, Download, Copy, Check, ArrowLeft, Smartphone, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,13 +61,13 @@ function StudentAppQrPage() {
 
   useEffect(() => {
     if (!url || !canvasRef.current) return;
-    QRCode.toCanvas(canvasRef.current, url, {
+    qrToCanvas(canvasRef.current, url, {
       width: 720,
       margin: 1,
       errorCorrectionLevel: "H",
       color: { dark: "#0a0a0a", light: "#ffffff" },
     }).catch(() => {});
-    QRCode.toDataURL(url, {
+    qrToDataURL(url, {
       width: 1024,
       margin: 1,
       errorCorrectionLevel: "H",
