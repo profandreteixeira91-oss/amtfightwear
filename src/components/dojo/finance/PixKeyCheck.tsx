@@ -1,7 +1,7 @@
 // Validação + prévia do QR PIX na configuração do dono do dojo.
 // Garante que a chave cadastrada gera um BR Code válido para qualquer conta.
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
+import { qrToDataURL } from "@/lib/qrcode-lazy";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { buildPixBrCode, normalizePixKey, validatePixKey, type PixKeyType } from "@/lib/pix/brcode";
 
@@ -40,7 +40,7 @@ export function PixKeyCheck({
         amount: 100,
         txid: "TESTE",
       });
-      QRCode.toDataURL(payload, { width: 240, margin: 1, errorCorrectionLevel: "M" })
+      qrToDataURL(payload, { width: 240, margin: 1, errorCorrectionLevel: "M" })
         .then(setQr)
         .catch(() => setQr(null));
     } catch (e: any) {

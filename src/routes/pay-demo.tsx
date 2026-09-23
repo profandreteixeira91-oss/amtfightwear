@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
+import { qrToDataURL } from "@/lib/qrcode-lazy";
 import {
   ArrowLeft,
   Copy,
@@ -37,7 +37,7 @@ function DemoPage() {
   const [qr, setQr] = useState<string | null>(null);
   const [paid, setPaid] = useState(false);
   useEffect(() => {
-    QRCode.toDataURL(DEMO.pix_key, { width: 240, margin: 1 })
+    qrToDataURL(DEMO.pix_key, { width: 240, margin: 1 })
       .then(setQr)
       .catch(() => setQr(null));
   }, []);

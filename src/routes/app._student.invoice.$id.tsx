@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import QRCode from "qrcode";
+import { qrToDataURL } from "@/lib/qrcode-lazy";
 import { ArrowLeft, Copy, RefreshCw, CheckCircle2, Clock, QrCode as QrIcon, Link as LinkIcon, Info } from "lucide-react";
 import {
   getMyInvoice,
@@ -79,7 +79,7 @@ function InvoicePage() {
         description: invoice.description ?? undefined,
       });
       setNativeCopyPaste(payload);
-      QRCode.toDataURL(payload, { width: 320, margin: 1, errorCorrectionLevel: "M" })
+      qrToDataURL(payload, { width: 320, margin: 1, errorCorrectionLevel: "M" })
         .then((url) => setNativeQr(url))
         .catch(() => setNativeQr(null));
     } catch {
