@@ -31,7 +31,7 @@ import {
   getMyAcademyForContract,
   deleteContractTemplate,
 } from "@/lib/dojo/contracts.functions";
-import { buildContractValues, resolveContractHtml } from "@/lib/dojo/contracts-variables";
+import { CONTRACT_VARIABLE_MENU, buildContractValues, resolveContractHtml } from "@/lib/dojo/contracts-variables";
 import { openBrandedPrintDocument } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 
@@ -207,6 +207,8 @@ function ContractEditorPage() {
         city: (academy.data as any)?.city ?? "Cidade",
         state: (academy.data as any)?.state ?? "UF",
         phone: "(00) 00000-0000",
+         guardian_name: "Maria da Silva (responsável legal)",
+         guardian_phone: "(00) 99999-9999",
         modality: "Jiu-Jitsu",
         current_belt_name: "Branca",
         lgpd_consent: true,
@@ -327,30 +329,22 @@ function ContractEditorPage() {
               </MenuButton>
               <MenuButton label="Inserir">
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Variáveis</DropdownMenuLabel>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Aluno</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="z-[130]">
-                    {["aluno_nome","aluno_cpf","aluno_rg","aluno_endereco","aluno_telefone","aluno_modalidade"].map(v => (
-                      <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Academia</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="z-[130]">
-                    {["academia_nome","academia_cnpj","academia_endereco","academia_cidade","academia_estado"].map(v => (
-                      <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Contrato</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="z-[130]">
-                    {["contrato_plano","contrato_valor","contrato_forma_pagamento","contrato_dia_vencimento","contrato_inicio","contrato_fim","contrato_data"].map(v => (
-                      <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
+                {CONTRACT_VARIABLE_MENU.map((category) => (
+                  <DropdownMenuSub key={category.id}>
+                    <DropdownMenuSubTrigger>{category.label}</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="z-[130] max-h-[70dvh] overflow-y-auto">
+                      {category.items.map((variable) => (
+                        <DropdownMenuItem
+                          key={variable.key}
+                          onClick={() => insertAtCursor(`{{${variable.key}}}`)}
+                        >
+                          <span>{variable.label}</span>
+                          <code className="ml-3 text-[10px] text-muted-foreground">{`{{${variable.key}}}`}</code>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Logo da academia</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => insertAcademyLogo(40)}>Logo — pequena (40 px)</DropdownMenuItem>
