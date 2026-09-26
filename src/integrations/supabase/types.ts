@@ -7838,8 +7838,10 @@ export type Database = {
           graduation_criteria_mode: string | null
           graduation_min_classes: number | null
           graduation_min_months: number | null
+          guardian_cpf: string | null
           guardian_name: string | null
           guardian_phone: string | null
+          guardian_rg: string | null
           has_medical_clearance: boolean
           health_insurance: string | null
           id: string
@@ -7896,8 +7898,10 @@ export type Database = {
           graduation_criteria_mode?: string | null
           graduation_min_classes?: number | null
           graduation_min_months?: number | null
+          guardian_cpf?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
+          guardian_rg?: string | null
           has_medical_clearance?: boolean
           health_insurance?: string | null
           id?: string
@@ -7954,8 +7958,10 @@ export type Database = {
           graduation_criteria_mode?: string | null
           graduation_min_classes?: number | null
           graduation_min_months?: number | null
+          guardian_cpf?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
+          guardian_rg?: string | null
           has_medical_clearance?: boolean
           health_insurance?: string | null
           id?: string
