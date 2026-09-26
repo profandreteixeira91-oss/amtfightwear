@@ -45,6 +45,8 @@ export const CONTRACT_VARIABLE_MENU = [
     label: "Responsável legal",
     items: [
       { key: "responsavel_nome", label: "Nome do responsável legal" },
+      { key: "responsavel_rg", label: "RG do responsável legal" },
+      { key: "responsavel_cpf", label: "CPF do responsável legal" },
       { key: "responsavel_telefone", label: "Telefone do responsável legal" },
     ],
   },

@@ -85,6 +85,8 @@ type StudentForm = {
   city: string;
   state: string;
   guardian_name: string;
+  guardian_rg: string;
+  guardian_cpf: string;
   guardian_phone: string;
   emergency_contact_name: string;
   emergency_contact_phone: string;
@@ -142,6 +144,8 @@ const emptyForm: StudentForm = {
   city: "",
   state: "",
   guardian_name: "",
+  guardian_rg: "",
+  guardian_cpf: "",
   guardian_phone: "",
   emergency_contact_name: "",
   emergency_contact_phone: "",
@@ -345,6 +349,8 @@ function StudentsPage() {
       cpf: maskCPF(s.cpf ?? ""),
       zip: maskCEP(s.zip ?? ""),
       phone: maskPhone(s.phone ?? ""),
+      guardian_rg: s.guardian_rg ?? "",
+      guardian_cpf: maskCPF(s.guardian_cpf ?? ""),
       guardian_phone: maskPhone(s.guardian_phone ?? ""),
       emergency_contact_phone: maskPhone(s.emergency_contact_phone ?? ""),
       modalities,
@@ -361,6 +367,7 @@ function StudentsPage() {
       if (!form.full_name.trim()) { toast.error("Informe o nome completo do aluno"); return false; }
       if (form.cpf && !isValidCPF(form.cpf)) { toast.error("CPF inválido"); return false; }
       if (!form.birth_date) { toast.error("Informe a data de nascimento"); return false; }
+      if (form.guardian_cpf && !isValidCPF(form.guardian_cpf)) { toast.error("CPF do responsável inválido"); return false; }
       return true;
     }
     if (step === "endereco") {
@@ -919,6 +926,22 @@ function StudentsPage() {
                   <Field label="Plano de saúde" className="md:col-span-2">
                     <Input value={form.health_insurance} onChange={(e) => set("health_insurance", e.target.value)} />
                   </Field>
+                  <div className="md:col-span-2 mt-2 text-sm font-semibold">Responsável legal (menores de 18 anos)</div>
+                  <Field label="Nome do responsável">
+                    <Input value={form.guardian_name} onChange={(e) => set("guardian_name", e.target.value)} />
+                  </Field>
+                  <Field label="RG do responsável">
+                    <Input value={form.guardian_rg} onChange={(e) => set("guardian_rg", e.target.value)} maxLength={20} />
+                  </Field>
+                  <Field label="CPF do responsável">
+                    <Input value={form.guardian_cpf} onChange={(e) => set("guardian_cpf", maskCPF(e.target.value))} placeholder="000.000.000-00" inputMode="numeric" maxLength={14} />
+                    {form.guardian_cpf && !isValidCPF(form.guardian_cpf) && (
+                      <p className="mt-1 text-[11px] text-destructive">CPF do responsável inválido.</p>
+                    )}
+                  </Field>
+                  <Field label="Telefone do responsável">
+                    <Input value={form.guardian_phone} onChange={(e) => set("guardian_phone", maskPhone(e.target.value))} placeholder="(11)99999-9999" inputMode="tel" maxLength={14} />
+                  </Field>
                 </TabsContent>
 
                 {/* ============ ENDEREÇO ============ */}
@@ -974,13 +997,6 @@ function StudentsPage() {
                     {form.phone && !isValidPhone(form.phone) && (
                       <p className="mt-1 text-[11px] text-destructive">Telefone incompleto — use (XX)XXXXX-XXXX.</p>
                     )}
-                  </Field>
-                  <div className="md:col-span-2 mt-2 text-sm font-semibold">Responsável legal (menores de 18 anos)</div>
-                  <Field label="Nome do responsável">
-                    <Input value={form.guardian_name} onChange={(e) => set("guardian_name", e.target.value)} />
-                  </Field>
-                  <Field label="Telefone do responsável">
-                    <Input value={form.guardian_phone} onChange={(e) => set("guardian_phone", maskPhone(e.target.value))} placeholder="(11)99999-9999" inputMode="tel" maxLength={14} />
                   </Field>
                   <div className="md:col-span-2 mt-2 text-sm font-semibold">Contato de emergência</div>
                   <Field label="Nome">
