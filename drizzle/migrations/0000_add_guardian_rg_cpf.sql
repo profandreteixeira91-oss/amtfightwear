@@ -1,0 +1,1 @@
+ALTER TABLE public.dojo_students ADD COLUMN IF NOT EXISTS guardian_rg text, ADD COLUMN IF NOT EXISTS guardian_cpf text;

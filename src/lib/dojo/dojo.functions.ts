@@ -440,6 +440,8 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     state: z.string().max(2).optional().nullable(),
     photo_url: z.string().max(1000).optional().nullable(),
     guardian_name: z.string().max(200).optional().nullable(),
+    guardian_rg: z.string().max(20).optional().nullable(),
+    guardian_cpf: z.string().max(14).optional().nullable(),
     guardian_phone: z.string().max(40).optional().nullable(),
     emergency_contact_name: z.string().max(200).optional().nullable(),
     emergency_contact_phone: z.string().max(40).optional().nullable(),
