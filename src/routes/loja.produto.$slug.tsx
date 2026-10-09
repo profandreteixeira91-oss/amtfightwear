@@ -97,7 +97,7 @@ export const Route = createFileRoute("/loja/produto/$slug")({
   },
 
   component: ProductPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Produto não encontrado</div>,
 });
 

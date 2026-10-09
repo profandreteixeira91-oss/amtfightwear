@@ -45,7 +45,7 @@ export const Route = createFileRoute("/certificate/$hash")({
     <ValidationShell>
       <XCircle className="mx-auto h-12 w-12 text-red-500" />
       <h1 className="mt-3 text-lg font-semibold">Não foi possível validar</h1>
-      <p className="mt-1 text-sm text-neutral-500">{error.message}</p>
+      <p className="mt-1 text-sm text-neutral-500">{error instanceof Error ? error.message : String(error)}</p>
       <button onClick={reset} className="mt-4 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white">
         Tentar novamente
       </button>

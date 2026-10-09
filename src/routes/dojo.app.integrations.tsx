@@ -61,7 +61,7 @@ const amtPayLogoUrl = amtPayLogoAsset.url;
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
   component: AMTPayHub,
-  errorComponent: ({ error }) => <div className="p-6 text-red-500">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-6 text-red-500">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-6">Não encontrado</div>,
 });
 
