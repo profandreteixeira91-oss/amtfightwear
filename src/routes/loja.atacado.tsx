@@ -100,7 +100,7 @@ export const Route = createFileRoute("/loja/atacado")({
 
 
   component: WholesalePage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Não encontrado</div>,
 });
 

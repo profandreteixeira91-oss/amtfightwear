@@ -63,7 +63,7 @@ export const Route = createFileRoute("/loja/categoria/$slug")({
   },
 
   component: CategoryPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Categoria não encontrada</div>,
 });
 

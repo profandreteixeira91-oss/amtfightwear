@@ -43,7 +43,7 @@ import { addDaysISO, dayISO, todayISO } from "@/lib/dates";
 export const Route = createFileRoute("/dojo/app/checkin")({
   head: () => ({ meta: [{ title: "Check-in — AMT Dojo Manager" }] }),
   component: DojoCheckinModule,
-  errorComponent: ({ error }) => <div className="p-6 text-red-500">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-6 text-red-500">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-6">Não encontrado</div>,
 });
 

@@ -51,7 +51,7 @@ export const Route = createFileRoute("/dojo/app/evaluations/templates/$id")({
   },
   component: TemplateEditor,
   errorComponent: ({ error }) => (
-    <div className="text-sm text-destructive">Falha ao carregar modelo: {error.message}</div>
+    <div className="text-sm text-destructive">Falha ao carregar modelo: {error instanceof Error ? error.message : String(error)}</div>
   ),
 });
 
