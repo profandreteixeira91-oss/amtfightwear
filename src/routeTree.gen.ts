@@ -9,387 +9,351 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PayDemoRouteImport } from './routes/pay-demo'
-import { Route as DojoRouteImport } from './routes/dojo'
-import { Route as DataDeletionRouteImport } from './routes/data-deletion'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AtacadoLpRouteImport } from './routes/atacado-lp'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LojaIndexRouteImport } from './routes/loja.index'
-import { Route as DojoIndexRouteImport } from './routes/dojo.index'
-import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as PayInvoiceIdRouteImport } from './routes/pay.$invoiceId'
-import { Route as MatriculaSlugRouteImport } from './routes/matricula.$slug'
-import { Route as LojaGuiaKimonoRouteImport } from './routes/loja.guia-kimono'
-import { Route as LojaEntrarRouteImport } from './routes/loja.entrar'
-import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
-import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
-import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
-import { Route as DojoOnboardingRouteImport } from './routes/dojo.onboarding'
-import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
-import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
-import { Route as DojoAppRouteImport } from './routes/dojo.app'
-import { Route as CertificateHashRouteImport } from './routes/certificate.$hash'
-import { Route as AppResetPasswordRouteImport } from './routes/app.reset-password'
-import { Route as AppLoginRouteImport } from './routes/app.login'
-import { Route as AppInstallRouteImport } from './routes/app.install'
-import { Route as AppStudentRouteImport } from './routes/app._student'
-import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
-import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
-import { Route as AuthenticatedStoreRouteImport } from './routes/_authenticated/store'
-import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AuthenticatedProspectRouteImport } from './routes/_authenticated/prospect'
-import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
-import { Route as AuthenticatedMarketRouteImport } from './routes/_authenticated/market'
-import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
-import { Route as AuthenticatedInstagramRouteImport } from './routes/_authenticated/instagram'
-import { Route as AuthenticatedGrowthRouteImport } from './routes/_authenticated/growth'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as AtacadoLpRouteImport } from './routes/atacado-lp'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DataDeletionRouteImport } from './routes/data-deletion'
+import { Route as DojoRouteImport } from './routes/dojo'
+import { Route as PayDemoRouteImport } from './routes/pay-demo'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
-import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
-import { Route as DojoAppIndexRouteImport } from './routes/dojo.app.index'
-import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
-import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
+import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedGrowthRouteImport } from './routes/_authenticated/growth'
+import { Route as AuthenticatedInstagramRouteImport } from './routes/_authenticated/instagram'
+import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
+import { Route as AuthenticatedMarketRouteImport } from './routes/_authenticated/market'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedProspectRouteImport } from './routes/_authenticated/prospect'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedStoreRouteImport } from './routes/_authenticated/store'
+import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
+import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppStudentRouteImport } from './routes/app._student'
+import { Route as AppInstallRouteImport } from './routes/app.install'
+import { Route as AppLoginRouteImport } from './routes/app.login'
+import { Route as AppResetPasswordRouteImport } from './routes/app.reset-password'
+import { Route as CertificateHashRouteImport } from './routes/certificate.$hash'
+import { Route as DojoIndexRouteImport } from './routes/dojo.index'
+import { Route as DojoAppRouteImport } from './routes/dojo.app'
+import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
+import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
+import { Route as DojoOnboardingRouteImport } from './routes/dojo.onboarding'
+import { Route as LojaIndexRouteImport } from './routes/loja.index'
+import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
+import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
+import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
+import { Route as LojaEntrarRouteImport } from './routes/loja.entrar'
+import { Route as LojaGuiaKimonoRouteImport } from './routes/loja.guia-kimono'
+import { Route as MatriculaSlugRouteImport } from './routes/matricula.$slug'
+import { Route as PayInvoiceIdRouteImport } from './routes/pay.$invoiceId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as LovableEmailEventsRouteImport } from './routes/lovable/email/events'
-import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
-import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
-import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
-import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
-import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
-import { Route as DojoStaffAuthRouteImport } from './routes/dojo.staff.auth'
-import { Route as DojoStaffPortalRouteImport } from './routes/dojo.staff._portal'
-import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoiceId'
-import { Route as DojoMatriculaSlugRouteImport } from './routes/dojo.matricula.$slug'
-import { Route as DojoCertificateEditorIdRouteImport } from './routes/dojo.certificate-editor.$id'
-import { Route as DojoAppVideosRouteImport } from './routes/dojo.app.videos'
-import { Route as DojoAppTutorialEditorRouteImport } from './routes/dojo.app.tutorial-editor'
-import { Route as DojoAppTutorialRouteImport } from './routes/dojo.app.tutorial'
-import { Route as DojoAppSystemUsersRouteImport } from './routes/dojo.app.system-users'
-import { Route as DojoAppSupportRouteImport } from './routes/dojo.app.support'
-import { Route as DojoAppSubscriptionRouteImport } from './routes/dojo.app.subscription'
-import { Route as DojoAppStudentsRouteImport } from './routes/dojo.app.students'
-import { Route as DojoAppStudentNotificationsConfigRouteImport } from './routes/dojo.app.student-notifications-config'
-import { Route as DojoAppStudentAppQrRouteImport } from './routes/dojo.app.student-app-qr'
-import { Route as DojoAppStoreRouteImport } from './routes/dojo.app.store'
-import { Route as DojoAppScheduleRouteImport } from './routes/dojo.app.schedule'
-import { Route as DojoAppSalesRouteImport } from './routes/dojo.app.sales'
-import { Route as DojoAppRankingRouteImport } from './routes/dojo.app.ranking'
-import { Route as DojoAppPlansRouteImport } from './routes/dojo.app.plans'
-import { Route as DojoAppNotificationsRouteImport } from './routes/dojo.app.notifications'
-import { Route as DojoAppLessonPlansRouteImport } from './routes/dojo.app.lesson-plans'
-import { Route as DojoAppIntegrationsRouteImport } from './routes/dojo.app.integrations'
-import { Route as DojoAppInstallRouteImport } from './routes/dojo.app.install'
-import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.graduations'
-import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
-import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evaluations'
-import { Route as DojoAppCorporateBenefitsRouteImport } from './routes/dojo.app.corporate-benefits'
-import { Route as DojoAppContractsRouteImport } from './routes/dojo.app.contracts'
-import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
-import { Route as DojoAppClassesRouteImport } from './routes/dojo.app.classes'
-import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
-import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
-import { Route as DojoAppBeltsRouteImport } from './routes/dojo.app.belts'
-import { Route as DojoAppBeltStudioRouteImport } from './routes/dojo.app.belt-studio'
-import { Route as DojoAppApkVersionsRouteImport } from './routes/dojo.app.apk-versions'
-import { Route as DojoAppAnnouncementsRouteImport } from './routes/dojo.app.announcements'
-import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
-import { Route as AppInstallSlugRouteImport } from './routes/app.install.$slug'
-import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
-import { Route as AppStudentSettingsRouteImport } from './routes/app._student.settings'
-import { Route as AppStudentScheduleRouteImport } from './routes/app._student.schedule'
-import { Route as AppStudentRankingRouteImport } from './routes/app._student.ranking'
-import { Route as AppStudentProfileRouteImport } from './routes/app._student.profile'
-import { Route as AppStudentPerformanceRouteImport } from './routes/app._student.performance'
-import { Route as AppStudentOnboardingRouteImport } from './routes/app._student.onboarding'
-import { Route as AppStudentNotificationsRouteImport } from './routes/app._student.notifications'
-import { Route as AppStudentNewsRouteImport } from './routes/app._student.news'
-import { Route as AppStudentHomeRouteImport } from './routes/app._student.home'
-import { Route as AppStudentGraduationsRouteImport } from './routes/app._student.graduations'
-import { Route as AppStudentFinanceRouteImport } from './routes/app._student.finance'
-import { Route as AppStudentEvaluationsRouteImport } from './routes/app._student.evaluations'
-import { Route as AppStudentDocumentsRouteImport } from './routes/app._student.documents'
-import { Route as AppStudentCompetitionsRouteImport } from './routes/app._student.competitions'
-import { Route as AppStudentCheckinRouteImport } from './routes/app._student.checkin'
-import { Route as AppStudentCertificatesRouteImport } from './routes/app._student.certificates'
-import { Route as AppStudentCardRouteImport } from './routes/app._student.card'
-import { Route as AppStudentAnnouncementsRouteImport } from './routes/app._student.announcements'
-import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
-import { Route as ApiPublicDojoManifestDotwebmanifestRouteImport } from './routes/api/public/dojo-manifest[.]webmanifest'
-import { Route as ApiDojoApkUploadRouteImport } from './routes/api/dojo/apk-upload'
-import { Route as ApiDesktopQuotesRouteImport } from './routes/api/desktop/quotes'
-import { Route as ApiDesktopProductsRouteImport } from './routes/api/desktop/products'
-import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
-import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
-import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
-import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authenticated/store.products'
-import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenticated/store.orders'
-import { Route as AuthenticatedStoreNotificationsRouteImport } from './routes/_authenticated/store.notifications'
-import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
-import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
-import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
-import { Route as AuthenticatedStoreDojoSupportRouteImport } from './routes/_authenticated/store.dojo-support'
-import { Route as AuthenticatedStoreDojoManagerRouteImport } from './routes/_authenticated/store.dojo-manager'
-import { Route as AuthenticatedStoreCustomersRouteImport } from './routes/_authenticated/store.customers'
-import { Route as AuthenticatedStoreChatRouteImport } from './routes/_authenticated/store.chat'
-import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
-import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
-import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
-import { Route as AuthenticatedProspectPipelineRouteImport } from './routes/_authenticated/prospect.pipeline'
-import { Route as AuthenticatedProspectMacroRouteImport } from './routes/_authenticated/prospect.macro'
-import { Route as AuthenticatedProspectLogsRouteImport } from './routes/_authenticated/prospect.logs'
-import { Route as AuthenticatedProspectLeadsRouteImport } from './routes/_authenticated/prospect.leads'
-import { Route as AuthenticatedProspectIdRouteImport } from './routes/_authenticated/prospect.$id'
-import { Route as AuthenticatedMarketPricingRouteImport } from './routes/_authenticated/market.pricing'
-import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authenticated/market.overview'
-import { Route as AuthenticatedMarketCrmRouteImport } from './routes/_authenticated/market.crm'
-import { Route as AuthenticatedMarketContentRouteImport } from './routes/_authenticated/market.content'
-import { Route as AuthenticatedMarketConnectionsRouteImport } from './routes/_authenticated/market.connections'
-import { Route as AuthenticatedMarketCatalogRouteImport } from './routes/_authenticated/market.catalog'
-import { Route as AuthenticatedInstagramInboxRouteImport } from './routes/_authenticated/instagram.inbox'
-import { Route as AuthenticatedInstagramDashboardRouteImport } from './routes/_authenticated/instagram.dashboard'
-import { Route as AuthenticatedInstagramCrmRouteImport } from './routes/_authenticated/instagram.crm'
-import { Route as AuthenticatedInstagramCommentsRouteImport } from './routes/_authenticated/instagram.comments'
-import { Route as AuthenticatedInstagramAutomationsRouteImport } from './routes/_authenticated/instagram.automations'
-import { Route as AuthenticatedInstagramAdminRouteImport } from './routes/_authenticated/instagram.admin'
-import { Route as AuthenticatedInstagramAccountRouteImport } from './routes/_authenticated/instagram.account'
-import { Route as AuthenticatedGrowthMarketRouteImport } from './routes/_authenticated/growth.market'
-import { Route as AuthenticatedGrowthKpisRouteImport } from './routes/_authenticated/growth.kpis'
-import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_authenticated/growth.intelligence'
-import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
-import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
-import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
-import { Route as AuthenticatedAdsScaleRouteImport } from './routes/_authenticated/ads.scale'
-import { Route as AuthenticatedAdsOptimizationRouteImport } from './routes/_authenticated/ads.optimization'
-import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads.new'
-import { Route as AuthenticatedAdsDashboardRouteImport } from './routes/_authenticated/ads.dashboard'
-import { Route as AuthenticatedAdsCreativesRouteImport } from './routes/_authenticated/ads.creatives'
-import { Route as AuthenticatedAdsCopiesRouteImport } from './routes/_authenticated/ads.copies'
-import { Route as AuthenticatedAdsConnectionsRouteImport } from './routes/_authenticated/ads.connections'
-import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
-import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authenticated/ads.alerts'
-import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
-import { Route as AuthenticatedAdminSaasRouteImport } from './routes/_authenticated/admin.saas'
-import { Route as AuthenticatedAdminProspectRouteImport } from './routes/_authenticated/admin.prospect'
-import { Route as AuthenticatedAdminProducaoRouteImport } from './routes/_authenticated/admin.producao'
-import { Route as AuthenticatedAdminPerfilRouteImport } from './routes/_authenticated/admin.perfil'
-import { Route as AuthenticatedAdminOrcamentosRouteImport } from './routes/_authenticated/admin.orcamentos'
-import { Route as AuthenticatedAdminNotificacoesRouteImport } from './routes/_authenticated/admin.notificacoes'
-import { Route as AuthenticatedAdminMarketingRouteImport } from './routes/_authenticated/admin.marketing'
-import { Route as AuthenticatedAdminLojaRouteImport } from './routes/_authenticated/admin.loja'
-import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
-import { Route as AuthenticatedAdminInstagramRouteImport } from './routes/_authenticated/admin.instagram'
-import { Route as AuthenticatedAdminFiscalRouteImport } from './routes/_authenticated/admin.fiscal'
-import { Route as AuthenticatedAdminEnvioRouteImport } from './routes/_authenticated/admin.envio'
-import { Route as AuthenticatedAdminDojoRouteImport } from './routes/_authenticated/admin.dojo'
-import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
-import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin.crm'
-import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
-import { Route as AuthenticatedAdminConexoesRouteImport } from './routes/_authenticated/admin.conexoes'
-import { Route as AuthenticatedAdminClientesGrowthRouteImport } from './routes/_authenticated/admin.clientes-growth'
-import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
-import { Route as AuthenticatedAdminAtendimentoRouteImport } from './routes/_authenticated/admin.atendimento'
-import { Route as AuthenticatedAdminAtacadoRouteImport } from './routes/_authenticated/admin.atacado'
-import { Route as AuthenticatedAdminAnunciosRouteImport } from './routes/_authenticated/admin.anuncios'
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
-import { Route as DojoStaffPortalIndexRouteImport } from './routes/dojo.staff._portal.index'
-import { Route as DojoAppVideosIndexRouteImport } from './routes/dojo.app.videos.index'
-import { Route as DojoAppUnitsIndexRouteImport } from './routes/dojo.app.units.index'
-import { Route as DojoAppTeamIndexRouteImport } from './routes/dojo.app.team.index'
-import { Route as DojoAppStudentsIndexRouteImport } from './routes/dojo.app.students.index'
-import { Route as DojoAppStoreIndexRouteImport } from './routes/dojo.app.store.index'
-import { Route as DojoAppLessonPlansIndexRouteImport } from './routes/dojo.app.lesson-plans.index'
-import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.evaluations.index'
-import { Route as DojoAppContractsIndexRouteImport } from './routes/dojo.app.contracts.index'
-import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo.app.contract-templates.index'
-import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
-import { Route as AppStudentDocumentsIndexRouteImport } from './routes/app._student.documents.index'
-import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated/admin.produtos.index'
-import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated/admin.pedidos.index'
-import { Route as AuthenticatedAdminMarketingIndexRouteImport } from './routes/_authenticated/admin.marketing.index'
-import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated/admin.leads.index'
-import { Route as AuthenticatedAdminInstagramIndexRouteImport } from './routes/_authenticated/admin.instagram.index'
-import { Route as AuthenticatedAdminAnunciosIndexRouteImport } from './routes/_authenticated/admin.anuncios.index'
+import { Route as AuthenticatedAdminAnunciosRouteImport } from './routes/_authenticated/admin.anuncios'
+import { Route as AuthenticatedAdminAtacadoRouteImport } from './routes/_authenticated/admin.atacado'
+import { Route as AuthenticatedAdminAtendimentoRouteImport } from './routes/_authenticated/admin.atendimento'
+import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
+import { Route as AuthenticatedAdminClientesGrowthRouteImport } from './routes/_authenticated/admin.clientes-growth'
+import { Route as AuthenticatedAdminConexoesRouteImport } from './routes/_authenticated/admin.conexoes'
+import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
+import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin.crm'
+import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
+import { Route as AuthenticatedAdminDojoRouteImport } from './routes/_authenticated/admin.dojo'
+import { Route as AuthenticatedAdminEnvioRouteImport } from './routes/_authenticated/admin.envio'
+import { Route as AuthenticatedAdminFiscalRouteImport } from './routes/_authenticated/admin.fiscal'
+import { Route as AuthenticatedAdminInstagramRouteImport } from './routes/_authenticated/admin.instagram'
+import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
+import { Route as AuthenticatedAdminLojaRouteImport } from './routes/_authenticated/admin.loja'
+import { Route as AuthenticatedAdminMarketingRouteImport } from './routes/_authenticated/admin.marketing'
+import { Route as AuthenticatedAdminNotificacoesRouteImport } from './routes/_authenticated/admin.notificacoes'
+import { Route as AuthenticatedAdminOrcamentosRouteImport } from './routes/_authenticated/admin.orcamentos'
+import { Route as AuthenticatedAdminPerfilRouteImport } from './routes/_authenticated/admin.perfil'
+import { Route as AuthenticatedAdminProducaoRouteImport } from './routes/_authenticated/admin.producao'
+import { Route as AuthenticatedAdminProspectRouteImport } from './routes/_authenticated/admin.prospect'
+import { Route as AuthenticatedAdminSaasRouteImport } from './routes/_authenticated/admin.saas'
+import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authenticated/ads.alerts'
+import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
+import { Route as AuthenticatedAdsConnectionsRouteImport } from './routes/_authenticated/ads.connections'
+import { Route as AuthenticatedAdsCopiesRouteImport } from './routes/_authenticated/ads.copies'
+import { Route as AuthenticatedAdsCreativesRouteImport } from './routes/_authenticated/ads.creatives'
+import { Route as AuthenticatedAdsDashboardRouteImport } from './routes/_authenticated/ads.dashboard'
+import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads.new'
+import { Route as AuthenticatedAdsOptimizationRouteImport } from './routes/_authenticated/ads.optimization'
+import { Route as AuthenticatedAdsScaleRouteImport } from './routes/_authenticated/ads.scale'
+import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
+import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
+import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
+import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_authenticated/growth.intelligence'
+import { Route as AuthenticatedGrowthKpisRouteImport } from './routes/_authenticated/growth.kpis'
+import { Route as AuthenticatedGrowthMarketRouteImport } from './routes/_authenticated/growth.market'
+import { Route as AuthenticatedInstagramAccountRouteImport } from './routes/_authenticated/instagram.account'
+import { Route as AuthenticatedInstagramAdminRouteImport } from './routes/_authenticated/instagram.admin'
+import { Route as AuthenticatedInstagramAutomationsRouteImport } from './routes/_authenticated/instagram.automations'
+import { Route as AuthenticatedInstagramCommentsRouteImport } from './routes/_authenticated/instagram.comments'
+import { Route as AuthenticatedInstagramCrmRouteImport } from './routes/_authenticated/instagram.crm'
+import { Route as AuthenticatedInstagramDashboardRouteImport } from './routes/_authenticated/instagram.dashboard'
+import { Route as AuthenticatedInstagramInboxRouteImport } from './routes/_authenticated/instagram.inbox'
+import { Route as AuthenticatedMarketCatalogRouteImport } from './routes/_authenticated/market.catalog'
+import { Route as AuthenticatedMarketConnectionsRouteImport } from './routes/_authenticated/market.connections'
+import { Route as AuthenticatedMarketContentRouteImport } from './routes/_authenticated/market.content'
+import { Route as AuthenticatedMarketCrmRouteImport } from './routes/_authenticated/market.crm'
+import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authenticated/market.overview'
+import { Route as AuthenticatedMarketPricingRouteImport } from './routes/_authenticated/market.pricing'
+import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
+import { Route as AuthenticatedProspectIdRouteImport } from './routes/_authenticated/prospect.$id'
+import { Route as AuthenticatedProspectLeadsRouteImport } from './routes/_authenticated/prospect.leads'
+import { Route as AuthenticatedProspectLogsRouteImport } from './routes/_authenticated/prospect.logs'
+import { Route as AuthenticatedProspectMacroRouteImport } from './routes/_authenticated/prospect.macro'
+import { Route as AuthenticatedProspectPipelineRouteImport } from './routes/_authenticated/prospect.pipeline'
+import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
+import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
+import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
+import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
+import { Route as AuthenticatedStoreChatRouteImport } from './routes/_authenticated/store.chat'
+import { Route as AuthenticatedStoreCustomersRouteImport } from './routes/_authenticated/store.customers'
+import { Route as AuthenticatedStoreDojoManagerRouteImport } from './routes/_authenticated/store.dojo-manager'
+import { Route as AuthenticatedStoreDojoSupportRouteImport } from './routes/_authenticated/store.dojo-support'
+import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
+import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
+import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
+import { Route as AuthenticatedStoreNotificationsRouteImport } from './routes/_authenticated/store.notifications'
+import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenticated/store.orders'
+import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authenticated/store.products'
+import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
+import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
+import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
+import { Route as ApiDesktopProductsRouteImport } from './routes/api/desktop/products'
+import { Route as ApiDesktopQuotesRouteImport } from './routes/api/desktop/quotes'
+import { Route as ApiDojoApkUploadRouteImport } from './routes/api/dojo/apk-upload'
+import { Route as ApiPublicDojoManifestDotwebmanifestRouteImport } from './routes/api/public/dojo-manifest[.]webmanifest'
+import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
+import { Route as AppStudentAnnouncementsRouteImport } from './routes/app._student.announcements'
+import { Route as AppStudentCardRouteImport } from './routes/app._student.card'
+import { Route as AppStudentCertificatesRouteImport } from './routes/app._student.certificates'
+import { Route as AppStudentCheckinRouteImport } from './routes/app._student.checkin'
+import { Route as AppStudentCompetitionsRouteImport } from './routes/app._student.competitions'
+import { Route as AppStudentDocumentsRouteImport } from './routes/app._student.documents'
+import { Route as AppStudentEvaluationsRouteImport } from './routes/app._student.evaluations'
+import { Route as AppStudentFinanceRouteImport } from './routes/app._student.finance'
+import { Route as AppStudentGraduationsRouteImport } from './routes/app._student.graduations'
+import { Route as AppStudentHomeRouteImport } from './routes/app._student.home'
+import { Route as AppStudentNewsRouteImport } from './routes/app._student.news'
+import { Route as AppStudentNotificationsRouteImport } from './routes/app._student.notifications'
+import { Route as AppStudentOnboardingRouteImport } from './routes/app._student.onboarding'
+import { Route as AppStudentPerformanceRouteImport } from './routes/app._student.performance'
+import { Route as AppStudentProfileRouteImport } from './routes/app._student.profile'
+import { Route as AppStudentRankingRouteImport } from './routes/app._student.ranking'
+import { Route as AppStudentScheduleRouteImport } from './routes/app._student.schedule'
+import { Route as AppStudentSettingsRouteImport } from './routes/app._student.settings'
+import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
+import { Route as AppInstallSlugRouteImport } from './routes/app.install.$slug'
+import { Route as DojoAppIndexRouteImport } from './routes/dojo.app.index'
+import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
+import { Route as DojoAppAnnouncementsRouteImport } from './routes/dojo.app.announcements'
+import { Route as DojoAppApkVersionsRouteImport } from './routes/dojo.app.apk-versions'
+import { Route as DojoAppBeltStudioRouteImport } from './routes/dojo.app.belt-studio'
+import { Route as DojoAppBeltsRouteImport } from './routes/dojo.app.belts'
+import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
+import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
+import { Route as DojoAppClassesRouteImport } from './routes/dojo.app.classes'
+import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
+import { Route as DojoAppContractsRouteImport } from './routes/dojo.app.contracts'
+import { Route as DojoAppCorporateBenefitsRouteImport } from './routes/dojo.app.corporate-benefits'
+import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evaluations'
+import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
+import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.graduations'
+import { Route as DojoAppInstallRouteImport } from './routes/dojo.app.install'
+import { Route as DojoAppIntegrationsRouteImport } from './routes/dojo.app.integrations'
+import { Route as DojoAppLessonPlansRouteImport } from './routes/dojo.app.lesson-plans'
+import { Route as DojoAppNotificationsRouteImport } from './routes/dojo.app.notifications'
+import { Route as DojoAppPlansRouteImport } from './routes/dojo.app.plans'
+import { Route as DojoAppRankingRouteImport } from './routes/dojo.app.ranking'
+import { Route as DojoAppSalesRouteImport } from './routes/dojo.app.sales'
+import { Route as DojoAppScheduleRouteImport } from './routes/dojo.app.schedule'
+import { Route as DojoAppStoreRouteImport } from './routes/dojo.app.store'
+import { Route as DojoAppStudentAppQrRouteImport } from './routes/dojo.app.student-app-qr'
+import { Route as DojoAppStudentNotificationsConfigRouteImport } from './routes/dojo.app.student-notifications-config'
+import { Route as DojoAppStudentsRouteImport } from './routes/dojo.app.students'
+import { Route as DojoAppSubscriptionRouteImport } from './routes/dojo.app.subscription'
+import { Route as DojoAppSupportRouteImport } from './routes/dojo.app.support'
+import { Route as DojoAppSystemUsersRouteImport } from './routes/dojo.app.system-users'
+import { Route as DojoAppTutorialRouteImport } from './routes/dojo.app.tutorial'
+import { Route as DojoAppTutorialEditorRouteImport } from './routes/dojo.app.tutorial-editor'
+import { Route as DojoAppVideosRouteImport } from './routes/dojo.app.videos'
+import { Route as DojoCertificateEditorIdRouteImport } from './routes/dojo.certificate-editor.$id'
+import { Route as DojoMatriculaSlugRouteImport } from './routes/dojo.matricula.$slug'
+import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoiceId'
+import { Route as DojoStaffPortalRouteImport } from './routes/dojo.staff._portal'
+import { Route as DojoStaffAuthRouteImport } from './routes/dojo.staff.auth'
+import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
+import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
+import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
+import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
+import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
+import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
+import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
+import { Route as LovableEmailEventsRouteImport } from './routes/lovable/email/events'
 import { Route as AuthenticatedAdminAdsIndexRouteImport } from './routes/_authenticated/admin.ads.index'
-import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as DojoStaffPortalStudentsRouteImport } from './routes/dojo.staff._portal.students'
-import { Route as DojoStaffPortalStoreRouteImport } from './routes/dojo.staff._portal.store'
-import { Route as DojoStaffPortalScheduleRouteImport } from './routes/dojo.staff._portal.schedule'
-import { Route as DojoStaffPortalSalesRouteImport } from './routes/dojo.staff._portal.sales'
-import { Route as DojoStaffPortalProfileRouteImport } from './routes/dojo.staff._portal.profile'
-import { Route as DojoStaffPortalGraduationsRouteImport } from './routes/dojo.staff._portal.graduations'
-import { Route as DojoStaffPortalEvaluationsRouteImport } from './routes/dojo.staff._portal.evaluations'
-import { Route as DojoStaffPortalCompetitionsRouteImport } from './routes/dojo.staff._portal.competitions'
-import { Route as DojoStaffPortalCheckinRouteImport } from './routes/dojo.staff._portal.checkin'
-import { Route as DojoStaffPortalCertificatesRouteImport } from './routes/dojo.staff._portal.certificates'
-import { Route as DojoStaffPortalBeltsRouteImport } from './routes/dojo.staff._portal.belts'
-import { Route as DojoStaffPortalAnnouncementsRouteImport } from './routes/dojo.staff._portal.announcements'
-import { Route as DojoAppVideosNovoRouteImport } from './routes/dojo.app.videos.novo'
-import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.videos.favoritos'
-import { Route as DojoAppVideosCategoriasRouteImport } from './routes/dojo.app.videos.categorias'
-import { Route as DojoAppVideosIdRouteImport } from './routes/dojo.app.videos.$id'
-import { Route as DojoAppTeamSchedulesRouteImport } from './routes/dojo.app.team.schedules'
-import { Route as DojoAppTeamPayrollRouteImport } from './routes/dojo.app.team.payroll'
-import { Route as DojoAppTeamIdRouteImport } from './routes/dojo.app.team.$id'
-import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
-import { Route as DojoAppStorePedidosRouteImport } from './routes/dojo.app.store.pedidos'
-import { Route as DojoAppStoreCarrinhoRouteImport } from './routes/dojo.app.store.carrinho'
-import { Route as DojoAppLessonPlansTechniquesRouteImport } from './routes/dojo.app.lesson-plans.techniques'
-import { Route as DojoAppLessonPlansLibraryRouteImport } from './routes/dojo.app.lesson-plans.library'
-import { Route as DojoAppLessonPlansHistoryRouteImport } from './routes/dojo.app.lesson-plans.history'
-import { Route as DojoAppLessonPlansIdRouteImport } from './routes/dojo.app.lesson-plans.$id'
-import { Route as DojoAppEvaluationsTemplatesRouteImport } from './routes/dojo.app.evaluations.templates'
-import { Route as DojoAppEvaluationsTechniquesRouteImport } from './routes/dojo.app.evaluations.techniques'
-import { Route as DojoAppEvaluationsSettingsRouteImport } from './routes/dojo.app.evaluations.settings'
-import { Route as DojoAppEvaluationsSessionsRouteImport } from './routes/dojo.app.evaluations.sessions'
-import { Route as DojoAppEvaluationsLibraryRouteImport } from './routes/dojo.app.evaluations.library'
-import { Route as DojoAppEvaluationsHistoryRouteImport } from './routes/dojo.app.evaluations.history'
-import { Route as DojoAppEvaluationsCategoriesRouteImport } from './routes/dojo.app.evaluations.categories'
-import { Route as DojoAppContractsTemplatesRouteImport } from './routes/dojo.app.contracts.templates'
-import { Route as DojoAppContractsIssuedRouteImport } from './routes/dojo.app.contracts.issued'
-import { Route as DojoAppContractTemplatesIdRouteImport } from './routes/dojo.app.contract-templates.$id'
-import { Route as DojoAppCompetitionsIdRouteImport } from './routes/dojo.app.competitions.$id'
-import { Route as AppStudentInvoiceIdRouteImport } from './routes/app._student.invoice.$id'
-import { Route as AppStudentDocumentsIdRouteImport } from './routes/app._student.documents.$id'
-import { Route as AppStudentCompetitionsIdRouteImport } from './routes/app._student.competitions.$id'
-import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
-import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
-import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
-import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
-import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
-import { Route as ApiPublicHooksSendDojoRemindersRouteImport } from './routes/api/public/hooks/send-dojo-reminders'
-import { Route as ApiPublicHooksSendClassRemindersRouteImport } from './routes/api/public/hooks/send-class-reminders'
-import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
-import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
-import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
-import { Route as ApiPublicHooksMercadopagoRouteImport } from './routes/api/public/hooks/mercadopago'
-import { Route as ApiPublicHooksMelhorEnvioRouteImport } from './routes/api/public/hooks/melhor-envio'
-import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
-import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
-import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
-import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
-import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
-import { Route as ApiPublicHooksDojoWalletReconcileRouteImport } from './routes/api/public/hooks/dojo-wallet-reconcile'
-import { Route as ApiPublicHooksCompetitionsIngestRouteImport } from './routes/api/public/hooks/competitions-ingest'
-import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
-import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
-import { Route as ApiPublicHooksApplyScheduledGraduationsRouteImport } from './routes/api/public/hooks/apply-scheduled-graduations'
-import { Route as ApiPublicHooksAdminPushRouteImport } from './routes/api/public/hooks/admin-push'
-import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
-import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
-import { Route as ApiDesktopQuotesIdRouteImport } from './routes/api/desktop/quotes.$id'
-import { Route as ApiDesktopProductsIdRouteImport } from './routes/api/desktop/products.$id'
-import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
-import { Route as AuthenticatedAdminSaasSuporteRouteImport } from './routes/_authenticated/admin.saas.suporte'
-import { Route as AuthenticatedAdminProdutosTamanhosRouteImport } from './routes/_authenticated/admin.produtos.tamanhos'
-import { Route as AuthenticatedAdminProdutosPacotesRouteImport } from './routes/_authenticated/admin.produtos.pacotes'
-import { Route as AuthenticatedAdminProdutosImportarRouteImport } from './routes/_authenticated/admin.produtos.importar'
-import { Route as AuthenticatedAdminProdutosImagensRouteImport } from './routes/_authenticated/admin.produtos.imagens'
-import { Route as AuthenticatedAdminProdutosFaixaCalcRouteImport } from './routes/_authenticated/admin.produtos.faixa-calc'
-import { Route as AuthenticatedAdminPedidosOrderIdRouteImport } from './routes/_authenticated/admin.pedidos.$orderId'
-import { Route as AuthenticatedAdminMarketingMercadoRouteImport } from './routes/_authenticated/admin.marketing.mercado'
-import { Route as AuthenticatedAdminMarketingKpisRouteImport } from './routes/_authenticated/admin.marketing.kpis'
-import { Route as AuthenticatedAdminMarketingInteligenciaRouteImport } from './routes/_authenticated/admin.marketing.inteligencia'
-import { Route as AuthenticatedAdminLeadsQualificadosRouteImport } from './routes/_authenticated/admin.leads.qualificados'
-import { Route as AuthenticatedAdminLeadsPipelineRouteImport } from './routes/_authenticated/admin.leads.pipeline'
-import { Route as AuthenticatedAdminLeadsMacroRouteImport } from './routes/_authenticated/admin.leads.macro'
-import { Route as AuthenticatedAdminLeadsLogsRouteImport } from './routes/_authenticated/admin.leads.logs'
-import { Route as AuthenticatedAdminLeadsConfiguracoesRouteImport } from './routes/_authenticated/admin.leads.configuracoes'
-import { Route as AuthenticatedAdminLeadsBuscaRouteImport } from './routes/_authenticated/admin.leads.busca'
-import { Route as AuthenticatedAdminLeadsIdRouteImport } from './routes/_authenticated/admin.leads.$id'
-import { Route as AuthenticatedAdminInstagramInboxRouteImport } from './routes/_authenticated/admin.instagram.inbox'
-import { Route as AuthenticatedAdminInstagramCrmRouteImport } from './routes/_authenticated/admin.instagram.crm'
-import { Route as AuthenticatedAdminInstagramContaRouteImport } from './routes/_authenticated/admin.instagram.conta'
-import { Route as AuthenticatedAdminInstagramComentariosRouteImport } from './routes/_authenticated/admin.instagram.comentarios'
-import { Route as AuthenticatedAdminInstagramAutomacoesRouteImport } from './routes/_authenticated/admin.instagram.automacoes'
-import { Route as AuthenticatedAdminInstagramAdminRouteImport } from './routes/_authenticated/admin.instagram.admin'
-import { Route as AuthenticatedAdminFiscalPedidosRouteImport } from './routes/_authenticated/admin.fiscal.pedidos'
-import { Route as AuthenticatedAdminAnunciosOtimizacaoRouteImport } from './routes/_authenticated/admin.anuncios.otimizacao'
-import { Route as AuthenticatedAdminAnunciosNovaRouteImport } from './routes/_authenticated/admin.anuncios.nova'
-import { Route as AuthenticatedAdminAnunciosEscalaRouteImport } from './routes/_authenticated/admin.anuncios.escala'
-import { Route as AuthenticatedAdminAnunciosCriativosRouteImport } from './routes/_authenticated/admin.anuncios.criativos'
-import { Route as AuthenticatedAdminAnunciosCopiesRouteImport } from './routes/_authenticated/admin.anuncios.copies'
-import { Route as AuthenticatedAdminAnunciosConexoesRouteImport } from './routes/_authenticated/admin.anuncios.conexoes'
-import { Route as AuthenticatedAdminAnunciosCampanhasRouteImport } from './routes/_authenticated/admin.anuncios.campanhas'
-import { Route as AuthenticatedAdminAnunciosAlertasRouteImport } from './routes/_authenticated/admin.anuncios.alertas'
-import { Route as AuthenticatedAdminAdsRelatoriosRouteImport } from './routes/_authenticated/admin.ads.relatorios'
-import { Route as AuthenticatedAdminAdsPublicosRouteImport } from './routes/_authenticated/admin.ads.publicos'
-import { Route as AuthenticatedAdminAdsPixelRouteImport } from './routes/_authenticated/admin.ads.pixel'
-import { Route as AuthenticatedAdminAdsMidiasRouteImport } from './routes/_authenticated/admin.ads.midias'
-import { Route as AuthenticatedAdminAdsHistoricoRouteImport } from './routes/_authenticated/admin.ads.historico'
-import { Route as AuthenticatedAdminAdsGeradorIaRouteImport } from './routes/_authenticated/admin.ads.gerador-ia'
-import { Route as AuthenticatedAdminAdsCriativosRouteImport } from './routes/_authenticated/admin.ads.criativos'
-import { Route as AuthenticatedAdminAdsConjuntosRouteImport } from './routes/_authenticated/admin.ads.conjuntos'
-import { Route as AuthenticatedAdminAdsCampanhasRouteImport } from './routes/_authenticated/admin.ads.campanhas'
 import { Route as AuthenticatedAdminAdsAnunciosRouteImport } from './routes/_authenticated/admin.ads.anuncios'
-import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
-import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
-import { Route as DojoAppUnitsAffiliatesIdRouteImport } from './routes/dojo.app.units.affiliates.$id'
-import { Route as DojoAppStudentsIdAnalysisRouteImport } from './routes/dojo.app.students.$id.analysis'
-import { Route as DojoAppStoreProdutosSlugRouteImport } from './routes/dojo.app.store.produtos.$slug'
-import { Route as DojoAppStorePedidosIdRouteImport } from './routes/dojo.app.store.pedidos.$id'
-import { Route as DojoAppEvaluationsTemplatesIdRouteImport } from './routes/dojo.app.evaluations.templates.$id'
-import { Route as DojoAppEvaluationsSessionsIdRouteImport } from './routes/dojo.app.evaluations.sessions.$id'
-import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
-import { Route as ApiPublicAppSlugDownloadRouteImport } from './routes/api/public/app/$slug/download'
+import { Route as AuthenticatedAdminAdsCampanhasRouteImport } from './routes/_authenticated/admin.ads.campanhas'
+import { Route as AuthenticatedAdminAdsConjuntosRouteImport } from './routes/_authenticated/admin.ads.conjuntos'
+import { Route as AuthenticatedAdminAdsCriativosRouteImport } from './routes/_authenticated/admin.ads.criativos'
+import { Route as AuthenticatedAdminAdsGeradorIaRouteImport } from './routes/_authenticated/admin.ads.gerador-ia'
+import { Route as AuthenticatedAdminAdsHistoricoRouteImport } from './routes/_authenticated/admin.ads.historico'
+import { Route as AuthenticatedAdminAdsMidiasRouteImport } from './routes/_authenticated/admin.ads.midias'
+import { Route as AuthenticatedAdminAdsPixelRouteImport } from './routes/_authenticated/admin.ads.pixel'
+import { Route as AuthenticatedAdminAdsPublicosRouteImport } from './routes/_authenticated/admin.ads.publicos'
+import { Route as AuthenticatedAdminAdsRelatoriosRouteImport } from './routes/_authenticated/admin.ads.relatorios'
+import { Route as AuthenticatedAdminAnunciosIndexRouteImport } from './routes/_authenticated/admin.anuncios.index'
+import { Route as AuthenticatedAdminAnunciosAlertasRouteImport } from './routes/_authenticated/admin.anuncios.alertas'
+import { Route as AuthenticatedAdminAnunciosCampanhasRouteImport } from './routes/_authenticated/admin.anuncios.campanhas'
+import { Route as AuthenticatedAdminAnunciosConexoesRouteImport } from './routes/_authenticated/admin.anuncios.conexoes'
+import { Route as AuthenticatedAdminAnunciosCopiesRouteImport } from './routes/_authenticated/admin.anuncios.copies'
+import { Route as AuthenticatedAdminAnunciosCriativosRouteImport } from './routes/_authenticated/admin.anuncios.criativos'
+import { Route as AuthenticatedAdminAnunciosEscalaRouteImport } from './routes/_authenticated/admin.anuncios.escala'
+import { Route as AuthenticatedAdminAnunciosNovaRouteImport } from './routes/_authenticated/admin.anuncios.nova'
+import { Route as AuthenticatedAdminAnunciosOtimizacaoRouteImport } from './routes/_authenticated/admin.anuncios.otimizacao'
+import { Route as AuthenticatedAdminFiscalPedidosRouteImport } from './routes/_authenticated/admin.fiscal.pedidos'
+import { Route as AuthenticatedAdminInstagramIndexRouteImport } from './routes/_authenticated/admin.instagram.index'
+import { Route as AuthenticatedAdminInstagramAdminRouteImport } from './routes/_authenticated/admin.instagram.admin'
+import { Route as AuthenticatedAdminInstagramAutomacoesRouteImport } from './routes/_authenticated/admin.instagram.automacoes'
+import { Route as AuthenticatedAdminInstagramComentariosRouteImport } from './routes/_authenticated/admin.instagram.comentarios'
+import { Route as AuthenticatedAdminInstagramContaRouteImport } from './routes/_authenticated/admin.instagram.conta'
+import { Route as AuthenticatedAdminInstagramCrmRouteImport } from './routes/_authenticated/admin.instagram.crm'
+import { Route as AuthenticatedAdminInstagramInboxRouteImport } from './routes/_authenticated/admin.instagram.inbox'
+import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated/admin.leads.index'
+import { Route as AuthenticatedAdminLeadsIdRouteImport } from './routes/_authenticated/admin.leads.$id'
+import { Route as AuthenticatedAdminLeadsBuscaRouteImport } from './routes/_authenticated/admin.leads.busca'
+import { Route as AuthenticatedAdminLeadsConfiguracoesRouteImport } from './routes/_authenticated/admin.leads.configuracoes'
+import { Route as AuthenticatedAdminLeadsLogsRouteImport } from './routes/_authenticated/admin.leads.logs'
+import { Route as AuthenticatedAdminLeadsMacroRouteImport } from './routes/_authenticated/admin.leads.macro'
+import { Route as AuthenticatedAdminLeadsPipelineRouteImport } from './routes/_authenticated/admin.leads.pipeline'
+import { Route as AuthenticatedAdminLeadsQualificadosRouteImport } from './routes/_authenticated/admin.leads.qualificados'
+import { Route as AuthenticatedAdminMarketingIndexRouteImport } from './routes/_authenticated/admin.marketing.index'
+import { Route as AuthenticatedAdminMarketingInteligenciaRouteImport } from './routes/_authenticated/admin.marketing.inteligencia'
+import { Route as AuthenticatedAdminMarketingKpisRouteImport } from './routes/_authenticated/admin.marketing.kpis'
+import { Route as AuthenticatedAdminMarketingMercadoRouteImport } from './routes/_authenticated/admin.marketing.mercado'
+import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated/admin.pedidos.index'
+import { Route as AuthenticatedAdminPedidosOrderIdRouteImport } from './routes/_authenticated/admin.pedidos.$orderId'
+import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated/admin.produtos.index'
+import { Route as AuthenticatedAdminProdutosFaixaCalcRouteImport } from './routes/_authenticated/admin.produtos.faixa-calc'
+import { Route as AuthenticatedAdminProdutosImagensRouteImport } from './routes/_authenticated/admin.produtos.imagens'
+import { Route as AuthenticatedAdminProdutosImportarRouteImport } from './routes/_authenticated/admin.produtos.importar'
+import { Route as AuthenticatedAdminProdutosPacotesRouteImport } from './routes/_authenticated/admin.produtos.pacotes'
+import { Route as AuthenticatedAdminProdutosTamanhosRouteImport } from './routes/_authenticated/admin.produtos.tamanhos'
+import { Route as AuthenticatedAdminSaasSuporteRouteImport } from './routes/_authenticated/admin.saas.suporte'
+import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
+import { Route as ApiDesktopProductsIdRouteImport } from './routes/api/desktop/products.$id'
+import { Route as ApiDesktopQuotesIdRouteImport } from './routes/api/desktop/quotes.$id'
+import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
+import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
+import { Route as ApiPublicHooksAdminPushRouteImport } from './routes/api/public/hooks/admin-push'
+import { Route as ApiPublicHooksApplyScheduledGraduationsRouteImport } from './routes/api/public/hooks/apply-scheduled-graduations'
+import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
+import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
+import { Route as ApiPublicHooksCompetitionsIngestRouteImport } from './routes/api/public/hooks/competitions-ingest'
+import { Route as ApiPublicHooksDojoWalletReconcileRouteImport } from './routes/api/public/hooks/dojo-wallet-reconcile'
+import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
+import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
+import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
+import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
+import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
+import { Route as ApiPublicHooksMelhorEnvioRouteImport } from './routes/api/public/hooks/melhor-envio'
+import { Route as ApiPublicHooksMercadopagoRouteImport } from './routes/api/public/hooks/mercadopago'
+import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
+import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
+import { Route as ApiPublicHooksSendClassRemindersRouteImport } from './routes/api/public/hooks/send-class-reminders'
+import { Route as ApiPublicHooksSendDojoRemindersRouteImport } from './routes/api/public/hooks/send-dojo-reminders'
+import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
+import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
+import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
+import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
+import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
+import { Route as AppStudentCompetitionsIdRouteImport } from './routes/app._student.competitions.$id'
+import { Route as AppStudentDocumentsIndexRouteImport } from './routes/app._student.documents.index'
+import { Route as AppStudentDocumentsIdRouteImport } from './routes/app._student.documents.$id'
+import { Route as AppStudentInvoiceIdRouteImport } from './routes/app._student.invoice.$id'
+import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
+import { Route as DojoAppCompetitionsIdRouteImport } from './routes/dojo.app.competitions.$id'
+import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo.app.contract-templates.index'
+import { Route as DojoAppContractTemplatesIdRouteImport } from './routes/dojo.app.contract-templates.$id'
+import { Route as DojoAppContractsIndexRouteImport } from './routes/dojo.app.contracts.index'
+import { Route as DojoAppContractsIssuedRouteImport } from './routes/dojo.app.contracts.issued'
+import { Route as DojoAppContractsTemplatesRouteImport } from './routes/dojo.app.contracts.templates'
+import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.evaluations.index'
+import { Route as DojoAppEvaluationsCategoriesRouteImport } from './routes/dojo.app.evaluations.categories'
+import { Route as DojoAppEvaluationsHistoryRouteImport } from './routes/dojo.app.evaluations.history'
+import { Route as DojoAppEvaluationsLibraryRouteImport } from './routes/dojo.app.evaluations.library'
+import { Route as DojoAppEvaluationsSessionsRouteImport } from './routes/dojo.app.evaluations.sessions'
+import { Route as DojoAppEvaluationsSettingsRouteImport } from './routes/dojo.app.evaluations.settings'
+import { Route as DojoAppEvaluationsTechniquesRouteImport } from './routes/dojo.app.evaluations.techniques'
+import { Route as DojoAppEvaluationsTemplatesRouteImport } from './routes/dojo.app.evaluations.templates'
+import { Route as DojoAppLessonPlansIndexRouteImport } from './routes/dojo.app.lesson-plans.index'
+import { Route as DojoAppLessonPlansIdRouteImport } from './routes/dojo.app.lesson-plans.$id'
+import { Route as DojoAppLessonPlansHistoryRouteImport } from './routes/dojo.app.lesson-plans.history'
+import { Route as DojoAppLessonPlansLibraryRouteImport } from './routes/dojo.app.lesson-plans.library'
+import { Route as DojoAppLessonPlansTechniquesRouteImport } from './routes/dojo.app.lesson-plans.techniques'
+import { Route as DojoAppStoreIndexRouteImport } from './routes/dojo.app.store.index'
+import { Route as DojoAppStoreCarrinhoRouteImport } from './routes/dojo.app.store.carrinho'
+import { Route as DojoAppStorePedidosRouteImport } from './routes/dojo.app.store.pedidos'
+import { Route as DojoAppStudentsIndexRouteImport } from './routes/dojo.app.students.index'
+import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
+import { Route as DojoAppTeamIndexRouteImport } from './routes/dojo.app.team.index'
+import { Route as DojoAppTeamIdRouteImport } from './routes/dojo.app.team.$id'
+import { Route as DojoAppTeamPayrollRouteImport } from './routes/dojo.app.team.payroll'
+import { Route as DojoAppTeamSchedulesRouteImport } from './routes/dojo.app.team.schedules'
+import { Route as DojoAppUnitsIndexRouteImport } from './routes/dojo.app.units.index'
+import { Route as DojoAppVideosIndexRouteImport } from './routes/dojo.app.videos.index'
+import { Route as DojoAppVideosIdRouteImport } from './routes/dojo.app.videos.$id'
+import { Route as DojoAppVideosCategoriasRouteImport } from './routes/dojo.app.videos.categorias'
+import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.videos.favoritos'
+import { Route as DojoAppVideosNovoRouteImport } from './routes/dojo.app.videos.novo'
+import { Route as DojoStaffPortalIndexRouteImport } from './routes/dojo.staff._portal.index'
+import { Route as DojoStaffPortalAnnouncementsRouteImport } from './routes/dojo.staff._portal.announcements'
+import { Route as DojoStaffPortalBeltsRouteImport } from './routes/dojo.staff._portal.belts'
+import { Route as DojoStaffPortalCertificatesRouteImport } from './routes/dojo.staff._portal.certificates'
+import { Route as DojoStaffPortalCheckinRouteImport } from './routes/dojo.staff._portal.checkin'
+import { Route as DojoStaffPortalCompetitionsRouteImport } from './routes/dojo.staff._portal.competitions'
+import { Route as DojoStaffPortalEvaluationsRouteImport } from './routes/dojo.staff._portal.evaluations'
+import { Route as DojoStaffPortalGraduationsRouteImport } from './routes/dojo.staff._portal.graduations'
+import { Route as DojoStaffPortalProfileRouteImport } from './routes/dojo.staff._portal.profile'
+import { Route as DojoStaffPortalSalesRouteImport } from './routes/dojo.staff._portal.sales'
+import { Route as DojoStaffPortalScheduleRouteImport } from './routes/dojo.staff._portal.schedule'
+import { Route as DojoStaffPortalStoreRouteImport } from './routes/dojo.staff._portal.store'
+import { Route as DojoStaffPortalStudentsRouteImport } from './routes/dojo.staff._portal.students'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as AuthenticatedAdminAnunciosCampanhasIdRouteImport } from './routes/_authenticated/admin.anuncios.campanhas.$id'
+import { Route as ApiPublicAppSlugDownloadRouteImport } from './routes/api/public/app/$slug/download'
+import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
+import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
+import { Route as DojoAppEvaluationsSessionsIdRouteImport } from './routes/dojo.app.evaluations.sessions.$id'
+import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
+import { Route as DojoAppEvaluationsTemplatesIdRouteImport } from './routes/dojo.app.evaluations.templates.$id'
+import { Route as DojoAppStorePedidosIdRouteImport } from './routes/dojo.app.store.pedidos.$id'
+import { Route as DojoAppStoreProdutosSlugRouteImport } from './routes/dojo.app.store.produtos.$slug'
+import { Route as DojoAppStudentsIdAnalysisRouteImport } from './routes/dojo.app.students.$id.analysis'
+import { Route as DojoAppUnitsAffiliatesIdRouteImport } from './routes/dojo.app.units.affiliates.$id'
+import { Route as DojoAppContractsIssuedKindIdRouteImport } from './routes/dojo.app.contracts.issued.$kind.$id'
 import { Route as DojoAppStoreCCategoriaIndexRouteImport } from './routes/dojo.app.store.c.$categoria.index'
 import { Route as DojoAppStoreCCategoriaSubcategoriaRouteImport } from './routes/dojo.app.store.c.$categoria.$subcategoria'
-import { Route as DojoAppContractsIssuedKindIdRouteImport } from './routes/dojo.app.contracts.issued.$kind.$id'
 
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PayDemoRoute = PayDemoRouteImport.update({
-  id: '/pay-demo',
-  path: '/pay-demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DojoRoute = DojoRouteImport.update({
-  id: '/dojo',
-  path: '/dojo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DataDeletionRoute = DataDeletionRouteImport.update({
-  id: '/data-deletion',
-  path: '/data-deletion',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AtacadoLpRoute = AtacadoLpRouteImport.update({
-  id: '/atacado-lp',
-  path: '/atacado-lp',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -397,162 +361,54 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const AtacadoLpRoute = AtacadoLpRouteImport.update({
+  id: '/atacado-lp',
+  path: '/atacado-lp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaIndexRoute = LojaIndexRouteImport.update({
-  id: '/loja/',
-  path: '/loja/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DojoIndexRoute = DojoIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoRoute,
-} as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
-} as any)
-const PayInvoiceIdRoute = PayInvoiceIdRouteImport.update({
-  id: '/pay/$invoiceId',
-  path: '/pay/$invoiceId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MatriculaSlugRoute = MatriculaSlugRouteImport.update({
-  id: '/matricula/$slug',
-  path: '/matricula/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaGuiaKimonoRoute = LojaGuiaKimonoRouteImport.update({
-  id: '/loja/guia-kimono',
-  path: '/loja/guia-kimono',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaEntrarRoute = LojaEntrarRouteImport.update({
-  id: '/loja/entrar',
-  path: '/loja/entrar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
-  id: '/loja/checkout',
-  path: '/loja/checkout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaCarrinhoRoute = LojaCarrinhoRouteImport.update({
-  id: '/loja/carrinho',
-  path: '/loja/carrinho',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaAtacadoRoute = LojaAtacadoRouteImport.update({
-  id: '/loja/atacado',
-  path: '/loja/atacado',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DojoOnboardingRoute = DojoOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoCheckoutRoute = DojoCheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoAuthRoute = DojoAuthRouteImport.update({
+const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoAppRoute = DojoAppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => DojoRoute,
-} as any)
-const CertificateHashRoute = CertificateHashRouteImport.update({
-  id: '/certificate/$hash',
-  path: '/certificate/$hash',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppResetPasswordRoute = AppResetPasswordRouteImport.update({
+const DataDeletionRoute = DataDeletionRouteImport.update({
+  id: '/data-deletion',
+  path: '/data-deletion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DojoRoute = DojoRouteImport.update({
+  id: '/dojo',
+  path: '/dojo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayDemoRoute = PayDemoRouteImport.update({
+  id: '/pay-demo',
+  path: '/pay-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLoginRoute = AppLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppInstallRoute = AppInstallRouteImport.update({
-  id: '/install',
-  path: '/install',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppStudentRoute = AppStudentRouteImport.update({
-  id: '/_student',
-  getParentRoute: () => AppRoute,
-} as any)
-const ApiGenerateAdImageRoute = ApiGenerateAdImageRouteImport.update({
-  id: '/api/generate-ad-image',
-  path: '/api/generate-ad-image',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedStoreRoute = AuthenticatedStoreRouteImport.update({
-  id: '/store',
-  path: '/store',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedProspectRoute = AuthenticatedProspectRouteImport.update({
-  id: '/prospect',
-  path: '/prospect',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedMarketRoute = AuthenticatedMarketRouteImport.update({
-  id: '/market',
-  path: '/market',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedInstagramRoute = AuthenticatedInstagramRouteImport.update({
-  id: '/instagram',
-  path: '/instagram',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedGrowthRoute = AuthenticatedGrowthRouteImport.update({
-  id: '/growth',
-  path: '/growth',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdsRoute = AuthenticatedAdsRouteImport.update({
@@ -560,787 +416,169 @@ const AuthenticatedAdsRoute = AuthenticatedAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
-  id: '/loja/custom-shop/',
-  path: '/loja/custom-shop/',
+const AuthenticatedGrowthRoute = AuthenticatedGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInstagramRoute = AuthenticatedInstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMarketRoute = AuthenticatedMarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProspectRoute = AuthenticatedProspectRouteImport.update({
+  id: '/prospect',
+  path: '/prospect',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStoreRoute = AuthenticatedStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiGenerateAdImageRoute = ApiGenerateAdImageRouteImport.update({
+  id: '/api/generate-ad-image',
+  path: '/api/generate-ad-image',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LojaContaIndexRoute = LojaContaIndexRouteImport.update({
-  id: '/loja/conta/',
-  path: '/loja/conta/',
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStudentRoute = AppStudentRouteImport.update({
+  id: '/_student',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInstallRoute = AppInstallRouteImport.update({
+  id: '/install',
+  path: '/install',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLoginRoute = AppLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppResetPasswordRoute = AppResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => AppRoute,
+} as any)
+const CertificateHashRoute = CertificateHashRouteImport.update({
+  id: '/certificate/$hash',
+  path: '/certificate/$hash',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DojoAppIndexRoute = DojoAppIndexRouteImport.update({
+const DojoIndexRoute = DojoIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DojoAppRoute,
+  getParentRoute: () => DojoRoute,
 } as any)
-const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedStoreRoute,
+const DojoAppRoute = DojoAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => DojoRoute,
 } as any)
-const AuthenticatedProspectIndexRoute =
-  AuthenticatedProspectIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedProspectRoute,
-  } as any)
+const DojoAuthRoute = DojoAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoCheckoutRoute = DojoCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoOnboardingRoute = DojoOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => DojoRoute,
+} as any)
+const LojaIndexRoute = LojaIndexRouteImport.update({
+  id: '/loja/',
+  path: '/loja/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaAtacadoRoute = LojaAtacadoRouteImport.update({
+  id: '/loja/atacado',
+  path: '/loja/atacado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCarrinhoRoute = LojaCarrinhoRouteImport.update({
+  id: '/loja/carrinho',
+  path: '/loja/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
+  id: '/loja/checkout',
+  path: '/loja/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaEntrarRoute = LojaEntrarRouteImport.update({
+  id: '/loja/entrar',
+  path: '/loja/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaGuiaKimonoRoute = LojaGuiaKimonoRouteImport.update({
+  id: '/loja/guia-kimono',
+  path: '/loja/guia-kimono',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatriculaSlugRoute = MatriculaSlugRouteImport.update({
+  id: '/matricula/$slug',
+  path: '/matricula/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayInvoiceIdRoute = PayInvoiceIdRouteImport.update({
+  id: '/pay/$invoiceId',
+  path: '/pay/$invoiceId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const LovableEmailEventsRoute = LovableEmailEventsRouteImport.update({
-  id: '/lovable/email/events',
-  path: '/lovable/email/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
-  id: '/loja/produto/$slug',
-  path: '/loja/produto/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaPedidoIdRoute = LojaPedidoIdRouteImport.update({
-  id: '/loja/pedido/$id',
-  path: '/loja/pedido/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaCustomShopKindRoute = LojaCustomShopKindRouteImport.update({
-  id: '/loja/custom-shop/$kind',
-  path: '/loja/custom-shop/$kind',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaContaPedidosRoute = LojaContaPedidosRouteImport.update({
-  id: '/loja/conta/pedidos',
-  path: '/loja/conta/pedidos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
-  id: '/loja/categoria/$slug',
-  path: '/loja/categoria/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DojoStaffAuthRoute = DojoStaffAuthRouteImport.update({
-  id: '/staff/auth',
-  path: '/staff/auth',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoStaffPortalRoute = DojoStaffPortalRouteImport.update({
-  id: '/staff/_portal',
-  path: '/staff',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoPayInvoiceIdRoute = DojoPayInvoiceIdRouteImport.update({
-  id: '/pay/$invoiceId',
-  path: '/pay/$invoiceId',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoMatriculaSlugRoute = DojoMatriculaSlugRouteImport.update({
-  id: '/matricula/$slug',
-  path: '/matricula/$slug',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoCertificateEditorIdRoute = DojoCertificateEditorIdRouteImport.update({
-  id: '/certificate-editor/$id',
-  path: '/certificate-editor/$id',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoAppVideosRoute = DojoAppVideosRouteImport.update({
-  id: '/videos',
-  path: '/videos',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTutorialEditorRoute = DojoAppTutorialEditorRouteImport.update({
-  id: '/tutorial-editor',
-  path: '/tutorial-editor',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTutorialRoute = DojoAppTutorialRouteImport.update({
-  id: '/tutorial',
-  path: '/tutorial',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppSystemUsersRoute = DojoAppSystemUsersRouteImport.update({
-  id: '/system-users',
-  path: '/system-users',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppSupportRoute = DojoAppSupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppSubscriptionRoute = DojoAppSubscriptionRouteImport.update({
-  id: '/subscription',
-  path: '/subscription',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppStudentsRoute = DojoAppStudentsRouteImport.update({
-  id: '/students',
-  path: '/students',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppStudentNotificationsConfigRoute =
-  DojoAppStudentNotificationsConfigRouteImport.update({
-    id: '/student-notifications-config',
-    path: '/student-notifications-config',
-    getParentRoute: () => DojoAppRoute,
-  } as any)
-const DojoAppStudentAppQrRoute = DojoAppStudentAppQrRouteImport.update({
-  id: '/student-app-qr',
-  path: '/student-app-qr',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppStoreRoute = DojoAppStoreRouteImport.update({
-  id: '/store',
-  path: '/store',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppScheduleRoute = DojoAppScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppSalesRoute = DojoAppSalesRouteImport.update({
-  id: '/sales',
-  path: '/sales',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppRankingRoute = DojoAppRankingRouteImport.update({
-  id: '/ranking',
-  path: '/ranking',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppPlansRoute = DojoAppPlansRouteImport.update({
-  id: '/plans',
-  path: '/plans',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppNotificationsRoute = DojoAppNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppLessonPlansRoute = DojoAppLessonPlansRouteImport.update({
-  id: '/lesson-plans',
-  path: '/lesson-plans',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppIntegrationsRoute = DojoAppIntegrationsRouteImport.update({
-  id: '/integrations',
-  path: '/integrations',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppInstallRoute = DojoAppInstallRouteImport.update({
-  id: '/install',
-  path: '/install',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppGraduationsRoute = DojoAppGraduationsRouteImport.update({
-  id: '/graduations',
-  path: '/graduations',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppFinanceRoute = DojoAppFinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppEvaluationsRoute = DojoAppEvaluationsRouteImport.update({
-  id: '/evaluations',
-  path: '/evaluations',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppCorporateBenefitsRoute =
-  DojoAppCorporateBenefitsRouteImport.update({
-    id: '/corporate-benefits',
-    path: '/corporate-benefits',
-    getParentRoute: () => DojoAppRoute,
-  } as any)
-const DojoAppContractsRoute = DojoAppContractsRouteImport.update({
-  id: '/contracts',
-  path: '/contracts',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppCompetitionsRoute = DojoAppCompetitionsRouteImport.update({
-  id: '/competitions',
-  path: '/competitions',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppClassesRoute = DojoAppClassesRouteImport.update({
-  id: '/classes',
-  path: '/classes',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppCheckinRoute = DojoAppCheckinRouteImport.update({
-  id: '/checkin',
-  path: '/checkin',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppCertificatesRoute = DojoAppCertificatesRouteImport.update({
-  id: '/certificates',
-  path: '/certificates',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppBeltsRoute = DojoAppBeltsRouteImport.update({
-  id: '/belts',
-  path: '/belts',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppBeltStudioRoute = DojoAppBeltStudioRouteImport.update({
-  id: '/belt-studio',
-  path: '/belt-studio',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppApkVersionsRoute = DojoAppApkVersionsRouteImport.update({
-  id: '/apk-versions',
-  path: '/apk-versions',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppAnnouncementsRoute = DojoAppAnnouncementsRouteImport.update({
-  id: '/announcements',
-  path: '/announcements',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppAccountRoute = DojoAppAccountRouteImport.update({
-  id: '/account',
-  path: '/account',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const AppInstallSlugRoute = AppInstallSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => AppInstallRoute,
-} as any)
-const AppStudentVideosRoute = AppStudentVideosRouteImport.update({
-  id: '/videos',
-  path: '/videos',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentSettingsRoute = AppStudentSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentScheduleRoute = AppStudentScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentRankingRoute = AppStudentRankingRouteImport.update({
-  id: '/ranking',
-  path: '/ranking',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentProfileRoute = AppStudentProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentPerformanceRoute = AppStudentPerformanceRouteImport.update({
-  id: '/performance',
-  path: '/performance',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentOnboardingRoute = AppStudentOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentNotificationsRoute = AppStudentNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentNewsRoute = AppStudentNewsRouteImport.update({
-  id: '/news',
-  path: '/news',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentHomeRoute = AppStudentHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentGraduationsRoute = AppStudentGraduationsRouteImport.update({
-  id: '/graduations',
-  path: '/graduations',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentFinanceRoute = AppStudentFinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentEvaluationsRoute = AppStudentEvaluationsRouteImport.update({
-  id: '/evaluations',
-  path: '/evaluations',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentDocumentsRoute = AppStudentDocumentsRouteImport.update({
-  id: '/documents',
-  path: '/documents',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentCompetitionsRoute = AppStudentCompetitionsRouteImport.update({
-  id: '/competitions',
-  path: '/competitions',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentCheckinRoute = AppStudentCheckinRouteImport.update({
-  id: '/checkin',
-  path: '/checkin',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentCertificatesRoute = AppStudentCertificatesRouteImport.update({
-  id: '/certificates',
-  path: '/certificates',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentCardRoute = AppStudentCardRouteImport.update({
-  id: '/card',
-  path: '/card',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentAnnouncementsRoute = AppStudentAnnouncementsRouteImport.update({
-  id: '/announcements',
-  path: '/announcements',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentAgendaRoute = AppStudentAgendaRouteImport.update({
-  id: '/agenda',
-  path: '/agenda',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const ApiPublicDojoManifestDotwebmanifestRoute =
-  ApiPublicDojoManifestDotwebmanifestRouteImport.update({
-    id: '/api/public/dojo-manifest.webmanifest',
-    path: '/api/public/dojo-manifest.webmanifest',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDojoApkUploadRoute = ApiDojoApkUploadRouteImport.update({
-  id: '/api/dojo/apk-upload',
-  path: '/api/dojo/apk-upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDesktopQuotesRoute = ApiDesktopQuotesRouteImport.update({
-  id: '/api/desktop/quotes',
-  path: '/api/desktop/quotes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDesktopProductsRoute = ApiDesktopProductsRouteImport.update({
-  id: '/api/desktop/products',
-  path: '/api/desktop/products',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedStoreWholesaleRoute =
-  AuthenticatedStoreWholesaleRouteImport.update({
-    id: '/wholesale',
-    path: '/wholesale',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreSizesRoute = AuthenticatedStoreSizesRouteImport.update({
-  id: '/sizes',
-  path: '/sizes',
-  getParentRoute: () => AuthenticatedStoreRoute,
-} as any)
-const AuthenticatedStoreShippingRoute =
-  AuthenticatedStoreShippingRouteImport.update({
-    id: '/shipping',
-    path: '/shipping',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreProductsRoute =
-  AuthenticatedStoreProductsRouteImport.update({
-    id: '/products',
-    path: '/products',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreOrdersRoute =
-  AuthenticatedStoreOrdersRouteImport.update({
-    id: '/orders',
-    path: '/orders',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreNotificationsRoute =
-  AuthenticatedStoreNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreImportRoute =
-  AuthenticatedStoreImportRouteImport.update({
-    id: '/import',
-    path: '/import',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreImagensRoute =
-  AuthenticatedStoreImagensRouteImport.update({
-    id: '/imagens',
-    path: '/imagens',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreFaixaCalcRoute =
-  AuthenticatedStoreFaixaCalcRouteImport.update({
-    id: '/faixa-calc',
-    path: '/faixa-calc',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreDojoSupportRoute =
-  AuthenticatedStoreDojoSupportRouteImport.update({
-    id: '/dojo-support',
-    path: '/dojo-support',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreDojoManagerRoute =
-  AuthenticatedStoreDojoManagerRouteImport.update({
-    id: '/dojo-manager',
-    path: '/dojo-manager',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreCustomersRoute =
-  AuthenticatedStoreCustomersRouteImport.update({
-    id: '/customers',
-    path: '/customers',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreChatRoute = AuthenticatedStoreChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => AuthenticatedStoreRoute,
-} as any)
-const AuthenticatedProspectSettingsRoute =
-  AuthenticatedProspectSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedProspectRoute,
-  } as any)
-const AuthenticatedProspectSearchRoute =
-  AuthenticatedProspectSearchRouteImport.update({
-    id: '/search',
-    path: '/search',
-    getParentRoute: () => AuthenticatedProspectRoute,
-  } as any)
-const AuthenticatedProspectQualifiedRoute =
-  AuthenticatedProspectQualifiedRouteImport.update({
-    id: '/qualified',
-    path: '/qualified',
-    getParentRoute: () => AuthenticatedProspectRoute,
-  } as any)
-const AuthenticatedProspectPipelineRoute =
-  AuthenticatedProspectPipelineRouteImport.update({
-    id: '/pipeline',
-    path: '/pipeline',
-    getParentRoute: () => AuthenticatedProspectRoute,
-  } as any)
-const AuthenticatedProspectMacroRoute =
-  AuthenticatedProspectMacroRouteImport.update({
-    id: '/macro',
-    path: '/macro',
-    getParentRoute: () => AuthenticatedProspectRoute,
-  } as any)
-const AuthenticatedProspectLogsRoute =
-  AuthenticatedProspectLogsRouteImport.update({
-    id: '/logs',
-    path: '/logs',
-    getParentRoute: () => AuthenticatedProspectRoute,
-  } as any)
-const AuthenticatedProspectLeadsRoute =
-  AuthenticatedProspectLeadsRouteImport.update({
-    id: '/leads',
-    path: '/leads',
-    getParentRoute: () => AuthenticatedProspectRoute,
-  } as any)
-const AuthenticatedProspectIdRoute = AuthenticatedProspectIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthenticatedProspectRoute,
-} as any)
-const AuthenticatedMarketPricingRoute =
-  AuthenticatedMarketPricingRouteImport.update({
-    id: '/pricing',
-    path: '/pricing',
-    getParentRoute: () => AuthenticatedMarketRoute,
-  } as any)
-const AuthenticatedMarketOverviewRoute =
-  AuthenticatedMarketOverviewRouteImport.update({
-    id: '/overview',
-    path: '/overview',
-    getParentRoute: () => AuthenticatedMarketRoute,
-  } as any)
-const AuthenticatedMarketCrmRoute = AuthenticatedMarketCrmRouteImport.update({
-  id: '/crm',
-  path: '/crm',
-  getParentRoute: () => AuthenticatedMarketRoute,
-} as any)
-const AuthenticatedMarketContentRoute =
-  AuthenticatedMarketContentRouteImport.update({
-    id: '/content',
-    path: '/content',
-    getParentRoute: () => AuthenticatedMarketRoute,
-  } as any)
-const AuthenticatedMarketConnectionsRoute =
-  AuthenticatedMarketConnectionsRouteImport.update({
-    id: '/connections',
-    path: '/connections',
-    getParentRoute: () => AuthenticatedMarketRoute,
-  } as any)
-const AuthenticatedMarketCatalogRoute =
-  AuthenticatedMarketCatalogRouteImport.update({
-    id: '/catalog',
-    path: '/catalog',
-    getParentRoute: () => AuthenticatedMarketRoute,
-  } as any)
-const AuthenticatedInstagramInboxRoute =
-  AuthenticatedInstagramInboxRouteImport.update({
-    id: '/inbox',
-    path: '/inbox',
-    getParentRoute: () => AuthenticatedInstagramRoute,
-  } as any)
-const AuthenticatedInstagramDashboardRoute =
-  AuthenticatedInstagramDashboardRouteImport.update({
-    id: '/dashboard',
-    path: '/dashboard',
-    getParentRoute: () => AuthenticatedInstagramRoute,
-  } as any)
-const AuthenticatedInstagramCrmRoute =
-  AuthenticatedInstagramCrmRouteImport.update({
-    id: '/crm',
-    path: '/crm',
-    getParentRoute: () => AuthenticatedInstagramRoute,
-  } as any)
-const AuthenticatedInstagramCommentsRoute =
-  AuthenticatedInstagramCommentsRouteImport.update({
-    id: '/comments',
-    path: '/comments',
-    getParentRoute: () => AuthenticatedInstagramRoute,
-  } as any)
-const AuthenticatedInstagramAutomationsRoute =
-  AuthenticatedInstagramAutomationsRouteImport.update({
-    id: '/automations',
-    path: '/automations',
-    getParentRoute: () => AuthenticatedInstagramRoute,
-  } as any)
-const AuthenticatedInstagramAdminRoute =
-  AuthenticatedInstagramAdminRouteImport.update({
-    id: '/admin',
-    path: '/admin',
-    getParentRoute: () => AuthenticatedInstagramRoute,
-  } as any)
-const AuthenticatedInstagramAccountRoute =
-  AuthenticatedInstagramAccountRouteImport.update({
-    id: '/account',
-    path: '/account',
-    getParentRoute: () => AuthenticatedInstagramRoute,
-  } as any)
-const AuthenticatedGrowthMarketRoute =
-  AuthenticatedGrowthMarketRouteImport.update({
-    id: '/market',
-    path: '/market',
-    getParentRoute: () => AuthenticatedGrowthRoute,
-  } as any)
-const AuthenticatedGrowthKpisRoute = AuthenticatedGrowthKpisRouteImport.update({
-  id: '/kpis',
-  path: '/kpis',
-  getParentRoute: () => AuthenticatedGrowthRoute,
-} as any)
-const AuthenticatedGrowthIntelligenceRoute =
-  AuthenticatedGrowthIntelligenceRouteImport.update({
-    id: '/intelligence',
-    path: '/intelligence',
-    getParentRoute: () => AuthenticatedGrowthRoute,
-  } as any)
-const AuthenticatedGrowthInsightsRoute =
-  AuthenticatedGrowthInsightsRouteImport.update({
-    id: '/insights',
-    path: '/insights',
-    getParentRoute: () => AuthenticatedGrowthRoute,
-  } as any)
-const AuthenticatedGrowthCustomersRoute =
-  AuthenticatedGrowthCustomersRouteImport.update({
-    id: '/customers',
-    path: '/customers',
-    getParentRoute: () => AuthenticatedGrowthRoute,
-  } as any)
-const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
-  id: '/crm',
-  path: '/crm',
-  getParentRoute: () => AuthenticatedGrowthRoute,
-} as any)
-const AuthenticatedAdsScaleRoute = AuthenticatedAdsScaleRouteImport.update({
-  id: '/scale',
-  path: '/scale',
-  getParentRoute: () => AuthenticatedAdsRoute,
-} as any)
-const AuthenticatedAdsOptimizationRoute =
-  AuthenticatedAdsOptimizationRouteImport.update({
-    id: '/optimization',
-    path: '/optimization',
-    getParentRoute: () => AuthenticatedAdsRoute,
-  } as any)
-const AuthenticatedAdsNewRoute = AuthenticatedAdsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthenticatedAdsRoute,
-} as any)
-const AuthenticatedAdsDashboardRoute =
-  AuthenticatedAdsDashboardRouteImport.update({
-    id: '/dashboard',
-    path: '/dashboard',
-    getParentRoute: () => AuthenticatedAdsRoute,
-  } as any)
-const AuthenticatedAdsCreativesRoute =
-  AuthenticatedAdsCreativesRouteImport.update({
-    id: '/creatives',
-    path: '/creatives',
-    getParentRoute: () => AuthenticatedAdsRoute,
-  } as any)
-const AuthenticatedAdsCopiesRoute = AuthenticatedAdsCopiesRouteImport.update({
-  id: '/copies',
-  path: '/copies',
-  getParentRoute: () => AuthenticatedAdsRoute,
-} as any)
-const AuthenticatedAdsConnectionsRoute =
-  AuthenticatedAdsConnectionsRouteImport.update({
-    id: '/connections',
-    path: '/connections',
-    getParentRoute: () => AuthenticatedAdsRoute,
-  } as any)
-const AuthenticatedAdsCampaignsRoute =
-  AuthenticatedAdsCampaignsRouteImport.update({
-    id: '/campaigns',
-    path: '/campaigns',
-    getParentRoute: () => AuthenticatedAdsRoute,
-  } as any)
-const AuthenticatedAdsAlertsRoute = AuthenticatedAdsAlertsRouteImport.update({
-  id: '/alerts',
-  path: '/alerts',
-  getParentRoute: () => AuthenticatedAdsRoute,
-} as any)
-const AuthenticatedAdminUsuariosRoute =
-  AuthenticatedAdminUsuariosRouteImport.update({
-    id: '/usuarios',
-    path: '/usuarios',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSaasRoute = AuthenticatedAdminSaasRouteImport.update({
-  id: '/saas',
-  path: '/saas',
+const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminProspectRoute =
-  AuthenticatedAdminProspectRouteImport.update({
-    id: '/prospect',
-    path: '/prospect',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminProducaoRoute =
-  AuthenticatedAdminProducaoRouteImport.update({
-    id: '/producao',
-    path: '/producao',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPerfilRoute =
-  AuthenticatedAdminPerfilRouteImport.update({
-    id: '/perfil',
-    path: '/perfil',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminOrcamentosRoute =
-  AuthenticatedAdminOrcamentosRouteImport.update({
-    id: '/orcamentos',
-    path: '/orcamentos',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminNotificacoesRoute =
-  AuthenticatedAdminNotificacoesRouteImport.update({
-    id: '/notificacoes',
-    path: '/notificacoes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminMarketingRoute =
-  AuthenticatedAdminMarketingRouteImport.update({
-    id: '/marketing',
-    path: '/marketing',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminLojaRoute = AuthenticatedAdminLojaRouteImport.update({
-  id: '/loja',
-  path: '/loja',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminInstagramRoute =
-  AuthenticatedAdminInstagramRouteImport.update({
-    id: '/instagram',
-    path: '/instagram',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminFiscalRoute =
-  AuthenticatedAdminFiscalRouteImport.update({
-    id: '/fiscal',
-    path: '/fiscal',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminEnvioRoute = AuthenticatedAdminEnvioRouteImport.update({
-  id: '/envio',
-  path: '/envio',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminDojoRoute = AuthenticatedAdminDojoRouteImport.update({
-  id: '/dojo',
-  path: '/dojo',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminDashboardRoute =
-  AuthenticatedAdminDashboardRouteImport.update({
-    id: '/dashboard',
-    path: '/dashboard',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminCrmRoute = AuthenticatedAdminCrmRouteImport.update({
-  id: '/crm',
-  path: '/crm',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminConfiguracoesRoute =
-  AuthenticatedAdminConfiguracoesRouteImport.update({
-    id: '/configuracoes',
-    path: '/configuracoes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminConexoesRoute =
-  AuthenticatedAdminConexoesRouteImport.update({
-    id: '/conexoes',
-    path: '/conexoes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminClientesGrowthRoute =
-  AuthenticatedAdminClientesGrowthRouteImport.update({
-    id: '/clientes-growth',
-    path: '/clientes-growth',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminClientesRoute =
-  AuthenticatedAdminClientesRouteImport.update({
-    id: '/clientes',
-    path: '/clientes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminAtendimentoRoute =
-  AuthenticatedAdminAtendimentoRouteImport.update({
-    id: '/atendimento',
-    path: '/atendimento',
+const AuthenticatedAdminAnunciosRoute =
+  AuthenticatedAdminAnunciosRouteImport.update({
+    id: '/anuncios',
+    path: '/anuncios',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAtacadoRoute =
@@ -1349,758 +587,783 @@ const AuthenticatedAdminAtacadoRoute =
     path: '/atacado',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminAnunciosRoute =
-  AuthenticatedAdminAnunciosRouteImport.update({
-    id: '/anuncios',
-    path: '/anuncios',
+const AuthenticatedAdminAtendimentoRoute =
+  AuthenticatedAdminAtendimentoRouteImport.update({
+    id: '/atendimento',
+    path: '/atendimento',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
-  id: '/ads',
-  path: '/ads',
+const AuthenticatedAdminClientesRoute =
+  AuthenticatedAdminClientesRouteImport.update({
+    id: '/clientes',
+    path: '/clientes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientesGrowthRoute =
+  AuthenticatedAdminClientesGrowthRouteImport.update({
+    id: '/clientes-growth',
+    path: '/clientes-growth',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminConexoesRoute =
+  AuthenticatedAdminConexoesRouteImport.update({
+    id: '/conexoes',
+    path: '/conexoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminConfiguracoesRoute =
+  AuthenticatedAdminConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCrmRoute = AuthenticatedAdminCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const DojoStaffPortalIndexRoute = DojoStaffPortalIndexRouteImport.update({
+const AuthenticatedAdminDashboardRoute =
+  AuthenticatedAdminDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDojoRoute = AuthenticatedAdminDojoRouteImport.update({
+  id: '/dojo',
+  path: '/dojo',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminEnvioRoute = AuthenticatedAdminEnvioRouteImport.update({
+  id: '/envio',
+  path: '/envio',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminFiscalRoute =
+  AuthenticatedAdminFiscalRouteImport.update({
+    id: '/fiscal',
+    path: '/fiscal',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminInstagramRoute =
+  AuthenticatedAdminInstagramRouteImport.update({
+    id: '/instagram',
+    path: '/instagram',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminLojaRoute = AuthenticatedAdminLojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminMarketingRoute =
+  AuthenticatedAdminMarketingRouteImport.update({
+    id: '/marketing',
+    path: '/marketing',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminNotificacoesRoute =
+  AuthenticatedAdminNotificacoesRouteImport.update({
+    id: '/notificacoes',
+    path: '/notificacoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminOrcamentosRoute =
+  AuthenticatedAdminOrcamentosRouteImport.update({
+    id: '/orcamentos',
+    path: '/orcamentos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPerfilRoute =
+  AuthenticatedAdminPerfilRouteImport.update({
+    id: '/perfil',
+    path: '/perfil',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProducaoRoute =
+  AuthenticatedAdminProducaoRouteImport.update({
+    id: '/producao',
+    path: '/producao',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProspectRoute =
+  AuthenticatedAdminProspectRouteImport.update({
+    id: '/prospect',
+    path: '/prospect',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSaasRoute = AuthenticatedAdminSaasRouteImport.update({
+  id: '/saas',
+  path: '/saas',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminUsuariosRoute =
+  AuthenticatedAdminUsuariosRouteImport.update({
+    id: '/usuarios',
+    path: '/usuarios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdsAlertsRoute = AuthenticatedAdsAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
+const AuthenticatedAdsCampaignsRoute =
+  AuthenticatedAdsCampaignsRouteImport.update({
+    id: '/campaigns',
+    path: '/campaigns',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
+const AuthenticatedAdsConnectionsRoute =
+  AuthenticatedAdsConnectionsRouteImport.update({
+    id: '/connections',
+    path: '/connections',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
+const AuthenticatedAdsCopiesRoute = AuthenticatedAdsCopiesRouteImport.update({
+  id: '/copies',
+  path: '/copies',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
+const AuthenticatedAdsCreativesRoute =
+  AuthenticatedAdsCreativesRouteImport.update({
+    id: '/creatives',
+    path: '/creatives',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
+const AuthenticatedAdsDashboardRoute =
+  AuthenticatedAdsDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
+const AuthenticatedAdsNewRoute = AuthenticatedAdsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
+const AuthenticatedAdsOptimizationRoute =
+  AuthenticatedAdsOptimizationRouteImport.update({
+    id: '/optimization',
+    path: '/optimization',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
+const AuthenticatedAdsScaleRoute = AuthenticatedAdsScaleRouteImport.update({
+  id: '/scale',
+  path: '/scale',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
+const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => AuthenticatedGrowthRoute,
+} as any)
+const AuthenticatedGrowthCustomersRoute =
+  AuthenticatedGrowthCustomersRouteImport.update({
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedGrowthRoute,
+  } as any)
+const AuthenticatedGrowthInsightsRoute =
+  AuthenticatedGrowthInsightsRouteImport.update({
+    id: '/insights',
+    path: '/insights',
+    getParentRoute: () => AuthenticatedGrowthRoute,
+  } as any)
+const AuthenticatedGrowthIntelligenceRoute =
+  AuthenticatedGrowthIntelligenceRouteImport.update({
+    id: '/intelligence',
+    path: '/intelligence',
+    getParentRoute: () => AuthenticatedGrowthRoute,
+  } as any)
+const AuthenticatedGrowthKpisRoute = AuthenticatedGrowthKpisRouteImport.update({
+  id: '/kpis',
+  path: '/kpis',
+  getParentRoute: () => AuthenticatedGrowthRoute,
+} as any)
+const AuthenticatedGrowthMarketRoute =
+  AuthenticatedGrowthMarketRouteImport.update({
+    id: '/market',
+    path: '/market',
+    getParentRoute: () => AuthenticatedGrowthRoute,
+  } as any)
+const AuthenticatedInstagramAccountRoute =
+  AuthenticatedInstagramAccountRouteImport.update({
+    id: '/account',
+    path: '/account',
+    getParentRoute: () => AuthenticatedInstagramRoute,
+  } as any)
+const AuthenticatedInstagramAdminRoute =
+  AuthenticatedInstagramAdminRouteImport.update({
+    id: '/admin',
+    path: '/admin',
+    getParentRoute: () => AuthenticatedInstagramRoute,
+  } as any)
+const AuthenticatedInstagramAutomationsRoute =
+  AuthenticatedInstagramAutomationsRouteImport.update({
+    id: '/automations',
+    path: '/automations',
+    getParentRoute: () => AuthenticatedInstagramRoute,
+  } as any)
+const AuthenticatedInstagramCommentsRoute =
+  AuthenticatedInstagramCommentsRouteImport.update({
+    id: '/comments',
+    path: '/comments',
+    getParentRoute: () => AuthenticatedInstagramRoute,
+  } as any)
+const AuthenticatedInstagramCrmRoute =
+  AuthenticatedInstagramCrmRouteImport.update({
+    id: '/crm',
+    path: '/crm',
+    getParentRoute: () => AuthenticatedInstagramRoute,
+  } as any)
+const AuthenticatedInstagramDashboardRoute =
+  AuthenticatedInstagramDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedInstagramRoute,
+  } as any)
+const AuthenticatedInstagramInboxRoute =
+  AuthenticatedInstagramInboxRouteImport.update({
+    id: '/inbox',
+    path: '/inbox',
+    getParentRoute: () => AuthenticatedInstagramRoute,
+  } as any)
+const AuthenticatedMarketCatalogRoute =
+  AuthenticatedMarketCatalogRouteImport.update({
+    id: '/catalog',
+    path: '/catalog',
+    getParentRoute: () => AuthenticatedMarketRoute,
+  } as any)
+const AuthenticatedMarketConnectionsRoute =
+  AuthenticatedMarketConnectionsRouteImport.update({
+    id: '/connections',
+    path: '/connections',
+    getParentRoute: () => AuthenticatedMarketRoute,
+  } as any)
+const AuthenticatedMarketContentRoute =
+  AuthenticatedMarketContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => AuthenticatedMarketRoute,
+  } as any)
+const AuthenticatedMarketCrmRoute = AuthenticatedMarketCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => AuthenticatedMarketRoute,
+} as any)
+const AuthenticatedMarketOverviewRoute =
+  AuthenticatedMarketOverviewRouteImport.update({
+    id: '/overview',
+    path: '/overview',
+    getParentRoute: () => AuthenticatedMarketRoute,
+  } as any)
+const AuthenticatedMarketPricingRoute =
+  AuthenticatedMarketPricingRouteImport.update({
+    id: '/pricing',
+    path: '/pricing',
+    getParentRoute: () => AuthenticatedMarketRoute,
+  } as any)
+const AuthenticatedProspectIndexRoute =
+  AuthenticatedProspectIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedProspectRoute,
+  } as any)
+const AuthenticatedProspectIdRoute = AuthenticatedProspectIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedProspectRoute,
+} as any)
+const AuthenticatedProspectLeadsRoute =
+  AuthenticatedProspectLeadsRouteImport.update({
+    id: '/leads',
+    path: '/leads',
+    getParentRoute: () => AuthenticatedProspectRoute,
+  } as any)
+const AuthenticatedProspectLogsRoute =
+  AuthenticatedProspectLogsRouteImport.update({
+    id: '/logs',
+    path: '/logs',
+    getParentRoute: () => AuthenticatedProspectRoute,
+  } as any)
+const AuthenticatedProspectMacroRoute =
+  AuthenticatedProspectMacroRouteImport.update({
+    id: '/macro',
+    path: '/macro',
+    getParentRoute: () => AuthenticatedProspectRoute,
+  } as any)
+const AuthenticatedProspectPipelineRoute =
+  AuthenticatedProspectPipelineRouteImport.update({
+    id: '/pipeline',
+    path: '/pipeline',
+    getParentRoute: () => AuthenticatedProspectRoute,
+  } as any)
+const AuthenticatedProspectQualifiedRoute =
+  AuthenticatedProspectQualifiedRouteImport.update({
+    id: '/qualified',
+    path: '/qualified',
+    getParentRoute: () => AuthenticatedProspectRoute,
+  } as any)
+const AuthenticatedProspectSearchRoute =
+  AuthenticatedProspectSearchRouteImport.update({
+    id: '/search',
+    path: '/search',
+    getParentRoute: () => AuthenticatedProspectRoute,
+  } as any)
+const AuthenticatedProspectSettingsRoute =
+  AuthenticatedProspectSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedProspectRoute,
+  } as any)
+const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DojoStaffPortalRoute,
+  getParentRoute: () => AuthenticatedStoreRoute,
 } as any)
-const DojoAppVideosIndexRoute = DojoAppVideosIndexRouteImport.update({
+const AuthenticatedStoreChatRoute = AuthenticatedStoreChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedStoreRoute,
+} as any)
+const AuthenticatedStoreCustomersRoute =
+  AuthenticatedStoreCustomersRouteImport.update({
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreDojoManagerRoute =
+  AuthenticatedStoreDojoManagerRouteImport.update({
+    id: '/dojo-manager',
+    path: '/dojo-manager',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreDojoSupportRoute =
+  AuthenticatedStoreDojoSupportRouteImport.update({
+    id: '/dojo-support',
+    path: '/dojo-support',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreFaixaCalcRoute =
+  AuthenticatedStoreFaixaCalcRouteImport.update({
+    id: '/faixa-calc',
+    path: '/faixa-calc',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreImagensRoute =
+  AuthenticatedStoreImagensRouteImport.update({
+    id: '/imagens',
+    path: '/imagens',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreImportRoute =
+  AuthenticatedStoreImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreNotificationsRoute =
+  AuthenticatedStoreNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreOrdersRoute =
+  AuthenticatedStoreOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreProductsRoute =
+  AuthenticatedStoreProductsRouteImport.update({
+    id: '/products',
+    path: '/products',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreShippingRoute =
+  AuthenticatedStoreShippingRouteImport.update({
+    id: '/shipping',
+    path: '/shipping',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const AuthenticatedStoreSizesRoute = AuthenticatedStoreSizesRouteImport.update({
+  id: '/sizes',
+  path: '/sizes',
+  getParentRoute: () => AuthenticatedStoreRoute,
+} as any)
+const AuthenticatedStoreWholesaleRoute =
+  AuthenticatedStoreWholesaleRouteImport.update({
+    id: '/wholesale',
+    path: '/wholesale',
+    getParentRoute: () => AuthenticatedStoreRoute,
+  } as any)
+const ApiDesktopProductsRoute = ApiDesktopProductsRouteImport.update({
+  id: '/api/desktop/products',
+  path: '/api/desktop/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDesktopQuotesRoute = ApiDesktopQuotesRouteImport.update({
+  id: '/api/desktop/quotes',
+  path: '/api/desktop/quotes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDojoApkUploadRoute = ApiDojoApkUploadRouteImport.update({
+  id: '/api/dojo/apk-upload',
+  path: '/api/dojo/apk-upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDojoManifestDotwebmanifestRoute =
+  ApiPublicDojoManifestDotwebmanifestRouteImport.update({
+    id: '/api/public/dojo-manifest.webmanifest',
+    path: '/api/public/dojo-manifest.webmanifest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AppStudentAgendaRoute = AppStudentAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentAnnouncementsRoute = AppStudentAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentCardRoute = AppStudentCardRouteImport.update({
+  id: '/card',
+  path: '/card',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentCertificatesRoute = AppStudentCertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentCheckinRoute = AppStudentCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentCompetitionsRoute = AppStudentCompetitionsRouteImport.update({
+  id: '/competitions',
+  path: '/competitions',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentDocumentsRoute = AppStudentDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentEvaluationsRoute = AppStudentEvaluationsRouteImport.update({
+  id: '/evaluations',
+  path: '/evaluations',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentFinanceRoute = AppStudentFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentGraduationsRoute = AppStudentGraduationsRouteImport.update({
+  id: '/graduations',
+  path: '/graduations',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentHomeRoute = AppStudentHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentNewsRoute = AppStudentNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentNotificationsRoute = AppStudentNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentOnboardingRoute = AppStudentOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentPerformanceRoute = AppStudentPerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentProfileRoute = AppStudentProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentRankingRoute = AppStudentRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentScheduleRoute = AppStudentScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentSettingsRoute = AppStudentSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentVideosRoute = AppStudentVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppInstallSlugRoute = AppInstallSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AppInstallRoute,
+} as any)
+const DojoAppIndexRoute = DojoAppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppUnitsIndexRoute = DojoAppUnitsIndexRouteImport.update({
-  id: '/units/',
-  path: '/units/',
   getParentRoute: () => DojoAppRoute,
 } as any)
-const DojoAppTeamIndexRoute = DojoAppTeamIndexRouteImport.update({
-  id: '/team/',
-  path: '/team/',
+const DojoAppAccountRoute = DojoAppAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => DojoAppRoute,
 } as any)
-const DojoAppStudentsIndexRoute = DojoAppStudentsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppStudentsRoute,
+const DojoAppAnnouncementsRoute = DojoAppAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => DojoAppRoute,
 } as any)
-const DojoAppStoreIndexRoute = DojoAppStoreIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppStoreRoute,
+const DojoAppApkVersionsRoute = DojoAppApkVersionsRouteImport.update({
+  id: '/apk-versions',
+  path: '/apk-versions',
+  getParentRoute: () => DojoAppRoute,
 } as any)
-const DojoAppLessonPlansIndexRoute = DojoAppLessonPlansIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppLessonPlansRoute,
+const DojoAppBeltStudioRoute = DojoAppBeltStudioRouteImport.update({
+  id: '/belt-studio',
+  path: '/belt-studio',
+  getParentRoute: () => DojoAppRoute,
 } as any)
-const DojoAppEvaluationsIndexRoute = DojoAppEvaluationsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppEvaluationsRoute,
+const DojoAppBeltsRoute = DojoAppBeltsRouteImport.update({
+  id: '/belts',
+  path: '/belts',
+  getParentRoute: () => DojoAppRoute,
 } as any)
-const DojoAppContractsIndexRoute = DojoAppContractsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppContractsRoute,
+const DojoAppCertificatesRoute = DojoAppCertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
+  getParentRoute: () => DojoAppRoute,
 } as any)
-const DojoAppContractTemplatesIndexRoute =
-  DojoAppContractTemplatesIndexRouteImport.update({
-    id: '/contract-templates/',
-    path: '/contract-templates/',
+const DojoAppCheckinRoute = DojoAppCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppClassesRoute = DojoAppClassesRouteImport.update({
+  id: '/classes',
+  path: '/classes',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppCompetitionsRoute = DojoAppCompetitionsRouteImport.update({
+  id: '/competitions',
+  path: '/competitions',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppContractsRoute = DojoAppContractsRouteImport.update({
+  id: '/contracts',
+  path: '/contracts',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppCorporateBenefitsRoute =
+  DojoAppCorporateBenefitsRouteImport.update({
+    id: '/corporate-benefits',
+    path: '/corporate-benefits',
     getParentRoute: () => DojoAppRoute,
   } as any)
-const DojoAppCompetitionsIndexRoute =
-  DojoAppCompetitionsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => DojoAppCompetitionsRoute,
+const DojoAppEvaluationsRoute = DojoAppEvaluationsRouteImport.update({
+  id: '/evaluations',
+  path: '/evaluations',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppFinanceRoute = DojoAppFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppGraduationsRoute = DojoAppGraduationsRouteImport.update({
+  id: '/graduations',
+  path: '/graduations',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppInstallRoute = DojoAppInstallRouteImport.update({
+  id: '/install',
+  path: '/install',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppIntegrationsRoute = DojoAppIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppLessonPlansRoute = DojoAppLessonPlansRouteImport.update({
+  id: '/lesson-plans',
+  path: '/lesson-plans',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppNotificationsRoute = DojoAppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppPlansRoute = DojoAppPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppRankingRoute = DojoAppRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppSalesRoute = DojoAppSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppScheduleRoute = DojoAppScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppStoreRoute = DojoAppStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppStudentAppQrRoute = DojoAppStudentAppQrRouteImport.update({
+  id: '/student-app-qr',
+  path: '/student-app-qr',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppStudentNotificationsConfigRoute =
+  DojoAppStudentNotificationsConfigRouteImport.update({
+    id: '/student-notifications-config',
+    path: '/student-notifications-config',
+    getParentRoute: () => DojoAppRoute,
   } as any)
-const AppStudentDocumentsIndexRoute =
-  AppStudentDocumentsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AppStudentDocumentsRoute,
-  } as any)
-const AuthenticatedAdminProdutosIndexRoute =
-  AuthenticatedAdminProdutosIndexRouteImport.update({
-    id: '/produtos/',
-    path: '/produtos/',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPedidosIndexRoute =
-  AuthenticatedAdminPedidosIndexRouteImport.update({
-    id: '/pedidos/',
-    path: '/pedidos/',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminMarketingIndexRoute =
-  AuthenticatedAdminMarketingIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAdminMarketingRoute,
-  } as any)
-const AuthenticatedAdminLeadsIndexRoute =
-  AuthenticatedAdminLeadsIndexRouteImport.update({
-    id: '/leads/',
-    path: '/leads/',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminInstagramIndexRoute =
-  AuthenticatedAdminInstagramIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
-  } as any)
-const AuthenticatedAdminAnunciosIndexRoute =
-  AuthenticatedAdminAnunciosIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
+const DojoAppStudentsRoute = DojoAppStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppSubscriptionRoute = DojoAppSubscriptionRouteImport.update({
+  id: '/subscription',
+  path: '/subscription',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppSupportRoute = DojoAppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppSystemUsersRoute = DojoAppSystemUsersRouteImport.update({
+  id: '/system-users',
+  path: '/system-users',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppTutorialRoute = DojoAppTutorialRouteImport.update({
+  id: '/tutorial',
+  path: '/tutorial',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppTutorialEditorRoute = DojoAppTutorialEditorRouteImport.update({
+  id: '/tutorial-editor',
+  path: '/tutorial-editor',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppVideosRoute = DojoAppVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoCertificateEditorIdRoute = DojoCertificateEditorIdRouteImport.update({
+  id: '/certificate-editor/$id',
+  path: '/certificate-editor/$id',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoMatriculaSlugRoute = DojoMatriculaSlugRouteImport.update({
+  id: '/matricula/$slug',
+  path: '/matricula/$slug',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoPayInvoiceIdRoute = DojoPayInvoiceIdRouteImport.update({
+  id: '/pay/$invoiceId',
+  path: '/pay/$invoiceId',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoStaffPortalRoute = DojoStaffPortalRouteImport.update({
+  id: '/staff/_portal',
+  path: '/staff',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoStaffAuthRoute = DojoStaffAuthRouteImport.update({
+  id: '/staff/auth',
+  path: '/staff/auth',
+  getParentRoute: () => DojoRoute,
+} as any)
+const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
+  id: '/loja/categoria/$slug',
+  path: '/loja/categoria/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaContaIndexRoute = LojaContaIndexRouteImport.update({
+  id: '/loja/conta/',
+  path: '/loja/conta/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaContaPedidosRoute = LojaContaPedidosRouteImport.update({
+  id: '/loja/conta/pedidos',
+  path: '/loja/conta/pedidos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
+  id: '/loja/custom-shop/',
+  path: '/loja/custom-shop/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCustomShopKindRoute = LojaCustomShopKindRouteImport.update({
+  id: '/loja/custom-shop/$kind',
+  path: '/loja/custom-shop/$kind',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaPedidoIdRoute = LojaPedidoIdRouteImport.update({
+  id: '/loja/pedido/$id',
+  path: '/loja/pedido/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
+  id: '/loja/produto/$slug',
+  path: '/loja/produto/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailEventsRoute = LovableEmailEventsRouteImport.update({
+  id: '/lovable/email/events',
+  path: '/lovable/email/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminAdsIndexRoute =
   AuthenticatedAdminAdsIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const LovableEmailTransactionalPreviewRoute =
-  LovableEmailTransactionalPreviewRouteImport.update({
-    id: '/lovable/email/transactional/preview',
-    path: '/lovable/email/transactional/preview',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DojoStaffPortalStudentsRoute = DojoStaffPortalStudentsRouteImport.update({
-  id: '/students',
-  path: '/students',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalStoreRoute = DojoStaffPortalStoreRouteImport.update({
-  id: '/store',
-  path: '/store',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalScheduleRoute = DojoStaffPortalScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalSalesRoute = DojoStaffPortalSalesRouteImport.update({
-  id: '/sales',
-  path: '/sales',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalProfileRoute = DojoStaffPortalProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalGraduationsRoute =
-  DojoStaffPortalGraduationsRouteImport.update({
-    id: '/graduations',
-    path: '/graduations',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalEvaluationsRoute =
-  DojoStaffPortalEvaluationsRouteImport.update({
-    id: '/evaluations',
-    path: '/evaluations',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalCompetitionsRoute =
-  DojoStaffPortalCompetitionsRouteImport.update({
-    id: '/competitions',
-    path: '/competitions',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalCheckinRoute = DojoStaffPortalCheckinRouteImport.update({
-  id: '/checkin',
-  path: '/checkin',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalCertificatesRoute =
-  DojoStaffPortalCertificatesRouteImport.update({
-    id: '/certificates',
-    path: '/certificates',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalBeltsRoute = DojoStaffPortalBeltsRouteImport.update({
-  id: '/belts',
-  path: '/belts',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalAnnouncementsRoute =
-  DojoStaffPortalAnnouncementsRouteImport.update({
-    id: '/announcements',
-    path: '/announcements',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoAppVideosNovoRoute = DojoAppVideosNovoRouteImport.update({
-  id: '/novo',
-  path: '/novo',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppVideosFavoritosRoute = DojoAppVideosFavoritosRouteImport.update({
-  id: '/favoritos',
-  path: '/favoritos',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppVideosCategoriasRoute = DojoAppVideosCategoriasRouteImport.update({
-  id: '/categorias',
-  path: '/categorias',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppVideosIdRoute = DojoAppVideosIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppTeamSchedulesRoute = DojoAppTeamSchedulesRouteImport.update({
-  id: '/team/schedules',
-  path: '/team/schedules',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTeamPayrollRoute = DojoAppTeamPayrollRouteImport.update({
-  id: '/team/payroll',
-  path: '/team/payroll',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTeamIdRoute = DojoAppTeamIdRouteImport.update({
-  id: '/team/$id',
-  path: '/team/$id',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppStudentsIdRoute = DojoAppStudentsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppStudentsRoute,
-} as any)
-const DojoAppStorePedidosRoute = DojoAppStorePedidosRouteImport.update({
-  id: '/pedidos',
-  path: '/pedidos',
-  getParentRoute: () => DojoAppStoreRoute,
-} as any)
-const DojoAppStoreCarrinhoRoute = DojoAppStoreCarrinhoRouteImport.update({
-  id: '/carrinho',
-  path: '/carrinho',
-  getParentRoute: () => DojoAppStoreRoute,
-} as any)
-const DojoAppLessonPlansTechniquesRoute =
-  DojoAppLessonPlansTechniquesRouteImport.update({
-    id: '/techniques',
-    path: '/techniques',
-    getParentRoute: () => DojoAppLessonPlansRoute,
-  } as any)
-const DojoAppLessonPlansLibraryRoute =
-  DojoAppLessonPlansLibraryRouteImport.update({
-    id: '/library',
-    path: '/library',
-    getParentRoute: () => DojoAppLessonPlansRoute,
-  } as any)
-const DojoAppLessonPlansHistoryRoute =
-  DojoAppLessonPlansHistoryRouteImport.update({
-    id: '/history',
-    path: '/history',
-    getParentRoute: () => DojoAppLessonPlansRoute,
-  } as any)
-const DojoAppLessonPlansIdRoute = DojoAppLessonPlansIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppLessonPlansRoute,
-} as any)
-const DojoAppEvaluationsTemplatesRoute =
-  DojoAppEvaluationsTemplatesRouteImport.update({
-    id: '/templates',
-    path: '/templates',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsTechniquesRoute =
-  DojoAppEvaluationsTechniquesRouteImport.update({
-    id: '/techniques',
-    path: '/techniques',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsSettingsRoute =
-  DojoAppEvaluationsSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsSessionsRoute =
-  DojoAppEvaluationsSessionsRouteImport.update({
-    id: '/sessions',
-    path: '/sessions',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsLibraryRoute =
-  DojoAppEvaluationsLibraryRouteImport.update({
-    id: '/library',
-    path: '/library',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsHistoryRoute =
-  DojoAppEvaluationsHistoryRouteImport.update({
-    id: '/history',
-    path: '/history',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsCategoriesRoute =
-  DojoAppEvaluationsCategoriesRouteImport.update({
-    id: '/categories',
-    path: '/categories',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppContractsTemplatesRoute =
-  DojoAppContractsTemplatesRouteImport.update({
-    id: '/templates',
-    path: '/templates',
-    getParentRoute: () => DojoAppContractsRoute,
-  } as any)
-const DojoAppContractsIssuedRoute = DojoAppContractsIssuedRouteImport.update({
-  id: '/issued',
-  path: '/issued',
-  getParentRoute: () => DojoAppContractsRoute,
-} as any)
-const DojoAppContractTemplatesIdRoute =
-  DojoAppContractTemplatesIdRouteImport.update({
-    id: '/contract-templates/$id',
-    path: '/contract-templates/$id',
-    getParentRoute: () => DojoAppRoute,
-  } as any)
-const DojoAppCompetitionsIdRoute = DojoAppCompetitionsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppCompetitionsRoute,
-} as any)
-const AppStudentInvoiceIdRoute = AppStudentInvoiceIdRouteImport.update({
-  id: '/invoice/$id',
-  path: '/invoice/$id',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentDocumentsIdRoute = AppStudentDocumentsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppStudentDocumentsRoute,
-} as any)
-const AppStudentCompetitionsIdRoute =
-  AppStudentCompetitionsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AppStudentCompetitionsRoute,
-  } as any)
-const ApiPublicSalesMessagesRoute = ApiPublicSalesMessagesRouteImport.update({
-  id: '/api/public/sales/messages',
-  path: '/api/public/sales/messages',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicSalesChatRoute = ApiPublicSalesChatRouteImport.update({
-  id: '/api/public/sales/chat',
-  path: '/api/public/sales/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicMetaWebhookRoute = ApiPublicMetaWebhookRouteImport.update({
-  id: '/api/public/meta/webhook',
-  path: '/api/public/meta/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
-  id: '/api/public/meta/callback',
-  path: '/api/public/meta/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicHooksSyncAdsInsightsRoute =
-  ApiPublicHooksSyncAdsInsightsRouteImport.update({
-    id: '/api/public/hooks/sync-ads-insights',
-    path: '/api/public/hooks/sync-ads-insights',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksSendDojoRemindersRoute =
-  ApiPublicHooksSendDojoRemindersRouteImport.update({
-    id: '/api/public/hooks/send-dojo-reminders',
-    path: '/api/public/hooks/send-dojo-reminders',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksSendClassRemindersRoute =
-  ApiPublicHooksSendClassRemindersRouteImport.update({
-    id: '/api/public/hooks/send-class-reminders',
-    path: '/api/public/hooks/send-class-reminders',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksScaleWinnersRoute =
-  ApiPublicHooksScaleWinnersRouteImport.update({
-    id: '/api/public/hooks/scale-winners',
-    path: '/api/public/hooks/scale-winners',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksRunAdsOptimizationRoute =
-  ApiPublicHooksRunAdsOptimizationRouteImport.update({
-    id: '/api/public/hooks/run-ads-optimization',
-    path: '/api/public/hooks/run-ads-optimization',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksPublishScheduledPostsRoute =
-  ApiPublicHooksPublishScheduledPostsRouteImport.update({
-    id: '/api/public/hooks/publish-scheduled-posts',
-    path: '/api/public/hooks/publish-scheduled-posts',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksMercadopagoRoute =
-  ApiPublicHooksMercadopagoRouteImport.update({
-    id: '/api/public/hooks/mercadopago',
-    path: '/api/public/hooks/mercadopago',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksMelhorEnvioRoute =
-  ApiPublicHooksMelhorEnvioRouteImport.update({
-    id: '/api/public/hooks/melhor-envio',
-    path: '/api/public/hooks/melhor-envio',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksMartialArtsDailySweepRoute =
-  ApiPublicHooksMartialArtsDailySweepRouteImport.update({
-    id: '/api/public/hooks/martial-arts-daily-sweep',
-    path: '/api/public/hooks/martial-arts-daily-sweep',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksIgWebhookRoute = ApiPublicHooksIgWebhookRouteImport.update({
-  id: '/api/public/hooks/ig-webhook',
-  path: '/api/public/hooks/ig-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicHooksIgSyncRoute = ApiPublicHooksIgSyncRouteImport.update({
-  id: '/api/public/hooks/ig-sync',
-  path: '/api/public/hooks/ig-sync',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicHooksGenerateDojoInvoicesRoute =
-  ApiPublicHooksGenerateDojoInvoicesRouteImport.update({
-    id: '/api/public/hooks/generate-dojo-invoices',
-    path: '/api/public/hooks/generate-dojo-invoices',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksEnrichPendingLeadsRoute =
-  ApiPublicHooksEnrichPendingLeadsRouteImport.update({
-    id: '/api/public/hooks/enrich-pending-leads',
-    path: '/api/public/hooks/enrich-pending-leads',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksDojoWalletReconcileRoute =
-  ApiPublicHooksDojoWalletReconcileRouteImport.update({
-    id: '/api/public/hooks/dojo-wallet-reconcile',
-    path: '/api/public/hooks/dojo-wallet-reconcile',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksCompetitionsIngestRoute =
-  ApiPublicHooksCompetitionsIngestRouteImport.update({
-    id: '/api/public/hooks/competitions-ingest',
-    path: '/api/public/hooks/competitions-ingest',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksAutoInstagramPostRoute =
-  ApiPublicHooksAutoInstagramPostRouteImport.update({
-    id: '/api/public/hooks/auto-instagram-post',
-    path: '/api/public/hooks/auto-instagram-post',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksAsaasRoute = ApiPublicHooksAsaasRouteImport.update({
-  id: '/api/public/hooks/asaas',
-  path: '/api/public/hooks/asaas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicHooksApplyScheduledGraduationsRoute =
-  ApiPublicHooksApplyScheduledGraduationsRouteImport.update({
-    id: '/api/public/hooks/apply-scheduled-graduations',
-    path: '/api/public/hooks/apply-scheduled-graduations',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksAdminPushRoute = ApiPublicHooksAdminPushRouteImport.update({
-  id: '/api/public/hooks/admin-push',
-  path: '/api/public/hooks/admin-push',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCertificateHashRoute =
-  ApiPublicCertificateHashRouteImport.update({
-    id: '/api/public/certificate/$hash',
-    path: '/api/public/certificate/$hash',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicAppManifestDotwebmanifestRoute =
-  ApiPublicAppManifestDotwebmanifestRouteImport.update({
-    id: '/api/public/app/manifest.webmanifest',
-    path: '/api/public/app/manifest.webmanifest',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDesktopQuotesIdRoute = ApiDesktopQuotesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ApiDesktopQuotesRoute,
-} as any)
-const ApiDesktopProductsIdRoute = ApiDesktopProductsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ApiDesktopProductsRoute,
-} as any)
-const AuthenticatedAdsCampaignsIdRoute =
-  AuthenticatedAdsCampaignsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedAdsCampaignsRoute,
-  } as any)
-const AuthenticatedAdminSaasSuporteRoute =
-  AuthenticatedAdminSaasSuporteRouteImport.update({
-    id: '/suporte',
-    path: '/suporte',
-    getParentRoute: () => AuthenticatedAdminSaasRoute,
-  } as any)
-const AuthenticatedAdminProdutosTamanhosRoute =
-  AuthenticatedAdminProdutosTamanhosRouteImport.update({
-    id: '/produtos/tamanhos',
-    path: '/produtos/tamanhos',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminProdutosPacotesRoute =
-  AuthenticatedAdminProdutosPacotesRouteImport.update({
-    id: '/produtos/pacotes',
-    path: '/produtos/pacotes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminProdutosImportarRoute =
-  AuthenticatedAdminProdutosImportarRouteImport.update({
-    id: '/produtos/importar',
-    path: '/produtos/importar',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminProdutosImagensRoute =
-  AuthenticatedAdminProdutosImagensRouteImport.update({
-    id: '/produtos/imagens',
-    path: '/produtos/imagens',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminProdutosFaixaCalcRoute =
-  AuthenticatedAdminProdutosFaixaCalcRouteImport.update({
-    id: '/produtos/faixa-calc',
-    path: '/produtos/faixa-calc',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPedidosOrderIdRoute =
-  AuthenticatedAdminPedidosOrderIdRouteImport.update({
-    id: '/pedidos/$orderId',
-    path: '/pedidos/$orderId',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminMarketingMercadoRoute =
-  AuthenticatedAdminMarketingMercadoRouteImport.update({
-    id: '/mercado',
-    path: '/mercado',
-    getParentRoute: () => AuthenticatedAdminMarketingRoute,
-  } as any)
-const AuthenticatedAdminMarketingKpisRoute =
-  AuthenticatedAdminMarketingKpisRouteImport.update({
-    id: '/kpis',
-    path: '/kpis',
-    getParentRoute: () => AuthenticatedAdminMarketingRoute,
-  } as any)
-const AuthenticatedAdminMarketingInteligenciaRoute =
-  AuthenticatedAdminMarketingInteligenciaRouteImport.update({
-    id: '/inteligencia',
-    path: '/inteligencia',
-    getParentRoute: () => AuthenticatedAdminMarketingRoute,
-  } as any)
-const AuthenticatedAdminLeadsQualificadosRoute =
-  AuthenticatedAdminLeadsQualificadosRouteImport.update({
-    id: '/leads/qualificados',
-    path: '/leads/qualificados',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminLeadsPipelineRoute =
-  AuthenticatedAdminLeadsPipelineRouteImport.update({
-    id: '/leads/pipeline',
-    path: '/leads/pipeline',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminLeadsMacroRoute =
-  AuthenticatedAdminLeadsMacroRouteImport.update({
-    id: '/leads/macro',
-    path: '/leads/macro',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminLeadsLogsRoute =
-  AuthenticatedAdminLeadsLogsRouteImport.update({
-    id: '/leads/logs',
-    path: '/leads/logs',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminLeadsConfiguracoesRoute =
-  AuthenticatedAdminLeadsConfiguracoesRouteImport.update({
-    id: '/leads/configuracoes',
-    path: '/leads/configuracoes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminLeadsBuscaRoute =
-  AuthenticatedAdminLeadsBuscaRouteImport.update({
-    id: '/leads/busca',
-    path: '/leads/busca',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminLeadsIdRoute =
-  AuthenticatedAdminLeadsIdRouteImport.update({
-    id: '/leads/$id',
-    path: '/leads/$id',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminInstagramInboxRoute =
-  AuthenticatedAdminInstagramInboxRouteImport.update({
-    id: '/inbox',
-    path: '/inbox',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
-  } as any)
-const AuthenticatedAdminInstagramCrmRoute =
-  AuthenticatedAdminInstagramCrmRouteImport.update({
-    id: '/crm',
-    path: '/crm',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
-  } as any)
-const AuthenticatedAdminInstagramContaRoute =
-  AuthenticatedAdminInstagramContaRouteImport.update({
-    id: '/conta',
-    path: '/conta',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
-  } as any)
-const AuthenticatedAdminInstagramComentariosRoute =
-  AuthenticatedAdminInstagramComentariosRouteImport.update({
-    id: '/comentarios',
-    path: '/comentarios',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
-  } as any)
-const AuthenticatedAdminInstagramAutomacoesRoute =
-  AuthenticatedAdminInstagramAutomacoesRouteImport.update({
-    id: '/automacoes',
-    path: '/automacoes',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
-  } as any)
-const AuthenticatedAdminInstagramAdminRoute =
-  AuthenticatedAdminInstagramAdminRouteImport.update({
-    id: '/admin',
-    path: '/admin',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
-  } as any)
-const AuthenticatedAdminFiscalPedidosRoute =
-  AuthenticatedAdminFiscalPedidosRouteImport.update({
-    id: '/pedidos',
-    path: '/pedidos',
-    getParentRoute: () => AuthenticatedAdminFiscalRoute,
-  } as any)
-const AuthenticatedAdminAnunciosOtimizacaoRoute =
-  AuthenticatedAdminAnunciosOtimizacaoRouteImport.update({
-    id: '/otimizacao',
-    path: '/otimizacao',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
-const AuthenticatedAdminAnunciosNovaRoute =
-  AuthenticatedAdminAnunciosNovaRouteImport.update({
-    id: '/nova',
-    path: '/nova',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
-const AuthenticatedAdminAnunciosEscalaRoute =
-  AuthenticatedAdminAnunciosEscalaRouteImport.update({
-    id: '/escala',
-    path: '/escala',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
-const AuthenticatedAdminAnunciosCriativosRoute =
-  AuthenticatedAdminAnunciosCriativosRouteImport.update({
-    id: '/criativos',
-    path: '/criativos',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
-const AuthenticatedAdminAnunciosCopiesRoute =
-  AuthenticatedAdminAnunciosCopiesRouteImport.update({
-    id: '/copies',
-    path: '/copies',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
-const AuthenticatedAdminAnunciosConexoesRoute =
-  AuthenticatedAdminAnunciosConexoesRouteImport.update({
-    id: '/conexoes',
-    path: '/conexoes',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
-const AuthenticatedAdminAnunciosCampanhasRoute =
-  AuthenticatedAdminAnunciosCampanhasRouteImport.update({
-    id: '/campanhas',
-    path: '/campanhas',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
-const AuthenticatedAdminAnunciosAlertasRoute =
-  AuthenticatedAdminAnunciosAlertasRouteImport.update({
-    id: '/alertas',
-    path: '/alertas',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
-  } as any)
-const AuthenticatedAdminAdsRelatoriosRoute =
-  AuthenticatedAdminAdsRelatoriosRouteImport.update({
-    id: '/relatorios',
-    path: '/relatorios',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const AuthenticatedAdminAdsPublicosRoute =
-  AuthenticatedAdminAdsPublicosRouteImport.update({
-    id: '/publicos',
-    path: '/publicos',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const AuthenticatedAdminAdsPixelRoute =
-  AuthenticatedAdminAdsPixelRouteImport.update({
-    id: '/pixel',
-    path: '/pixel',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const AuthenticatedAdminAdsMidiasRoute =
-  AuthenticatedAdminAdsMidiasRouteImport.update({
-    id: '/midias',
-    path: '/midias',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const AuthenticatedAdminAdsHistoricoRoute =
-  AuthenticatedAdminAdsHistoricoRouteImport.update({
-    id: '/historico',
-    path: '/historico',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const AuthenticatedAdminAdsGeradorIaRoute =
-  AuthenticatedAdminAdsGeradorIaRouteImport.update({
-    id: '/gerador-ia',
-    path: '/gerador-ia',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const AuthenticatedAdminAdsCriativosRoute =
-  AuthenticatedAdminAdsCriativosRouteImport.update({
-    id: '/criativos',
-    path: '/criativos',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const AuthenticatedAdminAdsConjuntosRoute =
-  AuthenticatedAdminAdsConjuntosRouteImport.update({
-    id: '/conjuntos',
-    path: '/conjuntos',
-    getParentRoute: () => AuthenticatedAdminAdsRoute,
-  } as any)
-const AuthenticatedAdminAdsCampanhasRoute =
-  AuthenticatedAdminAdsCampanhasRouteImport.update({
-    id: '/campanhas',
-    path: '/campanhas',
     getParentRoute: () => AuthenticatedAdminAdsRoute,
   } as any)
 const AuthenticatedAdminAdsAnunciosRoute =
@@ -2109,63 +1372,741 @@ const AuthenticatedAdminAdsAnunciosRoute =
     path: '/anuncios',
     getParentRoute: () => AuthenticatedAdminAdsRoute,
   } as any)
-const DojoAppEvaluationsTemplatesIndexRoute =
-  DojoAppEvaluationsTemplatesIndexRouteImport.update({
+const AuthenticatedAdminAdsCampanhasRoute =
+  AuthenticatedAdminAdsCampanhasRouteImport.update({
+    id: '/campanhas',
+    path: '/campanhas',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAdsConjuntosRoute =
+  AuthenticatedAdminAdsConjuntosRouteImport.update({
+    id: '/conjuntos',
+    path: '/conjuntos',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAdsCriativosRoute =
+  AuthenticatedAdminAdsCriativosRouteImport.update({
+    id: '/criativos',
+    path: '/criativos',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAdsGeradorIaRoute =
+  AuthenticatedAdminAdsGeradorIaRouteImport.update({
+    id: '/gerador-ia',
+    path: '/gerador-ia',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAdsHistoricoRoute =
+  AuthenticatedAdminAdsHistoricoRouteImport.update({
+    id: '/historico',
+    path: '/historico',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAdsMidiasRoute =
+  AuthenticatedAdminAdsMidiasRouteImport.update({
+    id: '/midias',
+    path: '/midias',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAdsPixelRoute =
+  AuthenticatedAdminAdsPixelRouteImport.update({
+    id: '/pixel',
+    path: '/pixel',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAdsPublicosRoute =
+  AuthenticatedAdminAdsPublicosRouteImport.update({
+    id: '/publicos',
+    path: '/publicos',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAdsRelatoriosRoute =
+  AuthenticatedAdminAdsRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
+    getParentRoute: () => AuthenticatedAdminAdsRoute,
+  } as any)
+const AuthenticatedAdminAnunciosIndexRoute =
+  AuthenticatedAdminAnunciosIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => DojoAppEvaluationsTemplatesRoute,
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
   } as any)
-const DojoAppEvaluationsSessionsIndexRoute =
-  DojoAppEvaluationsSessionsIndexRouteImport.update({
+const AuthenticatedAdminAnunciosAlertasRoute =
+  AuthenticatedAdminAnunciosAlertasRouteImport.update({
+    id: '/alertas',
+    path: '/alertas',
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+  } as any)
+const AuthenticatedAdminAnunciosCampanhasRoute =
+  AuthenticatedAdminAnunciosCampanhasRouteImport.update({
+    id: '/campanhas',
+    path: '/campanhas',
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+  } as any)
+const AuthenticatedAdminAnunciosConexoesRoute =
+  AuthenticatedAdminAnunciosConexoesRouteImport.update({
+    id: '/conexoes',
+    path: '/conexoes',
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+  } as any)
+const AuthenticatedAdminAnunciosCopiesRoute =
+  AuthenticatedAdminAnunciosCopiesRouteImport.update({
+    id: '/copies',
+    path: '/copies',
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+  } as any)
+const AuthenticatedAdminAnunciosCriativosRoute =
+  AuthenticatedAdminAnunciosCriativosRouteImport.update({
+    id: '/criativos',
+    path: '/criativos',
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+  } as any)
+const AuthenticatedAdminAnunciosEscalaRoute =
+  AuthenticatedAdminAnunciosEscalaRouteImport.update({
+    id: '/escala',
+    path: '/escala',
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+  } as any)
+const AuthenticatedAdminAnunciosNovaRoute =
+  AuthenticatedAdminAnunciosNovaRouteImport.update({
+    id: '/nova',
+    path: '/nova',
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+  } as any)
+const AuthenticatedAdminAnunciosOtimizacaoRoute =
+  AuthenticatedAdminAnunciosOtimizacaoRouteImport.update({
+    id: '/otimizacao',
+    path: '/otimizacao',
+    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+  } as any)
+const AuthenticatedAdminFiscalPedidosRoute =
+  AuthenticatedAdminFiscalPedidosRouteImport.update({
+    id: '/pedidos',
+    path: '/pedidos',
+    getParentRoute: () => AuthenticatedAdminFiscalRoute,
+  } as any)
+const AuthenticatedAdminInstagramIndexRoute =
+  AuthenticatedAdminInstagramIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => DojoAppEvaluationsSessionsRoute,
+    getParentRoute: () => AuthenticatedAdminInstagramRoute,
   } as any)
-const DojoAppUnitsAffiliatesIdRoute =
-  DojoAppUnitsAffiliatesIdRouteImport.update({
-    id: '/units/affiliates/$id',
-    path: '/units/affiliates/$id',
-    getParentRoute: () => DojoAppRoute,
+const AuthenticatedAdminInstagramAdminRoute =
+  AuthenticatedAdminInstagramAdminRouteImport.update({
+    id: '/admin',
+    path: '/admin',
+    getParentRoute: () => AuthenticatedAdminInstagramRoute,
   } as any)
-const DojoAppStudentsIdAnalysisRoute =
-  DojoAppStudentsIdAnalysisRouteImport.update({
-    id: '/analysis',
-    path: '/analysis',
-    getParentRoute: () => DojoAppStudentsIdRoute,
+const AuthenticatedAdminInstagramAutomacoesRoute =
+  AuthenticatedAdminInstagramAutomacoesRouteImport.update({
+    id: '/automacoes',
+    path: '/automacoes',
+    getParentRoute: () => AuthenticatedAdminInstagramRoute,
   } as any)
-const DojoAppStoreProdutosSlugRoute =
-  DojoAppStoreProdutosSlugRouteImport.update({
-    id: '/produtos/$slug',
-    path: '/produtos/$slug',
-    getParentRoute: () => DojoAppStoreRoute,
+const AuthenticatedAdminInstagramComentariosRoute =
+  AuthenticatedAdminInstagramComentariosRouteImport.update({
+    id: '/comentarios',
+    path: '/comentarios',
+    getParentRoute: () => AuthenticatedAdminInstagramRoute,
   } as any)
-const DojoAppStorePedidosIdRoute = DojoAppStorePedidosIdRouteImport.update({
+const AuthenticatedAdminInstagramContaRoute =
+  AuthenticatedAdminInstagramContaRouteImport.update({
+    id: '/conta',
+    path: '/conta',
+    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+  } as any)
+const AuthenticatedAdminInstagramCrmRoute =
+  AuthenticatedAdminInstagramCrmRouteImport.update({
+    id: '/crm',
+    path: '/crm',
+    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+  } as any)
+const AuthenticatedAdminInstagramInboxRoute =
+  AuthenticatedAdminInstagramInboxRouteImport.update({
+    id: '/inbox',
+    path: '/inbox',
+    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+  } as any)
+const AuthenticatedAdminLeadsIndexRoute =
+  AuthenticatedAdminLeadsIndexRouteImport.update({
+    id: '/leads/',
+    path: '/leads/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLeadsIdRoute =
+  AuthenticatedAdminLeadsIdRouteImport.update({
+    id: '/leads/$id',
+    path: '/leads/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLeadsBuscaRoute =
+  AuthenticatedAdminLeadsBuscaRouteImport.update({
+    id: '/leads/busca',
+    path: '/leads/busca',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLeadsConfiguracoesRoute =
+  AuthenticatedAdminLeadsConfiguracoesRouteImport.update({
+    id: '/leads/configuracoes',
+    path: '/leads/configuracoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLeadsLogsRoute =
+  AuthenticatedAdminLeadsLogsRouteImport.update({
+    id: '/leads/logs',
+    path: '/leads/logs',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLeadsMacroRoute =
+  AuthenticatedAdminLeadsMacroRouteImport.update({
+    id: '/leads/macro',
+    path: '/leads/macro',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLeadsPipelineRoute =
+  AuthenticatedAdminLeadsPipelineRouteImport.update({
+    id: '/leads/pipeline',
+    path: '/leads/pipeline',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLeadsQualificadosRoute =
+  AuthenticatedAdminLeadsQualificadosRouteImport.update({
+    id: '/leads/qualificados',
+    path: '/leads/qualificados',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminMarketingIndexRoute =
+  AuthenticatedAdminMarketingIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
+const AuthenticatedAdminMarketingInteligenciaRoute =
+  AuthenticatedAdminMarketingInteligenciaRouteImport.update({
+    id: '/inteligencia',
+    path: '/inteligencia',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
+const AuthenticatedAdminMarketingKpisRoute =
+  AuthenticatedAdminMarketingKpisRouteImport.update({
+    id: '/kpis',
+    path: '/kpis',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
+const AuthenticatedAdminMarketingMercadoRoute =
+  AuthenticatedAdminMarketingMercadoRouteImport.update({
+    id: '/mercado',
+    path: '/mercado',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
+const AuthenticatedAdminPedidosIndexRoute =
+  AuthenticatedAdminPedidosIndexRouteImport.update({
+    id: '/pedidos/',
+    path: '/pedidos/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPedidosOrderIdRoute =
+  AuthenticatedAdminPedidosOrderIdRouteImport.update({
+    id: '/pedidos/$orderId',
+    path: '/pedidos/$orderId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProdutosIndexRoute =
+  AuthenticatedAdminProdutosIndexRouteImport.update({
+    id: '/produtos/',
+    path: '/produtos/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProdutosFaixaCalcRoute =
+  AuthenticatedAdminProdutosFaixaCalcRouteImport.update({
+    id: '/produtos/faixa-calc',
+    path: '/produtos/faixa-calc',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProdutosImagensRoute =
+  AuthenticatedAdminProdutosImagensRouteImport.update({
+    id: '/produtos/imagens',
+    path: '/produtos/imagens',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProdutosImportarRoute =
+  AuthenticatedAdminProdutosImportarRouteImport.update({
+    id: '/produtos/importar',
+    path: '/produtos/importar',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProdutosPacotesRoute =
+  AuthenticatedAdminProdutosPacotesRouteImport.update({
+    id: '/produtos/pacotes',
+    path: '/produtos/pacotes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProdutosTamanhosRoute =
+  AuthenticatedAdminProdutosTamanhosRouteImport.update({
+    id: '/produtos/tamanhos',
+    path: '/produtos/tamanhos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSaasSuporteRoute =
+  AuthenticatedAdminSaasSuporteRouteImport.update({
+    id: '/suporte',
+    path: '/suporte',
+    getParentRoute: () => AuthenticatedAdminSaasRoute,
+  } as any)
+const AuthenticatedAdsCampaignsIdRoute =
+  AuthenticatedAdsCampaignsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdsCampaignsRoute,
+  } as any)
+const ApiDesktopProductsIdRoute = ApiDesktopProductsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => DojoAppStorePedidosRoute,
+  getParentRoute: () => ApiDesktopProductsRoute,
 } as any)
-const DojoAppEvaluationsTemplatesIdRoute =
-  DojoAppEvaluationsTemplatesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => DojoAppEvaluationsTemplatesRoute,
-  } as any)
-const DojoAppEvaluationsSessionsIdRoute =
-  DojoAppEvaluationsSessionsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => DojoAppEvaluationsSessionsRoute,
-  } as any)
-const ApiPublicDojoPartnerCheckinProviderRoute =
-  ApiPublicDojoPartnerCheckinProviderRouteImport.update({
-    id: '/api/public/dojo/partner-checkin/$provider',
-    path: '/api/public/dojo/partner-checkin/$provider',
+const ApiDesktopQuotesIdRoute = ApiDesktopQuotesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiDesktopQuotesRoute,
+} as any)
+const ApiPublicAppManifestDotwebmanifestRoute =
+  ApiPublicAppManifestDotwebmanifestRouteImport.update({
+    id: '/api/public/app/manifest.webmanifest',
+    path: '/api/public/app/manifest.webmanifest',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicAppSlugDownloadRoute =
-  ApiPublicAppSlugDownloadRouteImport.update({
-    id: '/api/public/app/$slug/download',
-    path: '/api/public/app/$slug/download',
+const ApiPublicCertificateHashRoute =
+  ApiPublicCertificateHashRouteImport.update({
+    id: '/api/public/certificate/$hash',
+    path: '/api/public/certificate/$hash',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksAdminPushRoute = ApiPublicHooksAdminPushRouteImport.update({
+  id: '/api/public/hooks/admin-push',
+  path: '/api/public/hooks/admin-push',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksApplyScheduledGraduationsRoute =
+  ApiPublicHooksApplyScheduledGraduationsRouteImport.update({
+    id: '/api/public/hooks/apply-scheduled-graduations',
+    path: '/api/public/hooks/apply-scheduled-graduations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksAsaasRoute = ApiPublicHooksAsaasRouteImport.update({
+  id: '/api/public/hooks/asaas',
+  path: '/api/public/hooks/asaas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksAutoInstagramPostRoute =
+  ApiPublicHooksAutoInstagramPostRouteImport.update({
+    id: '/api/public/hooks/auto-instagram-post',
+    path: '/api/public/hooks/auto-instagram-post',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksCompetitionsIngestRoute =
+  ApiPublicHooksCompetitionsIngestRouteImport.update({
+    id: '/api/public/hooks/competitions-ingest',
+    path: '/api/public/hooks/competitions-ingest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksDojoWalletReconcileRoute =
+  ApiPublicHooksDojoWalletReconcileRouteImport.update({
+    id: '/api/public/hooks/dojo-wallet-reconcile',
+    path: '/api/public/hooks/dojo-wallet-reconcile',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksEnrichPendingLeadsRoute =
+  ApiPublicHooksEnrichPendingLeadsRouteImport.update({
+    id: '/api/public/hooks/enrich-pending-leads',
+    path: '/api/public/hooks/enrich-pending-leads',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksGenerateDojoInvoicesRoute =
+  ApiPublicHooksGenerateDojoInvoicesRouteImport.update({
+    id: '/api/public/hooks/generate-dojo-invoices',
+    path: '/api/public/hooks/generate-dojo-invoices',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksIgSyncRoute = ApiPublicHooksIgSyncRouteImport.update({
+  id: '/api/public/hooks/ig-sync',
+  path: '/api/public/hooks/ig-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksIgWebhookRoute = ApiPublicHooksIgWebhookRouteImport.update({
+  id: '/api/public/hooks/ig-webhook',
+  path: '/api/public/hooks/ig-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksMartialArtsDailySweepRoute =
+  ApiPublicHooksMartialArtsDailySweepRouteImport.update({
+    id: '/api/public/hooks/martial-arts-daily-sweep',
+    path: '/api/public/hooks/martial-arts-daily-sweep',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksMelhorEnvioRoute =
+  ApiPublicHooksMelhorEnvioRouteImport.update({
+    id: '/api/public/hooks/melhor-envio',
+    path: '/api/public/hooks/melhor-envio',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksMercadopagoRoute =
+  ApiPublicHooksMercadopagoRouteImport.update({
+    id: '/api/public/hooks/mercadopago',
+    path: '/api/public/hooks/mercadopago',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksPublishScheduledPostsRoute =
+  ApiPublicHooksPublishScheduledPostsRouteImport.update({
+    id: '/api/public/hooks/publish-scheduled-posts',
+    path: '/api/public/hooks/publish-scheduled-posts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksRunAdsOptimizationRoute =
+  ApiPublicHooksRunAdsOptimizationRouteImport.update({
+    id: '/api/public/hooks/run-ads-optimization',
+    path: '/api/public/hooks/run-ads-optimization',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksScaleWinnersRoute =
+  ApiPublicHooksScaleWinnersRouteImport.update({
+    id: '/api/public/hooks/scale-winners',
+    path: '/api/public/hooks/scale-winners',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksSendClassRemindersRoute =
+  ApiPublicHooksSendClassRemindersRouteImport.update({
+    id: '/api/public/hooks/send-class-reminders',
+    path: '/api/public/hooks/send-class-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksSendDojoRemindersRoute =
+  ApiPublicHooksSendDojoRemindersRouteImport.update({
+    id: '/api/public/hooks/send-dojo-reminders',
+    path: '/api/public/hooks/send-dojo-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksSyncAdsInsightsRoute =
+  ApiPublicHooksSyncAdsInsightsRouteImport.update({
+    id: '/api/public/hooks/sync-ads-insights',
+    path: '/api/public/hooks/sync-ads-insights',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
+  id: '/api/public/meta/callback',
+  path: '/api/public/meta/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMetaWebhookRoute = ApiPublicMetaWebhookRouteImport.update({
+  id: '/api/public/meta/webhook',
+  path: '/api/public/meta/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSalesChatRoute = ApiPublicSalesChatRouteImport.update({
+  id: '/api/public/sales/chat',
+  path: '/api/public/sales/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSalesMessagesRoute = ApiPublicSalesMessagesRouteImport.update({
+  id: '/api/public/sales/messages',
+  path: '/api/public/sales/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppStudentCompetitionsIdRoute =
+  AppStudentCompetitionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AppStudentCompetitionsRoute,
+  } as any)
+const AppStudentDocumentsIndexRoute =
+  AppStudentDocumentsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppStudentDocumentsRoute,
+  } as any)
+const AppStudentDocumentsIdRoute = AppStudentDocumentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppStudentDocumentsRoute,
+} as any)
+const AppStudentInvoiceIdRoute = AppStudentInvoiceIdRouteImport.update({
+  id: '/invoice/$id',
+  path: '/invoice/$id',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const DojoAppCompetitionsIndexRoute =
+  DojoAppCompetitionsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DojoAppCompetitionsRoute,
+  } as any)
+const DojoAppCompetitionsIdRoute = DojoAppCompetitionsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DojoAppCompetitionsRoute,
+} as any)
+const DojoAppContractTemplatesIndexRoute =
+  DojoAppContractTemplatesIndexRouteImport.update({
+    id: '/contract-templates/',
+    path: '/contract-templates/',
+    getParentRoute: () => DojoAppRoute,
+  } as any)
+const DojoAppContractTemplatesIdRoute =
+  DojoAppContractTemplatesIdRouteImport.update({
+    id: '/contract-templates/$id',
+    path: '/contract-templates/$id',
+    getParentRoute: () => DojoAppRoute,
+  } as any)
+const DojoAppContractsIndexRoute = DojoAppContractsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppContractsRoute,
+} as any)
+const DojoAppContractsIssuedRoute = DojoAppContractsIssuedRouteImport.update({
+  id: '/issued',
+  path: '/issued',
+  getParentRoute: () => DojoAppContractsRoute,
+} as any)
+const DojoAppContractsTemplatesRoute =
+  DojoAppContractsTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
+    getParentRoute: () => DojoAppContractsRoute,
+  } as any)
+const DojoAppEvaluationsIndexRoute = DojoAppEvaluationsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppEvaluationsRoute,
+} as any)
+const DojoAppEvaluationsCategoriesRoute =
+  DojoAppEvaluationsCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsHistoryRoute =
+  DojoAppEvaluationsHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsLibraryRoute =
+  DojoAppEvaluationsLibraryRouteImport.update({
+    id: '/library',
+    path: '/library',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsSessionsRoute =
+  DojoAppEvaluationsSessionsRouteImport.update({
+    id: '/sessions',
+    path: '/sessions',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsSettingsRoute =
+  DojoAppEvaluationsSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsTechniquesRoute =
+  DojoAppEvaluationsTechniquesRouteImport.update({
+    id: '/techniques',
+    path: '/techniques',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsTemplatesRoute =
+  DojoAppEvaluationsTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppLessonPlansIndexRoute = DojoAppLessonPlansIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppLessonPlansRoute,
+} as any)
+const DojoAppLessonPlansIdRoute = DojoAppLessonPlansIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DojoAppLessonPlansRoute,
+} as any)
+const DojoAppLessonPlansHistoryRoute =
+  DojoAppLessonPlansHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => DojoAppLessonPlansRoute,
+  } as any)
+const DojoAppLessonPlansLibraryRoute =
+  DojoAppLessonPlansLibraryRouteImport.update({
+    id: '/library',
+    path: '/library',
+    getParentRoute: () => DojoAppLessonPlansRoute,
+  } as any)
+const DojoAppLessonPlansTechniquesRoute =
+  DojoAppLessonPlansTechniquesRouteImport.update({
+    id: '/techniques',
+    path: '/techniques',
+    getParentRoute: () => DojoAppLessonPlansRoute,
+  } as any)
+const DojoAppStoreIndexRoute = DojoAppStoreIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppStoreRoute,
+} as any)
+const DojoAppStoreCarrinhoRoute = DojoAppStoreCarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
+  getParentRoute: () => DojoAppStoreRoute,
+} as any)
+const DojoAppStorePedidosRoute = DojoAppStorePedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => DojoAppStoreRoute,
+} as any)
+const DojoAppStudentsIndexRoute = DojoAppStudentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppStudentsRoute,
+} as any)
+const DojoAppStudentsIdRoute = DojoAppStudentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DojoAppStudentsRoute,
+} as any)
+const DojoAppTeamIndexRoute = DojoAppTeamIndexRouteImport.update({
+  id: '/team/',
+  path: '/team/',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppTeamIdRoute = DojoAppTeamIdRouteImport.update({
+  id: '/team/$id',
+  path: '/team/$id',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppTeamPayrollRoute = DojoAppTeamPayrollRouteImport.update({
+  id: '/team/payroll',
+  path: '/team/payroll',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppTeamSchedulesRoute = DojoAppTeamSchedulesRouteImport.update({
+  id: '/team/schedules',
+  path: '/team/schedules',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppUnitsIndexRoute = DojoAppUnitsIndexRouteImport.update({
+  id: '/units/',
+  path: '/units/',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppVideosIndexRoute = DojoAppVideosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
+const DojoAppVideosIdRoute = DojoAppVideosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
+const DojoAppVideosCategoriasRoute = DojoAppVideosCategoriasRouteImport.update({
+  id: '/categorias',
+  path: '/categorias',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
+const DojoAppVideosFavoritosRoute = DojoAppVideosFavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
+const DojoAppVideosNovoRoute = DojoAppVideosNovoRouteImport.update({
+  id: '/novo',
+  path: '/novo',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
+const DojoStaffPortalIndexRoute = DojoStaffPortalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalAnnouncementsRoute =
+  DojoStaffPortalAnnouncementsRouteImport.update({
+    id: '/announcements',
+    path: '/announcements',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalBeltsRoute = DojoStaffPortalBeltsRouteImport.update({
+  id: '/belts',
+  path: '/belts',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalCertificatesRoute =
+  DojoStaffPortalCertificatesRouteImport.update({
+    id: '/certificates',
+    path: '/certificates',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalCheckinRoute = DojoStaffPortalCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalCompetitionsRoute =
+  DojoStaffPortalCompetitionsRouteImport.update({
+    id: '/competitions',
+    path: '/competitions',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalEvaluationsRoute =
+  DojoStaffPortalEvaluationsRouteImport.update({
+    id: '/evaluations',
+    path: '/evaluations',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalGraduationsRoute =
+  DojoStaffPortalGraduationsRouteImport.update({
+    id: '/graduations',
+    path: '/graduations',
+    getParentRoute: () => DojoStaffPortalRoute,
+  } as any)
+const DojoStaffPortalProfileRoute = DojoStaffPortalProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalSalesRoute = DojoStaffPortalSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalScheduleRoute = DojoStaffPortalScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalStoreRoute = DojoStaffPortalStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const DojoStaffPortalStudentsRoute = DojoStaffPortalStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => DojoStaffPortalRoute,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
     getParentRoute: () => rootRouteImport,
   } as any)
 const AuthenticatedAdminAnunciosCampanhasIdRoute =
@@ -2173,6 +2114,71 @@ const AuthenticatedAdminAnunciosCampanhasIdRoute =
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminAnunciosCampanhasRoute,
+  } as any)
+const ApiPublicAppSlugDownloadRoute =
+  ApiPublicAppSlugDownloadRouteImport.update({
+    id: '/api/public/app/$slug/download',
+    path: '/api/public/app/$slug/download',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicDojoPartnerCheckinProviderRoute =
+  ApiPublicDojoPartnerCheckinProviderRouteImport.update({
+    id: '/api/public/dojo/partner-checkin/$provider',
+    path: '/api/public/dojo/partner-checkin/$provider',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DojoAppEvaluationsSessionsIndexRoute =
+  DojoAppEvaluationsSessionsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DojoAppEvaluationsSessionsRoute,
+  } as any)
+const DojoAppEvaluationsSessionsIdRoute =
+  DojoAppEvaluationsSessionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => DojoAppEvaluationsSessionsRoute,
+  } as any)
+const DojoAppEvaluationsTemplatesIndexRoute =
+  DojoAppEvaluationsTemplatesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DojoAppEvaluationsTemplatesRoute,
+  } as any)
+const DojoAppEvaluationsTemplatesIdRoute =
+  DojoAppEvaluationsTemplatesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => DojoAppEvaluationsTemplatesRoute,
+  } as any)
+const DojoAppStorePedidosIdRoute = DojoAppStorePedidosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DojoAppStorePedidosRoute,
+} as any)
+const DojoAppStoreProdutosSlugRoute =
+  DojoAppStoreProdutosSlugRouteImport.update({
+    id: '/produtos/$slug',
+    path: '/produtos/$slug',
+    getParentRoute: () => DojoAppStoreRoute,
+  } as any)
+const DojoAppStudentsIdAnalysisRoute =
+  DojoAppStudentsIdAnalysisRouteImport.update({
+    id: '/analysis',
+    path: '/analysis',
+    getParentRoute: () => DojoAppStudentsIdRoute,
+  } as any)
+const DojoAppUnitsAffiliatesIdRoute =
+  DojoAppUnitsAffiliatesIdRouteImport.update({
+    id: '/units/affiliates/$id',
+    path: '/units/affiliates/$id',
+    getParentRoute: () => DojoAppRoute,
+  } as any)
+const DojoAppContractsIssuedKindIdRoute =
+  DojoAppContractsIssuedKindIdRouteImport.update({
+    id: '/$kind/$id',
+    path: '/$kind/$id',
+    getParentRoute: () => DojoAppContractsIssuedRoute,
   } as any)
 const DojoAppStoreCCategoriaIndexRoute =
   DojoAppStoreCCategoriaIndexRouteImport.update({
@@ -2185,12 +2191,6 @@ const DojoAppStoreCCategoriaSubcategoriaRoute =
     id: '/c/$categoria/$subcategoria',
     path: '/c/$categoria/$subcategoria',
     getParentRoute: () => DojoAppStoreRoute,
-  } as any)
-const DojoAppContractsIssuedKindIdRoute =
-  DojoAppContractsIssuedKindIdRouteImport.update({
-    id: '/$kind/$id',
-    path: '/$kind/$id',
-    getParentRoute: () => DojoAppContractsIssuedRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -4250,74 +4250,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pay-demo': {
-      id: '/pay-demo'
-      path: '/pay-demo'
-      fullPath: '/pay-demo'
-      preLoaderRoute: typeof PayDemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dojo': {
-      id: '/dojo'
-      path: '/dojo'
-      fullPath: '/dojo'
-      preLoaderRoute: typeof DojoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/data-deletion': {
-      id: '/data-deletion'
-      path: '/data-deletion'
-      fullPath: '/data-deletion'
-      preLoaderRoute: typeof DataDeletionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/atacado-lp': {
-      id: '/atacado-lp'
-      path: '/atacado-lp'
-      fullPath: '/atacado-lp'
-      preLoaderRoute: typeof AtacadoLpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -4327,221 +4264,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/': {
-      id: '/loja/'
-      path: '/loja'
-      fullPath: '/loja/'
-      preLoaderRoute: typeof LojaIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dojo/': {
-      id: '/dojo/'
-      path: '/'
-      fullPath: '/dojo/'
-      preLoaderRoute: typeof DojoIndexRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/pay/$invoiceId': {
-      id: '/pay/$invoiceId'
-      path: '/pay/$invoiceId'
-      fullPath: '/pay/$invoiceId'
-      preLoaderRoute: typeof PayInvoiceIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/matricula/$slug': {
-      id: '/matricula/$slug'
-      path: '/matricula/$slug'
-      fullPath: '/matricula/$slug'
-      preLoaderRoute: typeof MatriculaSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/guia-kimono': {
-      id: '/loja/guia-kimono'
-      path: '/loja/guia-kimono'
-      fullPath: '/loja/guia-kimono'
-      preLoaderRoute: typeof LojaGuiaKimonoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/entrar': {
-      id: '/loja/entrar'
-      path: '/loja/entrar'
-      fullPath: '/loja/entrar'
-      preLoaderRoute: typeof LojaEntrarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/checkout': {
-      id: '/loja/checkout'
-      path: '/loja/checkout'
-      fullPath: '/loja/checkout'
-      preLoaderRoute: typeof LojaCheckoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/carrinho': {
-      id: '/loja/carrinho'
-      path: '/loja/carrinho'
-      fullPath: '/loja/carrinho'
-      preLoaderRoute: typeof LojaCarrinhoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/atacado': {
-      id: '/loja/atacado'
-      path: '/loja/atacado'
-      fullPath: '/loja/atacado'
-      preLoaderRoute: typeof LojaAtacadoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dojo/onboarding': {
-      id: '/dojo/onboarding'
-      path: '/onboarding'
-      fullPath: '/dojo/onboarding'
-      preLoaderRoute: typeof DojoOnboardingRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/checkout': {
-      id: '/dojo/checkout'
-      path: '/checkout'
-      fullPath: '/dojo/checkout'
-      preLoaderRoute: typeof DojoCheckoutRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/auth': {
-      id: '/dojo/auth'
-      path: '/auth'
-      fullPath: '/dojo/auth'
-      preLoaderRoute: typeof DojoAuthRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/app': {
-      id: '/dojo/app'
+    '/app': {
+      id: '/app'
       path: '/app'
-      fullPath: '/dojo/app'
-      preLoaderRoute: typeof DojoAppRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/certificate/$hash': {
-      id: '/certificate/$hash'
-      path: '/certificate/$hash'
-      fullPath: '/certificate/$hash'
-      preLoaderRoute: typeof CertificateHashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app/reset-password': {
-      id: '/app/reset-password'
-      path: '/reset-password'
-      fullPath: '/app/reset-password'
-      preLoaderRoute: typeof AppResetPasswordRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/login': {
-      id: '/app/login'
-      path: '/login'
-      fullPath: '/app/login'
-      preLoaderRoute: typeof AppLoginRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/install': {
-      id: '/app/install'
-      path: '/install'
-      fullPath: '/app/install'
-      preLoaderRoute: typeof AppInstallRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/_student': {
-      id: '/app/_student'
-      path: ''
       fullPath: '/app'
-      preLoaderRoute: typeof AppStudentRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/api/generate-ad-image': {
-      id: '/api/generate-ad-image'
-      path: '/api/generate-ad-image'
-      fullPath: '/api/generate-ad-image'
-      preLoaderRoute: typeof ApiGenerateAdImageRouteImport
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/users': {
-      id: '/_authenticated/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AuthenticatedUsersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/atacado-lp': {
+      id: '/atacado-lp'
+      path: '/atacado-lp'
+      fullPath: '/atacado-lp'
+      preLoaderRoute: typeof AtacadoLpRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/store': {
-      id: '/_authenticated/store'
-      path: '/store'
-      fullPath: '/store'
-      preLoaderRoute: typeof AuthenticatedStoreRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/settings': {
-      id: '/_authenticated/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/data-deletion': {
+      id: '/data-deletion'
+      path: '/data-deletion'
+      fullPath: '/data-deletion'
+      preLoaderRoute: typeof DataDeletionRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/prospect': {
-      id: '/_authenticated/prospect'
-      path: '/prospect'
-      fullPath: '/prospect'
-      preLoaderRoute: typeof AuthenticatedProspectRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/dojo': {
+      id: '/dojo'
+      path: '/dojo'
+      fullPath: '/dojo'
+      preLoaderRoute: typeof DojoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/profile': {
-      id: '/_authenticated/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AuthenticatedProfileRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/pay-demo': {
+      id: '/pay-demo'
+      path: '/pay-demo'
+      fullPath: '/pay-demo'
+      preLoaderRoute: typeof PayDemoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/market': {
-      id: '/_authenticated/market'
-      path: '/market'
-      fullPath: '/market'
-      preLoaderRoute: typeof AuthenticatedMarketRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/logs': {
-      id: '/_authenticated/logs'
-      path: '/logs'
-      fullPath: '/logs'
-      preLoaderRoute: typeof AuthenticatedLogsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/instagram': {
-      id: '/_authenticated/instagram'
-      path: '/instagram'
-      fullPath: '/instagram'
-      preLoaderRoute: typeof AuthenticatedInstagramRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/growth': {
-      id: '/_authenticated/growth'
-      path: '/growth'
-      fullPath: '/growth'
-      preLoaderRoute: typeof AuthenticatedGrowthRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ads': {
@@ -4551,1033 +4348,221 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/loja/custom-shop/': {
-      id: '/loja/custom-shop/'
-      path: '/loja/custom-shop'
-      fullPath: '/loja/custom-shop/'
-      preLoaderRoute: typeof LojaCustomShopIndexRouteImport
+    '/_authenticated/growth': {
+      id: '/_authenticated/growth'
+      path: '/growth'
+      fullPath: '/growth'
+      preLoaderRoute: typeof AuthenticatedGrowthRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/instagram': {
+      id: '/_authenticated/instagram'
+      path: '/instagram'
+      fullPath: '/instagram'
+      preLoaderRoute: typeof AuthenticatedInstagramRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/logs': {
+      id: '/_authenticated/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof AuthenticatedLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/market': {
+      id: '/_authenticated/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof AuthenticatedMarketRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospect': {
+      id: '/_authenticated/prospect'
+      path: '/prospect'
+      fullPath: '/prospect'
+      preLoaderRoute: typeof AuthenticatedProspectRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store': {
+      id: '/_authenticated/store'
+      path: '/store'
+      fullPath: '/store'
+      preLoaderRoute: typeof AuthenticatedStoreRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/users': {
+      id: '/_authenticated/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/generate-ad-image': {
+      id: '/api/generate-ad-image'
+      path: '/api/generate-ad-image'
+      fullPath: '/api/generate-ad-image'
+      preLoaderRoute: typeof ApiGenerateAdImageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/loja/conta/': {
-      id: '/loja/conta/'
-      path: '/loja/conta'
-      fullPath: '/loja/conta/'
-      preLoaderRoute: typeof LojaContaIndexRouteImport
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/_student': {
+      id: '/app/_student'
+      path: ''
+      fullPath: '/app'
+      preLoaderRoute: typeof AppStudentRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/install': {
+      id: '/app/install'
+      path: '/install'
+      fullPath: '/app/install'
+      preLoaderRoute: typeof AppInstallRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/login': {
+      id: '/app/login'
+      path: '/login'
+      fullPath: '/app/login'
+      preLoaderRoute: typeof AppLoginRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/reset-password': {
+      id: '/app/reset-password'
+      path: '/reset-password'
+      fullPath: '/app/reset-password'
+      preLoaderRoute: typeof AppResetPasswordRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/certificate/$hash': {
+      id: '/certificate/$hash'
+      path: '/certificate/$hash'
+      fullPath: '/certificate/$hash'
+      preLoaderRoute: typeof CertificateHashRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dojo/app/': {
-      id: '/dojo/app/'
+    '/dojo/': {
+      id: '/dojo/'
       path: '/'
-      fullPath: '/dojo/app/'
-      preLoaderRoute: typeof DojoAppIndexRouteImport
-      parentRoute: typeof DojoAppRoute
+      fullPath: '/dojo/'
+      preLoaderRoute: typeof DojoIndexRouteImport
+      parentRoute: typeof DojoRoute
     }
-    '/_authenticated/store/': {
-      id: '/_authenticated/store/'
-      path: '/'
-      fullPath: '/store/'
-      preLoaderRoute: typeof AuthenticatedStoreIndexRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
+    '/dojo/app': {
+      id: '/dojo/app'
+      path: '/app'
+      fullPath: '/dojo/app'
+      preLoaderRoute: typeof DojoAppRouteImport
+      parentRoute: typeof DojoRoute
     }
-    '/_authenticated/prospect/': {
-      id: '/_authenticated/prospect/'
-      path: '/'
-      fullPath: '/prospect/'
-      preLoaderRoute: typeof AuthenticatedProspectIndexRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
+    '/dojo/auth': {
+      id: '/dojo/auth'
+      path: '/auth'
+      fullPath: '/dojo/auth'
+      preLoaderRoute: typeof DojoAuthRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/checkout': {
+      id: '/dojo/checkout'
+      path: '/checkout'
+      fullPath: '/dojo/checkout'
+      preLoaderRoute: typeof DojoCheckoutRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/onboarding': {
+      id: '/dojo/onboarding'
+      path: '/onboarding'
+      fullPath: '/dojo/onboarding'
+      preLoaderRoute: typeof DojoOnboardingRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/loja/': {
+      id: '/loja/'
+      path: '/loja'
+      fullPath: '/loja/'
+      preLoaderRoute: typeof LojaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/atacado': {
+      id: '/loja/atacado'
+      path: '/loja/atacado'
+      fullPath: '/loja/atacado'
+      preLoaderRoute: typeof LojaAtacadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/carrinho': {
+      id: '/loja/carrinho'
+      path: '/loja/carrinho'
+      fullPath: '/loja/carrinho'
+      preLoaderRoute: typeof LojaCarrinhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/checkout': {
+      id: '/loja/checkout'
+      path: '/loja/checkout'
+      fullPath: '/loja/checkout'
+      preLoaderRoute: typeof LojaCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/entrar': {
+      id: '/loja/entrar'
+      path: '/loja/entrar'
+      fullPath: '/loja/entrar'
+      preLoaderRoute: typeof LojaEntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/guia-kimono': {
+      id: '/loja/guia-kimono'
+      path: '/loja/guia-kimono'
+      fullPath: '/loja/guia-kimono'
+      preLoaderRoute: typeof LojaGuiaKimonoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matricula/$slug': {
+      id: '/matricula/$slug'
+      path: '/matricula/$slug'
+      fullPath: '/matricula/$slug'
+      preLoaderRoute: typeof MatriculaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pay/$invoiceId': {
+      id: '/pay/$invoiceId'
+      path: '/pay/$invoiceId'
+      fullPath: '/pay/$invoiceId'
+      preLoaderRoute: typeof PayInvoiceIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/lovable/email/events': {
-      id: '/lovable/email/events'
-      path: '/lovable/email/events'
-      fullPath: '/lovable/email/events'
-      preLoaderRoute: typeof LovableEmailEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/produto/$slug': {
-      id: '/loja/produto/$slug'
-      path: '/loja/produto/$slug'
-      fullPath: '/loja/produto/$slug'
-      preLoaderRoute: typeof LojaProdutoSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/pedido/$id': {
-      id: '/loja/pedido/$id'
-      path: '/loja/pedido/$id'
-      fullPath: '/loja/pedido/$id'
-      preLoaderRoute: typeof LojaPedidoIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/custom-shop/$kind': {
-      id: '/loja/custom-shop/$kind'
-      path: '/loja/custom-shop/$kind'
-      fullPath: '/loja/custom-shop/$kind'
-      preLoaderRoute: typeof LojaCustomShopKindRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/conta/pedidos': {
-      id: '/loja/conta/pedidos'
-      path: '/loja/conta/pedidos'
-      fullPath: '/loja/conta/pedidos'
-      preLoaderRoute: typeof LojaContaPedidosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/categoria/$slug': {
-      id: '/loja/categoria/$slug'
-      path: '/loja/categoria/$slug'
-      fullPath: '/loja/categoria/$slug'
-      preLoaderRoute: typeof LojaCategoriaSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dojo/staff/auth': {
-      id: '/dojo/staff/auth'
-      path: '/staff/auth'
-      fullPath: '/dojo/staff/auth'
-      preLoaderRoute: typeof DojoStaffAuthRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/staff/_portal': {
-      id: '/dojo/staff/_portal'
-      path: '/staff'
-      fullPath: '/dojo/staff'
-      preLoaderRoute: typeof DojoStaffPortalRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/pay/$invoiceId': {
-      id: '/dojo/pay/$invoiceId'
-      path: '/pay/$invoiceId'
-      fullPath: '/dojo/pay/$invoiceId'
-      preLoaderRoute: typeof DojoPayInvoiceIdRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/matricula/$slug': {
-      id: '/dojo/matricula/$slug'
-      path: '/matricula/$slug'
-      fullPath: '/dojo/matricula/$slug'
-      preLoaderRoute: typeof DojoMatriculaSlugRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/certificate-editor/$id': {
-      id: '/dojo/certificate-editor/$id'
-      path: '/certificate-editor/$id'
-      fullPath: '/dojo/certificate-editor/$id'
-      preLoaderRoute: typeof DojoCertificateEditorIdRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/app/videos': {
-      id: '/dojo/app/videos'
-      path: '/videos'
-      fullPath: '/dojo/app/videos'
-      preLoaderRoute: typeof DojoAppVideosRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/tutorial-editor': {
-      id: '/dojo/app/tutorial-editor'
-      path: '/tutorial-editor'
-      fullPath: '/dojo/app/tutorial-editor'
-      preLoaderRoute: typeof DojoAppTutorialEditorRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/tutorial': {
-      id: '/dojo/app/tutorial'
-      path: '/tutorial'
-      fullPath: '/dojo/app/tutorial'
-      preLoaderRoute: typeof DojoAppTutorialRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/system-users': {
-      id: '/dojo/app/system-users'
-      path: '/system-users'
-      fullPath: '/dojo/app/system-users'
-      preLoaderRoute: typeof DojoAppSystemUsersRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/support': {
-      id: '/dojo/app/support'
-      path: '/support'
-      fullPath: '/dojo/app/support'
-      preLoaderRoute: typeof DojoAppSupportRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/subscription': {
-      id: '/dojo/app/subscription'
-      path: '/subscription'
-      fullPath: '/dojo/app/subscription'
-      preLoaderRoute: typeof DojoAppSubscriptionRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/students': {
-      id: '/dojo/app/students'
-      path: '/students'
-      fullPath: '/dojo/app/students'
-      preLoaderRoute: typeof DojoAppStudentsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/student-notifications-config': {
-      id: '/dojo/app/student-notifications-config'
-      path: '/student-notifications-config'
-      fullPath: '/dojo/app/student-notifications-config'
-      preLoaderRoute: typeof DojoAppStudentNotificationsConfigRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/student-app-qr': {
-      id: '/dojo/app/student-app-qr'
-      path: '/student-app-qr'
-      fullPath: '/dojo/app/student-app-qr'
-      preLoaderRoute: typeof DojoAppStudentAppQrRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/store': {
-      id: '/dojo/app/store'
-      path: '/store'
-      fullPath: '/dojo/app/store'
-      preLoaderRoute: typeof DojoAppStoreRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/schedule': {
-      id: '/dojo/app/schedule'
-      path: '/schedule'
-      fullPath: '/dojo/app/schedule'
-      preLoaderRoute: typeof DojoAppScheduleRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/sales': {
-      id: '/dojo/app/sales'
-      path: '/sales'
-      fullPath: '/dojo/app/sales'
-      preLoaderRoute: typeof DojoAppSalesRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/ranking': {
-      id: '/dojo/app/ranking'
-      path: '/ranking'
-      fullPath: '/dojo/app/ranking'
-      preLoaderRoute: typeof DojoAppRankingRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/plans': {
-      id: '/dojo/app/plans'
-      path: '/plans'
-      fullPath: '/dojo/app/plans'
-      preLoaderRoute: typeof DojoAppPlansRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/notifications': {
-      id: '/dojo/app/notifications'
-      path: '/notifications'
-      fullPath: '/dojo/app/notifications'
-      preLoaderRoute: typeof DojoAppNotificationsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/lesson-plans': {
-      id: '/dojo/app/lesson-plans'
-      path: '/lesson-plans'
-      fullPath: '/dojo/app/lesson-plans'
-      preLoaderRoute: typeof DojoAppLessonPlansRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/integrations': {
-      id: '/dojo/app/integrations'
-      path: '/integrations'
-      fullPath: '/dojo/app/integrations'
-      preLoaderRoute: typeof DojoAppIntegrationsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/install': {
-      id: '/dojo/app/install'
-      path: '/install'
-      fullPath: '/dojo/app/install'
-      preLoaderRoute: typeof DojoAppInstallRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/graduations': {
-      id: '/dojo/app/graduations'
-      path: '/graduations'
-      fullPath: '/dojo/app/graduations'
-      preLoaderRoute: typeof DojoAppGraduationsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/finance': {
-      id: '/dojo/app/finance'
-      path: '/finance'
-      fullPath: '/dojo/app/finance'
-      preLoaderRoute: typeof DojoAppFinanceRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/evaluations': {
-      id: '/dojo/app/evaluations'
-      path: '/evaluations'
-      fullPath: '/dojo/app/evaluations'
-      preLoaderRoute: typeof DojoAppEvaluationsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/corporate-benefits': {
-      id: '/dojo/app/corporate-benefits'
-      path: '/corporate-benefits'
-      fullPath: '/dojo/app/corporate-benefits'
-      preLoaderRoute: typeof DojoAppCorporateBenefitsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/contracts': {
-      id: '/dojo/app/contracts'
-      path: '/contracts'
-      fullPath: '/dojo/app/contracts'
-      preLoaderRoute: typeof DojoAppContractsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/competitions': {
-      id: '/dojo/app/competitions'
-      path: '/competitions'
-      fullPath: '/dojo/app/competitions'
-      preLoaderRoute: typeof DojoAppCompetitionsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/classes': {
-      id: '/dojo/app/classes'
-      path: '/classes'
-      fullPath: '/dojo/app/classes'
-      preLoaderRoute: typeof DojoAppClassesRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/checkin': {
-      id: '/dojo/app/checkin'
-      path: '/checkin'
-      fullPath: '/dojo/app/checkin'
-      preLoaderRoute: typeof DojoAppCheckinRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/certificates': {
-      id: '/dojo/app/certificates'
-      path: '/certificates'
-      fullPath: '/dojo/app/certificates'
-      preLoaderRoute: typeof DojoAppCertificatesRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/belts': {
-      id: '/dojo/app/belts'
-      path: '/belts'
-      fullPath: '/dojo/app/belts'
-      preLoaderRoute: typeof DojoAppBeltsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/belt-studio': {
-      id: '/dojo/app/belt-studio'
-      path: '/belt-studio'
-      fullPath: '/dojo/app/belt-studio'
-      preLoaderRoute: typeof DojoAppBeltStudioRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/apk-versions': {
-      id: '/dojo/app/apk-versions'
-      path: '/apk-versions'
-      fullPath: '/dojo/app/apk-versions'
-      preLoaderRoute: typeof DojoAppApkVersionsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/announcements': {
-      id: '/dojo/app/announcements'
-      path: '/announcements'
-      fullPath: '/dojo/app/announcements'
-      preLoaderRoute: typeof DojoAppAnnouncementsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/account': {
-      id: '/dojo/app/account'
-      path: '/account'
-      fullPath: '/dojo/app/account'
-      preLoaderRoute: typeof DojoAppAccountRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/app/install/$slug': {
-      id: '/app/install/$slug'
-      path: '/$slug'
-      fullPath: '/app/install/$slug'
-      preLoaderRoute: typeof AppInstallSlugRouteImport
-      parentRoute: typeof AppInstallRoute
-    }
-    '/app/_student/videos': {
-      id: '/app/_student/videos'
-      path: '/videos'
-      fullPath: '/app/videos'
-      preLoaderRoute: typeof AppStudentVideosRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/settings': {
-      id: '/app/_student/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppStudentSettingsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/schedule': {
-      id: '/app/_student/schedule'
-      path: '/schedule'
-      fullPath: '/app/schedule'
-      preLoaderRoute: typeof AppStudentScheduleRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/ranking': {
-      id: '/app/_student/ranking'
-      path: '/ranking'
-      fullPath: '/app/ranking'
-      preLoaderRoute: typeof AppStudentRankingRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/profile': {
-      id: '/app/_student/profile'
-      path: '/profile'
-      fullPath: '/app/profile'
-      preLoaderRoute: typeof AppStudentProfileRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/performance': {
-      id: '/app/_student/performance'
-      path: '/performance'
-      fullPath: '/app/performance'
-      preLoaderRoute: typeof AppStudentPerformanceRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/onboarding': {
-      id: '/app/_student/onboarding'
-      path: '/onboarding'
-      fullPath: '/app/onboarding'
-      preLoaderRoute: typeof AppStudentOnboardingRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/notifications': {
-      id: '/app/_student/notifications'
-      path: '/notifications'
-      fullPath: '/app/notifications'
-      preLoaderRoute: typeof AppStudentNotificationsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/news': {
-      id: '/app/_student/news'
-      path: '/news'
-      fullPath: '/app/news'
-      preLoaderRoute: typeof AppStudentNewsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/home': {
-      id: '/app/_student/home'
-      path: '/home'
-      fullPath: '/app/home'
-      preLoaderRoute: typeof AppStudentHomeRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/graduations': {
-      id: '/app/_student/graduations'
-      path: '/graduations'
-      fullPath: '/app/graduations'
-      preLoaderRoute: typeof AppStudentGraduationsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/finance': {
-      id: '/app/_student/finance'
-      path: '/finance'
-      fullPath: '/app/finance'
-      preLoaderRoute: typeof AppStudentFinanceRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/evaluations': {
-      id: '/app/_student/evaluations'
-      path: '/evaluations'
-      fullPath: '/app/evaluations'
-      preLoaderRoute: typeof AppStudentEvaluationsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/documents': {
-      id: '/app/_student/documents'
-      path: '/documents'
-      fullPath: '/app/documents'
-      preLoaderRoute: typeof AppStudentDocumentsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/competitions': {
-      id: '/app/_student/competitions'
-      path: '/competitions'
-      fullPath: '/app/competitions'
-      preLoaderRoute: typeof AppStudentCompetitionsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/checkin': {
-      id: '/app/_student/checkin'
-      path: '/checkin'
-      fullPath: '/app/checkin'
-      preLoaderRoute: typeof AppStudentCheckinRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/certificates': {
-      id: '/app/_student/certificates'
-      path: '/certificates'
-      fullPath: '/app/certificates'
-      preLoaderRoute: typeof AppStudentCertificatesRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/card': {
-      id: '/app/_student/card'
-      path: '/card'
-      fullPath: '/app/card'
-      preLoaderRoute: typeof AppStudentCardRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/announcements': {
-      id: '/app/_student/announcements'
-      path: '/announcements'
-      fullPath: '/app/announcements'
-      preLoaderRoute: typeof AppStudentAnnouncementsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/agenda': {
-      id: '/app/_student/agenda'
-      path: '/agenda'
-      fullPath: '/app/agenda'
-      preLoaderRoute: typeof AppStudentAgendaRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/api/public/dojo-manifest.webmanifest': {
-      id: '/api/public/dojo-manifest.webmanifest'
-      path: '/api/public/dojo-manifest.webmanifest'
-      fullPath: '/api/public/dojo-manifest.webmanifest'
-      preLoaderRoute: typeof ApiPublicDojoManifestDotwebmanifestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dojo/apk-upload': {
-      id: '/api/dojo/apk-upload'
-      path: '/api/dojo/apk-upload'
-      fullPath: '/api/dojo/apk-upload'
-      preLoaderRoute: typeof ApiDojoApkUploadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/desktop/quotes': {
-      id: '/api/desktop/quotes'
-      path: '/api/desktop/quotes'
-      fullPath: '/api/desktop/quotes'
-      preLoaderRoute: typeof ApiDesktopQuotesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/desktop/products': {
-      id: '/api/desktop/products'
-      path: '/api/desktop/products'
-      fullPath: '/api/desktop/products'
-      preLoaderRoute: typeof ApiDesktopProductsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/store/wholesale': {
-      id: '/_authenticated/store/wholesale'
-      path: '/wholesale'
-      fullPath: '/store/wholesale'
-      preLoaderRoute: typeof AuthenticatedStoreWholesaleRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/sizes': {
-      id: '/_authenticated/store/sizes'
-      path: '/sizes'
-      fullPath: '/store/sizes'
-      preLoaderRoute: typeof AuthenticatedStoreSizesRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/shipping': {
-      id: '/_authenticated/store/shipping'
-      path: '/shipping'
-      fullPath: '/store/shipping'
-      preLoaderRoute: typeof AuthenticatedStoreShippingRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/products': {
-      id: '/_authenticated/store/products'
-      path: '/products'
-      fullPath: '/store/products'
-      preLoaderRoute: typeof AuthenticatedStoreProductsRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/orders': {
-      id: '/_authenticated/store/orders'
-      path: '/orders'
-      fullPath: '/store/orders'
-      preLoaderRoute: typeof AuthenticatedStoreOrdersRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/notifications': {
-      id: '/_authenticated/store/notifications'
-      path: '/notifications'
-      fullPath: '/store/notifications'
-      preLoaderRoute: typeof AuthenticatedStoreNotificationsRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/import': {
-      id: '/_authenticated/store/import'
-      path: '/import'
-      fullPath: '/store/import'
-      preLoaderRoute: typeof AuthenticatedStoreImportRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/imagens': {
-      id: '/_authenticated/store/imagens'
-      path: '/imagens'
-      fullPath: '/store/imagens'
-      preLoaderRoute: typeof AuthenticatedStoreImagensRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/faixa-calc': {
-      id: '/_authenticated/store/faixa-calc'
-      path: '/faixa-calc'
-      fullPath: '/store/faixa-calc'
-      preLoaderRoute: typeof AuthenticatedStoreFaixaCalcRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/dojo-support': {
-      id: '/_authenticated/store/dojo-support'
-      path: '/dojo-support'
-      fullPath: '/store/dojo-support'
-      preLoaderRoute: typeof AuthenticatedStoreDojoSupportRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/dojo-manager': {
-      id: '/_authenticated/store/dojo-manager'
-      path: '/dojo-manager'
-      fullPath: '/store/dojo-manager'
-      preLoaderRoute: typeof AuthenticatedStoreDojoManagerRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/customers': {
-      id: '/_authenticated/store/customers'
-      path: '/customers'
-      fullPath: '/store/customers'
-      preLoaderRoute: typeof AuthenticatedStoreCustomersRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/chat': {
-      id: '/_authenticated/store/chat'
-      path: '/chat'
-      fullPath: '/store/chat'
-      preLoaderRoute: typeof AuthenticatedStoreChatRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/prospect/settings': {
-      id: '/_authenticated/prospect/settings'
-      path: '/settings'
-      fullPath: '/prospect/settings'
-      preLoaderRoute: typeof AuthenticatedProspectSettingsRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
-    }
-    '/_authenticated/prospect/search': {
-      id: '/_authenticated/prospect/search'
-      path: '/search'
-      fullPath: '/prospect/search'
-      preLoaderRoute: typeof AuthenticatedProspectSearchRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
-    }
-    '/_authenticated/prospect/qualified': {
-      id: '/_authenticated/prospect/qualified'
-      path: '/qualified'
-      fullPath: '/prospect/qualified'
-      preLoaderRoute: typeof AuthenticatedProspectQualifiedRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
-    }
-    '/_authenticated/prospect/pipeline': {
-      id: '/_authenticated/prospect/pipeline'
-      path: '/pipeline'
-      fullPath: '/prospect/pipeline'
-      preLoaderRoute: typeof AuthenticatedProspectPipelineRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
-    }
-    '/_authenticated/prospect/macro': {
-      id: '/_authenticated/prospect/macro'
-      path: '/macro'
-      fullPath: '/prospect/macro'
-      preLoaderRoute: typeof AuthenticatedProspectMacroRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
-    }
-    '/_authenticated/prospect/logs': {
-      id: '/_authenticated/prospect/logs'
-      path: '/logs'
-      fullPath: '/prospect/logs'
-      preLoaderRoute: typeof AuthenticatedProspectLogsRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
-    }
-    '/_authenticated/prospect/leads': {
-      id: '/_authenticated/prospect/leads'
-      path: '/leads'
-      fullPath: '/prospect/leads'
-      preLoaderRoute: typeof AuthenticatedProspectLeadsRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
-    }
-    '/_authenticated/prospect/$id': {
-      id: '/_authenticated/prospect/$id'
-      path: '/$id'
-      fullPath: '/prospect/$id'
-      preLoaderRoute: typeof AuthenticatedProspectIdRouteImport
-      parentRoute: typeof AuthenticatedProspectRoute
-    }
-    '/_authenticated/market/pricing': {
-      id: '/_authenticated/market/pricing'
-      path: '/pricing'
-      fullPath: '/market/pricing'
-      preLoaderRoute: typeof AuthenticatedMarketPricingRouteImport
-      parentRoute: typeof AuthenticatedMarketRoute
-    }
-    '/_authenticated/market/overview': {
-      id: '/_authenticated/market/overview'
-      path: '/overview'
-      fullPath: '/market/overview'
-      preLoaderRoute: typeof AuthenticatedMarketOverviewRouteImport
-      parentRoute: typeof AuthenticatedMarketRoute
-    }
-    '/_authenticated/market/crm': {
-      id: '/_authenticated/market/crm'
-      path: '/crm'
-      fullPath: '/market/crm'
-      preLoaderRoute: typeof AuthenticatedMarketCrmRouteImport
-      parentRoute: typeof AuthenticatedMarketRoute
-    }
-    '/_authenticated/market/content': {
-      id: '/_authenticated/market/content'
-      path: '/content'
-      fullPath: '/market/content'
-      preLoaderRoute: typeof AuthenticatedMarketContentRouteImport
-      parentRoute: typeof AuthenticatedMarketRoute
-    }
-    '/_authenticated/market/connections': {
-      id: '/_authenticated/market/connections'
-      path: '/connections'
-      fullPath: '/market/connections'
-      preLoaderRoute: typeof AuthenticatedMarketConnectionsRouteImport
-      parentRoute: typeof AuthenticatedMarketRoute
-    }
-    '/_authenticated/market/catalog': {
-      id: '/_authenticated/market/catalog'
-      path: '/catalog'
-      fullPath: '/market/catalog'
-      preLoaderRoute: typeof AuthenticatedMarketCatalogRouteImport
-      parentRoute: typeof AuthenticatedMarketRoute
-    }
-    '/_authenticated/instagram/inbox': {
-      id: '/_authenticated/instagram/inbox'
-      path: '/inbox'
-      fullPath: '/instagram/inbox'
-      preLoaderRoute: typeof AuthenticatedInstagramInboxRouteImport
-      parentRoute: typeof AuthenticatedInstagramRoute
-    }
-    '/_authenticated/instagram/dashboard': {
-      id: '/_authenticated/instagram/dashboard'
-      path: '/dashboard'
-      fullPath: '/instagram/dashboard'
-      preLoaderRoute: typeof AuthenticatedInstagramDashboardRouteImport
-      parentRoute: typeof AuthenticatedInstagramRoute
-    }
-    '/_authenticated/instagram/crm': {
-      id: '/_authenticated/instagram/crm'
-      path: '/crm'
-      fullPath: '/instagram/crm'
-      preLoaderRoute: typeof AuthenticatedInstagramCrmRouteImport
-      parentRoute: typeof AuthenticatedInstagramRoute
-    }
-    '/_authenticated/instagram/comments': {
-      id: '/_authenticated/instagram/comments'
-      path: '/comments'
-      fullPath: '/instagram/comments'
-      preLoaderRoute: typeof AuthenticatedInstagramCommentsRouteImport
-      parentRoute: typeof AuthenticatedInstagramRoute
-    }
-    '/_authenticated/instagram/automations': {
-      id: '/_authenticated/instagram/automations'
-      path: '/automations'
-      fullPath: '/instagram/automations'
-      preLoaderRoute: typeof AuthenticatedInstagramAutomationsRouteImport
-      parentRoute: typeof AuthenticatedInstagramRoute
-    }
-    '/_authenticated/instagram/admin': {
-      id: '/_authenticated/instagram/admin'
-      path: '/admin'
-      fullPath: '/instagram/admin'
-      preLoaderRoute: typeof AuthenticatedInstagramAdminRouteImport
-      parentRoute: typeof AuthenticatedInstagramRoute
-    }
-    '/_authenticated/instagram/account': {
-      id: '/_authenticated/instagram/account'
-      path: '/account'
-      fullPath: '/instagram/account'
-      preLoaderRoute: typeof AuthenticatedInstagramAccountRouteImport
-      parentRoute: typeof AuthenticatedInstagramRoute
-    }
-    '/_authenticated/growth/market': {
-      id: '/_authenticated/growth/market'
-      path: '/market'
-      fullPath: '/growth/market'
-      preLoaderRoute: typeof AuthenticatedGrowthMarketRouteImport
-      parentRoute: typeof AuthenticatedGrowthRoute
-    }
-    '/_authenticated/growth/kpis': {
-      id: '/_authenticated/growth/kpis'
-      path: '/kpis'
-      fullPath: '/growth/kpis'
-      preLoaderRoute: typeof AuthenticatedGrowthKpisRouteImport
-      parentRoute: typeof AuthenticatedGrowthRoute
-    }
-    '/_authenticated/growth/intelligence': {
-      id: '/_authenticated/growth/intelligence'
-      path: '/intelligence'
-      fullPath: '/growth/intelligence'
-      preLoaderRoute: typeof AuthenticatedGrowthIntelligenceRouteImport
-      parentRoute: typeof AuthenticatedGrowthRoute
-    }
-    '/_authenticated/growth/insights': {
-      id: '/_authenticated/growth/insights'
-      path: '/insights'
-      fullPath: '/growth/insights'
-      preLoaderRoute: typeof AuthenticatedGrowthInsightsRouteImport
-      parentRoute: typeof AuthenticatedGrowthRoute
-    }
-    '/_authenticated/growth/customers': {
-      id: '/_authenticated/growth/customers'
-      path: '/customers'
-      fullPath: '/growth/customers'
-      preLoaderRoute: typeof AuthenticatedGrowthCustomersRouteImport
-      parentRoute: typeof AuthenticatedGrowthRoute
-    }
-    '/_authenticated/growth/crm': {
-      id: '/_authenticated/growth/crm'
-      path: '/crm'
-      fullPath: '/growth/crm'
-      preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
-      parentRoute: typeof AuthenticatedGrowthRoute
-    }
-    '/_authenticated/ads/scale': {
-      id: '/_authenticated/ads/scale'
-      path: '/scale'
-      fullPath: '/ads/scale'
-      preLoaderRoute: typeof AuthenticatedAdsScaleRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/ads/optimization': {
-      id: '/_authenticated/ads/optimization'
-      path: '/optimization'
-      fullPath: '/ads/optimization'
-      preLoaderRoute: typeof AuthenticatedAdsOptimizationRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/ads/new': {
-      id: '/_authenticated/ads/new'
-      path: '/new'
-      fullPath: '/ads/new'
-      preLoaderRoute: typeof AuthenticatedAdsNewRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/ads/dashboard': {
-      id: '/_authenticated/ads/dashboard'
-      path: '/dashboard'
-      fullPath: '/ads/dashboard'
-      preLoaderRoute: typeof AuthenticatedAdsDashboardRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/ads/creatives': {
-      id: '/_authenticated/ads/creatives'
-      path: '/creatives'
-      fullPath: '/ads/creatives'
-      preLoaderRoute: typeof AuthenticatedAdsCreativesRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/ads/copies': {
-      id: '/_authenticated/ads/copies'
-      path: '/copies'
-      fullPath: '/ads/copies'
-      preLoaderRoute: typeof AuthenticatedAdsCopiesRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/ads/connections': {
-      id: '/_authenticated/ads/connections'
-      path: '/connections'
-      fullPath: '/ads/connections'
-      preLoaderRoute: typeof AuthenticatedAdsConnectionsRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/ads/campaigns': {
-      id: '/_authenticated/ads/campaigns'
-      path: '/campaigns'
-      fullPath: '/ads/campaigns'
-      preLoaderRoute: typeof AuthenticatedAdsCampaignsRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/ads/alerts': {
-      id: '/_authenticated/ads/alerts'
-      path: '/alerts'
-      fullPath: '/ads/alerts'
-      preLoaderRoute: typeof AuthenticatedAdsAlertsRouteImport
-      parentRoute: typeof AuthenticatedAdsRoute
-    }
-    '/_authenticated/admin/usuarios': {
-      id: '/_authenticated/admin/usuarios'
-      path: '/usuarios'
-      fullPath: '/admin/usuarios'
-      preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/saas': {
-      id: '/_authenticated/admin/saas'
-      path: '/saas'
-      fullPath: '/admin/saas'
-      preLoaderRoute: typeof AuthenticatedAdminSaasRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/prospect': {
-      id: '/_authenticated/admin/prospect'
-      path: '/prospect'
-      fullPath: '/admin/prospect'
-      preLoaderRoute: typeof AuthenticatedAdminProspectRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/producao': {
-      id: '/_authenticated/admin/producao'
-      path: '/producao'
-      fullPath: '/admin/producao'
-      preLoaderRoute: typeof AuthenticatedAdminProducaoRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/perfil': {
-      id: '/_authenticated/admin/perfil'
-      path: '/perfil'
-      fullPath: '/admin/perfil'
-      preLoaderRoute: typeof AuthenticatedAdminPerfilRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/orcamentos': {
-      id: '/_authenticated/admin/orcamentos'
-      path: '/orcamentos'
-      fullPath: '/admin/orcamentos'
-      preLoaderRoute: typeof AuthenticatedAdminOrcamentosRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/notificacoes': {
-      id: '/_authenticated/admin/notificacoes'
-      path: '/notificacoes'
-      fullPath: '/admin/notificacoes'
-      preLoaderRoute: typeof AuthenticatedAdminNotificacoesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/marketing': {
-      id: '/_authenticated/admin/marketing'
-      path: '/marketing'
-      fullPath: '/admin/marketing'
-      preLoaderRoute: typeof AuthenticatedAdminMarketingRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/loja': {
-      id: '/_authenticated/admin/loja'
-      path: '/loja'
-      fullPath: '/admin/loja'
-      preLoaderRoute: typeof AuthenticatedAdminLojaRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/logs': {
-      id: '/_authenticated/admin/logs'
-      path: '/logs'
-      fullPath: '/admin/logs'
-      preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/instagram': {
-      id: '/_authenticated/admin/instagram'
-      path: '/instagram'
-      fullPath: '/admin/instagram'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/fiscal': {
-      id: '/_authenticated/admin/fiscal'
-      path: '/fiscal'
-      fullPath: '/admin/fiscal'
-      preLoaderRoute: typeof AuthenticatedAdminFiscalRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/envio': {
-      id: '/_authenticated/admin/envio'
-      path: '/envio'
-      fullPath: '/admin/envio'
-      preLoaderRoute: typeof AuthenticatedAdminEnvioRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/dojo': {
-      id: '/_authenticated/admin/dojo'
-      path: '/dojo'
-      fullPath: '/admin/dojo'
-      preLoaderRoute: typeof AuthenticatedAdminDojoRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/dashboard': {
-      id: '/_authenticated/admin/dashboard'
-      path: '/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/crm': {
-      id: '/_authenticated/admin/crm'
-      path: '/crm'
-      fullPath: '/admin/crm'
-      preLoaderRoute: typeof AuthenticatedAdminCrmRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/configuracoes': {
-      id: '/_authenticated/admin/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/admin/configuracoes'
-      preLoaderRoute: typeof AuthenticatedAdminConfiguracoesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/conexoes': {
-      id: '/_authenticated/admin/conexoes'
-      path: '/conexoes'
-      fullPath: '/admin/conexoes'
-      preLoaderRoute: typeof AuthenticatedAdminConexoesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/clientes-growth': {
-      id: '/_authenticated/admin/clientes-growth'
-      path: '/clientes-growth'
-      fullPath: '/admin/clientes-growth'
-      preLoaderRoute: typeof AuthenticatedAdminClientesGrowthRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/clientes': {
-      id: '/_authenticated/admin/clientes'
-      path: '/clientes'
-      fullPath: '/admin/clientes'
-      preLoaderRoute: typeof AuthenticatedAdminClientesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/atendimento': {
-      id: '/_authenticated/admin/atendimento'
-      path: '/atendimento'
-      fullPath: '/admin/atendimento'
-      preLoaderRoute: typeof AuthenticatedAdminAtendimentoRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/atacado': {
-      id: '/_authenticated/admin/atacado'
-      path: '/atacado'
-      fullPath: '/admin/atacado'
-      preLoaderRoute: typeof AuthenticatedAdminAtacadoRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/anuncios': {
-      id: '/_authenticated/admin/anuncios'
-      path: '/anuncios'
-      fullPath: '/admin/anuncios'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/ads': {
@@ -5587,921 +4572,1026 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/dojo/staff/_portal/': {
-      id: '/dojo/staff/_portal/'
-      path: '/'
-      fullPath: '/dojo/staff/'
-      preLoaderRoute: typeof DojoStaffPortalIndexRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/app/videos/': {
-      id: '/dojo/app/videos/'
-      path: '/'
-      fullPath: '/dojo/app/videos/'
-      preLoaderRoute: typeof DojoAppVideosIndexRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/units/': {
-      id: '/dojo/app/units/'
-      path: '/units'
-      fullPath: '/dojo/app/units/'
-      preLoaderRoute: typeof DojoAppUnitsIndexRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/team/': {
-      id: '/dojo/app/team/'
-      path: '/team'
-      fullPath: '/dojo/app/team/'
-      preLoaderRoute: typeof DojoAppTeamIndexRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/students/': {
-      id: '/dojo/app/students/'
-      path: '/'
-      fullPath: '/dojo/app/students/'
-      preLoaderRoute: typeof DojoAppStudentsIndexRouteImport
-      parentRoute: typeof DojoAppStudentsRoute
-    }
-    '/dojo/app/store/': {
-      id: '/dojo/app/store/'
-      path: '/'
-      fullPath: '/dojo/app/store/'
-      preLoaderRoute: typeof DojoAppStoreIndexRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/lesson-plans/': {
-      id: '/dojo/app/lesson-plans/'
-      path: '/'
-      fullPath: '/dojo/app/lesson-plans/'
-      preLoaderRoute: typeof DojoAppLessonPlansIndexRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/evaluations/': {
-      id: '/dojo/app/evaluations/'
-      path: '/'
-      fullPath: '/dojo/app/evaluations/'
-      preLoaderRoute: typeof DojoAppEvaluationsIndexRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/contracts/': {
-      id: '/dojo/app/contracts/'
-      path: '/'
-      fullPath: '/dojo/app/contracts/'
-      preLoaderRoute: typeof DojoAppContractsIndexRouteImport
-      parentRoute: typeof DojoAppContractsRoute
-    }
-    '/dojo/app/contract-templates/': {
-      id: '/dojo/app/contract-templates/'
-      path: '/contract-templates'
-      fullPath: '/dojo/app/contract-templates/'
-      preLoaderRoute: typeof DojoAppContractTemplatesIndexRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/competitions/': {
-      id: '/dojo/app/competitions/'
-      path: '/'
-      fullPath: '/dojo/app/competitions/'
-      preLoaderRoute: typeof DojoAppCompetitionsIndexRouteImport
-      parentRoute: typeof DojoAppCompetitionsRoute
-    }
-    '/app/_student/documents/': {
-      id: '/app/_student/documents/'
-      path: '/'
-      fullPath: '/app/documents/'
-      preLoaderRoute: typeof AppStudentDocumentsIndexRouteImport
-      parentRoute: typeof AppStudentDocumentsRoute
-    }
-    '/_authenticated/admin/produtos/': {
-      id: '/_authenticated/admin/produtos/'
-      path: '/produtos'
-      fullPath: '/admin/produtos/'
-      preLoaderRoute: typeof AuthenticatedAdminProdutosIndexRouteImport
+    '/_authenticated/admin/anuncios': {
+      id: '/_authenticated/admin/anuncios'
+      path: '/anuncios'
+      fullPath: '/admin/anuncios'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/pedidos/': {
-      id: '/_authenticated/admin/pedidos/'
-      path: '/pedidos'
-      fullPath: '/admin/pedidos/'
-      preLoaderRoute: typeof AuthenticatedAdminPedidosIndexRouteImport
+    '/_authenticated/admin/atacado': {
+      id: '/_authenticated/admin/atacado'
+      path: '/atacado'
+      fullPath: '/admin/atacado'
+      preLoaderRoute: typeof AuthenticatedAdminAtacadoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/marketing/': {
-      id: '/_authenticated/admin/marketing/'
-      path: '/'
-      fullPath: '/admin/marketing/'
-      preLoaderRoute: typeof AuthenticatedAdminMarketingIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    '/_authenticated/admin/atendimento': {
+      id: '/_authenticated/admin/atendimento'
+      path: '/atendimento'
+      fullPath: '/admin/atendimento'
+      preLoaderRoute: typeof AuthenticatedAdminAtendimentoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/leads/': {
-      id: '/_authenticated/admin/leads/'
+    '/_authenticated/admin/clientes': {
+      id: '/_authenticated/admin/clientes'
+      path: '/clientes'
+      fullPath: '/admin/clientes'
+      preLoaderRoute: typeof AuthenticatedAdminClientesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clientes-growth': {
+      id: '/_authenticated/admin/clientes-growth'
+      path: '/clientes-growth'
+      fullPath: '/admin/clientes-growth'
+      preLoaderRoute: typeof AuthenticatedAdminClientesGrowthRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/conexoes': {
+      id: '/_authenticated/admin/conexoes'
+      path: '/conexoes'
+      fullPath: '/admin/conexoes'
+      preLoaderRoute: typeof AuthenticatedAdminConexoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/configuracoes': {
+      id: '/_authenticated/admin/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/admin/configuracoes'
+      preLoaderRoute: typeof AuthenticatedAdminConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/crm': {
+      id: '/_authenticated/admin/crm'
+      path: '/crm'
+      fullPath: '/admin/crm'
+      preLoaderRoute: typeof AuthenticatedAdminCrmRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/dashboard': {
+      id: '/_authenticated/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/dojo': {
+      id: '/_authenticated/admin/dojo'
+      path: '/dojo'
+      fullPath: '/admin/dojo'
+      preLoaderRoute: typeof AuthenticatedAdminDojoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/envio': {
+      id: '/_authenticated/admin/envio'
+      path: '/envio'
+      fullPath: '/admin/envio'
+      preLoaderRoute: typeof AuthenticatedAdminEnvioRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/fiscal': {
+      id: '/_authenticated/admin/fiscal'
+      path: '/fiscal'
+      fullPath: '/admin/fiscal'
+      preLoaderRoute: typeof AuthenticatedAdminFiscalRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/instagram': {
+      id: '/_authenticated/admin/instagram'
+      path: '/instagram'
+      fullPath: '/admin/instagram'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/logs': {
+      id: '/_authenticated/admin/logs'
+      path: '/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/loja': {
+      id: '/_authenticated/admin/loja'
+      path: '/loja'
+      fullPath: '/admin/loja'
+      preLoaderRoute: typeof AuthenticatedAdminLojaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/marketing': {
+      id: '/_authenticated/admin/marketing'
+      path: '/marketing'
+      fullPath: '/admin/marketing'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/notificacoes': {
+      id: '/_authenticated/admin/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/admin/notificacoes'
+      preLoaderRoute: typeof AuthenticatedAdminNotificacoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/orcamentos': {
+      id: '/_authenticated/admin/orcamentos'
+      path: '/orcamentos'
+      fullPath: '/admin/orcamentos'
+      preLoaderRoute: typeof AuthenticatedAdminOrcamentosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/perfil': {
+      id: '/_authenticated/admin/perfil'
+      path: '/perfil'
+      fullPath: '/admin/perfil'
+      preLoaderRoute: typeof AuthenticatedAdminPerfilRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/producao': {
+      id: '/_authenticated/admin/producao'
+      path: '/producao'
+      fullPath: '/admin/producao'
+      preLoaderRoute: typeof AuthenticatedAdminProducaoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/prospect': {
+      id: '/_authenticated/admin/prospect'
+      path: '/prospect'
+      fullPath: '/admin/prospect'
+      preLoaderRoute: typeof AuthenticatedAdminProspectRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/saas': {
+      id: '/_authenticated/admin/saas'
+      path: '/saas'
+      fullPath: '/admin/saas'
+      preLoaderRoute: typeof AuthenticatedAdminSaasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/usuarios': {
+      id: '/_authenticated/admin/usuarios'
+      path: '/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/ads/alerts': {
+      id: '/_authenticated/ads/alerts'
+      path: '/alerts'
+      fullPath: '/ads/alerts'
+      preLoaderRoute: typeof AuthenticatedAdsAlertsRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/campaigns': {
+      id: '/_authenticated/ads/campaigns'
+      path: '/campaigns'
+      fullPath: '/ads/campaigns'
+      preLoaderRoute: typeof AuthenticatedAdsCampaignsRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/connections': {
+      id: '/_authenticated/ads/connections'
+      path: '/connections'
+      fullPath: '/ads/connections'
+      preLoaderRoute: typeof AuthenticatedAdsConnectionsRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/copies': {
+      id: '/_authenticated/ads/copies'
+      path: '/copies'
+      fullPath: '/ads/copies'
+      preLoaderRoute: typeof AuthenticatedAdsCopiesRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/creatives': {
+      id: '/_authenticated/ads/creatives'
+      path: '/creatives'
+      fullPath: '/ads/creatives'
+      preLoaderRoute: typeof AuthenticatedAdsCreativesRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/dashboard': {
+      id: '/_authenticated/ads/dashboard'
+      path: '/dashboard'
+      fullPath: '/ads/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdsDashboardRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/new': {
+      id: '/_authenticated/ads/new'
+      path: '/new'
+      fullPath: '/ads/new'
+      preLoaderRoute: typeof AuthenticatedAdsNewRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/optimization': {
+      id: '/_authenticated/ads/optimization'
+      path: '/optimization'
+      fullPath: '/ads/optimization'
+      preLoaderRoute: typeof AuthenticatedAdsOptimizationRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/scale': {
+      id: '/_authenticated/ads/scale'
+      path: '/scale'
+      fullPath: '/ads/scale'
+      preLoaderRoute: typeof AuthenticatedAdsScaleRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/growth/crm': {
+      id: '/_authenticated/growth/crm'
+      path: '/crm'
+      fullPath: '/growth/crm'
+      preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
+      parentRoute: typeof AuthenticatedGrowthRoute
+    }
+    '/_authenticated/growth/customers': {
+      id: '/_authenticated/growth/customers'
+      path: '/customers'
+      fullPath: '/growth/customers'
+      preLoaderRoute: typeof AuthenticatedGrowthCustomersRouteImport
+      parentRoute: typeof AuthenticatedGrowthRoute
+    }
+    '/_authenticated/growth/insights': {
+      id: '/_authenticated/growth/insights'
+      path: '/insights'
+      fullPath: '/growth/insights'
+      preLoaderRoute: typeof AuthenticatedGrowthInsightsRouteImport
+      parentRoute: typeof AuthenticatedGrowthRoute
+    }
+    '/_authenticated/growth/intelligence': {
+      id: '/_authenticated/growth/intelligence'
+      path: '/intelligence'
+      fullPath: '/growth/intelligence'
+      preLoaderRoute: typeof AuthenticatedGrowthIntelligenceRouteImport
+      parentRoute: typeof AuthenticatedGrowthRoute
+    }
+    '/_authenticated/growth/kpis': {
+      id: '/_authenticated/growth/kpis'
+      path: '/kpis'
+      fullPath: '/growth/kpis'
+      preLoaderRoute: typeof AuthenticatedGrowthKpisRouteImport
+      parentRoute: typeof AuthenticatedGrowthRoute
+    }
+    '/_authenticated/growth/market': {
+      id: '/_authenticated/growth/market'
+      path: '/market'
+      fullPath: '/growth/market'
+      preLoaderRoute: typeof AuthenticatedGrowthMarketRouteImport
+      parentRoute: typeof AuthenticatedGrowthRoute
+    }
+    '/_authenticated/instagram/account': {
+      id: '/_authenticated/instagram/account'
+      path: '/account'
+      fullPath: '/instagram/account'
+      preLoaderRoute: typeof AuthenticatedInstagramAccountRouteImport
+      parentRoute: typeof AuthenticatedInstagramRoute
+    }
+    '/_authenticated/instagram/admin': {
+      id: '/_authenticated/instagram/admin'
+      path: '/admin'
+      fullPath: '/instagram/admin'
+      preLoaderRoute: typeof AuthenticatedInstagramAdminRouteImport
+      parentRoute: typeof AuthenticatedInstagramRoute
+    }
+    '/_authenticated/instagram/automations': {
+      id: '/_authenticated/instagram/automations'
+      path: '/automations'
+      fullPath: '/instagram/automations'
+      preLoaderRoute: typeof AuthenticatedInstagramAutomationsRouteImport
+      parentRoute: typeof AuthenticatedInstagramRoute
+    }
+    '/_authenticated/instagram/comments': {
+      id: '/_authenticated/instagram/comments'
+      path: '/comments'
+      fullPath: '/instagram/comments'
+      preLoaderRoute: typeof AuthenticatedInstagramCommentsRouteImport
+      parentRoute: typeof AuthenticatedInstagramRoute
+    }
+    '/_authenticated/instagram/crm': {
+      id: '/_authenticated/instagram/crm'
+      path: '/crm'
+      fullPath: '/instagram/crm'
+      preLoaderRoute: typeof AuthenticatedInstagramCrmRouteImport
+      parentRoute: typeof AuthenticatedInstagramRoute
+    }
+    '/_authenticated/instagram/dashboard': {
+      id: '/_authenticated/instagram/dashboard'
+      path: '/dashboard'
+      fullPath: '/instagram/dashboard'
+      preLoaderRoute: typeof AuthenticatedInstagramDashboardRouteImport
+      parentRoute: typeof AuthenticatedInstagramRoute
+    }
+    '/_authenticated/instagram/inbox': {
+      id: '/_authenticated/instagram/inbox'
+      path: '/inbox'
+      fullPath: '/instagram/inbox'
+      preLoaderRoute: typeof AuthenticatedInstagramInboxRouteImport
+      parentRoute: typeof AuthenticatedInstagramRoute
+    }
+    '/_authenticated/market/catalog': {
+      id: '/_authenticated/market/catalog'
+      path: '/catalog'
+      fullPath: '/market/catalog'
+      preLoaderRoute: typeof AuthenticatedMarketCatalogRouteImport
+      parentRoute: typeof AuthenticatedMarketRoute
+    }
+    '/_authenticated/market/connections': {
+      id: '/_authenticated/market/connections'
+      path: '/connections'
+      fullPath: '/market/connections'
+      preLoaderRoute: typeof AuthenticatedMarketConnectionsRouteImport
+      parentRoute: typeof AuthenticatedMarketRoute
+    }
+    '/_authenticated/market/content': {
+      id: '/_authenticated/market/content'
+      path: '/content'
+      fullPath: '/market/content'
+      preLoaderRoute: typeof AuthenticatedMarketContentRouteImport
+      parentRoute: typeof AuthenticatedMarketRoute
+    }
+    '/_authenticated/market/crm': {
+      id: '/_authenticated/market/crm'
+      path: '/crm'
+      fullPath: '/market/crm'
+      preLoaderRoute: typeof AuthenticatedMarketCrmRouteImport
+      parentRoute: typeof AuthenticatedMarketRoute
+    }
+    '/_authenticated/market/overview': {
+      id: '/_authenticated/market/overview'
+      path: '/overview'
+      fullPath: '/market/overview'
+      preLoaderRoute: typeof AuthenticatedMarketOverviewRouteImport
+      parentRoute: typeof AuthenticatedMarketRoute
+    }
+    '/_authenticated/market/pricing': {
+      id: '/_authenticated/market/pricing'
+      path: '/pricing'
+      fullPath: '/market/pricing'
+      preLoaderRoute: typeof AuthenticatedMarketPricingRouteImport
+      parentRoute: typeof AuthenticatedMarketRoute
+    }
+    '/_authenticated/prospect/': {
+      id: '/_authenticated/prospect/'
+      path: '/'
+      fullPath: '/prospect/'
+      preLoaderRoute: typeof AuthenticatedProspectIndexRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
+    }
+    '/_authenticated/prospect/$id': {
+      id: '/_authenticated/prospect/$id'
+      path: '/$id'
+      fullPath: '/prospect/$id'
+      preLoaderRoute: typeof AuthenticatedProspectIdRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
+    }
+    '/_authenticated/prospect/leads': {
+      id: '/_authenticated/prospect/leads'
       path: '/leads'
-      fullPath: '/admin/leads/'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      fullPath: '/prospect/leads'
+      preLoaderRoute: typeof AuthenticatedProspectLeadsRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
     }
-    '/_authenticated/admin/instagram/': {
-      id: '/_authenticated/admin/instagram/'
-      path: '/'
-      fullPath: '/admin/instagram/'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
+    '/_authenticated/prospect/logs': {
+      id: '/_authenticated/prospect/logs'
+      path: '/logs'
+      fullPath: '/prospect/logs'
+      preLoaderRoute: typeof AuthenticatedProspectLogsRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
     }
-    '/_authenticated/admin/anuncios/': {
-      id: '/_authenticated/admin/anuncios/'
+    '/_authenticated/prospect/macro': {
+      id: '/_authenticated/prospect/macro'
+      path: '/macro'
+      fullPath: '/prospect/macro'
+      preLoaderRoute: typeof AuthenticatedProspectMacroRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
+    }
+    '/_authenticated/prospect/pipeline': {
+      id: '/_authenticated/prospect/pipeline'
+      path: '/pipeline'
+      fullPath: '/prospect/pipeline'
+      preLoaderRoute: typeof AuthenticatedProspectPipelineRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
+    }
+    '/_authenticated/prospect/qualified': {
+      id: '/_authenticated/prospect/qualified'
+      path: '/qualified'
+      fullPath: '/prospect/qualified'
+      preLoaderRoute: typeof AuthenticatedProspectQualifiedRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
+    }
+    '/_authenticated/prospect/search': {
+      id: '/_authenticated/prospect/search'
+      path: '/search'
+      fullPath: '/prospect/search'
+      preLoaderRoute: typeof AuthenticatedProspectSearchRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
+    }
+    '/_authenticated/prospect/settings': {
+      id: '/_authenticated/prospect/settings'
+      path: '/settings'
+      fullPath: '/prospect/settings'
+      preLoaderRoute: typeof AuthenticatedProspectSettingsRouteImport
+      parentRoute: typeof AuthenticatedProspectRoute
+    }
+    '/_authenticated/store/': {
+      id: '/_authenticated/store/'
       path: '/'
-      fullPath: '/admin/anuncios/'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      fullPath: '/store/'
+      preLoaderRoute: typeof AuthenticatedStoreIndexRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/chat': {
+      id: '/_authenticated/store/chat'
+      path: '/chat'
+      fullPath: '/store/chat'
+      preLoaderRoute: typeof AuthenticatedStoreChatRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/customers': {
+      id: '/_authenticated/store/customers'
+      path: '/customers'
+      fullPath: '/store/customers'
+      preLoaderRoute: typeof AuthenticatedStoreCustomersRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/dojo-manager': {
+      id: '/_authenticated/store/dojo-manager'
+      path: '/dojo-manager'
+      fullPath: '/store/dojo-manager'
+      preLoaderRoute: typeof AuthenticatedStoreDojoManagerRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/dojo-support': {
+      id: '/_authenticated/store/dojo-support'
+      path: '/dojo-support'
+      fullPath: '/store/dojo-support'
+      preLoaderRoute: typeof AuthenticatedStoreDojoSupportRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/faixa-calc': {
+      id: '/_authenticated/store/faixa-calc'
+      path: '/faixa-calc'
+      fullPath: '/store/faixa-calc'
+      preLoaderRoute: typeof AuthenticatedStoreFaixaCalcRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/imagens': {
+      id: '/_authenticated/store/imagens'
+      path: '/imagens'
+      fullPath: '/store/imagens'
+      preLoaderRoute: typeof AuthenticatedStoreImagensRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/import': {
+      id: '/_authenticated/store/import'
+      path: '/import'
+      fullPath: '/store/import'
+      preLoaderRoute: typeof AuthenticatedStoreImportRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/notifications': {
+      id: '/_authenticated/store/notifications'
+      path: '/notifications'
+      fullPath: '/store/notifications'
+      preLoaderRoute: typeof AuthenticatedStoreNotificationsRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/orders': {
+      id: '/_authenticated/store/orders'
+      path: '/orders'
+      fullPath: '/store/orders'
+      preLoaderRoute: typeof AuthenticatedStoreOrdersRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/products': {
+      id: '/_authenticated/store/products'
+      path: '/products'
+      fullPath: '/store/products'
+      preLoaderRoute: typeof AuthenticatedStoreProductsRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/shipping': {
+      id: '/_authenticated/store/shipping'
+      path: '/shipping'
+      fullPath: '/store/shipping'
+      preLoaderRoute: typeof AuthenticatedStoreShippingRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/sizes': {
+      id: '/_authenticated/store/sizes'
+      path: '/sizes'
+      fullPath: '/store/sizes'
+      preLoaderRoute: typeof AuthenticatedStoreSizesRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/_authenticated/store/wholesale': {
+      id: '/_authenticated/store/wholesale'
+      path: '/wholesale'
+      fullPath: '/store/wholesale'
+      preLoaderRoute: typeof AuthenticatedStoreWholesaleRouteImport
+      parentRoute: typeof AuthenticatedStoreRoute
+    }
+    '/api/desktop/products': {
+      id: '/api/desktop/products'
+      path: '/api/desktop/products'
+      fullPath: '/api/desktop/products'
+      preLoaderRoute: typeof ApiDesktopProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/desktop/quotes': {
+      id: '/api/desktop/quotes'
+      path: '/api/desktop/quotes'
+      fullPath: '/api/desktop/quotes'
+      preLoaderRoute: typeof ApiDesktopQuotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dojo/apk-upload': {
+      id: '/api/dojo/apk-upload'
+      path: '/api/dojo/apk-upload'
+      fullPath: '/api/dojo/apk-upload'
+      preLoaderRoute: typeof ApiDojoApkUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/dojo-manifest.webmanifest': {
+      id: '/api/public/dojo-manifest.webmanifest'
+      path: '/api/public/dojo-manifest.webmanifest'
+      fullPath: '/api/public/dojo-manifest.webmanifest'
+      preLoaderRoute: typeof ApiPublicDojoManifestDotwebmanifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/_student/agenda': {
+      id: '/app/_student/agenda'
+      path: '/agenda'
+      fullPath: '/app/agenda'
+      preLoaderRoute: typeof AppStudentAgendaRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/announcements': {
+      id: '/app/_student/announcements'
+      path: '/announcements'
+      fullPath: '/app/announcements'
+      preLoaderRoute: typeof AppStudentAnnouncementsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/card': {
+      id: '/app/_student/card'
+      path: '/card'
+      fullPath: '/app/card'
+      preLoaderRoute: typeof AppStudentCardRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/certificates': {
+      id: '/app/_student/certificates'
+      path: '/certificates'
+      fullPath: '/app/certificates'
+      preLoaderRoute: typeof AppStudentCertificatesRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/checkin': {
+      id: '/app/_student/checkin'
+      path: '/checkin'
+      fullPath: '/app/checkin'
+      preLoaderRoute: typeof AppStudentCheckinRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/competitions': {
+      id: '/app/_student/competitions'
+      path: '/competitions'
+      fullPath: '/app/competitions'
+      preLoaderRoute: typeof AppStudentCompetitionsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/documents': {
+      id: '/app/_student/documents'
+      path: '/documents'
+      fullPath: '/app/documents'
+      preLoaderRoute: typeof AppStudentDocumentsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/evaluations': {
+      id: '/app/_student/evaluations'
+      path: '/evaluations'
+      fullPath: '/app/evaluations'
+      preLoaderRoute: typeof AppStudentEvaluationsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/finance': {
+      id: '/app/_student/finance'
+      path: '/finance'
+      fullPath: '/app/finance'
+      preLoaderRoute: typeof AppStudentFinanceRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/graduations': {
+      id: '/app/_student/graduations'
+      path: '/graduations'
+      fullPath: '/app/graduations'
+      preLoaderRoute: typeof AppStudentGraduationsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/home': {
+      id: '/app/_student/home'
+      path: '/home'
+      fullPath: '/app/home'
+      preLoaderRoute: typeof AppStudentHomeRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/news': {
+      id: '/app/_student/news'
+      path: '/news'
+      fullPath: '/app/news'
+      preLoaderRoute: typeof AppStudentNewsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/notifications': {
+      id: '/app/_student/notifications'
+      path: '/notifications'
+      fullPath: '/app/notifications'
+      preLoaderRoute: typeof AppStudentNotificationsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/onboarding': {
+      id: '/app/_student/onboarding'
+      path: '/onboarding'
+      fullPath: '/app/onboarding'
+      preLoaderRoute: typeof AppStudentOnboardingRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/performance': {
+      id: '/app/_student/performance'
+      path: '/performance'
+      fullPath: '/app/performance'
+      preLoaderRoute: typeof AppStudentPerformanceRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/profile': {
+      id: '/app/_student/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppStudentProfileRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/ranking': {
+      id: '/app/_student/ranking'
+      path: '/ranking'
+      fullPath: '/app/ranking'
+      preLoaderRoute: typeof AppStudentRankingRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/schedule': {
+      id: '/app/_student/schedule'
+      path: '/schedule'
+      fullPath: '/app/schedule'
+      preLoaderRoute: typeof AppStudentScheduleRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/settings': {
+      id: '/app/_student/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppStudentSettingsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/videos': {
+      id: '/app/_student/videos'
+      path: '/videos'
+      fullPath: '/app/videos'
+      preLoaderRoute: typeof AppStudentVideosRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/install/$slug': {
+      id: '/app/install/$slug'
+      path: '/$slug'
+      fullPath: '/app/install/$slug'
+      preLoaderRoute: typeof AppInstallSlugRouteImport
+      parentRoute: typeof AppInstallRoute
+    }
+    '/dojo/app/': {
+      id: '/dojo/app/'
+      path: '/'
+      fullPath: '/dojo/app/'
+      preLoaderRoute: typeof DojoAppIndexRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/account': {
+      id: '/dojo/app/account'
+      path: '/account'
+      fullPath: '/dojo/app/account'
+      preLoaderRoute: typeof DojoAppAccountRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/announcements': {
+      id: '/dojo/app/announcements'
+      path: '/announcements'
+      fullPath: '/dojo/app/announcements'
+      preLoaderRoute: typeof DojoAppAnnouncementsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/apk-versions': {
+      id: '/dojo/app/apk-versions'
+      path: '/apk-versions'
+      fullPath: '/dojo/app/apk-versions'
+      preLoaderRoute: typeof DojoAppApkVersionsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/belt-studio': {
+      id: '/dojo/app/belt-studio'
+      path: '/belt-studio'
+      fullPath: '/dojo/app/belt-studio'
+      preLoaderRoute: typeof DojoAppBeltStudioRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/belts': {
+      id: '/dojo/app/belts'
+      path: '/belts'
+      fullPath: '/dojo/app/belts'
+      preLoaderRoute: typeof DojoAppBeltsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/certificates': {
+      id: '/dojo/app/certificates'
+      path: '/certificates'
+      fullPath: '/dojo/app/certificates'
+      preLoaderRoute: typeof DojoAppCertificatesRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/checkin': {
+      id: '/dojo/app/checkin'
+      path: '/checkin'
+      fullPath: '/dojo/app/checkin'
+      preLoaderRoute: typeof DojoAppCheckinRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/classes': {
+      id: '/dojo/app/classes'
+      path: '/classes'
+      fullPath: '/dojo/app/classes'
+      preLoaderRoute: typeof DojoAppClassesRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/competitions': {
+      id: '/dojo/app/competitions'
+      path: '/competitions'
+      fullPath: '/dojo/app/competitions'
+      preLoaderRoute: typeof DojoAppCompetitionsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/contracts': {
+      id: '/dojo/app/contracts'
+      path: '/contracts'
+      fullPath: '/dojo/app/contracts'
+      preLoaderRoute: typeof DojoAppContractsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/corporate-benefits': {
+      id: '/dojo/app/corporate-benefits'
+      path: '/corporate-benefits'
+      fullPath: '/dojo/app/corporate-benefits'
+      preLoaderRoute: typeof DojoAppCorporateBenefitsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/evaluations': {
+      id: '/dojo/app/evaluations'
+      path: '/evaluations'
+      fullPath: '/dojo/app/evaluations'
+      preLoaderRoute: typeof DojoAppEvaluationsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/finance': {
+      id: '/dojo/app/finance'
+      path: '/finance'
+      fullPath: '/dojo/app/finance'
+      preLoaderRoute: typeof DojoAppFinanceRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/graduations': {
+      id: '/dojo/app/graduations'
+      path: '/graduations'
+      fullPath: '/dojo/app/graduations'
+      preLoaderRoute: typeof DojoAppGraduationsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/install': {
+      id: '/dojo/app/install'
+      path: '/install'
+      fullPath: '/dojo/app/install'
+      preLoaderRoute: typeof DojoAppInstallRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/integrations': {
+      id: '/dojo/app/integrations'
+      path: '/integrations'
+      fullPath: '/dojo/app/integrations'
+      preLoaderRoute: typeof DojoAppIntegrationsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/lesson-plans': {
+      id: '/dojo/app/lesson-plans'
+      path: '/lesson-plans'
+      fullPath: '/dojo/app/lesson-plans'
+      preLoaderRoute: typeof DojoAppLessonPlansRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/notifications': {
+      id: '/dojo/app/notifications'
+      path: '/notifications'
+      fullPath: '/dojo/app/notifications'
+      preLoaderRoute: typeof DojoAppNotificationsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/plans': {
+      id: '/dojo/app/plans'
+      path: '/plans'
+      fullPath: '/dojo/app/plans'
+      preLoaderRoute: typeof DojoAppPlansRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/ranking': {
+      id: '/dojo/app/ranking'
+      path: '/ranking'
+      fullPath: '/dojo/app/ranking'
+      preLoaderRoute: typeof DojoAppRankingRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/sales': {
+      id: '/dojo/app/sales'
+      path: '/sales'
+      fullPath: '/dojo/app/sales'
+      preLoaderRoute: typeof DojoAppSalesRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/schedule': {
+      id: '/dojo/app/schedule'
+      path: '/schedule'
+      fullPath: '/dojo/app/schedule'
+      preLoaderRoute: typeof DojoAppScheduleRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/store': {
+      id: '/dojo/app/store'
+      path: '/store'
+      fullPath: '/dojo/app/store'
+      preLoaderRoute: typeof DojoAppStoreRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/student-app-qr': {
+      id: '/dojo/app/student-app-qr'
+      path: '/student-app-qr'
+      fullPath: '/dojo/app/student-app-qr'
+      preLoaderRoute: typeof DojoAppStudentAppQrRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/student-notifications-config': {
+      id: '/dojo/app/student-notifications-config'
+      path: '/student-notifications-config'
+      fullPath: '/dojo/app/student-notifications-config'
+      preLoaderRoute: typeof DojoAppStudentNotificationsConfigRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/students': {
+      id: '/dojo/app/students'
+      path: '/students'
+      fullPath: '/dojo/app/students'
+      preLoaderRoute: typeof DojoAppStudentsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/subscription': {
+      id: '/dojo/app/subscription'
+      path: '/subscription'
+      fullPath: '/dojo/app/subscription'
+      preLoaderRoute: typeof DojoAppSubscriptionRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/support': {
+      id: '/dojo/app/support'
+      path: '/support'
+      fullPath: '/dojo/app/support'
+      preLoaderRoute: typeof DojoAppSupportRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/system-users': {
+      id: '/dojo/app/system-users'
+      path: '/system-users'
+      fullPath: '/dojo/app/system-users'
+      preLoaderRoute: typeof DojoAppSystemUsersRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/tutorial': {
+      id: '/dojo/app/tutorial'
+      path: '/tutorial'
+      fullPath: '/dojo/app/tutorial'
+      preLoaderRoute: typeof DojoAppTutorialRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/tutorial-editor': {
+      id: '/dojo/app/tutorial-editor'
+      path: '/tutorial-editor'
+      fullPath: '/dojo/app/tutorial-editor'
+      preLoaderRoute: typeof DojoAppTutorialEditorRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/videos': {
+      id: '/dojo/app/videos'
+      path: '/videos'
+      fullPath: '/dojo/app/videos'
+      preLoaderRoute: typeof DojoAppVideosRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/certificate-editor/$id': {
+      id: '/dojo/certificate-editor/$id'
+      path: '/certificate-editor/$id'
+      fullPath: '/dojo/certificate-editor/$id'
+      preLoaderRoute: typeof DojoCertificateEditorIdRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/matricula/$slug': {
+      id: '/dojo/matricula/$slug'
+      path: '/matricula/$slug'
+      fullPath: '/dojo/matricula/$slug'
+      preLoaderRoute: typeof DojoMatriculaSlugRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/pay/$invoiceId': {
+      id: '/dojo/pay/$invoiceId'
+      path: '/pay/$invoiceId'
+      fullPath: '/dojo/pay/$invoiceId'
+      preLoaderRoute: typeof DojoPayInvoiceIdRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/staff/_portal': {
+      id: '/dojo/staff/_portal'
+      path: '/staff'
+      fullPath: '/dojo/staff'
+      preLoaderRoute: typeof DojoStaffPortalRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/staff/auth': {
+      id: '/dojo/staff/auth'
+      path: '/staff/auth'
+      fullPath: '/dojo/staff/auth'
+      preLoaderRoute: typeof DojoStaffAuthRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/loja/categoria/$slug': {
+      id: '/loja/categoria/$slug'
+      path: '/loja/categoria/$slug'
+      fullPath: '/loja/categoria/$slug'
+      preLoaderRoute: typeof LojaCategoriaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/conta/': {
+      id: '/loja/conta/'
+      path: '/loja/conta'
+      fullPath: '/loja/conta/'
+      preLoaderRoute: typeof LojaContaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/conta/pedidos': {
+      id: '/loja/conta/pedidos'
+      path: '/loja/conta/pedidos'
+      fullPath: '/loja/conta/pedidos'
+      preLoaderRoute: typeof LojaContaPedidosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/custom-shop/': {
+      id: '/loja/custom-shop/'
+      path: '/loja/custom-shop'
+      fullPath: '/loja/custom-shop/'
+      preLoaderRoute: typeof LojaCustomShopIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/custom-shop/$kind': {
+      id: '/loja/custom-shop/$kind'
+      path: '/loja/custom-shop/$kind'
+      fullPath: '/loja/custom-shop/$kind'
+      preLoaderRoute: typeof LojaCustomShopKindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/pedido/$id': {
+      id: '/loja/pedido/$id'
+      path: '/loja/pedido/$id'
+      fullPath: '/loja/pedido/$id'
+      preLoaderRoute: typeof LojaPedidoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/produto/$slug': {
+      id: '/loja/produto/$slug'
+      path: '/loja/produto/$slug'
+      fullPath: '/loja/produto/$slug'
+      preLoaderRoute: typeof LojaProdutoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/events': {
+      id: '/lovable/email/events'
+      path: '/lovable/email/events'
+      fullPath: '/lovable/email/events'
+      preLoaderRoute: typeof LovableEmailEventsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/ads/': {
       id: '/_authenticated/admin/ads/'
       path: '/'
       fullPath: '/admin/ads/'
       preLoaderRoute: typeof AuthenticatedAdminAdsIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/lovable/email/transactional/preview': {
-      id: '/lovable/email/transactional/preview'
-      path: '/lovable/email/transactional/preview'
-      fullPath: '/lovable/email/transactional/preview'
-      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dojo/staff/_portal/students': {
-      id: '/dojo/staff/_portal/students'
-      path: '/students'
-      fullPath: '/dojo/staff/students'
-      preLoaderRoute: typeof DojoStaffPortalStudentsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/store': {
-      id: '/dojo/staff/_portal/store'
-      path: '/store'
-      fullPath: '/dojo/staff/store'
-      preLoaderRoute: typeof DojoStaffPortalStoreRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/schedule': {
-      id: '/dojo/staff/_portal/schedule'
-      path: '/schedule'
-      fullPath: '/dojo/staff/schedule'
-      preLoaderRoute: typeof DojoStaffPortalScheduleRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/sales': {
-      id: '/dojo/staff/_portal/sales'
-      path: '/sales'
-      fullPath: '/dojo/staff/sales'
-      preLoaderRoute: typeof DojoStaffPortalSalesRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/profile': {
-      id: '/dojo/staff/_portal/profile'
-      path: '/profile'
-      fullPath: '/dojo/staff/profile'
-      preLoaderRoute: typeof DojoStaffPortalProfileRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/graduations': {
-      id: '/dojo/staff/_portal/graduations'
-      path: '/graduations'
-      fullPath: '/dojo/staff/graduations'
-      preLoaderRoute: typeof DojoStaffPortalGraduationsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/evaluations': {
-      id: '/dojo/staff/_portal/evaluations'
-      path: '/evaluations'
-      fullPath: '/dojo/staff/evaluations'
-      preLoaderRoute: typeof DojoStaffPortalEvaluationsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/competitions': {
-      id: '/dojo/staff/_portal/competitions'
-      path: '/competitions'
-      fullPath: '/dojo/staff/competitions'
-      preLoaderRoute: typeof DojoStaffPortalCompetitionsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/checkin': {
-      id: '/dojo/staff/_portal/checkin'
-      path: '/checkin'
-      fullPath: '/dojo/staff/checkin'
-      preLoaderRoute: typeof DojoStaffPortalCheckinRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/certificates': {
-      id: '/dojo/staff/_portal/certificates'
-      path: '/certificates'
-      fullPath: '/dojo/staff/certificates'
-      preLoaderRoute: typeof DojoStaffPortalCertificatesRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/belts': {
-      id: '/dojo/staff/_portal/belts'
-      path: '/belts'
-      fullPath: '/dojo/staff/belts'
-      preLoaderRoute: typeof DojoStaffPortalBeltsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/announcements': {
-      id: '/dojo/staff/_portal/announcements'
-      path: '/announcements'
-      fullPath: '/dojo/staff/announcements'
-      preLoaderRoute: typeof DojoStaffPortalAnnouncementsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/app/videos/novo': {
-      id: '/dojo/app/videos/novo'
-      path: '/novo'
-      fullPath: '/dojo/app/videos/novo'
-      preLoaderRoute: typeof DojoAppVideosNovoRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/videos/favoritos': {
-      id: '/dojo/app/videos/favoritos'
-      path: '/favoritos'
-      fullPath: '/dojo/app/videos/favoritos'
-      preLoaderRoute: typeof DojoAppVideosFavoritosRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/videos/categorias': {
-      id: '/dojo/app/videos/categorias'
-      path: '/categorias'
-      fullPath: '/dojo/app/videos/categorias'
-      preLoaderRoute: typeof DojoAppVideosCategoriasRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/videos/$id': {
-      id: '/dojo/app/videos/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/videos/$id'
-      preLoaderRoute: typeof DojoAppVideosIdRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/team/schedules': {
-      id: '/dojo/app/team/schedules'
-      path: '/team/schedules'
-      fullPath: '/dojo/app/team/schedules'
-      preLoaderRoute: typeof DojoAppTeamSchedulesRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/team/payroll': {
-      id: '/dojo/app/team/payroll'
-      path: '/team/payroll'
-      fullPath: '/dojo/app/team/payroll'
-      preLoaderRoute: typeof DojoAppTeamPayrollRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/team/$id': {
-      id: '/dojo/app/team/$id'
-      path: '/team/$id'
-      fullPath: '/dojo/app/team/$id'
-      preLoaderRoute: typeof DojoAppTeamIdRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/students/$id': {
-      id: '/dojo/app/students/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/students/$id'
-      preLoaderRoute: typeof DojoAppStudentsIdRouteImport
-      parentRoute: typeof DojoAppStudentsRoute
-    }
-    '/dojo/app/store/pedidos': {
-      id: '/dojo/app/store/pedidos'
-      path: '/pedidos'
-      fullPath: '/dojo/app/store/pedidos'
-      preLoaderRoute: typeof DojoAppStorePedidosRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/store/carrinho': {
-      id: '/dojo/app/store/carrinho'
-      path: '/carrinho'
-      fullPath: '/dojo/app/store/carrinho'
-      preLoaderRoute: typeof DojoAppStoreCarrinhoRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/lesson-plans/techniques': {
-      id: '/dojo/app/lesson-plans/techniques'
-      path: '/techniques'
-      fullPath: '/dojo/app/lesson-plans/techniques'
-      preLoaderRoute: typeof DojoAppLessonPlansTechniquesRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/lesson-plans/library': {
-      id: '/dojo/app/lesson-plans/library'
-      path: '/library'
-      fullPath: '/dojo/app/lesson-plans/library'
-      preLoaderRoute: typeof DojoAppLessonPlansLibraryRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/lesson-plans/history': {
-      id: '/dojo/app/lesson-plans/history'
-      path: '/history'
-      fullPath: '/dojo/app/lesson-plans/history'
-      preLoaderRoute: typeof DojoAppLessonPlansHistoryRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/lesson-plans/$id': {
-      id: '/dojo/app/lesson-plans/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/lesson-plans/$id'
-      preLoaderRoute: typeof DojoAppLessonPlansIdRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/evaluations/templates': {
-      id: '/dojo/app/evaluations/templates'
-      path: '/templates'
-      fullPath: '/dojo/app/evaluations/templates'
-      preLoaderRoute: typeof DojoAppEvaluationsTemplatesRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/techniques': {
-      id: '/dojo/app/evaluations/techniques'
-      path: '/techniques'
-      fullPath: '/dojo/app/evaluations/techniques'
-      preLoaderRoute: typeof DojoAppEvaluationsTechniquesRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/settings': {
-      id: '/dojo/app/evaluations/settings'
-      path: '/settings'
-      fullPath: '/dojo/app/evaluations/settings'
-      preLoaderRoute: typeof DojoAppEvaluationsSettingsRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/sessions': {
-      id: '/dojo/app/evaluations/sessions'
-      path: '/sessions'
-      fullPath: '/dojo/app/evaluations/sessions'
-      preLoaderRoute: typeof DojoAppEvaluationsSessionsRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/library': {
-      id: '/dojo/app/evaluations/library'
-      path: '/library'
-      fullPath: '/dojo/app/evaluations/library'
-      preLoaderRoute: typeof DojoAppEvaluationsLibraryRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/history': {
-      id: '/dojo/app/evaluations/history'
-      path: '/history'
-      fullPath: '/dojo/app/evaluations/history'
-      preLoaderRoute: typeof DojoAppEvaluationsHistoryRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/categories': {
-      id: '/dojo/app/evaluations/categories'
-      path: '/categories'
-      fullPath: '/dojo/app/evaluations/categories'
-      preLoaderRoute: typeof DojoAppEvaluationsCategoriesRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/contracts/templates': {
-      id: '/dojo/app/contracts/templates'
-      path: '/templates'
-      fullPath: '/dojo/app/contracts/templates'
-      preLoaderRoute: typeof DojoAppContractsTemplatesRouteImport
-      parentRoute: typeof DojoAppContractsRoute
-    }
-    '/dojo/app/contracts/issued': {
-      id: '/dojo/app/contracts/issued'
-      path: '/issued'
-      fullPath: '/dojo/app/contracts/issued'
-      preLoaderRoute: typeof DojoAppContractsIssuedRouteImport
-      parentRoute: typeof DojoAppContractsRoute
-    }
-    '/dojo/app/contract-templates/$id': {
-      id: '/dojo/app/contract-templates/$id'
-      path: '/contract-templates/$id'
-      fullPath: '/dojo/app/contract-templates/$id'
-      preLoaderRoute: typeof DojoAppContractTemplatesIdRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/competitions/$id': {
-      id: '/dojo/app/competitions/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/competitions/$id'
-      preLoaderRoute: typeof DojoAppCompetitionsIdRouteImport
-      parentRoute: typeof DojoAppCompetitionsRoute
-    }
-    '/app/_student/invoice/$id': {
-      id: '/app/_student/invoice/$id'
-      path: '/invoice/$id'
-      fullPath: '/app/invoice/$id'
-      preLoaderRoute: typeof AppStudentInvoiceIdRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/documents/$id': {
-      id: '/app/_student/documents/$id'
-      path: '/$id'
-      fullPath: '/app/documents/$id'
-      preLoaderRoute: typeof AppStudentDocumentsIdRouteImport
-      parentRoute: typeof AppStudentDocumentsRoute
-    }
-    '/app/_student/competitions/$id': {
-      id: '/app/_student/competitions/$id'
-      path: '/$id'
-      fullPath: '/app/competitions/$id'
-      preLoaderRoute: typeof AppStudentCompetitionsIdRouteImport
-      parentRoute: typeof AppStudentCompetitionsRoute
-    }
-    '/api/public/sales/messages': {
-      id: '/api/public/sales/messages'
-      path: '/api/public/sales/messages'
-      fullPath: '/api/public/sales/messages'
-      preLoaderRoute: typeof ApiPublicSalesMessagesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/sales/chat': {
-      id: '/api/public/sales/chat'
-      path: '/api/public/sales/chat'
-      fullPath: '/api/public/sales/chat'
-      preLoaderRoute: typeof ApiPublicSalesChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/meta/webhook': {
-      id: '/api/public/meta/webhook'
-      path: '/api/public/meta/webhook'
-      fullPath: '/api/public/meta/webhook'
-      preLoaderRoute: typeof ApiPublicMetaWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/meta/callback': {
-      id: '/api/public/meta/callback'
-      path: '/api/public/meta/callback'
-      fullPath: '/api/public/meta/callback'
-      preLoaderRoute: typeof ApiPublicMetaCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/sync-ads-insights': {
-      id: '/api/public/hooks/sync-ads-insights'
-      path: '/api/public/hooks/sync-ads-insights'
-      fullPath: '/api/public/hooks/sync-ads-insights'
-      preLoaderRoute: typeof ApiPublicHooksSyncAdsInsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/send-dojo-reminders': {
-      id: '/api/public/hooks/send-dojo-reminders'
-      path: '/api/public/hooks/send-dojo-reminders'
-      fullPath: '/api/public/hooks/send-dojo-reminders'
-      preLoaderRoute: typeof ApiPublicHooksSendDojoRemindersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/send-class-reminders': {
-      id: '/api/public/hooks/send-class-reminders'
-      path: '/api/public/hooks/send-class-reminders'
-      fullPath: '/api/public/hooks/send-class-reminders'
-      preLoaderRoute: typeof ApiPublicHooksSendClassRemindersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/scale-winners': {
-      id: '/api/public/hooks/scale-winners'
-      path: '/api/public/hooks/scale-winners'
-      fullPath: '/api/public/hooks/scale-winners'
-      preLoaderRoute: typeof ApiPublicHooksScaleWinnersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/run-ads-optimization': {
-      id: '/api/public/hooks/run-ads-optimization'
-      path: '/api/public/hooks/run-ads-optimization'
-      fullPath: '/api/public/hooks/run-ads-optimization'
-      preLoaderRoute: typeof ApiPublicHooksRunAdsOptimizationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/publish-scheduled-posts': {
-      id: '/api/public/hooks/publish-scheduled-posts'
-      path: '/api/public/hooks/publish-scheduled-posts'
-      fullPath: '/api/public/hooks/publish-scheduled-posts'
-      preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/mercadopago': {
-      id: '/api/public/hooks/mercadopago'
-      path: '/api/public/hooks/mercadopago'
-      fullPath: '/api/public/hooks/mercadopago'
-      preLoaderRoute: typeof ApiPublicHooksMercadopagoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/melhor-envio': {
-      id: '/api/public/hooks/melhor-envio'
-      path: '/api/public/hooks/melhor-envio'
-      fullPath: '/api/public/hooks/melhor-envio'
-      preLoaderRoute: typeof ApiPublicHooksMelhorEnvioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/martial-arts-daily-sweep': {
-      id: '/api/public/hooks/martial-arts-daily-sweep'
-      path: '/api/public/hooks/martial-arts-daily-sweep'
-      fullPath: '/api/public/hooks/martial-arts-daily-sweep'
-      preLoaderRoute: typeof ApiPublicHooksMartialArtsDailySweepRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/ig-webhook': {
-      id: '/api/public/hooks/ig-webhook'
-      path: '/api/public/hooks/ig-webhook'
-      fullPath: '/api/public/hooks/ig-webhook'
-      preLoaderRoute: typeof ApiPublicHooksIgWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/ig-sync': {
-      id: '/api/public/hooks/ig-sync'
-      path: '/api/public/hooks/ig-sync'
-      fullPath: '/api/public/hooks/ig-sync'
-      preLoaderRoute: typeof ApiPublicHooksIgSyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/generate-dojo-invoices': {
-      id: '/api/public/hooks/generate-dojo-invoices'
-      path: '/api/public/hooks/generate-dojo-invoices'
-      fullPath: '/api/public/hooks/generate-dojo-invoices'
-      preLoaderRoute: typeof ApiPublicHooksGenerateDojoInvoicesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/enrich-pending-leads': {
-      id: '/api/public/hooks/enrich-pending-leads'
-      path: '/api/public/hooks/enrich-pending-leads'
-      fullPath: '/api/public/hooks/enrich-pending-leads'
-      preLoaderRoute: typeof ApiPublicHooksEnrichPendingLeadsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/dojo-wallet-reconcile': {
-      id: '/api/public/hooks/dojo-wallet-reconcile'
-      path: '/api/public/hooks/dojo-wallet-reconcile'
-      fullPath: '/api/public/hooks/dojo-wallet-reconcile'
-      preLoaderRoute: typeof ApiPublicHooksDojoWalletReconcileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/competitions-ingest': {
-      id: '/api/public/hooks/competitions-ingest'
-      path: '/api/public/hooks/competitions-ingest'
-      fullPath: '/api/public/hooks/competitions-ingest'
-      preLoaderRoute: typeof ApiPublicHooksCompetitionsIngestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/auto-instagram-post': {
-      id: '/api/public/hooks/auto-instagram-post'
-      path: '/api/public/hooks/auto-instagram-post'
-      fullPath: '/api/public/hooks/auto-instagram-post'
-      preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/asaas': {
-      id: '/api/public/hooks/asaas'
-      path: '/api/public/hooks/asaas'
-      fullPath: '/api/public/hooks/asaas'
-      preLoaderRoute: typeof ApiPublicHooksAsaasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/apply-scheduled-graduations': {
-      id: '/api/public/hooks/apply-scheduled-graduations'
-      path: '/api/public/hooks/apply-scheduled-graduations'
-      fullPath: '/api/public/hooks/apply-scheduled-graduations'
-      preLoaderRoute: typeof ApiPublicHooksApplyScheduledGraduationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/admin-push': {
-      id: '/api/public/hooks/admin-push'
-      path: '/api/public/hooks/admin-push'
-      fullPath: '/api/public/hooks/admin-push'
-      preLoaderRoute: typeof ApiPublicHooksAdminPushRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/certificate/$hash': {
-      id: '/api/public/certificate/$hash'
-      path: '/api/public/certificate/$hash'
-      fullPath: '/api/public/certificate/$hash'
-      preLoaderRoute: typeof ApiPublicCertificateHashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/app/manifest.webmanifest': {
-      id: '/api/public/app/manifest.webmanifest'
-      path: '/api/public/app/manifest.webmanifest'
-      fullPath: '/api/public/app/manifest.webmanifest'
-      preLoaderRoute: typeof ApiPublicAppManifestDotwebmanifestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/desktop/quotes/$id': {
-      id: '/api/desktop/quotes/$id'
-      path: '/$id'
-      fullPath: '/api/desktop/quotes/$id'
-      preLoaderRoute: typeof ApiDesktopQuotesIdRouteImport
-      parentRoute: typeof ApiDesktopQuotesRoute
-    }
-    '/api/desktop/products/$id': {
-      id: '/api/desktop/products/$id'
-      path: '/$id'
-      fullPath: '/api/desktop/products/$id'
-      preLoaderRoute: typeof ApiDesktopProductsIdRouteImport
-      parentRoute: typeof ApiDesktopProductsRoute
-    }
-    '/_authenticated/ads/campaigns/$id': {
-      id: '/_authenticated/ads/campaigns/$id'
-      path: '/$id'
-      fullPath: '/ads/campaigns/$id'
-      preLoaderRoute: typeof AuthenticatedAdsCampaignsIdRouteImport
-      parentRoute: typeof AuthenticatedAdsCampaignsRoute
-    }
-    '/_authenticated/admin/saas/suporte': {
-      id: '/_authenticated/admin/saas/suporte'
-      path: '/suporte'
-      fullPath: '/admin/saas/suporte'
-      preLoaderRoute: typeof AuthenticatedAdminSaasSuporteRouteImport
-      parentRoute: typeof AuthenticatedAdminSaasRoute
-    }
-    '/_authenticated/admin/produtos/tamanhos': {
-      id: '/_authenticated/admin/produtos/tamanhos'
-      path: '/produtos/tamanhos'
-      fullPath: '/admin/produtos/tamanhos'
-      preLoaderRoute: typeof AuthenticatedAdminProdutosTamanhosRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/produtos/pacotes': {
-      id: '/_authenticated/admin/produtos/pacotes'
-      path: '/produtos/pacotes'
-      fullPath: '/admin/produtos/pacotes'
-      preLoaderRoute: typeof AuthenticatedAdminProdutosPacotesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/produtos/importar': {
-      id: '/_authenticated/admin/produtos/importar'
-      path: '/produtos/importar'
-      fullPath: '/admin/produtos/importar'
-      preLoaderRoute: typeof AuthenticatedAdminProdutosImportarRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/produtos/imagens': {
-      id: '/_authenticated/admin/produtos/imagens'
-      path: '/produtos/imagens'
-      fullPath: '/admin/produtos/imagens'
-      preLoaderRoute: typeof AuthenticatedAdminProdutosImagensRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/produtos/faixa-calc': {
-      id: '/_authenticated/admin/produtos/faixa-calc'
-      path: '/produtos/faixa-calc'
-      fullPath: '/admin/produtos/faixa-calc'
-      preLoaderRoute: typeof AuthenticatedAdminProdutosFaixaCalcRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/pedidos/$orderId': {
-      id: '/_authenticated/admin/pedidos/$orderId'
-      path: '/pedidos/$orderId'
-      fullPath: '/admin/pedidos/$orderId'
-      preLoaderRoute: typeof AuthenticatedAdminPedidosOrderIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/marketing/mercado': {
-      id: '/_authenticated/admin/marketing/mercado'
-      path: '/mercado'
-      fullPath: '/admin/marketing/mercado'
-      preLoaderRoute: typeof AuthenticatedAdminMarketingMercadoRouteImport
-      parentRoute: typeof AuthenticatedAdminMarketingRoute
-    }
-    '/_authenticated/admin/marketing/kpis': {
-      id: '/_authenticated/admin/marketing/kpis'
-      path: '/kpis'
-      fullPath: '/admin/marketing/kpis'
-      preLoaderRoute: typeof AuthenticatedAdminMarketingKpisRouteImport
-      parentRoute: typeof AuthenticatedAdminMarketingRoute
-    }
-    '/_authenticated/admin/marketing/inteligencia': {
-      id: '/_authenticated/admin/marketing/inteligencia'
-      path: '/inteligencia'
-      fullPath: '/admin/marketing/inteligencia'
-      preLoaderRoute: typeof AuthenticatedAdminMarketingInteligenciaRouteImport
-      parentRoute: typeof AuthenticatedAdminMarketingRoute
-    }
-    '/_authenticated/admin/leads/qualificados': {
-      id: '/_authenticated/admin/leads/qualificados'
-      path: '/leads/qualificados'
-      fullPath: '/admin/leads/qualificados'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsQualificadosRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/leads/pipeline': {
-      id: '/_authenticated/admin/leads/pipeline'
-      path: '/leads/pipeline'
-      fullPath: '/admin/leads/pipeline'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsPipelineRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/leads/macro': {
-      id: '/_authenticated/admin/leads/macro'
-      path: '/leads/macro'
-      fullPath: '/admin/leads/macro'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsMacroRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/leads/logs': {
-      id: '/_authenticated/admin/leads/logs'
-      path: '/leads/logs'
-      fullPath: '/admin/leads/logs'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsLogsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/leads/configuracoes': {
-      id: '/_authenticated/admin/leads/configuracoes'
-      path: '/leads/configuracoes'
-      fullPath: '/admin/leads/configuracoes'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsConfiguracoesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/leads/busca': {
-      id: '/_authenticated/admin/leads/busca'
-      path: '/leads/busca'
-      fullPath: '/admin/leads/busca'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsBuscaRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/leads/$id': {
-      id: '/_authenticated/admin/leads/$id'
-      path: '/leads/$id'
-      fullPath: '/admin/leads/$id'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/instagram/inbox': {
-      id: '/_authenticated/admin/instagram/inbox'
-      path: '/inbox'
-      fullPath: '/admin/instagram/inbox'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramInboxRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
-    }
-    '/_authenticated/admin/instagram/crm': {
-      id: '/_authenticated/admin/instagram/crm'
-      path: '/crm'
-      fullPath: '/admin/instagram/crm'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramCrmRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
-    }
-    '/_authenticated/admin/instagram/conta': {
-      id: '/_authenticated/admin/instagram/conta'
-      path: '/conta'
-      fullPath: '/admin/instagram/conta'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramContaRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
-    }
-    '/_authenticated/admin/instagram/comentarios': {
-      id: '/_authenticated/admin/instagram/comentarios'
-      path: '/comentarios'
-      fullPath: '/admin/instagram/comentarios'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramComentariosRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
-    }
-    '/_authenticated/admin/instagram/automacoes': {
-      id: '/_authenticated/admin/instagram/automacoes'
-      path: '/automacoes'
-      fullPath: '/admin/instagram/automacoes'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramAutomacoesRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
-    }
-    '/_authenticated/admin/instagram/admin': {
-      id: '/_authenticated/admin/instagram/admin'
-      path: '/admin'
-      fullPath: '/admin/instagram/admin'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramAdminRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
-    }
-    '/_authenticated/admin/fiscal/pedidos': {
-      id: '/_authenticated/admin/fiscal/pedidos'
-      path: '/pedidos'
-      fullPath: '/admin/fiscal/pedidos'
-      preLoaderRoute: typeof AuthenticatedAdminFiscalPedidosRouteImport
-      parentRoute: typeof AuthenticatedAdminFiscalRoute
-    }
-    '/_authenticated/admin/anuncios/otimizacao': {
-      id: '/_authenticated/admin/anuncios/otimizacao'
-      path: '/otimizacao'
-      fullPath: '/admin/anuncios/otimizacao'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosOtimizacaoRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
-    }
-    '/_authenticated/admin/anuncios/nova': {
-      id: '/_authenticated/admin/anuncios/nova'
-      path: '/nova'
-      fullPath: '/admin/anuncios/nova'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosNovaRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
-    }
-    '/_authenticated/admin/anuncios/escala': {
-      id: '/_authenticated/admin/anuncios/escala'
-      path: '/escala'
-      fullPath: '/admin/anuncios/escala'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosEscalaRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
-    }
-    '/_authenticated/admin/anuncios/criativos': {
-      id: '/_authenticated/admin/anuncios/criativos'
-      path: '/criativos'
-      fullPath: '/admin/anuncios/criativos'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosCriativosRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
-    }
-    '/_authenticated/admin/anuncios/copies': {
-      id: '/_authenticated/admin/anuncios/copies'
-      path: '/copies'
-      fullPath: '/admin/anuncios/copies'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosCopiesRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
-    }
-    '/_authenticated/admin/anuncios/conexoes': {
-      id: '/_authenticated/admin/anuncios/conexoes'
-      path: '/conexoes'
-      fullPath: '/admin/anuncios/conexoes'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosConexoesRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
-    }
-    '/_authenticated/admin/anuncios/campanhas': {
-      id: '/_authenticated/admin/anuncios/campanhas'
-      path: '/campanhas'
-      fullPath: '/admin/anuncios/campanhas'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosCampanhasRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
-    }
-    '/_authenticated/admin/anuncios/alertas': {
-      id: '/_authenticated/admin/anuncios/alertas'
-      path: '/alertas'
-      fullPath: '/admin/anuncios/alertas'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosAlertasRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
-    }
-    '/_authenticated/admin/ads/relatorios': {
-      id: '/_authenticated/admin/ads/relatorios'
-      path: '/relatorios'
-      fullPath: '/admin/ads/relatorios'
-      preLoaderRoute: typeof AuthenticatedAdminAdsRelatoriosRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/_authenticated/admin/ads/publicos': {
-      id: '/_authenticated/admin/ads/publicos'
-      path: '/publicos'
-      fullPath: '/admin/ads/publicos'
-      preLoaderRoute: typeof AuthenticatedAdminAdsPublicosRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/_authenticated/admin/ads/pixel': {
-      id: '/_authenticated/admin/ads/pixel'
-      path: '/pixel'
-      fullPath: '/admin/ads/pixel'
-      preLoaderRoute: typeof AuthenticatedAdminAdsPixelRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/_authenticated/admin/ads/midias': {
-      id: '/_authenticated/admin/ads/midias'
-      path: '/midias'
-      fullPath: '/admin/ads/midias'
-      preLoaderRoute: typeof AuthenticatedAdminAdsMidiasRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/_authenticated/admin/ads/historico': {
-      id: '/_authenticated/admin/ads/historico'
-      path: '/historico'
-      fullPath: '/admin/ads/historico'
-      preLoaderRoute: typeof AuthenticatedAdminAdsHistoricoRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/_authenticated/admin/ads/gerador-ia': {
-      id: '/_authenticated/admin/ads/gerador-ia'
-      path: '/gerador-ia'
-      fullPath: '/admin/ads/gerador-ia'
-      preLoaderRoute: typeof AuthenticatedAdminAdsGeradorIaRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/_authenticated/admin/ads/criativos': {
-      id: '/_authenticated/admin/ads/criativos'
-      path: '/criativos'
-      fullPath: '/admin/ads/criativos'
-      preLoaderRoute: typeof AuthenticatedAdminAdsCriativosRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/_authenticated/admin/ads/conjuntos': {
-      id: '/_authenticated/admin/ads/conjuntos'
-      path: '/conjuntos'
-      fullPath: '/admin/ads/conjuntos'
-      preLoaderRoute: typeof AuthenticatedAdminAdsConjuntosRouteImport
-      parentRoute: typeof AuthenticatedAdminAdsRoute
-    }
-    '/_authenticated/admin/ads/campanhas': {
-      id: '/_authenticated/admin/ads/campanhas'
-      path: '/campanhas'
-      fullPath: '/admin/ads/campanhas'
-      preLoaderRoute: typeof AuthenticatedAdminAdsCampanhasRouteImport
       parentRoute: typeof AuthenticatedAdminAdsRoute
     }
     '/_authenticated/admin/ads/anuncios': {
@@ -6511,74 +5601,914 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdsAnunciosRouteImport
       parentRoute: typeof AuthenticatedAdminAdsRoute
     }
-    '/dojo/app/evaluations/templates/': {
-      id: '/dojo/app/evaluations/templates/'
+    '/_authenticated/admin/ads/campanhas': {
+      id: '/_authenticated/admin/ads/campanhas'
+      path: '/campanhas'
+      fullPath: '/admin/ads/campanhas'
+      preLoaderRoute: typeof AuthenticatedAdminAdsCampanhasRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/ads/conjuntos': {
+      id: '/_authenticated/admin/ads/conjuntos'
+      path: '/conjuntos'
+      fullPath: '/admin/ads/conjuntos'
+      preLoaderRoute: typeof AuthenticatedAdminAdsConjuntosRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/ads/criativos': {
+      id: '/_authenticated/admin/ads/criativos'
+      path: '/criativos'
+      fullPath: '/admin/ads/criativos'
+      preLoaderRoute: typeof AuthenticatedAdminAdsCriativosRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/ads/gerador-ia': {
+      id: '/_authenticated/admin/ads/gerador-ia'
+      path: '/gerador-ia'
+      fullPath: '/admin/ads/gerador-ia'
+      preLoaderRoute: typeof AuthenticatedAdminAdsGeradorIaRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/ads/historico': {
+      id: '/_authenticated/admin/ads/historico'
+      path: '/historico'
+      fullPath: '/admin/ads/historico'
+      preLoaderRoute: typeof AuthenticatedAdminAdsHistoricoRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/ads/midias': {
+      id: '/_authenticated/admin/ads/midias'
+      path: '/midias'
+      fullPath: '/admin/ads/midias'
+      preLoaderRoute: typeof AuthenticatedAdminAdsMidiasRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/ads/pixel': {
+      id: '/_authenticated/admin/ads/pixel'
+      path: '/pixel'
+      fullPath: '/admin/ads/pixel'
+      preLoaderRoute: typeof AuthenticatedAdminAdsPixelRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/ads/publicos': {
+      id: '/_authenticated/admin/ads/publicos'
+      path: '/publicos'
+      fullPath: '/admin/ads/publicos'
+      preLoaderRoute: typeof AuthenticatedAdminAdsPublicosRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/ads/relatorios': {
+      id: '/_authenticated/admin/ads/relatorios'
+      path: '/relatorios'
+      fullPath: '/admin/ads/relatorios'
+      preLoaderRoute: typeof AuthenticatedAdminAdsRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedAdminAdsRoute
+    }
+    '/_authenticated/admin/anuncios/': {
+      id: '/_authenticated/admin/anuncios/'
       path: '/'
-      fullPath: '/dojo/app/evaluations/templates/'
-      preLoaderRoute: typeof DojoAppEvaluationsTemplatesIndexRouteImport
-      parentRoute: typeof DojoAppEvaluationsTemplatesRoute
+      fullPath: '/admin/anuncios/'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
     }
-    '/dojo/app/evaluations/sessions/': {
-      id: '/dojo/app/evaluations/sessions/'
+    '/_authenticated/admin/anuncios/alertas': {
+      id: '/_authenticated/admin/anuncios/alertas'
+      path: '/alertas'
+      fullPath: '/admin/anuncios/alertas'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosAlertasRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+    }
+    '/_authenticated/admin/anuncios/campanhas': {
+      id: '/_authenticated/admin/anuncios/campanhas'
+      path: '/campanhas'
+      fullPath: '/admin/anuncios/campanhas'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosCampanhasRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+    }
+    '/_authenticated/admin/anuncios/conexoes': {
+      id: '/_authenticated/admin/anuncios/conexoes'
+      path: '/conexoes'
+      fullPath: '/admin/anuncios/conexoes'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosConexoesRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+    }
+    '/_authenticated/admin/anuncios/copies': {
+      id: '/_authenticated/admin/anuncios/copies'
+      path: '/copies'
+      fullPath: '/admin/anuncios/copies'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosCopiesRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+    }
+    '/_authenticated/admin/anuncios/criativos': {
+      id: '/_authenticated/admin/anuncios/criativos'
+      path: '/criativos'
+      fullPath: '/admin/anuncios/criativos'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosCriativosRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+    }
+    '/_authenticated/admin/anuncios/escala': {
+      id: '/_authenticated/admin/anuncios/escala'
+      path: '/escala'
+      fullPath: '/admin/anuncios/escala'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosEscalaRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+    }
+    '/_authenticated/admin/anuncios/nova': {
+      id: '/_authenticated/admin/anuncios/nova'
+      path: '/nova'
+      fullPath: '/admin/anuncios/nova'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosNovaRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+    }
+    '/_authenticated/admin/anuncios/otimizacao': {
+      id: '/_authenticated/admin/anuncios/otimizacao'
+      path: '/otimizacao'
+      fullPath: '/admin/anuncios/otimizacao'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosOtimizacaoRouteImport
+      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+    }
+    '/_authenticated/admin/fiscal/pedidos': {
+      id: '/_authenticated/admin/fiscal/pedidos'
+      path: '/pedidos'
+      fullPath: '/admin/fiscal/pedidos'
+      preLoaderRoute: typeof AuthenticatedAdminFiscalPedidosRouteImport
+      parentRoute: typeof AuthenticatedAdminFiscalRoute
+    }
+    '/_authenticated/admin/instagram/': {
+      id: '/_authenticated/admin/instagram/'
       path: '/'
-      fullPath: '/dojo/app/evaluations/sessions/'
-      preLoaderRoute: typeof DojoAppEvaluationsSessionsIndexRouteImport
-      parentRoute: typeof DojoAppEvaluationsSessionsRoute
+      fullPath: '/admin/instagram/'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminInstagramRoute
     }
-    '/dojo/app/units/affiliates/$id': {
-      id: '/dojo/app/units/affiliates/$id'
-      path: '/units/affiliates/$id'
-      fullPath: '/dojo/app/units/affiliates/$id'
-      preLoaderRoute: typeof DojoAppUnitsAffiliatesIdRouteImport
-      parentRoute: typeof DojoAppRoute
+    '/_authenticated/admin/instagram/admin': {
+      id: '/_authenticated/admin/instagram/admin'
+      path: '/admin'
+      fullPath: '/admin/instagram/admin'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramAdminRouteImport
+      parentRoute: typeof AuthenticatedAdminInstagramRoute
     }
-    '/dojo/app/students/$id/analysis': {
-      id: '/dojo/app/students/$id/analysis'
-      path: '/analysis'
-      fullPath: '/dojo/app/students/$id/analysis'
-      preLoaderRoute: typeof DojoAppStudentsIdAnalysisRouteImport
-      parentRoute: typeof DojoAppStudentsIdRoute
+    '/_authenticated/admin/instagram/automacoes': {
+      id: '/_authenticated/admin/instagram/automacoes'
+      path: '/automacoes'
+      fullPath: '/admin/instagram/automacoes'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramAutomacoesRouteImport
+      parentRoute: typeof AuthenticatedAdminInstagramRoute
     }
-    '/dojo/app/store/produtos/$slug': {
-      id: '/dojo/app/store/produtos/$slug'
-      path: '/produtos/$slug'
-      fullPath: '/dojo/app/store/produtos/$slug'
-      preLoaderRoute: typeof DojoAppStoreProdutosSlugRouteImport
-      parentRoute: typeof DojoAppStoreRoute
+    '/_authenticated/admin/instagram/comentarios': {
+      id: '/_authenticated/admin/instagram/comentarios'
+      path: '/comentarios'
+      fullPath: '/admin/instagram/comentarios'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramComentariosRouteImport
+      parentRoute: typeof AuthenticatedAdminInstagramRoute
     }
-    '/dojo/app/store/pedidos/$id': {
-      id: '/dojo/app/store/pedidos/$id'
+    '/_authenticated/admin/instagram/conta': {
+      id: '/_authenticated/admin/instagram/conta'
+      path: '/conta'
+      fullPath: '/admin/instagram/conta'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramContaRouteImport
+      parentRoute: typeof AuthenticatedAdminInstagramRoute
+    }
+    '/_authenticated/admin/instagram/crm': {
+      id: '/_authenticated/admin/instagram/crm'
+      path: '/crm'
+      fullPath: '/admin/instagram/crm'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramCrmRouteImport
+      parentRoute: typeof AuthenticatedAdminInstagramRoute
+    }
+    '/_authenticated/admin/instagram/inbox': {
+      id: '/_authenticated/admin/instagram/inbox'
+      path: '/inbox'
+      fullPath: '/admin/instagram/inbox'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramInboxRouteImport
+      parentRoute: typeof AuthenticatedAdminInstagramRoute
+    }
+    '/_authenticated/admin/leads/': {
+      id: '/_authenticated/admin/leads/'
+      path: '/leads'
+      fullPath: '/admin/leads/'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads/$id': {
+      id: '/_authenticated/admin/leads/$id'
+      path: '/leads/$id'
+      fullPath: '/admin/leads/$id'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads/busca': {
+      id: '/_authenticated/admin/leads/busca'
+      path: '/leads/busca'
+      fullPath: '/admin/leads/busca'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsBuscaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads/configuracoes': {
+      id: '/_authenticated/admin/leads/configuracoes'
+      path: '/leads/configuracoes'
+      fullPath: '/admin/leads/configuracoes'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads/logs': {
+      id: '/_authenticated/admin/leads/logs'
+      path: '/leads/logs'
+      fullPath: '/admin/leads/logs'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads/macro': {
+      id: '/_authenticated/admin/leads/macro'
+      path: '/leads/macro'
+      fullPath: '/admin/leads/macro'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsMacroRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads/pipeline': {
+      id: '/_authenticated/admin/leads/pipeline'
+      path: '/leads/pipeline'
+      fullPath: '/admin/leads/pipeline'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsPipelineRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads/qualificados': {
+      id: '/_authenticated/admin/leads/qualificados'
+      path: '/leads/qualificados'
+      fullPath: '/admin/leads/qualificados'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsQualificadosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/marketing/': {
+      id: '/_authenticated/admin/marketing/'
+      path: '/'
+      fullPath: '/admin/marketing/'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
+    '/_authenticated/admin/marketing/inteligencia': {
+      id: '/_authenticated/admin/marketing/inteligencia'
+      path: '/inteligencia'
+      fullPath: '/admin/marketing/inteligencia'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingInteligenciaRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
+    '/_authenticated/admin/marketing/kpis': {
+      id: '/_authenticated/admin/marketing/kpis'
+      path: '/kpis'
+      fullPath: '/admin/marketing/kpis'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingKpisRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
+    '/_authenticated/admin/marketing/mercado': {
+      id: '/_authenticated/admin/marketing/mercado'
+      path: '/mercado'
+      fullPath: '/admin/marketing/mercado'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingMercadoRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
+    '/_authenticated/admin/pedidos/': {
+      id: '/_authenticated/admin/pedidos/'
+      path: '/pedidos'
+      fullPath: '/admin/pedidos/'
+      preLoaderRoute: typeof AuthenticatedAdminPedidosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/pedidos/$orderId': {
+      id: '/_authenticated/admin/pedidos/$orderId'
+      path: '/pedidos/$orderId'
+      fullPath: '/admin/pedidos/$orderId'
+      preLoaderRoute: typeof AuthenticatedAdminPedidosOrderIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/produtos/': {
+      id: '/_authenticated/admin/produtos/'
+      path: '/produtos'
+      fullPath: '/admin/produtos/'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/produtos/faixa-calc': {
+      id: '/_authenticated/admin/produtos/faixa-calc'
+      path: '/produtos/faixa-calc'
+      fullPath: '/admin/produtos/faixa-calc'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosFaixaCalcRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/produtos/imagens': {
+      id: '/_authenticated/admin/produtos/imagens'
+      path: '/produtos/imagens'
+      fullPath: '/admin/produtos/imagens'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosImagensRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/produtos/importar': {
+      id: '/_authenticated/admin/produtos/importar'
+      path: '/produtos/importar'
+      fullPath: '/admin/produtos/importar'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosImportarRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/produtos/pacotes': {
+      id: '/_authenticated/admin/produtos/pacotes'
+      path: '/produtos/pacotes'
+      fullPath: '/admin/produtos/pacotes'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosPacotesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/produtos/tamanhos': {
+      id: '/_authenticated/admin/produtos/tamanhos'
+      path: '/produtos/tamanhos'
+      fullPath: '/admin/produtos/tamanhos'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosTamanhosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/saas/suporte': {
+      id: '/_authenticated/admin/saas/suporte'
+      path: '/suporte'
+      fullPath: '/admin/saas/suporte'
+      preLoaderRoute: typeof AuthenticatedAdminSaasSuporteRouteImport
+      parentRoute: typeof AuthenticatedAdminSaasRoute
+    }
+    '/_authenticated/ads/campaigns/$id': {
+      id: '/_authenticated/ads/campaigns/$id'
       path: '/$id'
-      fullPath: '/dojo/app/store/pedidos/$id'
-      preLoaderRoute: typeof DojoAppStorePedidosIdRouteImport
-      parentRoute: typeof DojoAppStorePedidosRoute
+      fullPath: '/ads/campaigns/$id'
+      preLoaderRoute: typeof AuthenticatedAdsCampaignsIdRouteImport
+      parentRoute: typeof AuthenticatedAdsCampaignsRoute
     }
-    '/dojo/app/evaluations/templates/$id': {
-      id: '/dojo/app/evaluations/templates/$id'
+    '/api/desktop/products/$id': {
+      id: '/api/desktop/products/$id'
       path: '/$id'
-      fullPath: '/dojo/app/evaluations/templates/$id'
-      preLoaderRoute: typeof DojoAppEvaluationsTemplatesIdRouteImport
-      parentRoute: typeof DojoAppEvaluationsTemplatesRoute
+      fullPath: '/api/desktop/products/$id'
+      preLoaderRoute: typeof ApiDesktopProductsIdRouteImport
+      parentRoute: typeof ApiDesktopProductsRoute
     }
-    '/dojo/app/evaluations/sessions/$id': {
-      id: '/dojo/app/evaluations/sessions/$id'
+    '/api/desktop/quotes/$id': {
+      id: '/api/desktop/quotes/$id'
       path: '/$id'
-      fullPath: '/dojo/app/evaluations/sessions/$id'
-      preLoaderRoute: typeof DojoAppEvaluationsSessionsIdRouteImport
-      parentRoute: typeof DojoAppEvaluationsSessionsRoute
+      fullPath: '/api/desktop/quotes/$id'
+      preLoaderRoute: typeof ApiDesktopQuotesIdRouteImport
+      parentRoute: typeof ApiDesktopQuotesRoute
     }
-    '/api/public/dojo/partner-checkin/$provider': {
-      id: '/api/public/dojo/partner-checkin/$provider'
-      path: '/api/public/dojo/partner-checkin/$provider'
-      fullPath: '/api/public/dojo/partner-checkin/$provider'
-      preLoaderRoute: typeof ApiPublicDojoPartnerCheckinProviderRouteImport
+    '/api/public/app/manifest.webmanifest': {
+      id: '/api/public/app/manifest.webmanifest'
+      path: '/api/public/app/manifest.webmanifest'
+      fullPath: '/api/public/app/manifest.webmanifest'
+      preLoaderRoute: typeof ApiPublicAppManifestDotwebmanifestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/app/$slug/download': {
-      id: '/api/public/app/$slug/download'
-      path: '/api/public/app/$slug/download'
-      fullPath: '/api/public/app/$slug/download'
-      preLoaderRoute: typeof ApiPublicAppSlugDownloadRouteImport
+    '/api/public/certificate/$hash': {
+      id: '/api/public/certificate/$hash'
+      path: '/api/public/certificate/$hash'
+      fullPath: '/api/public/certificate/$hash'
+      preLoaderRoute: typeof ApiPublicCertificateHashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/admin-push': {
+      id: '/api/public/hooks/admin-push'
+      path: '/api/public/hooks/admin-push'
+      fullPath: '/api/public/hooks/admin-push'
+      preLoaderRoute: typeof ApiPublicHooksAdminPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/apply-scheduled-graduations': {
+      id: '/api/public/hooks/apply-scheduled-graduations'
+      path: '/api/public/hooks/apply-scheduled-graduations'
+      fullPath: '/api/public/hooks/apply-scheduled-graduations'
+      preLoaderRoute: typeof ApiPublicHooksApplyScheduledGraduationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/asaas': {
+      id: '/api/public/hooks/asaas'
+      path: '/api/public/hooks/asaas'
+      fullPath: '/api/public/hooks/asaas'
+      preLoaderRoute: typeof ApiPublicHooksAsaasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/auto-instagram-post': {
+      id: '/api/public/hooks/auto-instagram-post'
+      path: '/api/public/hooks/auto-instagram-post'
+      fullPath: '/api/public/hooks/auto-instagram-post'
+      preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/competitions-ingest': {
+      id: '/api/public/hooks/competitions-ingest'
+      path: '/api/public/hooks/competitions-ingest'
+      fullPath: '/api/public/hooks/competitions-ingest'
+      preLoaderRoute: typeof ApiPublicHooksCompetitionsIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/dojo-wallet-reconcile': {
+      id: '/api/public/hooks/dojo-wallet-reconcile'
+      path: '/api/public/hooks/dojo-wallet-reconcile'
+      fullPath: '/api/public/hooks/dojo-wallet-reconcile'
+      preLoaderRoute: typeof ApiPublicHooksDojoWalletReconcileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/enrich-pending-leads': {
+      id: '/api/public/hooks/enrich-pending-leads'
+      path: '/api/public/hooks/enrich-pending-leads'
+      fullPath: '/api/public/hooks/enrich-pending-leads'
+      preLoaderRoute: typeof ApiPublicHooksEnrichPendingLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/generate-dojo-invoices': {
+      id: '/api/public/hooks/generate-dojo-invoices'
+      path: '/api/public/hooks/generate-dojo-invoices'
+      fullPath: '/api/public/hooks/generate-dojo-invoices'
+      preLoaderRoute: typeof ApiPublicHooksGenerateDojoInvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/ig-sync': {
+      id: '/api/public/hooks/ig-sync'
+      path: '/api/public/hooks/ig-sync'
+      fullPath: '/api/public/hooks/ig-sync'
+      preLoaderRoute: typeof ApiPublicHooksIgSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/ig-webhook': {
+      id: '/api/public/hooks/ig-webhook'
+      path: '/api/public/hooks/ig-webhook'
+      fullPath: '/api/public/hooks/ig-webhook'
+      preLoaderRoute: typeof ApiPublicHooksIgWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/martial-arts-daily-sweep': {
+      id: '/api/public/hooks/martial-arts-daily-sweep'
+      path: '/api/public/hooks/martial-arts-daily-sweep'
+      fullPath: '/api/public/hooks/martial-arts-daily-sweep'
+      preLoaderRoute: typeof ApiPublicHooksMartialArtsDailySweepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/melhor-envio': {
+      id: '/api/public/hooks/melhor-envio'
+      path: '/api/public/hooks/melhor-envio'
+      fullPath: '/api/public/hooks/melhor-envio'
+      preLoaderRoute: typeof ApiPublicHooksMelhorEnvioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/mercadopago': {
+      id: '/api/public/hooks/mercadopago'
+      path: '/api/public/hooks/mercadopago'
+      fullPath: '/api/public/hooks/mercadopago'
+      preLoaderRoute: typeof ApiPublicHooksMercadopagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/publish-scheduled-posts': {
+      id: '/api/public/hooks/publish-scheduled-posts'
+      path: '/api/public/hooks/publish-scheduled-posts'
+      fullPath: '/api/public/hooks/publish-scheduled-posts'
+      preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/run-ads-optimization': {
+      id: '/api/public/hooks/run-ads-optimization'
+      path: '/api/public/hooks/run-ads-optimization'
+      fullPath: '/api/public/hooks/run-ads-optimization'
+      preLoaderRoute: typeof ApiPublicHooksRunAdsOptimizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/scale-winners': {
+      id: '/api/public/hooks/scale-winners'
+      path: '/api/public/hooks/scale-winners'
+      fullPath: '/api/public/hooks/scale-winners'
+      preLoaderRoute: typeof ApiPublicHooksScaleWinnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/send-class-reminders': {
+      id: '/api/public/hooks/send-class-reminders'
+      path: '/api/public/hooks/send-class-reminders'
+      fullPath: '/api/public/hooks/send-class-reminders'
+      preLoaderRoute: typeof ApiPublicHooksSendClassRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/send-dojo-reminders': {
+      id: '/api/public/hooks/send-dojo-reminders'
+      path: '/api/public/hooks/send-dojo-reminders'
+      fullPath: '/api/public/hooks/send-dojo-reminders'
+      preLoaderRoute: typeof ApiPublicHooksSendDojoRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/sync-ads-insights': {
+      id: '/api/public/hooks/sync-ads-insights'
+      path: '/api/public/hooks/sync-ads-insights'
+      fullPath: '/api/public/hooks/sync-ads-insights'
+      preLoaderRoute: typeof ApiPublicHooksSyncAdsInsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/meta/callback': {
+      id: '/api/public/meta/callback'
+      path: '/api/public/meta/callback'
+      fullPath: '/api/public/meta/callback'
+      preLoaderRoute: typeof ApiPublicMetaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/meta/webhook': {
+      id: '/api/public/meta/webhook'
+      path: '/api/public/meta/webhook'
+      fullPath: '/api/public/meta/webhook'
+      preLoaderRoute: typeof ApiPublicMetaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sales/chat': {
+      id: '/api/public/sales/chat'
+      path: '/api/public/sales/chat'
+      fullPath: '/api/public/sales/chat'
+      preLoaderRoute: typeof ApiPublicSalesChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sales/messages': {
+      id: '/api/public/sales/messages'
+      path: '/api/public/sales/messages'
+      fullPath: '/api/public/sales/messages'
+      preLoaderRoute: typeof ApiPublicSalesMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/_student/competitions/$id': {
+      id: '/app/_student/competitions/$id'
+      path: '/$id'
+      fullPath: '/app/competitions/$id'
+      preLoaderRoute: typeof AppStudentCompetitionsIdRouteImport
+      parentRoute: typeof AppStudentCompetitionsRoute
+    }
+    '/app/_student/documents/': {
+      id: '/app/_student/documents/'
+      path: '/'
+      fullPath: '/app/documents/'
+      preLoaderRoute: typeof AppStudentDocumentsIndexRouteImport
+      parentRoute: typeof AppStudentDocumentsRoute
+    }
+    '/app/_student/documents/$id': {
+      id: '/app/_student/documents/$id'
+      path: '/$id'
+      fullPath: '/app/documents/$id'
+      preLoaderRoute: typeof AppStudentDocumentsIdRouteImport
+      parentRoute: typeof AppStudentDocumentsRoute
+    }
+    '/app/_student/invoice/$id': {
+      id: '/app/_student/invoice/$id'
+      path: '/invoice/$id'
+      fullPath: '/app/invoice/$id'
+      preLoaderRoute: typeof AppStudentInvoiceIdRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/dojo/app/competitions/': {
+      id: '/dojo/app/competitions/'
+      path: '/'
+      fullPath: '/dojo/app/competitions/'
+      preLoaderRoute: typeof DojoAppCompetitionsIndexRouteImport
+      parentRoute: typeof DojoAppCompetitionsRoute
+    }
+    '/dojo/app/competitions/$id': {
+      id: '/dojo/app/competitions/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/competitions/$id'
+      preLoaderRoute: typeof DojoAppCompetitionsIdRouteImport
+      parentRoute: typeof DojoAppCompetitionsRoute
+    }
+    '/dojo/app/contract-templates/': {
+      id: '/dojo/app/contract-templates/'
+      path: '/contract-templates'
+      fullPath: '/dojo/app/contract-templates/'
+      preLoaderRoute: typeof DojoAppContractTemplatesIndexRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/contract-templates/$id': {
+      id: '/dojo/app/contract-templates/$id'
+      path: '/contract-templates/$id'
+      fullPath: '/dojo/app/contract-templates/$id'
+      preLoaderRoute: typeof DojoAppContractTemplatesIdRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/contracts/': {
+      id: '/dojo/app/contracts/'
+      path: '/'
+      fullPath: '/dojo/app/contracts/'
+      preLoaderRoute: typeof DojoAppContractsIndexRouteImport
+      parentRoute: typeof DojoAppContractsRoute
+    }
+    '/dojo/app/contracts/issued': {
+      id: '/dojo/app/contracts/issued'
+      path: '/issued'
+      fullPath: '/dojo/app/contracts/issued'
+      preLoaderRoute: typeof DojoAppContractsIssuedRouteImport
+      parentRoute: typeof DojoAppContractsRoute
+    }
+    '/dojo/app/contracts/templates': {
+      id: '/dojo/app/contracts/templates'
+      path: '/templates'
+      fullPath: '/dojo/app/contracts/templates'
+      preLoaderRoute: typeof DojoAppContractsTemplatesRouteImport
+      parentRoute: typeof DojoAppContractsRoute
+    }
+    '/dojo/app/evaluations/': {
+      id: '/dojo/app/evaluations/'
+      path: '/'
+      fullPath: '/dojo/app/evaluations/'
+      preLoaderRoute: typeof DojoAppEvaluationsIndexRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/categories': {
+      id: '/dojo/app/evaluations/categories'
+      path: '/categories'
+      fullPath: '/dojo/app/evaluations/categories'
+      preLoaderRoute: typeof DojoAppEvaluationsCategoriesRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/history': {
+      id: '/dojo/app/evaluations/history'
+      path: '/history'
+      fullPath: '/dojo/app/evaluations/history'
+      preLoaderRoute: typeof DojoAppEvaluationsHistoryRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/library': {
+      id: '/dojo/app/evaluations/library'
+      path: '/library'
+      fullPath: '/dojo/app/evaluations/library'
+      preLoaderRoute: typeof DojoAppEvaluationsLibraryRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/sessions': {
+      id: '/dojo/app/evaluations/sessions'
+      path: '/sessions'
+      fullPath: '/dojo/app/evaluations/sessions'
+      preLoaderRoute: typeof DojoAppEvaluationsSessionsRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/settings': {
+      id: '/dojo/app/evaluations/settings'
+      path: '/settings'
+      fullPath: '/dojo/app/evaluations/settings'
+      preLoaderRoute: typeof DojoAppEvaluationsSettingsRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/techniques': {
+      id: '/dojo/app/evaluations/techniques'
+      path: '/techniques'
+      fullPath: '/dojo/app/evaluations/techniques'
+      preLoaderRoute: typeof DojoAppEvaluationsTechniquesRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/templates': {
+      id: '/dojo/app/evaluations/templates'
+      path: '/templates'
+      fullPath: '/dojo/app/evaluations/templates'
+      preLoaderRoute: typeof DojoAppEvaluationsTemplatesRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/lesson-plans/': {
+      id: '/dojo/app/lesson-plans/'
+      path: '/'
+      fullPath: '/dojo/app/lesson-plans/'
+      preLoaderRoute: typeof DojoAppLessonPlansIndexRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
+    '/dojo/app/lesson-plans/$id': {
+      id: '/dojo/app/lesson-plans/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/lesson-plans/$id'
+      preLoaderRoute: typeof DojoAppLessonPlansIdRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
+    '/dojo/app/lesson-plans/history': {
+      id: '/dojo/app/lesson-plans/history'
+      path: '/history'
+      fullPath: '/dojo/app/lesson-plans/history'
+      preLoaderRoute: typeof DojoAppLessonPlansHistoryRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
+    '/dojo/app/lesson-plans/library': {
+      id: '/dojo/app/lesson-plans/library'
+      path: '/library'
+      fullPath: '/dojo/app/lesson-plans/library'
+      preLoaderRoute: typeof DojoAppLessonPlansLibraryRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
+    '/dojo/app/lesson-plans/techniques': {
+      id: '/dojo/app/lesson-plans/techniques'
+      path: '/techniques'
+      fullPath: '/dojo/app/lesson-plans/techniques'
+      preLoaderRoute: typeof DojoAppLessonPlansTechniquesRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
+    '/dojo/app/store/': {
+      id: '/dojo/app/store/'
+      path: '/'
+      fullPath: '/dojo/app/store/'
+      preLoaderRoute: typeof DojoAppStoreIndexRouteImport
+      parentRoute: typeof DojoAppStoreRoute
+    }
+    '/dojo/app/store/carrinho': {
+      id: '/dojo/app/store/carrinho'
+      path: '/carrinho'
+      fullPath: '/dojo/app/store/carrinho'
+      preLoaderRoute: typeof DojoAppStoreCarrinhoRouteImport
+      parentRoute: typeof DojoAppStoreRoute
+    }
+    '/dojo/app/store/pedidos': {
+      id: '/dojo/app/store/pedidos'
+      path: '/pedidos'
+      fullPath: '/dojo/app/store/pedidos'
+      preLoaderRoute: typeof DojoAppStorePedidosRouteImport
+      parentRoute: typeof DojoAppStoreRoute
+    }
+    '/dojo/app/students/': {
+      id: '/dojo/app/students/'
+      path: '/'
+      fullPath: '/dojo/app/students/'
+      preLoaderRoute: typeof DojoAppStudentsIndexRouteImport
+      parentRoute: typeof DojoAppStudentsRoute
+    }
+    '/dojo/app/students/$id': {
+      id: '/dojo/app/students/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/students/$id'
+      preLoaderRoute: typeof DojoAppStudentsIdRouteImport
+      parentRoute: typeof DojoAppStudentsRoute
+    }
+    '/dojo/app/team/': {
+      id: '/dojo/app/team/'
+      path: '/team'
+      fullPath: '/dojo/app/team/'
+      preLoaderRoute: typeof DojoAppTeamIndexRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/team/$id': {
+      id: '/dojo/app/team/$id'
+      path: '/team/$id'
+      fullPath: '/dojo/app/team/$id'
+      preLoaderRoute: typeof DojoAppTeamIdRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/team/payroll': {
+      id: '/dojo/app/team/payroll'
+      path: '/team/payroll'
+      fullPath: '/dojo/app/team/payroll'
+      preLoaderRoute: typeof DojoAppTeamPayrollRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/team/schedules': {
+      id: '/dojo/app/team/schedules'
+      path: '/team/schedules'
+      fullPath: '/dojo/app/team/schedules'
+      preLoaderRoute: typeof DojoAppTeamSchedulesRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/units/': {
+      id: '/dojo/app/units/'
+      path: '/units'
+      fullPath: '/dojo/app/units/'
+      preLoaderRoute: typeof DojoAppUnitsIndexRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/videos/': {
+      id: '/dojo/app/videos/'
+      path: '/'
+      fullPath: '/dojo/app/videos/'
+      preLoaderRoute: typeof DojoAppVideosIndexRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
+    '/dojo/app/videos/$id': {
+      id: '/dojo/app/videos/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/videos/$id'
+      preLoaderRoute: typeof DojoAppVideosIdRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
+    '/dojo/app/videos/categorias': {
+      id: '/dojo/app/videos/categorias'
+      path: '/categorias'
+      fullPath: '/dojo/app/videos/categorias'
+      preLoaderRoute: typeof DojoAppVideosCategoriasRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
+    '/dojo/app/videos/favoritos': {
+      id: '/dojo/app/videos/favoritos'
+      path: '/favoritos'
+      fullPath: '/dojo/app/videos/favoritos'
+      preLoaderRoute: typeof DojoAppVideosFavoritosRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
+    '/dojo/app/videos/novo': {
+      id: '/dojo/app/videos/novo'
+      path: '/novo'
+      fullPath: '/dojo/app/videos/novo'
+      preLoaderRoute: typeof DojoAppVideosNovoRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
+    '/dojo/staff/_portal/': {
+      id: '/dojo/staff/_portal/'
+      path: '/'
+      fullPath: '/dojo/staff/'
+      preLoaderRoute: typeof DojoStaffPortalIndexRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/announcements': {
+      id: '/dojo/staff/_portal/announcements'
+      path: '/announcements'
+      fullPath: '/dojo/staff/announcements'
+      preLoaderRoute: typeof DojoStaffPortalAnnouncementsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/belts': {
+      id: '/dojo/staff/_portal/belts'
+      path: '/belts'
+      fullPath: '/dojo/staff/belts'
+      preLoaderRoute: typeof DojoStaffPortalBeltsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/certificates': {
+      id: '/dojo/staff/_portal/certificates'
+      path: '/certificates'
+      fullPath: '/dojo/staff/certificates'
+      preLoaderRoute: typeof DojoStaffPortalCertificatesRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/checkin': {
+      id: '/dojo/staff/_portal/checkin'
+      path: '/checkin'
+      fullPath: '/dojo/staff/checkin'
+      preLoaderRoute: typeof DojoStaffPortalCheckinRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/competitions': {
+      id: '/dojo/staff/_portal/competitions'
+      path: '/competitions'
+      fullPath: '/dojo/staff/competitions'
+      preLoaderRoute: typeof DojoStaffPortalCompetitionsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/evaluations': {
+      id: '/dojo/staff/_portal/evaluations'
+      path: '/evaluations'
+      fullPath: '/dojo/staff/evaluations'
+      preLoaderRoute: typeof DojoStaffPortalEvaluationsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/graduations': {
+      id: '/dojo/staff/_portal/graduations'
+      path: '/graduations'
+      fullPath: '/dojo/staff/graduations'
+      preLoaderRoute: typeof DojoStaffPortalGraduationsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/profile': {
+      id: '/dojo/staff/_portal/profile'
+      path: '/profile'
+      fullPath: '/dojo/staff/profile'
+      preLoaderRoute: typeof DojoStaffPortalProfileRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/sales': {
+      id: '/dojo/staff/_portal/sales'
+      path: '/sales'
+      fullPath: '/dojo/staff/sales'
+      preLoaderRoute: typeof DojoStaffPortalSalesRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/schedule': {
+      id: '/dojo/staff/_portal/schedule'
+      path: '/schedule'
+      fullPath: '/dojo/staff/schedule'
+      preLoaderRoute: typeof DojoStaffPortalScheduleRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/store': {
+      id: '/dojo/staff/_portal/store'
+      path: '/store'
+      fullPath: '/dojo/staff/store'
+      preLoaderRoute: typeof DojoStaffPortalStoreRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/dojo/staff/_portal/students': {
+      id: '/dojo/staff/_portal/students'
+      path: '/students'
+      fullPath: '/dojo/staff/students'
+      preLoaderRoute: typeof DojoStaffPortalStudentsRouteImport
+      parentRoute: typeof DojoStaffPortalRoute
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/anuncios/campanhas/$id': {
@@ -6587,6 +6517,83 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/anuncios/campanhas/$id'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosCampanhasIdRouteImport
       parentRoute: typeof AuthenticatedAdminAnunciosCampanhasRoute
+    }
+    '/api/public/app/$slug/download': {
+      id: '/api/public/app/$slug/download'
+      path: '/api/public/app/$slug/download'
+      fullPath: '/api/public/app/$slug/download'
+      preLoaderRoute: typeof ApiPublicAppSlugDownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/dojo/partner-checkin/$provider': {
+      id: '/api/public/dojo/partner-checkin/$provider'
+      path: '/api/public/dojo/partner-checkin/$provider'
+      fullPath: '/api/public/dojo/partner-checkin/$provider'
+      preLoaderRoute: typeof ApiPublicDojoPartnerCheckinProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dojo/app/evaluations/sessions/': {
+      id: '/dojo/app/evaluations/sessions/'
+      path: '/'
+      fullPath: '/dojo/app/evaluations/sessions/'
+      preLoaderRoute: typeof DojoAppEvaluationsSessionsIndexRouteImport
+      parentRoute: typeof DojoAppEvaluationsSessionsRoute
+    }
+    '/dojo/app/evaluations/sessions/$id': {
+      id: '/dojo/app/evaluations/sessions/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/evaluations/sessions/$id'
+      preLoaderRoute: typeof DojoAppEvaluationsSessionsIdRouteImport
+      parentRoute: typeof DojoAppEvaluationsSessionsRoute
+    }
+    '/dojo/app/evaluations/templates/': {
+      id: '/dojo/app/evaluations/templates/'
+      path: '/'
+      fullPath: '/dojo/app/evaluations/templates/'
+      preLoaderRoute: typeof DojoAppEvaluationsTemplatesIndexRouteImport
+      parentRoute: typeof DojoAppEvaluationsTemplatesRoute
+    }
+    '/dojo/app/evaluations/templates/$id': {
+      id: '/dojo/app/evaluations/templates/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/evaluations/templates/$id'
+      preLoaderRoute: typeof DojoAppEvaluationsTemplatesIdRouteImport
+      parentRoute: typeof DojoAppEvaluationsTemplatesRoute
+    }
+    '/dojo/app/store/pedidos/$id': {
+      id: '/dojo/app/store/pedidos/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/store/pedidos/$id'
+      preLoaderRoute: typeof DojoAppStorePedidosIdRouteImport
+      parentRoute: typeof DojoAppStorePedidosRoute
+    }
+    '/dojo/app/store/produtos/$slug': {
+      id: '/dojo/app/store/produtos/$slug'
+      path: '/produtos/$slug'
+      fullPath: '/dojo/app/store/produtos/$slug'
+      preLoaderRoute: typeof DojoAppStoreProdutosSlugRouteImport
+      parentRoute: typeof DojoAppStoreRoute
+    }
+    '/dojo/app/students/$id/analysis': {
+      id: '/dojo/app/students/$id/analysis'
+      path: '/analysis'
+      fullPath: '/dojo/app/students/$id/analysis'
+      preLoaderRoute: typeof DojoAppStudentsIdAnalysisRouteImport
+      parentRoute: typeof DojoAppStudentsIdRoute
+    }
+    '/dojo/app/units/affiliates/$id': {
+      id: '/dojo/app/units/affiliates/$id'
+      path: '/units/affiliates/$id'
+      fullPath: '/dojo/app/units/affiliates/$id'
+      preLoaderRoute: typeof DojoAppUnitsAffiliatesIdRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/contracts/issued/$kind/$id': {
+      id: '/dojo/app/contracts/issued/$kind/$id'
+      path: '/$kind/$id'
+      fullPath: '/dojo/app/contracts/issued/$kind/$id'
+      preLoaderRoute: typeof DojoAppContractsIssuedKindIdRouteImport
+      parentRoute: typeof DojoAppContractsIssuedRoute
     }
     '/dojo/app/store/c/$categoria/': {
       id: '/dojo/app/store/c/$categoria/'
@@ -6601,13 +6608,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/app/store/c/$categoria/$subcategoria'
       preLoaderRoute: typeof DojoAppStoreCCategoriaSubcategoriaRouteImport
       parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/contracts/issued/$kind/$id': {
-      id: '/dojo/app/contracts/issued/$kind/$id'
-      path: '/$kind/$id'
-      fullPath: '/dojo/app/contracts/issued/$kind/$id'
-      preLoaderRoute: typeof DojoAppContractsIssuedKindIdRouteImport
-      parentRoute: typeof DojoAppContractsIssuedRoute
     }
   }
 }
