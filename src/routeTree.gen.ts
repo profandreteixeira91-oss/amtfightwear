@@ -45,6 +45,7 @@ import { Route as DojoAppRouteImport } from './routes/dojo.app'
 import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
 import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as DojoOnboardingRouteImport } from './routes/dojo.onboarding'
+import { Route as FerramentasCalculadoraTicketMedioRouteImport } from './routes/ferramentas.calculadora-ticket-medio'
 import { Route as LojaIndexRouteImport } from './routes/loja.index'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
@@ -525,6 +526,12 @@ const DojoOnboardingRoute = DojoOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => DojoRoute,
 } as any)
+const FerramentasCalculadoraTicketMedioRoute =
+  FerramentasCalculadoraTicketMedioRouteImport.update({
+    id: '/ferramentas/calculadora-ticket-medio',
+    path: '/ferramentas/calculadora-ticket-medio',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LojaIndexRoute = LojaIndexRouteImport.update({
   id: '/loja/',
   path: '/loja/',
@@ -2226,6 +2233,7 @@ export interface FileRoutesByFullPath {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/ferramentas/calculadora-ticket-medio': typeof FerramentasCalculadoraTicketMedioRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2558,6 +2566,7 @@ export interface FileRoutesByTo {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/ferramentas/calculadora-ticket-medio': typeof FerramentasCalculadoraTicketMedioRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -2882,6 +2891,7 @@ export interface FileRoutesById {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/ferramentas/calculadora-ticket-medio': typeof FerramentasCalculadoraTicketMedioRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
@@ -3221,6 +3231,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/ferramentas/calculadora-ticket-medio'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3553,6 +3564,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/ferramentas/calculadora-ticket-medio'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -3876,6 +3888,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/ferramentas/calculadora-ticket-medio'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
@@ -4196,6 +4209,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
   CertificateHashRoute: typeof CertificateHashRoute
+  FerramentasCalculadoraTicketMedioRoute: typeof FerramentasCalculadoraTicketMedioRoute
   LojaAtacadoRoute: typeof LojaAtacadoRoute
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
@@ -4501,6 +4515,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/onboarding'
       preLoaderRoute: typeof DojoOnboardingRouteImport
       parentRoute: typeof DojoRoute
+    }
+    '/ferramentas/calculadora-ticket-medio': {
+      id: '/ferramentas/calculadora-ticket-medio'
+      path: '/ferramentas/calculadora-ticket-medio'
+      fullPath: '/ferramentas/calculadora-ticket-medio'
+      preLoaderRoute: typeof FerramentasCalculadoraTicketMedioRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/loja/': {
       id: '/loja/'
@@ -7590,6 +7611,8 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
   CertificateHashRoute: CertificateHashRoute,
+  FerramentasCalculadoraTicketMedioRoute:
+    FerramentasCalculadoraTicketMedioRoute,
   LojaAtacadoRoute: LojaAtacadoRoute,
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,

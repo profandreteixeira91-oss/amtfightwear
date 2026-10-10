@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CTABand } from "@/components/dojo/landing/CTABand";
 import { CurrentTicketPart, computeCurrent, type CurrentValues } from "@/components/dojo/tools/CurrentTicketPart";
 import { IdealTicketPart, EMPTY_IDEAL, type IdealValues } from "@/components/dojo/tools/IdealTicketPart";
 
