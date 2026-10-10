@@ -31,7 +31,7 @@ export function Footer() {
               <ul className="mt-2 text-sm">
                 {g.links.map((l) => (
                   <li key={l.label}>
-                    <a href={l.href} className="inline-flex min-h-11 items-center break-words text-[#111111]/60 transition-colors hover:text-[#C1121F]">{l.label}</a>
+                    <a href={l.href} className="inline-flex min-h-11 items-center text-[#111111]/60 transition-colors hover:text-[#C1121F]">{l.label}</a>
                   </li>
                 ))}
               </ul>
