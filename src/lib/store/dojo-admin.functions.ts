@@ -85,7 +85,12 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     // Contas criadas DENTRO do sistema de um dono (alunos e equipe/professores)
     // nunca são donos de dojo, mesmo que apareçam nos sinais acima.
     const excludedIds = new Set<string>();
-    const excludedEmails = new Set<string>(["igor.reboredo@gmail.com", "profandreteixeira91@gmail.com"]);
+    // Contas internas e a conta demonstrativa comercial não são clientes reais.
+    const excludedEmails = new Set<string>([
+      "igor.reboredo@gmail.com",
+      "profandreteixeira91@gmail.com",
+      "admin@dojomanager.com",
+    ]);
     const addExcluded = (rows: any[] | null, idKey: string) => {
       for (const r of rows ?? []) {
         if (r?.[idKey]) excludedIds.add(r[idKey]);
