@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Underline, Lock, Unlock, Eye, EyeOff, Trash2, Copy, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Type as TypeIcon, Search, ChevronLeft } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Underline, Lock, Unlock, Eye, EyeOff, Trash2, Copy, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Type as TypeIcon, Search, ChevronLeft, SlidersHorizontal } from "lucide-react";
 
 export function StudioRight() {
   const { doc, selection, updateSelected, deleteSelected, duplicateSelected, bringForward, sendBackward, bringToFront, sendToBack, toggleLock, toggleHidden, pushHistory } = useStudioStore();
