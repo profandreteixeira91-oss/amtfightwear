@@ -1,34 +1,22 @@
-import { Cloud, Monitor, Tablet, Smartphone, RefreshCw, Lock, Database, Users } from "lucide-react";
+import { Swords, Smartphone, FileSignature, ShieldCheck } from "lucide-react";
 import { Section, FadeIn } from "./Section";
 
 const items = [
-  { icon: Cloud, label: "Sistema 100% online" },
-  { icon: Monitor, label: "Acesso por computador" },
-  { icon: Tablet, label: "Tablet" },
-  { icon: Smartphone, label: "Smartphone" },
-  { icon: RefreshCw, label: "Atualizações constantes" },
-  { icon: Lock, label: "Segurança em nuvem" },
-  { icon: Database, label: "Backup automático" },
-  { icon: Users, label: "Permissões por usuário" },
+  { icon: Swords, title: "Feito para artes marciais", desc: "Faixas, graus, modalidades e graduações fazem parte do sistema." },
+  { icon: Smartphone, title: "App do aluno incluso", desc: "Check-in, mensalidades, contratos e avisos no celular do aluno." },
+  { icon: FileSignature, title: "Contratos e certificados", desc: "Editores próprios, sem depender de outros programas." },
+  { icon: ShieldCheck, title: "Acesso por função", desc: "Dono, professores e recepção veem apenas o que precisam." },
 ];
 
 export function Differentiators() {
   return (
-    <Section
-      id="diferenciais"
-      eyebrow="Diferenciais"
-      title="Tecnologia de ponta a serviço do seu dojo."
-      className="bg-[#111111] text-white"
-    >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <Section id="diferenciais" eyebrow="Diferenciais" title="Pensado para a rotina do tatame." className="bg-[#111111] text-white">
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it, i) => (
-          <FadeIn key={it.label} delay={i * 0.04}>
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-[#C1121F]/50 hover:bg-white/[0.06]">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#C1121F]/15 text-[#C1121F]">
-                <it.icon className="h-5 w-5" strokeWidth={1.8} />
-              </div>
-              <span className="text-sm font-medium">{it.label}</span>
-            </div>
+          <FadeIn key={it.title} delay={i * 0.05}>
+            <it.icon className="h-6 w-6 text-[#C1121F]" strokeWidth={1.8} aria-hidden="true" />
+            <h3 className="mt-4 text-lg font-semibold">{it.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-white/60">{it.desc}</p>
           </FadeIn>
         ))}
       </div>
