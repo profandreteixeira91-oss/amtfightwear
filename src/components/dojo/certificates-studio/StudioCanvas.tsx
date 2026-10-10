@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useStudioStore } from "@/lib/dojo/certificates/studio-store";
 import { CertificateRenderer } from "./CertificateRenderer";
 import { sampleValues } from "@/lib/dojo/certificates/export";
@@ -216,8 +216,10 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
   const pageH = doc.page.height;
   const cx = (el.x / 100) * pageW;
   const cy = (el.y / 100) * pageH;
-  const w = el.w != null ? (el.w / 100) * pageW : autoWidth(el);
-  const h = el.h != null ? (el.h / 100) * pageH : autoHeight(el);
+  // Caixa de seleção = tamanho real renderizado do elemento (fallback ao modelo só antes da 1ª medição).
+  const measured = useRenderedSize(el.id, el);
+  const w = measured?.w ?? (el.w != null ? (el.w / 100) * pageW : autoWidth(el));
+  const h = measured?.h ?? (el.h != null ? (el.h / 100) * pageH : autoHeight(el));
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
   const resizeRef = useRef<{ startX: number; startY: number; origW: number; origH: number; dir: string } | null>(null);
   const rotateRef = useRef<{ startAngle: number; center: { x: number; y: number }; startRot: number } | null>(null);
@@ -348,6 +350,27 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
       )}
     </div>
   );
+}
+
+type Size = { w: number; h: number };
+
+/** Mede (em px da página, sem zoom) a caixa real que o renderer desenhou para o elemento. */
+function useRenderedSize(id: string, el: AnyElement): Size | null {
+  const [size, setSize] = useState<Size | null>(null);
+  useLayoutEffect(() => {
+    const wrapper = document.getElementById(CANVAS_ID)?.querySelector(`[data-el-id="${CSS.escape(id)}"]`);
+    const node = wrapper?.firstElementChild;
+    if (!(node instanceof HTMLElement)) return;
+    const read = () => {
+      const next = { w: node.offsetWidth, h: node.offsetHeight };
+      setSize((prev) => (prev && prev.w === next.w && prev.h === next.h ? prev : next));
+    };
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, [id, el]);
+  return size;
 }
 
 function autoWidth(el: AnyElement) {

@@ -11,6 +11,7 @@ import { toLegacyFields, type EditorSchema, migrateLegacyFields } from "@/compon
 import { listCertificateTemplates, saveCertificateTemplate } from "@/lib/dojo/dojo.functions";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PreviewStage } from "./PreviewStage";
 
 type Props = { templateId: string | "new" };
 
@@ -139,13 +140,9 @@ export function CertificateStudio({ templateId }: Props) {
       </div>
 
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-5xl">
+        <DialogContent className="w-auto max-w-[95vw] gap-3 p-4 sm:p-5">
           <DialogHeader><DialogTitle>Pré-visualização</DialogTitle></DialogHeader>
-          <div className="overflow-auto rounded-lg bg-neutral-100 p-4">
-            <div style={{ transform: `scale(${Math.min(1, 900 / doc.page.width)})`, transformOrigin: "top left" }}>
-              <CertificateRenderer doc={doc} className="shadow-lg ring-1 ring-black/5" />
-            </div>
-          </div>
+          <PreviewStage doc={doc} />
         </DialogContent>
       </Dialog>
     </div>
