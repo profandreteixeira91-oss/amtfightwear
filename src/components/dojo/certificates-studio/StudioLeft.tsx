@@ -33,16 +33,16 @@ export function StudioLeft() {
   return (
     <>
       {/* Mobile Toggle Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-neutral-200 z-40 flex items-center justify-around px-2">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border z-40 flex items-center justify-around px-2">
         {SECTIONS.slice(0, 5).map((s) => (
           <button key={s.id} onClick={() => { setTab(s.id); setMobileOpen(true); }}
-            className={`flex flex-col items-center gap-1 p-2 text-[10px] font-medium ${tab === s.id && mobileOpen ? "text-red-700" : "text-neutral-500"}`}>
+            className={`flex flex-col items-center gap-1 p-2 text-[10px] font-medium ${tab === s.id && mobileOpen ? "text-primary" : "text-muted-foreground"}`}>
             <s.icon className="h-5 w-5" />
             <span>{s.label}</span>
           </button>
         ))}
         <button onClick={() => setMobileOpen(!mobileOpen)}
-          className={`flex flex-col items-center gap-1 p-2 text-[10px] font-medium ${mobileOpen ? "text-red-700 font-bold" : "text-neutral-500"}`}>
+          className={`flex flex-col items-center gap-1 p-2 text-[10px] font-medium ${mobileOpen ? "text-primary font-bold" : "text-muted-foreground"}`}>
           <Layout className="h-5 w-5" />
           <span>Menu</span>
         </button>
@@ -50,26 +50,26 @@ export function StudioLeft() {
 
       {/* Sidebar Desktop & Mobile Drawer */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-[320px] bg-white border-r border-neutral-200 flex transition-transform duration-300 ease-in-out
-        md:static md:translate-x-0
+        fixed top-0 bottom-16 left-0 z-50 w-[min(320px,88vw)] bg-card border-r border-border flex transition-transform duration-300 ease-in-out
+        md:static md:h-auto md:w-[272px] lg:w-[300px] xl:w-[320px] md:shrink-0 md:translate-x-0
         ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-      `} style={{ height: 'calc(100% - 64px)' }}>
-        <nav className="flex flex-col w-16 border-r border-neutral-200 bg-neutral-50 shrink-0 overflow-y-auto no-scrollbar">
+      `}>
+        <nav aria-label="Ferramentas do editor" className="flex flex-col w-16 border-r border-border bg-muted/40 shrink-0 overflow-y-auto no-scrollbar">
           {SECTIONS.map((s) => (
             <button key={s.id} onClick={() => setTab(s.id)}
-              className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium shrink-0 ${tab === s.id ? "bg-red-700 text-white" : "text-neutral-600 hover:bg-neutral-100"}`}>
+              aria-pressed={tab === s.id} className={`mx-1.5 my-0.5 flex flex-col items-center gap-1 rounded-md py-2.5 text-[10px] font-medium shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${tab === s.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
               <s.icon className="h-4 w-4" />
               <span>{s.label}</span>
             </button>
           ))}
           {/* Close button for mobile */}
-          <button onClick={() => setMobileOpen(false)} className="md:hidden mt-auto py-4 text-neutral-400 hover:text-red-700">
+          <button onClick={() => setMobileOpen(false)} aria-label="Fechar ferramentas" className="md:hidden mt-auto py-4 text-muted-foreground hover:text-primary">
             <ChevronLeft className="h-6 w-6 mx-auto" />
           </button>
         </nav>
         <div className="flex-1 overflow-y-auto p-3">
           <div className="flex items-center justify-between mb-4 md:hidden">
-            <h3 className="font-bold text-neutral-800">{SECTIONS.find(s => s.id === tab)?.label}</h3>
+            <h3 className="font-bold text-foreground">{SECTIONS.find(s => s.id === tab)?.label}</h3>
             <Button variant="ghost" size="sm" onClick={() => setMobileOpen(false)}>Fechar</Button>
           </div>
           {tab === "text" && <TextsPanel />}

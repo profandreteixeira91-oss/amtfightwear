@@ -110,7 +110,7 @@ export function StudioCanvas() {
   }, []);
 
   return (
-    <div ref={wrapRef} className="relative flex-1 overflow-auto bg-neutral-100 dark:bg-neutral-900 pb-20 md:pb-0 touch-none">
+    <div ref={wrapRef} className="relative flex-1 overflow-auto bg-muted pb-20 md:pb-0 touch-none">
       {showRulers && <RulerH />}
       {showRulers && <RulerV />}
       <div
@@ -165,18 +165,24 @@ function MarginsOverlay() {
   if (!m) return null;
   return <div style={{ position: "absolute", inset: m, pointerEvents: "none", border: "1px dashed rgba(0,0,0,.15)" }} />;
 }
+/** Escolhe o intervalo da régua para manter ~60px entre marcações, evitando números sobrepostos. */
+function rulerUnit(zoom: number): number {
+  const candidates = [25, 50, 100, 200, 250, 500];
+  return candidates.find((u) => u * zoom >= 60) ?? 1000;
+}
 function RulerH() {
   const { doc, zoom } = useStudioStore();
   const total = doc.page.width * zoom;
-  const marks = [];
-  const step = 50 * zoom;
+  const unit = rulerUnit(zoom);
+  const step = unit * zoom;
+  const marks: number[] = [];
   for (let i = 0; i * step <= total; i++) marks.push(i);
   return (
-    <div className="sticky top-0 z-10 h-6 bg-white/80 backdrop-blur border-b border-neutral-200 text-[10px] text-neutral-500 select-none" style={{ paddingLeft: 24 }}>
+    <div className="sticky top-0 z-10 h-6 bg-card border-b border-border text-[10px] text-muted-foreground select-none" style={{ paddingLeft: 24 }}>
       <div className="relative h-full">
         {marks.map((i) => (
           <div key={i} style={{ position: "absolute", left: i * step, top: 0, bottom: 0, borderLeft: "1px solid rgba(0,0,0,.1)", paddingLeft: 2 }}>
-            <span>{i * 50}</span>
+            <span>{i * unit}</span>
           </div>
         ))}
       </div>
@@ -186,15 +192,16 @@ function RulerH() {
 function RulerV() {
   const { doc, zoom } = useStudioStore();
   const total = doc.page.height * zoom;
-  const marks = [];
-  const step = 50 * zoom;
+  const unit = rulerUnit(zoom);
+  const step = unit * zoom;
+  const marks: number[] = [];
   for (let i = 0; i * step <= total; i++) marks.push(i);
   return (
-    <div className="absolute top-6 left-0 w-6 bottom-0 z-10 bg-white/80 backdrop-blur border-r border-neutral-200 text-[10px] text-neutral-500 select-none">
+    <div className="absolute top-6 left-0 w-6 bottom-0 z-10 bg-card border-r border-border text-[10px] text-muted-foreground select-none">
       <div className="relative h-full">
         {marks.map((i) => (
           <div key={i} style={{ position: "absolute", top: i * step, left: 0, right: 0, borderTop: "1px solid rgba(0,0,0,.1)", paddingLeft: 2 }}>
-            <span>{i * 50}</span>
+            <span>{i * unit}</span>
           </div>
         ))}
       </div>
