@@ -6,14 +6,9 @@ import { recordStoreVisit } from "@/lib/store/visits.functions";
 
 import { LandingNav } from "@/components/dojo/landing/LandingNav";
 import { Hero } from "@/components/dojo/landing/Hero";
-import { Problems } from "@/components/dojo/landing/Problems";
-import { Transformation } from "@/components/dojo/landing/Transformation";
-import { HowItWorks } from "@/components/dojo/landing/HowItWorks";
+import { Benefits } from "@/components/dojo/landing/Benefits";
 import { ModulesShowcase } from "@/components/dojo/landing/ModulesShowcase";
-import { StudentApp } from "@/components/dojo/landing/StudentApp";
-import { Automations } from "@/components/dojo/landing/Automations";
 import { RealScreenshots } from "@/components/dojo/landing/RealScreenshots";
-import { FightWearIntegration } from "@/components/dojo/landing/FightWearIntegration";
 import { Differentiators } from "@/components/dojo/landing/Differentiators";
 import { Integrations } from "@/components/dojo/landing/Integrations";
 import { Plans } from "@/components/dojo/landing/Plans";
@@ -25,7 +20,7 @@ import { Footer } from "@/components/dojo/landing/Footer";
 export const Route = createFileRoute("/dojo/")({
   head: () => ({
     meta: [
-      { title: "AMT Dojo Manager — Gestão completa para academias de artes marciais" },
+      { title: "AMT Dojo Manager — Gestão para academias de artes marciais" },
       {
         name: "description",
         content:
@@ -84,19 +79,14 @@ function DojoLanding() {
   }, [track]);
 
   return (
-    <div className="dojo-theme min-h-screen bg-white text-[#111111] antialiased">
+    <div className="dojo-theme min-h-screen overflow-x-clip bg-white text-[#111111] antialiased hyphens-none break-normal">
       <LandingNav />
 
       <main>
         <Hero />
-        <Problems />
-        <Transformation />
-        <HowItWorks />
+        <Benefits />
         <ModulesShowcase />
-        <StudentApp />
-        <Automations />
         <RealScreenshots />
-        <FightWearIntegration />
         <Differentiators />
         <Integrations />
         <Plans />
