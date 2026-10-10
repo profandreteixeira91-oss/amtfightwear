@@ -362,15 +362,29 @@ function useRenderedSize(id: string, el: AnyElement): Size | null {
     const node = wrapper?.firstElementChild;
     if (!(node instanceof HTMLElement)) return;
     const read = () => {
-      const next = { w: node.offsetWidth, h: node.offsetHeight };
+      const next = visibleBox(node);
       setSize((prev) => (prev && prev.w === next.w && prev.h === next.h ? prev : next));
     };
     read();
     const ro = new ResizeObserver(read);
     ro.observe(node);
-    return () => ro.disconnect();
+    node.addEventListener("load", read);
+    return () => { ro.disconnect(); node.removeEventListener("load", read); };
   }, [id, el]);
   return size;
+}
+
+/** Caixa visível: para <img> com object-fit contain/scale-down, desconta as faixas vazias do letterbox. */
+function visibleBox(node: HTMLElement): Size {
+  const box = { w: node.offsetWidth, h: node.offsetHeight };
+  if (!(node instanceof HTMLImageElement)) return box;
+  const fit = getComputedStyle(node).objectFit;
+  if (fit !== "contain" && fit !== "scale-down") return box;
+  const nw = node.naturalWidth;
+  const nh = node.naturalHeight;
+  if (!nw || !nh || !box.w || !box.h) return box;
+  const k = fit === "scale-down" ? Math.min(1, box.w / nw, box.h / nh) : Math.min(box.w / nw, box.h / nh);
+  return { w: Math.round(nw * k), h: Math.round(nh * k) };
 }
 
 function autoWidth(el: AnyElement) {
