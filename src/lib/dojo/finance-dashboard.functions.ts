@@ -92,7 +92,7 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
     // -----------------------------------------------------------------
     // 5) Alunos (nome para o top 5)
     // -----------------------------------------------------------------
-    const studentsP = supabase.from("dojo_students").select("id, name");
+    const studentsP = supabase.from("dojo_students").select("id, full_name");
 
     const [wallet, inv, exp, rec, stu] = await Promise.all([
       walletP,
@@ -111,7 +111,7 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
     const expenses = (exp.data ?? []) as any[];
     const recurring = (rec.data ?? []) as any[];
     const students = new Map<string, string>();
-    (stu.data ?? []).forEach((s: any) => students.set(s.id, s.name ?? ""));
+    (stu.data ?? []).forEach((s: any) => students.set(s.id, s.full_name ?? ""));
 
     // -----------------------------------------------------------------
     // Saldo em carteira
