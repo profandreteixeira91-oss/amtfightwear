@@ -1,33 +1,23 @@
-import { Cloud, Monitor, Tablet, Smartphone, RefreshCw, Lock, Database, Users } from "lucide-react";
+import { Swords, Smartphone, FileSignature, ShieldCheck } from "lucide-react";
 import { Section, FadeIn } from "./Section";
 
-const items = [
-  { icon: Cloud, label: "Sistema 100% online" },
-  { icon: Monitor, label: "Acesso por computador" },
-  { icon: Tablet, label: "Tablet" },
-  { icon: Smartphone, label: "Smartphone" },
-  { icon: RefreshCw, label: "Atualizações constantes" },
-  { icon: Lock, label: "Segurança em nuvem" },
-  { icon: Database, label: "Backup automático" },
-  { icon: Users, label: "Permissões por usuário" },
+const ITEMS = [
+  { icon: Swords, title: "Feito para artes marciais", desc: "Modalidades, faixas e graus fazem parte do sistema desde o início." },
+  { icon: Smartphone, title: "App do aluno incluso", desc: "Carteirinha, faturas e avisos no celular de cada aluno." },
+  { icon: FileSignature, title: "Contratos e certificados", desc: "Editores próprios, sem depender de Word ou programas externos." },
+  { icon: ShieldCheck, title: "Acesso por função", desc: "Professores e recepção veem apenas o que precisam." },
 ];
 
 export function Differentiators() {
   return (
-    <Section
-      id="diferenciais"
-      eyebrow="Diferenciais"
-      title="Tecnologia de ponta a serviço do seu dojo."
-      className="bg-[#111111] text-white"
-    >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {items.map((it, i) => (
-          <FadeIn key={it.label} delay={i * 0.04}>
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-[#C1121F]/50 hover:bg-white/[0.06]">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#C1121F]/15 text-[#C1121F]">
-                <it.icon className="h-5 w-5" strokeWidth={1.8} />
-              </div>
-              <span className="text-sm font-medium">{it.label}</span>
+    <Section id="diferenciais" eyebrow="Diferenciais" title="Pensado para a rotina do dojo.">
+      <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2">
+        {ITEMS.map((it, i) => (
+          <FadeIn key={it.title} delay={i * 0.05} className="flex min-w-0 gap-4 rounded-2xl border border-black/5 p-6">
+            <it.icon className="mt-0.5 h-6 w-6 shrink-0 text-[#C1121F]" aria-hidden="true" />
+            <div className="min-w-0">
+              <h3 className="font-bold text-[#111111]">{it.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-[#111111]/60">{it.desc}</p>
             </div>
           </FadeIn>
         ))}
