@@ -18,6 +18,7 @@ import { Differentiators } from "@/components/dojo/landing/Differentiators";
 import { Integrations } from "@/components/dojo/landing/Integrations";
 import { Plans } from "@/components/dojo/landing/Plans";
 import { FAQ } from "@/components/dojo/landing/FAQ";
+import { FreeTools } from "@/components/dojo/landing/FreeTools";
 import { FinalCTA } from "@/components/dojo/landing/FinalCTA";
 import { Footer } from "@/components/dojo/landing/Footer";
 
@@ -100,6 +101,7 @@ function DojoLanding() {
         <Integrations />
         <Plans />
         <FAQ />
+        <FreeTools />
         <FinalCTA />
       </main>
       <Footer />
