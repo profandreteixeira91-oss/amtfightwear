@@ -19,23 +19,24 @@ export function StudioRight() {
       {el && !mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
-          className="md:hidden fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full bg-red-700 text-white shadow-lg flex items-center justify-center animate-bounce"
+          aria-label="Abrir propriedades do elemento"
+          className="md:hidden fixed bottom-20 right-4 z-40 h-11 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground shadow-lg flex items-center gap-2"
         >
-          <Search className="h-6 w-6" />
+          <SlidersHorizontal className="h-4 w-4" /> Propriedades
         </button>
       )}
 
       <aside className={`
-        fixed inset-y-0 right-0 z-50 w-[320px] bg-white border-l border-neutral-200 flex flex-col transition-transform duration-300 ease-in-out
-        md:static md:translate-x-0
+        fixed top-0 bottom-16 right-0 z-50 w-[min(320px,88vw)] bg-card border-l border-border flex flex-col transition-transform duration-300 ease-in-out
+        md:static md:h-auto md:w-[260px] lg:w-[288px] xl:w-[320px] md:shrink-0 md:translate-x-0
         ${mobileOpen && el ? "translate-x-0" : "translate-x-full"}
-      `} style={{ height: 'calc(100% - 64px)' }}>
-        <div className="p-3 border-b border-neutral-200 flex items-center justify-between shrink-0">
+      `}>
+        <div className="p-3 border-b border-border flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
              <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(false)}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate">
               {el ? (el.name || labelForKind(el.kind)) : "Propriedades"}
             </span>
           </div>
@@ -50,7 +51,7 @@ export function StudioRight() {
               <Button size="icon" variant="ghost" onClick={() => duplicateSelected()} title="Duplicar">
                 <Copy className="h-4 w-4" />
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => deleteSelected()} title="Excluir" className="text-red-700 hover:text-red-700">
+              <Button size="icon" variant="ghost" onClick={() => deleteSelected()} title="Excluir" className="text-destructive hover:bg-destructive/10 hover:text-destructive" aria-label="Excluir elemento">
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
@@ -59,7 +60,7 @@ export function StudioRight() {
 
         <div className="flex-1 overflow-y-auto shrink-0">
           {!el ? (
-            <div className="p-4 text-sm text-neutral-500">
+            <div className="p-4 text-sm text-muted-foreground">
               Selecione um elemento para editar suas propriedades. Use os atalhos: <b>Ctrl+Z</b> desfazer, <b>Ctrl+D</b> duplicar, <b>Del</b> excluir.
             </div>
           ) : (
