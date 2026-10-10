@@ -203,7 +203,12 @@ export function CertificateRenderer({ doc, values, className }: { doc: EditorSch
         overflow: "hidden",
       }}
     >
-      {sortedEls.map((el) => (el.hidden ? null : <ElementViewInline key={el.id} el={el} values={merged} pageW={doc.page.width} pageH={doc.page.height} />))}
+      {sortedEls.map((el) => (el.hidden ? null : (
+        // display:contents não gera caixa: o wrapper só identifica o elemento para o editor medir o tamanho real renderizado.
+        <div key={el.id} data-el-id={el.id} style={{ display: "contents" }}>
+          <ElementViewInline el={el} values={merged} pageW={doc.page.width} pageH={doc.page.height} />
+        </div>
+      )))}
     </div>
   );
 }
