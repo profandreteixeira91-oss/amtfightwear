@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Public free tools (e.g. /ferramentas/*) keep calculation logic as pure functions in src/lib/dojo/*-calculator.ts and never persist or send user input — they must work without login or backend.
