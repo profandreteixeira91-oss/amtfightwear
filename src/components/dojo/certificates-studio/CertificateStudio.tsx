@@ -12,6 +12,7 @@ import { listCertificateTemplates, saveCertificateTemplate } from "@/lib/dojo/do
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PreviewStage } from "./PreviewStage";
+import { useForceLightTheme } from "./useForceLightTheme";
 
 type Props = { templateId: string | "new" };
 
@@ -24,6 +25,7 @@ export function CertificateStudio({ templateId }: Props) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [presentation, setPresentation] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  useForceLightTheme();
 
   // Load template
   useEffect(() => {
