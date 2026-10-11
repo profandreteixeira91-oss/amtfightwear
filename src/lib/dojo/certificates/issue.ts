@@ -52,6 +52,8 @@ export function buildIssueValues(opts: {
       : "",
     aluno_faixa: beltFull,
     aluno_faixa_nome: beltName,
+    // Faixa concedida na graduação (Graduações → Graduação por aluno → Faixa). O grau fica em {{aluno_grau}}.
+    aluno_nova_faixa: graduation?.belt ? formatBeltName(graduation.belt.name, graduation.belt.modality) : "",
     aluno_grau: grauValue,
     aluno_grau_numero: String(Number(gradDegree ?? 0) || 0),
     aluno_modalidade: grBelt?.modality ?? student?.discipline ?? "",
