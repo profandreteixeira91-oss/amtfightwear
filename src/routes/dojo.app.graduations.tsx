@@ -563,12 +563,24 @@ function NewGraduationPage() {
       toast.success(`Certificado emitido: ${student.full_name}`);
       if (registered.length <= 1) setPreviewFor(studentId);
     } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
+    finally { onDone?.(); }
   };
 
 
   const issueAll = async () => {
     if (!templateId) return toast.error("Selecione um modelo de certificado");
-    for (const g of registered) await issueOne(g.student_id, g.id);
+    const pending = registered.filter((g: any) => !issued.has(g.student_id));
+    if (pending.length === 0) return;
+    setIssueProgress({ current: 0, total: pending.length });
+    try {
+      for (const g of pending) {
+        await issueOne(g.student_id, g.id, () =>
+          setIssueProgress((p) => (p ? { ...p, current: p.current + 1 } : p)),
+        );
+      }
+    } finally {
+      setIssueProgress(null);
+    }
   };
 
   const printAll = () => {
