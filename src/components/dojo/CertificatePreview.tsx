@@ -319,8 +319,10 @@ function renderElementHtml(el: any, values: Record<string, string>): string {
  */
 export async function openCertificatePrint(
   items: Array<{ template: CertificateTemplate; values: Record<string, string> }>,
+  onProgress?: (done: number, total: number) => void,
 ) {
   if (!items.length) return;
+  let done = 0;
 
   // Container invisível — renderiza cada certificado no tamanho natural.
   const host = document.createElement("div");
@@ -370,6 +372,7 @@ export async function openCertificatePrint(
         host.removeChild(cell);
 
         if (!blob) throw new Error("Falha ao gerar imagem do certificado");
+        onProgress?.(++done, items.length);
         return { blobUrl: URL.createObjectURL(blob), W, H };
       }),
     );

@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { CheckCircle2, Award, Eye, Printer, GraduationCap, Users, ScrollText, Search, ArrowRight, ArrowLeft, RotateCcw, Info, Sparkles, DollarSign, Save } from "lucide-react";
 import { todayISO } from "@/lib/dates";
@@ -148,6 +149,7 @@ function NewGraduationPage() {
   const [templateId, setTemplateId] = useState("");
   const [issued, setIssued] = useState<Map<string, { template: CertificateTemplate; values: Record<string, string>; studentName: string }>>(new Map());
   const [previewFor, setPreviewFor] = useState<string | null>(null);
+  const [issueProgress, setIssueProgress] = useState<{ current: number; total: number } | null>(null);
 
   const modalities = useMemo(() => {
     const set = new Set<string>();
@@ -499,10 +501,10 @@ function NewGraduationPage() {
     } catch (e: any) { toast.error(e.message ?? "Erro ao registrar"); }
   };
 
-  const issueOne = async (studentId: string, gradId: string | null) => {
+  const issueOne = async (studentId: string, gradId: string | null, onDone?: () => void) => {
     if (!templateId) return toast.error("Selecione um modelo de certificado");
     const student = selectedRows.find((s: any) => s.id === studentId);
-    if (!student) return;
+    if (!student) { onDone?.(); return; }
     const tpl = (templates.data ?? []).find((t: any) => t.id === templateId);
 
     const { belt: studentBelt, degree: studentDeg } = resolveStudentGrad(studentId);
@@ -563,18 +565,35 @@ function NewGraduationPage() {
       toast.success(`Certificado emitido: ${student.full_name}`);
       if (registered.length <= 1) setPreviewFor(studentId);
     } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
+    finally { onDone?.(); }
   };
 
 
   const issueAll = async () => {
     if (!templateId) return toast.error("Selecione um modelo de certificado");
-    for (const g of registered) await issueOne(g.student_id, g.id);
+    const pending = registered.filter((g: any) => !issued.has(g.student_id));
+    if (pending.length === 0) return;
+    setIssueProgress({ current: 0, total: pending.length });
+    try {
+      for (const g of pending) {
+        await issueOne(g.student_id, g.id, () =>
+          setIssueProgress((p) => (p ? { ...p, current: p.current + 1 } : p)),
+        );
+      }
+    } finally {
+      setIssueProgress(null);
+    }
   };
 
-  const printAll = () => {
+  const printAll = async () => {
     const items = Array.from(issued.values()).map(v => ({ template: v.template, values: v.values }));
     if (items.length === 0) return toast.error("Emita ao menos um certificado");
-    openCertificatePrint(items);
+    setIssueProgress({ current: 0, total: items.length });
+    try {
+      await openCertificatePrint(items, (done, total) => setIssueProgress({ current: done, total }));
+    } finally {
+      setIssueProgress(null);
+    }
   };
 
   const reset = () => {
@@ -1586,6 +1605,38 @@ function NewGraduationPage() {
         values={previewFor ? (issued.get(previewFor)?.values ?? {}) : {}}
         title={previewFor ? `Certificado — ${issued.get(previewFor)?.studentName ?? ""}` : undefined}
       />
+
+      {/* Progresso da geração de certificados (emissão em lote e impressão/PDF) */}
+      <Dialog open={!!issueProgress} onOpenChange={() => { /* bloqueado durante a geração */ }}>
+        <DialogContent
+          className="sm:max-w-sm"
+          hideClose
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle>Gerando certificados, não feche esta tela</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-2">
+            <div
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={issueProgress?.total ?? 0}
+              aria-valuenow={issueProgress?.current ?? 0}
+              className="h-2.5 w-full overflow-hidden rounded-full bg-muted"
+            >
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300"
+                style={{ width: `${issueProgress && issueProgress.total > 0 ? Math.round((issueProgress.current / issueProgress.total) * 100) : 0}%` }}
+              />
+            </div>
+            <p className="text-center text-sm text-muted-foreground">
+              {issueProgress ? `${issueProgress.current} de ${issueProgress.total} certificados gerados` : ""}
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
