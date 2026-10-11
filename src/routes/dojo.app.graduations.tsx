@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { CheckCircle2, Award, Eye, Printer, GraduationCap, Users, ScrollText, Search, ArrowRight, ArrowLeft, RotateCcw, Info, Sparkles, DollarSign, Save } from "lucide-react";
 import { todayISO } from "@/lib/dates";
@@ -148,6 +149,7 @@ function NewGraduationPage() {
   const [templateId, setTemplateId] = useState("");
   const [issued, setIssued] = useState<Map<string, { template: CertificateTemplate; values: Record<string, string>; studentName: string }>>(new Map());
   const [previewFor, setPreviewFor] = useState<string | null>(null);
+  const [issueProgress, setIssueProgress] = useState<{ current: number; total: number } | null>(null);
 
   const modalities = useMemo(() => {
     const set = new Set<string>();
