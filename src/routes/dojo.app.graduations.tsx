@@ -148,6 +148,7 @@ function NewGraduationPage() {
   const [templateId, setTemplateId] = useState("");
   const [issued, setIssued] = useState<Map<string, { template: CertificateTemplate; values: Record<string, string>; studentName: string }>>(new Map());
   const [previewFor, setPreviewFor] = useState<string | null>(null);
+  const [issueProgress, setIssueProgress] = useState<{ current: number; total: number } | null>(null);
 
   const modalities = useMemo(() => {
     const set = new Set<string>();
@@ -1598,6 +1599,37 @@ function NewGraduationPage() {
         values={previewFor ? (issued.get(previewFor)?.values ?? {}) : {}}
         title={previewFor ? `Certificado — ${issued.get(previewFor)?.studentName ?? ""}` : undefined}
       />
+
+      {/* Progresso da emissão em lote */}
+      <Dialog open={!!issueProgress} onOpenChange={() => { /* bloqueado durante a geração */ }}>
+        <DialogContent
+          className="sm:max-w-sm"
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle>Gerando certificados, não feche esta tela</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-2">
+            <div
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={issueProgress?.total ?? 0}
+              aria-valuenow={issueProgress?.current ?? 0}
+              className="h-2.5 w-full overflow-hidden rounded-full bg-muted"
+            >
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300"
+                style={{ width: `${issueProgress && issueProgress.total > 0 ? Math.round((issueProgress.current / issueProgress.total) * 100) : 0}%` }}
+              />
+            </div>
+            <p className="text-center text-sm text-muted-foreground">
+              {issueProgress ? `${issueProgress.current} de ${issueProgress.total} certificados gerados` : ""}
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
