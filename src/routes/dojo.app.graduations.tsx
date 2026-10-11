@@ -1605,6 +1605,7 @@ function NewGraduationPage() {
       <Dialog open={!!issueProgress} onOpenChange={() => { /* bloqueado durante a geração */ }}>
         <DialogContent
           className="sm:max-w-sm"
+          hideClose
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
