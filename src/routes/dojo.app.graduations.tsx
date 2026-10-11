@@ -501,10 +501,10 @@ function NewGraduationPage() {
     } catch (e: any) { toast.error(e.message ?? "Erro ao registrar"); }
   };
 
-  const issueOne = async (studentId: string, gradId: string | null) => {
+  const issueOne = async (studentId: string, gradId: string | null, onDone?: () => void) => {
     if (!templateId) return toast.error("Selecione um modelo de certificado");
     const student = selectedRows.find((s: any) => s.id === studentId);
-    if (!student) return;
+    if (!student) { onDone?.(); return; }
     const tpl = (templates.data ?? []).find((t: any) => t.id === templateId);
 
     const { belt: studentBelt, degree: studentDeg } = resolveStudentGrad(studentId);
@@ -565,18 +565,38 @@ function NewGraduationPage() {
       toast.success(`Certificado emitido: ${student.full_name}`);
       if (registered.length <= 1) setPreviewFor(studentId);
     } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
+    finally { onDone?.(); }
   };
 
 
   const issueAll = async () => {
     if (!templateId) return toast.error("Selecione um modelo de certificado");
-    for (const g of registered) await issueOne(g.student_id, g.id);
+    const pending = registered.filter((g: any) => !issued.has(g.student_id));
+    if (pending.length === 0) return;
+    setIssueProgress({ current: 0, total: pending.length });
+    try {
+      for (const g of pending) {
+        await issueOne(g.student_id, g.id, () =>
+          setIssueProgress((p) => (p ? { ...p, current: p.current + 1 } : p)),
+        );
+      }
+    } finally {
+      setIssueProgress(null);
+    }
   };
 
-  const printAll = () => {
+  const printAll = async () => {
     const items = Array.from(issued.values()).map(v => ({ template: v.template, values: v.values }));
     if (items.length === 0) return toast.error("Emita ao menos um certificado");
-    openCertificatePrint(items);
+    setIssueProgress({ current: 0, total: items.length });
+    // A rasterização roda em paralelo dentro de openCertificatePrint; o contador
+    // avança por tempo decorrido estimado e a janela fecha quando o diálogo
+    // nativo de impressão abre (fim da geração).
+    try {
+      await openCertificatePrint(items);
+    } finally {
+      setIssueProgress(null);
+    }
   };
 
   const reset = () => {
