@@ -501,10 +501,11 @@ function NewGraduationPage() {
     } catch (e: any) { toast.error(e.message ?? "Erro ao registrar"); }
   };
 
-  const issueOne = async (studentId: string, gradId: string | null, onDone?: () => void) => {
-    if (!templateId) return toast.error("Selecione um modelo de certificado");
+  const issueOne = async (studentId: string, gradId: string | null, onDone?: () => void, silent = false): Promise<boolean> => {
+    let ok = false;
+    if (!templateId) { toast.error("Selecione um modelo de certificado"); return false; }
     const student = selectedRows.find((s: any) => s.id === studentId);
-    if (!student) { onDone?.(); return; }
+    if (!student) { onDone?.(); return false; }
     const tpl = (templates.data ?? []).find((t: any) => t.id === templateId);
 
     const { belt: studentBelt, degree: studentDeg } = resolveStudentGrad(studentId);
@@ -562,10 +563,12 @@ function NewGraduationPage() {
         next.set(studentId, { template: tpl as unknown as CertificateTemplate, values, studentName: student.full_name });
         return next;
       });
-      toast.success(`Certificado emitido: ${student.full_name}`);
+      ok = true;
+      if (!silent) toast.success(`Certificado emitido: ${student.full_name}`);
       if (registered.length <= 1) setPreviewFor(studentId);
-    } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
+    } catch (e: any) { toast.error(`${student.full_name}: ${e.message ?? "Erro ao emitir"}`); }
     finally { onDone?.(); }
+    return ok;
   };
 
 
@@ -574,12 +577,17 @@ function NewGraduationPage() {
     const pending = registered.filter((g: any) => !issued.has(g.student_id));
     if (pending.length === 0) return;
     setIssueProgress({ current: 0, total: pending.length });
+    let okCount = 0;
     try {
       for (const g of pending) {
-        await issueOne(g.student_id, g.id, () =>
+        const ok = await issueOne(g.student_id, g.id, () =>
           setIssueProgress((p) => (p ? { ...p, current: p.current + 1 } : p)),
-        );
+        true);
+        if (ok) okCount++;
       }
+      const fail = pending.length - okCount;
+      if (fail === 0) toast.success(`${okCount} certificado(s) emitido(s)`);
+      else toast.warning(`${okCount} emitido(s), ${fail} com erro — clique em "Emitir todos" para tentar novamente`);
     } finally {
       setIssueProgress(null);
     }
