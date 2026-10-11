@@ -499,10 +499,10 @@ function NewGraduationPage() {
     } catch (e: any) { toast.error(e.message ?? "Erro ao registrar"); }
   };
 
-  const issueOne = async (studentId: string, gradId: string | null) => {
+  const issueOne = async (studentId: string, gradId: string | null, onDone?: () => void) => {
     if (!templateId) return toast.error("Selecione um modelo de certificado");
     const student = selectedRows.find((s: any) => s.id === studentId);
-    if (!student) return;
+    if (!student) { onDone?.(); return; }
     const tpl = (templates.data ?? []).find((t: any) => t.id === templateId);
 
     const { belt: studentBelt, degree: studentDeg } = resolveStudentGrad(studentId);
