@@ -527,6 +527,8 @@ function NewGraduationPage() {
       aluno_data_nascimento: (student as any).birth_date ? new Date((student as any).birth_date).toLocaleDateString("pt-BR") : "",
       aluno_faixa: beltLabel,
       aluno_faixa_nome: beltNameOnly,
+      // Faixa escolhida em "Graduação por aluno" (o grau vai em {{aluno_grau}}).
+      aluno_nova_faixa: beltNameOnly,
       aluno_grau: grauValueForVar,
       aluno_grau_numero: String(Number(studentDeg ?? 0) || 0),
       aluno_modalidade: (student as any).modality || (student as any).discipline || studentMod || "",
