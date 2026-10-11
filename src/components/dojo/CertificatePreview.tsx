@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, FileDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { toBlob } from "html-to-image";
+import { toCanvas } from "html-to-image";
 import { qrToDataURL } from "@/lib/qrcode-lazy";
 import { CertificateRenderer } from "@/components/dojo/certificates-studio/CertificateRenderer";
 
@@ -310,119 +310,114 @@ function renderElementHtml(el: any, values: Record<string, string>): string {
   return "";
 }
 
+/** Cede o thread principal para a interface (barra de progresso) atualizar. */
+const yieldToUi = () => new Promise<void>((r) => setTimeout(r, 0));
+
+function waitImgs(root: HTMLElement): Promise<void> {
+  const imgs = Array.from(root.querySelectorAll("img")) as HTMLImageElement[];
+  return Promise.all(
+    imgs.map((img) =>
+      img.complete && img.naturalWidth > 0
+        ? Promise.resolve()
+        : new Promise<void>((res) => {
+            const t = setTimeout(res, 8000); // nunca trava por imagem lenta/quebrada
+            const done = () => { clearTimeout(t); res(); };
+            img.addEventListener("load", done, { once: true });
+            img.addEventListener("error", done, { once: true });
+          }),
+    ),
+  ).then(() => undefined);
+}
+
+/** Rasteriza um certificado em JPEG e libera o canvas logo em seguida. */
+async function rasterize(cell: HTMLElement, W: number, H: number): Promise<Blob> {
+  const canvas = await toCanvas(cell, { width: W, height: H, pixelRatio: 1.5, backgroundColor: "#ffffff" });
+  try {
+    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/jpeg", 0.92));
+    if (!blob) throw new Error("Falha ao gerar imagem do certificado");
+    return blob;
+  } finally {
+    canvas.width = 0; canvas.height = 0; // libera memória gráfica imediatamente
+  }
+}
+
 /**
- * Render each certificate to a PNG (rasterizando o mesmo componente da
- * pré-visualização) e abre uma janela A4 contendo apenas as imagens. Isso
- * evita divergências entre preview e impressão: o que você vê é literalmente
- * o que sai — a diagramação e o tamanho de todos os elementos ficam
- * "achatados" em uma única imagem.
+ * Gera os certificados UM POR VEZ (antes: todos em paralelo — 42 árvores React +
+ * 42 canvases simultâneos esgotavam a memória e congelavam a aba) e imprime por
+ * um iframe oculto na própria página, sem depender de pop-up.
  */
 export async function openCertificatePrint(
   items: Array<{ template: CertificateTemplate; values: Record<string, string> }>,
   onProgress?: (done: number, total: number) => void,
 ) {
   if (!items.length) return;
-  let done = 0;
 
-  // Container invisível — renderiza cada certificado no tamanho natural.
   const host = document.createElement("div");
-  host.style.cssText =
-    "position:fixed;left:-100000px;top:0;pointer-events:none;opacity:0;z-index:-1;";
+  host.style.cssText = "position:fixed;left:-100000px;top:0;pointer-events:none;opacity:0;z-index:-1;";
   document.body.appendChild(host);
 
   const pages: Array<{ blobUrl: string; W: number; H: number }> = [];
+  const revokeAll = () => pages.forEach((p) => URL.revokeObjectURL(p.blobUrl));
 
   try {
-    // Renderiza e rasteriza cada certificado em paralelo — cada um em sua própria célula.
-    const rendered = await Promise.all(
-      items.map(async (it) => {
-        const W = it.template.width;
-        const H = it.template.height;
-
-        const cell = document.createElement("div");
-        cell.style.cssText = `width:${W}px;height:${H}px;background:#fff;`;
-        host.appendChild(cell);
-
-        const root = createRoot(cell);
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const W = it.template.width;
+      const H = it.template.height;
+      const cell = document.createElement("div");
+      cell.style.cssText = `width:${W}px;height:${H}px;background:#fff;`;
+      host.appendChild(cell);
+      const root = createRoot(cell);
+      try {
         root.render(<CertificateCanvas template={it.template} values={it.values} scale={1} />);
-
-        // Aguarda React montar + imagens carregarem (fontes/QR/backgrounds).
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-        const imgs = Array.from(cell.querySelectorAll("img")) as HTMLImageElement[];
-        await Promise.all(
-          imgs.map(
-            (img) =>
-              new Promise<void>((res) => {
-                if (img.complete && img.naturalWidth > 0) return res();
-                img.addEventListener("load", () => res(), { once: true });
-                img.addEventListener("error", () => res(), { once: true });
-              }),
-          ),
-        );
-
-        // pixelRatio 1.5 mantém nitidez em A4 sem quadruplicar pixels; sem cacheBust para reaproveitar imagens já carregadas.
-        const blob = await toBlob(cell, {
-          width: W,
-          height: H,
-          pixelRatio: 1.5,
-          backgroundColor: "#ffffff",
-        });
-
+        await waitImgs(cell);
+        const blob = await rasterize(cell, W, H);
+        pages.push({ blobUrl: URL.createObjectURL(blob), W, H });
+      } finally {
         root.unmount();
-        host.removeChild(cell);
-
-        if (!blob) throw new Error("Falha ao gerar imagem do certificado");
-        onProgress?.(++done, items.length);
-        return { blobUrl: URL.createObjectURL(blob), W, H };
-      }),
-    );
-    pages.push(...rendered);
+        cell.remove();
+      }
+      onProgress?.(i + 1, items.length);
+      await yieldToUi();
+    }
   } catch (err) {
     console.error("[certificate print] falha ao rasterizar:", err);
-    alert("Não foi possível gerar a imagem do certificado para impressão.");
-    if (host.parentNode) document.body.removeChild(host);
+    alert(`Não foi possível gerar o certificado ${pages.length + 1} de ${items.length}. Tente novamente.`);
+    revokeAll();
+    host.remove();
     return;
   }
-
-  document.body.removeChild(host);
+  host.remove();
 
   const orientation = pages[0].W >= pages[0].H ? "landscape" : "portrait";
-  const pagesHtml = pages
-    .map(
-      (p) => `<section class="page"><img src="${p.blobUrl}" alt="Certificado" /></section>`,
-    )
-    .join("");
-
+  const pagesHtml = pages.map((p) => `<section class="page"><img src="${p.blobUrl}" alt="Certificado" /></section>`).join("");
   const html = `<!doctype html><html><head><meta charset="utf-8"/>
-<title>Certificado</title>
+<title>Certificados</title>
 <style>
   @page { size: A4 ${orientation}; margin: 0; }
-  html, body { margin: 0; padding: 0; background: #f4f4f4; }
-  .page { display: flex; align-items: center; justify-content: center; width: 100vw; height: 100vh; page-break-after: always; }
-  .page:last-child { page-break-after: auto; }
-  .page img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
-  @media print { html, body { background: #fff; } .page img { box-shadow: none; } }
-</style>
-</head><body>
-${pagesHtml}
-<script>
-  window.addEventListener('load', function() {
-    var imgs = Array.from(document.images);
-    Promise.all(imgs.map(function(img) { if (img.complete) return Promise.resolve(); return new Promise(function(res) { img.onload = img.onerror = res; }); }))
-      .then(function() { window.focus(); window.print(); });
-  });
-</script>
-</body></html>`;
+  html, body { margin: 0; padding: 0; background: #fff; }
+  .page { display: flex; align-items: center; justify-content: center; width: 100vw; height: 100vh; page-break-after: always; break-after: page; }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .page img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+</style></head><body>${pagesHtml}</body></html>`;
 
-  const w = window.open("", "_blank", "width=1100,height=800");
-  if (!w) {
-    alert("Permita janelas pop-up para imprimir/salvar como PDF.");
-    pages.forEach((p) => URL.revokeObjectURL(p.blobUrl));
-    return;
-  }
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
+  const frame = document.createElement("iframe");
+  frame.setAttribute("aria-hidden", "true");
+  frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;";
+  document.body.appendChild(frame);
+  const fw = frame.contentWindow;
+  const fd = frame.contentDocument;
+  if (!fw || !fd) { frame.remove(); revokeAll(); return; }
+  fd.open(); fd.write(html); fd.close();
+  await waitImgs(fd.body);
+
+  let cleaned = false;
+  const cleanup = () => { if (cleaned) return; cleaned = true; frame.remove(); revokeAll(); };
+  fw.addEventListener("afterprint", () => setTimeout(cleanup, 500), { once: true });
+  setTimeout(cleanup, 10 * 60 * 1000); // segurança: libera memória mesmo sem afterprint
+  fw.focus();
+  fw.print();
 }
 
 
