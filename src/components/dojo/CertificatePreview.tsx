@@ -372,6 +372,7 @@ export async function openCertificatePrint(
         host.removeChild(cell);
 
         if (!blob) throw new Error("Falha ao gerar imagem do certificado");
+        onProgress?.(++done, items.length);
         return { blobUrl: URL.createObjectURL(blob), W, H };
       }),
     );

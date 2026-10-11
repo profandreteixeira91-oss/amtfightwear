@@ -589,11 +589,8 @@ function NewGraduationPage() {
     const items = Array.from(issued.values()).map(v => ({ template: v.template, values: v.values }));
     if (items.length === 0) return toast.error("Emita ao menos um certificado");
     setIssueProgress({ current: 0, total: items.length });
-    // A rasterização roda em paralelo dentro de openCertificatePrint; o contador
-    // avança por tempo decorrido estimado e a janela fecha quando o diálogo
-    // nativo de impressão abre (fim da geração).
     try {
-      await openCertificatePrint(items);
+      await openCertificatePrint(items, (done, total) => setIssueProgress({ current: done, total }));
     } finally {
       setIssueProgress(null);
     }
