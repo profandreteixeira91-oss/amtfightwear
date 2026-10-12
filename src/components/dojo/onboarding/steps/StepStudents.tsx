@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { listDojoBelts, saveDojoStudent, bulkImportDojoStudents } from "@/lib/dojo/dojo.functions";
-import { parseStudentsFile, type ParsedStudentRow, STUDENT_IMPORT_COLUMNS } from "@/lib/dojo/students-xlsx";
+import { parseStudentsFile, type ParsedStudentRow, STUDENT_IMPORT_COLUMNS, STUDENT_IMPORT_EXAMPLE } from "@/lib/dojo/students-xlsx";
 import { maskPhone } from "@/lib/br-masks";
 import type { SetupState } from "@/lib/dojo/setup.functions";
 import { validateSetupRows, setupStudentSchema } from "@/lib/dojo/setup-validation";
