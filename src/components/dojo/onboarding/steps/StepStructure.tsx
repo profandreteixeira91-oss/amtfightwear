@@ -9,7 +9,7 @@ import { saveClass } from "@/lib/dojo/schedule.functions";
 import { CLASS_COLORS, WEEKDAYS, MODALITIES } from "@/components/dojo/schedule/constants";
 import type { SetupState } from "@/lib/dojo/setup.functions";
 
-export function StepStructure({ state, onNext, refresh }: { state: SetupState; onNext: () => Promise<void>; refresh: () => Promise<void> }) {
+export function StepStructure({ state, onNext, refresh, onBusy }: { state: SetupState; onNext: () => Promise<void>; refresh: () => Promise<void>; onBusy: (value: boolean) => void }) {
   const savePlan = useServerFn(saveDojoPlan); const saveSchedule = useServerFn(saveClass);
   const [name, setName] = useState(""); const [amount, setAmount] = useState("");
   const [className, setClassName] = useState(""); const [modality, setModality] = useState(state.academy?.modalities?.[0] ?? MODALITIES[0]);
@@ -17,7 +17,7 @@ export function StepStructure({ state, onNext, refresh }: { state: SetupState; o
   const [capacity, setCapacity] = useState("20"); const [busy, setBusy] = useState(false);
   const [planSaved, setPlanSaved] = useState(state.plans.length > 0); const [classSaved, setClassSaved] = useState(state.classes.length > 0);
   return <form className="space-y-5" onSubmit={async (event) => {
-    event.preventDefault(); setBusy(true);
+    event.preventDefault(); setBusy(true); onBusy(true);
     try {
       if (!planSaved) { await savePlan({ data: { name: name.trim(), amount: Number(amount), frequency: "monthly", active: true, payment_methods: [{ code: "cash", enabled: true, gateway: "manual" }] } }); setPlanSaved(true); }
       if (!classSaved) {
@@ -25,7 +25,7 @@ export function StepStructure({ state, onNext, refresh }: { state: SetupState; o
         await saveSchedule({ data: { name: className.trim(), modality, level: "todos", color: CLASS_COLORS[0], max_students: Number(capacity), status: "active", schedules: days.map((weekday) => ({ weekday, start_time: start, end_time: end })) } }); setClassSaved(true);
       }
       await refresh(); await onNext();
-    } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível salvar."); await refresh(); } finally { setBusy(false); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível salvar."); await refresh(); } finally { setBusy(false); onBusy(false); }
   }}>
     <section className="space-y-3"><h3 className="font-semibold">Plano mensal</h3>{planSaved ? <p className="text-sm text-muted-foreground">Plano cadastrado ✓</p> : <><Label htmlFor="setup-plan">Nome do plano</Label><Input id="setup-plan" required maxLength={120} value={name} onChange={(e) => setName(e.target.value)} /><Label htmlFor="setup-amount">Mensalidade (R$)</Label><Input id="setup-amount" required type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} /></>}</section>
     <section className="space-y-3 border-t pt-4"><h3 className="font-semibold">Primeira turma</h3>{classSaved ? <p className="text-sm text-muted-foreground">Turma cadastrada ✓</p> : <>

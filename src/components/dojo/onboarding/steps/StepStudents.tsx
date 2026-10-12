@@ -11,7 +11,7 @@ import { parseStudentsFile, type ParsedStudentRow, STUDENT_IMPORT_COLUMNS } from
 import { maskPhone } from "@/lib/br-masks";
 import type { SetupState } from "@/lib/dojo/setup.functions";
 
-export function StepStudents({ state, refresh }: { state: SetupState; refresh: () => Promise<void> }) {
+export function StepStudents({ state, refresh, onBusy }: { state: SetupState; refresh: () => Promise<void>; onBusy: (value: boolean) => void }) {
   const save = useServerFn(saveDojoStudent); const importStudents = useServerFn(bulkImportDojoStudents); const getBelts = useServerFn(listDojoBelts);
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => getBelts() });
   const [mode, setMode] = useState("quick"); const [busy, setBusy] = useState(false);
@@ -23,8 +23,8 @@ export function StepStudents({ state, refresh }: { state: SetupState; refresh: (
     <div role="tablist" aria-label="Como cadastrar alunos" className="flex flex-wrap gap-2">{[["quick", "Cadastro rápido"], ["import", "Planilha"], ["link", "Pré-matrícula"]].map(([value, label]) => <Button key={value} role="tab" aria-selected={mode === value} variant={mode === value ? "default" : "outline"} onClick={() => setMode(value)}>{label}</Button>)}</div>
     <p className="text-sm text-muted-foreground">{state.students} alunos cadastrados</p>
     {mode === "quick" && <form className="space-y-3" onSubmit={async (event) => {
-      event.preventDefault(); setBusy(true);
-      try { await save({ data: { full_name: name.trim(), phone: phone || null, birth_date: birth || null, current_belt_id: belt || null, current_degree: 0, status: "active" } }); setName(""); setPhone(""); setBirth(""); setBelt(""); await refresh(); toast.success("Aluno cadastrado."); } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível cadastrar."); } finally { setBusy(false); }
+      event.preventDefault(); setBusy(true); onBusy(true);
+      try { await save({ data: { full_name: name.trim(), phone: phone || null, birth_date: birth || null, current_belt_id: belt || null, current_degree: 0, status: "active" } }); setName(""); setPhone(""); setBirth(""); setBelt(""); await refresh(); toast.success("Aluno cadastrado."); } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível cadastrar."); } finally { setBusy(false); onBusy(false); }
     }}>
       <Label htmlFor="setup-student-name">Nome completo</Label><Input id="setup-student-name" required minLength={2} maxLength={200} value={name} onChange={(e) => setName(e.target.value)} />
       <Label htmlFor="setup-student-phone">WhatsApp / celular</Label><Input id="setup-student-phone" type="tel" value={phone} onChange={(e) => setPhone(maskPhone(e.target.value))} />
@@ -42,7 +42,7 @@ export function StepStudents({ state, refresh }: { state: SetupState; refresh: (
         try { if (file.size > 5 * 1024 * 1024) throw new Error("Arquivo máximo: 5 MB."); const parsed = await parseStudentsFile(file); if (!parsed.length || parsed.length > 500) throw new Error("Selecione uma planilha com 1 a 500 alunos."); const invalid = parsed.flatMap((row, index) => row.full_name.trim().length < 2 || (row.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) || (row.birth_date && (!/^\d{4}-\d{2}-\d{2}$/.test(row.birth_date) || row.birth_date > today)) || (row.status && !["active", "inactive", "frozen"].includes(row.status)) ? [`Linha ${index + 2}: revise nome, e-mail, nascimento ou status.`] : []); setErrors(invalid); setRows(parsed); } catch (error) { toast.error(error instanceof Error ? error.message : "Arquivo inválido."); } finally { setBusy(false); e.target.value = ""; }
       }} />
       {rows.length > 0 && <><div className="max-h-48 overflow-auto rounded-md border"><table className="w-full text-left text-sm"><thead><tr><th className="p-2">Nome</th><th className="p-2">Telefone</th></tr></thead><tbody>{rows.map((row, i) => <tr key={`${row.full_name}-${i}`}><td className="p-2">{row.full_name}</td><td className="p-2">{row.phone}</td></tr>)}</tbody></table></div><Button disabled={busy || errors.length > 0} onClick={async () => {
-        setBusy(true); try { const result = await importStudents({ data: { rows: rows.map((row) => ({ ...row, full_name: row.full_name, status: row.status === "inactive" || row.status === "frozen" ? row.status : "active" as const })) } }); const failed = new Set(result.errors.map((error) => error.index - 2)); setRows(rows.filter((_, index) => failed.has(index))); setErrors(result.errors.map((error) => `${error.full_name}: ${error.message}`)); await refresh(); toast.success(`${result.inserted} alunos importados.`); } catch (error) { toast.error(error instanceof Error ? error.message : "Falha na importação."); } finally { setBusy(false); }
+        setBusy(true); onBusy(true); try { const result = await importStudents({ data: { rows: rows.map((row) => ({ ...row, full_name: row.full_name, status: row.status === "inactive" || row.status === "frozen" ? row.status : "active" as const })) } }); const failed = new Set(result.errors.map((error) => error.index - 2)); setRows(rows.filter((_, index) => failed.has(index))); setErrors(result.errors.map((error) => `${error.full_name}: ${error.message}`)); await refresh(); toast.success(`${result.inserted} alunos importados.`); } catch (error) { toast.error(error instanceof Error ? error.message : "Falha na importação."); } finally { setBusy(false); onBusy(false); }
       }}>{busy ? "Importando…" : `Confirmar ${rows.length} alunos`}</Button></>}
       {errors.length > 0 && <ul role="alert" className="text-sm text-destructive">{errors.map((error) => <li key={error}>{error}</li>)}</ul>}
     </div>}

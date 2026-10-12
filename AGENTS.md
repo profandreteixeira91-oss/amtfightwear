@@ -9,3 +9,4 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 - Public free tools (e.g. /ferramentas/*) keep calculation logic as pure functions in src/lib/dojo/*-calculator.ts and never persist or send user input — they must work without login or backend.
+- Owner first-steps setup uses an independent owner-scoped progress table and existing student/plan/class operations; never reuse AMT Pay onboarding flags or seed academy data, so setup stays optional and financially isolated.
