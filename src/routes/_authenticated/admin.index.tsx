@@ -1,5 +1,9 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+const ADMIN_REFRESH_MS = 15_000;
 import { useServerFn } from "@tanstack/react-start";
 import {
   Store,
@@ -144,17 +148,35 @@ function AdminOverview() {
   const getDashboard = useServerFn(adminGetDashboard);
   const listDojos = useServerFn(adminListDojoAccounts);
 
+  const qc = useQueryClient();
+
   const dashboard = useQuery({
     queryKey: ["admin", "central", "dashboard", "30d"],
     queryFn: () => getDashboard({ data: { range: "30d" } }),
-    staleTime: 60_000,
+    refetchInterval: ADMIN_REFRESH_MS,
+    refetchIntervalInBackground: false,
   });
 
   const dojos = useQuery({
     queryKey: ["admin", "central", "dojos"],
     queryFn: () => listDojos(),
-    staleTime: 60_000,
+    refetchInterval: ADMIN_REFRESH_MS,
+    refetchIntervalInBackground: false,
   });
+
+  // Atualização instantânea: novos cadastros/assinaturas de dojo recarregam os cards.
+  useEffect(() => {
+    const refreshDojos = () => qc.invalidateQueries({ queryKey: ["admin", "central", "dojos"] });
+    const ch = supabase
+      .channel("admin-central-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_subscriptions" }, refreshDojos)
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_academy_profile" }, refreshDojos)
+      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_users" }, refreshDojos)
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [qc]);
 
   const loading = dashboard.isLoading || dojos.isLoading;
   const err = dashboard.error || dojos.error;

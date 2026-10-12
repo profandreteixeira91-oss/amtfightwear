@@ -157,6 +157,11 @@ function StoreDojoManagerAdminPage() {
       )
       .on(
         "postgres_changes",
+        { event: "*", schema: "public", table: "dojo_users" },
+        () => qc.invalidateQueries({ queryKey: ["admin", "dojo-accounts"] }),
+      )
+      .on(
+        "postgres_changes",
         { event: "INSERT", schema: "public", table: "profiles" },
         () => qc.invalidateQueries({ queryKey: ["admin", "dojo-accounts"] }),
       )
