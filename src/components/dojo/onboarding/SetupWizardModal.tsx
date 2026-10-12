@@ -50,7 +50,7 @@ export function SetupWizardModal() {
       <Button onClick={() => setOpen(true)}>Continuar <ArrowRight /></Button>
     </section>}
     <Dialog open={open} onOpenChange={(value) => { if (!value) void pause(); }}>
-      <DialogContent hideClose className="setup-light max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-lg bg-background text-foreground" onEscapeKeyDown={(event) => { if (busy) event.preventDefault(); }} onPointerDownOutside={(event) => { if (busy) event.preventDefault(); }}>
+      <DialogContent hideClose className="setup-light z-[70] max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-lg bg-background text-foreground" onEscapeKeyDown={(event) => { if (busy) event.preventDefault(); }} onPointerDownOutside={(event) => { if (busy) event.preventDefault(); }}>
         <Button size="icon" variant="ghost" className="absolute right-3 top-3" aria-label="Fechar assistente" disabled={busy} onClick={() => void pause()}><X /></Button>
         <DojoLogo className="h-8 w-auto max-w-48" />
         <DialogHeader><p className="text-xs font-medium text-muted-foreground">PRIMEIROS PASSOS · ETAPA {step + 1} DE 4</p><DialogTitle className="text-xl">{titles[step]}</DialogTitle><DialogDescription>Implantação da academia</DialogDescription></DialogHeader>
