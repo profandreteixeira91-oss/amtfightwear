@@ -19,6 +19,11 @@ export function StepStudents({ state, refresh, onBusy }: { state: SetupState; re
   const [name, setName] = useState(""); const [phone, setPhone] = useState(""); const [birth, setBirth] = useState(""); const [belt, setBelt] = useState("");
   const [rows, setRows] = useState<ParsedStudentRow[]>([]); const fileRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const modeDescriptions: Record<string, string> = {
+    quick: "Ideal para começar agora: preencha nome, contato e faixa inicial e salve. Cada aluno leva poucos segundos e você pode repetir quantas vezes quiser.",
+    import: "Melhor para listas prontas: baixe o modelo CSV ou XLSX, preencha uma linha por aluno e envie o arquivo. O sistema valida os dados e mostra uma prévia antes de confirmar.",
+    link: "Perfeito para captar novos alunos: copie o link e envie pelo WhatsApp ou Instagram. O aluno preenche a pré-matrícula sozinho e os dados chegam prontos para você aproveitar.",
+  };
   const today = new Intl.DateTimeFormat("en-CA").format(new Date());
   return <div className="space-y-5">
     <div role="tablist" aria-label="Como cadastrar alunos" className="flex flex-wrap gap-2">{[["quick", "Cadastro rápido"], ["import", "Planilha"], ["link", "Pré-matrícula"]].map(([value, label]) => <Button key={value} role="tab" aria-selected={mode === value} variant={mode === value ? "default" : "outline"} onClick={() => setMode(value)}>{label}</Button>)}</div>
