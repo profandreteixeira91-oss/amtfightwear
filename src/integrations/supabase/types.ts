@@ -6742,6 +6742,33 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_setup_progress: {
+        Row: {
+          created_at: string
+          id: string
+          owner_id: string
+          status: string
+          step: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          owner_id: string
+          status?: string
+          step?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          owner_id?: string
+          status?: string
+          step?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_spaces: {
         Row: {
           active: boolean
