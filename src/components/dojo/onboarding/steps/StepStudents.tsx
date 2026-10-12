@@ -19,9 +19,15 @@ export function StepStudents({ state, refresh, onBusy }: { state: SetupState; re
   const [name, setName] = useState(""); const [phone, setPhone] = useState(""); const [birth, setBirth] = useState(""); const [belt, setBelt] = useState("");
   const [rows, setRows] = useState<ParsedStudentRow[]>([]); const fileRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const modeDescriptions: Record<string, string> = {
+    quick: "Ideal para começar agora: preencha nome, contato e faixa inicial e salve. Cada aluno leva poucos segundos e você pode repetir quantas vezes quiser.",
+    import: "Melhor para listas prontas: baixe o modelo CSV ou XLSX, preencha uma linha por aluno e envie o arquivo. O sistema valida os dados e mostra uma prévia antes de confirmar.",
+    link: "Perfeito para captar novos alunos: copie o link e envie pelo WhatsApp ou Instagram. O aluno preenche a pré-matrícula sozinho e os dados chegam prontos para você aproveitar.",
+  };
   const today = new Intl.DateTimeFormat("en-CA").format(new Date());
   return <div className="space-y-5">
     <div role="tablist" aria-label="Como cadastrar alunos" className="flex flex-wrap gap-2">{[["quick", "Cadastro rápido"], ["import", "Planilha"], ["link", "Pré-matrícula"]].map(([value, label]) => <Button key={value} role="tab" aria-selected={mode === value} variant={mode === value ? "default" : "outline"} onClick={() => setMode(value)}>{label}</Button>)}</div>
+    <p className="rounded-md border border-border bg-muted/40 p-3 text-sm leading-relaxed text-muted-foreground" role="note">{modeDescriptions[mode]}</p>
     <p className="text-sm text-muted-foreground">{state.students} alunos cadastrados</p>
     {mode === "quick" && <form className="space-y-3" onSubmit={async (event) => {
       event.preventDefault(); setBusy(true); onBusy(true);
@@ -36,7 +42,8 @@ export function StepStudents({ state, refresh, onBusy }: { state: SetupState; re
     </form>}
     {mode === "import" && <div className="space-y-3">
       <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => {
-        const blob = new Blob(["\ufeff" + STUDENT_IMPORT_COLUMNS.map((c) => c.key).join(",") + "\n"], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "modelo-alunos.csv"; a.click(); URL.revokeObjectURL(url);
+        const headers = STUDENT_IMPORT_COLUMNS.map((c) => c.label).join(",");
+        const blob = new Blob(["\ufeff" + headers + "\n"], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "modelo-alunos.csv"; a.click(); URL.revokeObjectURL(url);
       }}>Baixar modelo CSV</Button><Button variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}>Selecionar planilha</Button></div>
       <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" aria-label="Planilha de alunos" className="sr-only" onChange={async (e) => {
         const file = e.target.files?.[0]; if (!file) return; setErrors([]); setRows([]); setBusy(true); onBusy(true);
