@@ -101,7 +101,13 @@ export async function parseStudentsFile(file: File, preserveCsvText = false): Pr
       const key = LABEL_TO_KEY[normalize(k)];
       if (!key) continue;
       const val = String(v ?? "").trim();
-      if (val) mapped[key] = val;
+      if (!val) continue;
+      if (key === "status") {
+        const mappedStatus = STATUS_TO_VALUE[normalize(val)];
+        if (mappedStatus) mapped[key] = mappedStatus;
+        continue;
+      }
+      mapped[key] = val;
     }
     if (mapped.full_name) rows.push(mapped);
   }
