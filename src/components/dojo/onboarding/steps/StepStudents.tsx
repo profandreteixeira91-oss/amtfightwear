@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { listDojoBelts, saveDojoStudent, bulkImportDojoStudents } from "@/lib/dojo/dojo.functions";
-import { parseStudentsFile, type ParsedStudentRow, STUDENT_IMPORT_COLUMNS } from "@/lib/dojo/students-xlsx";
+import { parseStudentsFile, type ParsedStudentRow, STUDENT_IMPORT_COLUMNS, STUDENT_IMPORT_EXAMPLE } from "@/lib/dojo/students-xlsx";
 import { maskPhone } from "@/lib/br-masks";
 import type { SetupState } from "@/lib/dojo/setup.functions";
 import { validateSetupRows, setupStudentSchema } from "@/lib/dojo/setup-validation";
@@ -43,7 +43,8 @@ export function StepStudents({ state, refresh, onBusy }: { state: SetupState; re
     {mode === "import" && <div className="space-y-3">
       <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => {
         const headers = STUDENT_IMPORT_COLUMNS.map((c) => c.label).join(",");
-        const blob = new Blob(["\ufeff" + headers + "\n"], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "modelo-alunos.csv"; a.click(); URL.revokeObjectURL(url);
+        const example = STUDENT_IMPORT_EXAMPLE.join(",");
+        const blob = new Blob(["\ufeff" + headers + "\n" + example + "\n"], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "modelo-alunos.csv"; a.click(); URL.revokeObjectURL(url);
       }}>Baixar modelo CSV</Button><Button variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}>Selecionar planilha</Button></div>
       <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" aria-label="Planilha de alunos" className="sr-only" onChange={async (e) => {
         const file = e.target.files?.[0]; if (!file) return; setErrors([]); setRows([]); setBusy(true); onBusy(true);
