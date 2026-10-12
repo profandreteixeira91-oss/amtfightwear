@@ -23,7 +23,7 @@ export const STUDENT_IMPORT_COLUMNS: Array<{ key: string; label: string; hint?: 
   { key: "blood_type", label: "Tipo sanguíneo" },
   { key: "profession", label: "Profissão" },
   { key: "notes", label: "Observações" },
-  { key: "status", label: "Status (active/inactive/frozen)" },
+  { key: "status", label: "Status (ativo/inativo/congelado)" },
 ];
 
 const LABEL_TO_KEY: Record<string, string> = Object.fromEntries(
@@ -31,6 +31,12 @@ const LABEL_TO_KEY: Record<string, string> = Object.fromEntries(
 );
 // Também aceita chaves cruas como cabeçalho (ex.: "full_name")
 for (const c of STUDENT_IMPORT_COLUMNS) LABEL_TO_KEY[normalize(c.key)] = c.key;
+
+// Status aceitos no modelo, em português e inglês
+const STATUS_TO_VALUE: Record<string, "active" | "inactive" | "frozen"> = {
+  ativo: "active", inativo: "inactive", congelado: "frozen", trancado: "frozen",
+  active: "active", inactive: "inactive", frozen: "frozen",
+};
 
 function normalize(s: string) {
   return String(s ?? "")
