@@ -48,32 +48,35 @@ function normalize(s: string) {
     .trim();
 }
 
+// Voorbeeldrij voor beide modellen (CSV en XLSX)
+export const STUDENT_IMPORT_EXAMPLE: string[] = [
+  "João da Silva",
+  "000.000.000-00",
+  "",
+  "1990-05-12",
+  "M",
+  "joao@example.com",
+  "(11) 90000-0000",
+  "01310-100",
+  "Av. Paulista",
+  "1000",
+  "Bela Vista",
+  "São Paulo",
+  "SP",
+  "",
+  "",
+  "Maria Silva",
+  "(11) 90000-0001",
+  "Mãe",
+  "O+",
+  "Engenheiro",
+  "Aluno de teste — remova esta linha",
+  "ativo",
+];
+
 export function downloadStudentsTemplate() {
   const headers = STUDENT_IMPORT_COLUMNS.map((c) => c.label);
-  const example = [
-    "João da Silva",
-    "000.000.000-00",
-    "",
-    "1990-05-12",
-    "M",
-    "joao@example.com",
-    "(11) 90000-0000",
-    "01310-100",
-    "Av. Paulista",
-    "1000",
-    "Bela Vista",
-    "São Paulo",
-    "SP",
-    "",
-    "",
-    "Maria Silva",
-    "(11) 90000-0001",
-    "Mãe",
-    "O+",
-    "Engenheiro",
-    "Aluno de teste — remova esta linha",
-    "active",
-  ];
+  const example = STUDENT_IMPORT_EXAMPLE;
   const aoa = [headers, example];
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws["!cols"] = headers.map(() => ({ wch: 22 }));
