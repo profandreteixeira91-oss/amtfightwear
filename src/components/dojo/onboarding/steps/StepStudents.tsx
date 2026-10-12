@@ -27,6 +27,7 @@ export function StepStudents({ state, refresh, onBusy }: { state: SetupState; re
   const today = new Intl.DateTimeFormat("en-CA").format(new Date());
   return <div className="space-y-5">
     <div role="tablist" aria-label="Como cadastrar alunos" className="flex flex-wrap gap-2">{[["quick", "Cadastro rápido"], ["import", "Planilha"], ["link", "Pré-matrícula"]].map(([value, label]) => <Button key={value} role="tab" aria-selected={mode === value} variant={mode === value ? "default" : "outline"} onClick={() => setMode(value)}>{label}</Button>)}</div>
+    <p className="rounded-md border border-border bg-muted/40 p-3 text-sm leading-relaxed text-muted-foreground" role="note">{modeDescriptions[mode]}</p>
     <p className="text-sm text-muted-foreground">{state.students} alunos cadastrados</p>
     {mode === "quick" && <form className="space-y-3" onSubmit={async (event) => {
       event.preventDefault(); setBusy(true); onBusy(true);
