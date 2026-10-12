@@ -42,7 +42,8 @@ export function StepStudents({ state, refresh, onBusy }: { state: SetupState; re
     </form>}
     {mode === "import" && <div className="space-y-3">
       <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => {
-        const blob = new Blob(["\ufeff" + STUDENT_IMPORT_COLUMNS.map((c) => c.key).join(",") + "\n"], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "modelo-alunos.csv"; a.click(); URL.revokeObjectURL(url);
+        const headers = STUDENT_IMPORT_COLUMNS.map((c) => c.label).join(",");
+        const blob = new Blob(["\ufeff" + headers + "\n"], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "modelo-alunos.csv"; a.click(); URL.revokeObjectURL(url);
       }}>Baixar modelo CSV</Button><Button variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}>Selecionar planilha</Button></div>
       <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" aria-label="Planilha de alunos" className="sr-only" onChange={async (e) => {
         const file = e.target.files?.[0]; if (!file) return; setErrors([]); setRows([]); setBusy(true); onBusy(true);
