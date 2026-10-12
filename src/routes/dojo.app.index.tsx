@@ -28,6 +28,7 @@ import { formatBeltFull } from "@/lib/dojo/degree-label";
 import { currentBeltEntries, rankedBelts, beltLabel, beltEntryKey } from "@/lib/dojo/current-belts";
 
 import { useUnitScope } from "@/components/dojo/UnitScope";
+import { SetupWizardModal } from "@/components/dojo/onboarding/SetupWizardModal";
 import {
   Users,
   TrendingUp,
@@ -54,6 +55,10 @@ export const Route = createFileRoute("/dojo/app/")({
     meta: [
       { title: "Painel Executivo — AMT Dojo Manager" },
       { name: "description", content: "Visão premium da sua academia: receita, alunos, check-ins e AMT Pay em tempo real." },
+      { property: "og:title", content: "Painel Executivo — AMT Dojo Manager" },
+      { property: "og:description", content: "Gestão da academia e implantação guiada com alunos, planos e turmas." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: DojoDashboard,
@@ -380,6 +385,7 @@ function DojoDashboard() {
 
   return (
     <div className="space-y-6">
+      <SetupWizardModal />
       <HeroHeader
         studentsCount={students.length}
         activeCount={active}

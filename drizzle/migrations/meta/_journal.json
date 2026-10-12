@@ -8,6 +8,13 @@
       "when": 1790439011228,
       "tag": "0000_add_guardian_rg_cpf",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791767948181,
+      "tag": "0001_dojo_setup_progress",
+      "breakpoints": true
     }
   ]
 }

@@ -78,9 +78,12 @@ export function downloadStudentsTemplate() {
 
 export type ParsedStudentRow = Record<string, string>;
 
-export async function parseStudentsFile(file: File): Promise<ParsedStudentRow[]> {
+export async function parseStudentsFile(file: File, preserveCsvText = false): Promise<ParsedStudentRow[]> {
   const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type: "array" });
+  const csv = preserveCsvText && file.name.toLowerCase().endsWith(".csv");
+  const wb = csv
+    ? XLSX.read(new TextDecoder("utf-8").decode(buf), { type: "string", raw: true })
+    : XLSX.read(buf, { type: "array", raw: preserveCsvText });
   const wsName = wb.SheetNames[0];
   if (!wsName) return [];
   const ws = wb.Sheets[wsName];
