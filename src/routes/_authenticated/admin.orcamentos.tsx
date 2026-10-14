@@ -551,7 +551,8 @@ function QuotesPage() {
                       <div className="grid gap-2 sm:grid-cols-[1fr_90px_120px_110px_36px] sm:items-end">
                         <div>
                           <Label className="text-[10px] uppercase text-neutral-500">Produto</Label>
-                          <Input className="h-9" value={it.name} onChange={(e) => updItem(i, { name: e.target.value })} placeholder="Nome do item" />
+                          <Input className="h-9" value={it.name} onChange={(e) => updItem(i, { name: e.target.value })} placeholder="Nome do item"
+                            onBlur={() => { if (!it.product_id && detectPresetKey(it.name) && !/— Tam\. /.test(it.name)) openSizesFor(i); }} />
                         </div>
                         <div>
                           <Label className="text-[10px] uppercase text-neutral-500">Qtd</Label>
@@ -585,6 +586,11 @@ function QuotesPage() {
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
+                      {!/— Tam\. /.test(it.name) && (
+                        <Button type="button" variant="outline" size="sm" className="mt-2 h-8 text-xs" onClick={() => openSizesFor(i)}>
+                          Grade de tamanhos
+                        </Button>
+                      )}
                       <Input className="mt-2 h-8 text-xs" placeholder="Detalhes / personalização (opcional)"
                         value={it.description ?? ""} onChange={(e) => updItem(i, { description: e.target.value })} />
                     </div>
@@ -691,6 +697,15 @@ function QuotesPage() {
         categories={categories.data ?? []}
         selectedIds={form.items.map((i) => i.product_id).filter(Boolean) as string[]}
         onAdd={addProduct}
+      />
+
+      <QuoteSizeGridDialog
+        open={sizeTarget !== null}
+        onOpenChange={(v) => { if (!v) setSizeTarget(null); }}
+        productName={sizeTarget ? form.items[sizeTarget.index]?.name ?? "" : ""}
+        defaultPrice={sizeTarget ? form.items[sizeTarget.index]?.unit_price ?? 0 : 0}
+        initialPresetKey={sizeTarget?.presetKey ?? null}
+        onConfirm={(lines) => { if (sizeTarget) applySizes(sizeTarget.index, lines); }}
       />
 
 
