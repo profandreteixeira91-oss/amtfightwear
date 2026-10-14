@@ -221,7 +221,7 @@ export async function buildQuotePdf(q: QuotePdfData): Promise<{ blob: Blob; url:
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.5);
     doc.setTextColor(25, 25, 28);
-    doc.text(doc.splitTextToSize(it.name, colQty - M - 24)[0], M + 10, y + 14);
+    doc.text(nameLines, M + 10, y + 14);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.text(String(it.quantity).replace(".", ","), colQty, y + 14, { align: "right" });
@@ -233,7 +233,7 @@ export async function buildQuotePdf(q: QuotePdfData): Promise<{ blob: Blob; url:
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
       doc.setTextColor(120, 120, 128);
-      doc.text(descLines, M + 10, y + 25);
+      doc.text(descLines, M + 10, y + 25 + (nameLines.length - 1) * 11);
     }
     doc.setDrawColor(235, 235, 238);
     doc.line(M, y + rowH, W - M, y + rowH);
