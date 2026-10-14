@@ -26,6 +26,7 @@ import {
 import { adminListStoreProducts, adminListStoreCategories } from "@/lib/store/store.functions";
 import { buildQuotePdf } from "@/lib/store/quote-pdf";
 import { dayISO } from "@/lib/dates";
+import { QuoteSizeGridDialog, detectPresetKey, type SizeLine } from "@/components/store/QuoteSizeGridDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
   head: () => ({
@@ -111,6 +112,7 @@ function QuotesPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState(emptyForm());
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [sizeTarget, setSizeTarget] = useState<{ index: number; presetKey: string | null } | null>(null);
 
   const quotes = useQuery({ queryKey: ["store", "quotes"], queryFn: () => listFn() });
   const products = useQuery({ queryKey: ["store", "products-min"], queryFn: () => productsFn() });
@@ -184,6 +186,17 @@ function QuotesPage() {
   const addProduct = (id: string) => {
     const p: any = (products.data ?? []).find((x: any) => x.id === id);
     if (!p) return;
+    const newItem: Item = {
+      product_id: p.id, name: p.name, sku: p.slug ?? null, description: "",
+      image_url: p.image_url ?? null, quantity: 1, unit_price: Number(p.price ?? 0),
+    };
+    const presetKey = detectPresetKey(String(p.name ?? ""));
+    if (presetKey) {
+      setForm((f) => ({ ...f, items: [...f.items, newItem] }));
+      setSizeTarget({ index: form.items.length, presetKey });
+      setPickerOpen(false);
+      return;
+    }
     setForm((f) => {
       const idx = f.items.findIndex((i) => i.product_id === id);
       if (idx >= 0) {
@@ -191,13 +204,7 @@ function QuotesPage() {
         items[idx] = { ...items[idx], quantity: items[idx].quantity + 1 };
         return { ...f, items };
       }
-      return {
-        ...f,
-        items: [...f.items, {
-          product_id: p.id, name: p.name, sku: p.slug ?? null, description: "",
-          image_url: p.image_url ?? null, quantity: 1, unit_price: Number(p.price ?? 0),
-        }],
-      };
+      return { ...f, items: [...f.items, newItem] };
     });
   };
 
@@ -208,6 +215,22 @@ function QuotesPage() {
     setForm((f) => ({ ...f, items: f.items.map((it, ix) => (ix === i ? { ...it, ...patch } : it)) }));
 
   const rmItem = (i: number) => setForm((f) => ({ ...f, items: f.items.filter((_, ix) => ix !== i) }));
+
+  const applySizes = (index: number, lines: SizeLine[]) =>
+    setForm((f) => {
+      const base = f.items[index];
+      if (!base) return f;
+      const expanded: Item[] = lines.map((l) => ({
+        ...base, name: `${base.name.trim() || "Item"} — Tam. ${l.size}`, quantity: l.quantity, unit_price: l.unit_price,
+      }));
+      return { ...f, items: [...f.items.slice(0, index), ...expanded, ...f.items.slice(index + 1)] };
+    });
+
+  const openSizesFor = (i: number) => {
+    const it = form.items[i];
+    if (!it) return;
+    setSizeTarget({ index: i, presetKey: detectPresetKey(it.name) });
+  };
 
   const save = async () => {
     if (!form.customer_name.trim()) { toast.error("Informe o nome do cliente"); return; }
