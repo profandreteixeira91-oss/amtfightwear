@@ -82,14 +82,14 @@ export function QuoteSizeGridDialog({ open, onOpenChange, productName, defaultPr
           <p className="text-sm text-muted-foreground">Nenhum tamanho cadastrado nesta tabela.</p>
         ) : (
           <div className="space-y-1.5">
-            <div className="grid grid-cols-[70px_1fr_1fr_90px] gap-2 text-[10px] font-semibold uppercase text-muted-foreground">
+            <div className="grid grid-cols-[110px_1fr_1fr_90px] gap-2 text-[10px] font-semibold uppercase text-muted-foreground">
               <span>Tam.</span><span>Qtd</span><span>Valor unit.</span><span className="text-right">Subtotal</span>
             </div>
             {preset.sizes.map((size) => {
               const r = rowOf(size);
               const qty = Number(r.quantity) || 0;
               return (
-                <div key={size} className="grid grid-cols-[70px_1fr_1fr_90px] items-center gap-2">
+                <div key={size} className="grid grid-cols-[110px_1fr_1fr_90px] items-center gap-2">
                   <span className="text-sm font-semibold">{size}</span>
                   <Input className="h-8" type="number" min={0} inputMode="numeric" aria-label={`Quantidade ${size}`}
                     value={r.quantity} onChange={(e) => setRow(size, { quantity: e.target.value.replace(/[^\d]/g, "") })} />
