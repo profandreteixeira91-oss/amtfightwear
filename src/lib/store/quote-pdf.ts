@@ -206,8 +206,9 @@ export async function buildQuotePdf(q: QuotePdfData): Promise<{ blob: Blob; url:
 
   q.items.forEach((it, idx) => {
     const desc = (it.description || "").trim();
-    const descLines = desc ? doc.splitTextToSize(desc, colQty - M - 24) : [];
-    const rowH = 22 + descLines.length * 10;
+    const nameLines = doc.splitTextToSize(it.name, colQty - M - 24) as string[];
+    const descLines = desc ? (doc.splitTextToSize(desc, colQty - M - 24) as string[]) : [];
+    const rowH = 22 + (nameLines.length - 1) * 11 + descLines.length * 10;
     if (y + rowH > H - 120) {
       doc.addPage();
       y = M;
