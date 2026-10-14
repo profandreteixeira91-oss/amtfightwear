@@ -26,6 +26,7 @@ import {
 import { adminListStoreProducts, adminListStoreCategories } from "@/lib/store/store.functions";
 import { buildQuotePdf } from "@/lib/store/quote-pdf";
 import { dayISO } from "@/lib/dates";
+import { QuoteSizeGridDialog, detectPresetKey, type SizeLine } from "@/components/store/QuoteSizeGridDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
   head: () => ({
@@ -111,6 +112,7 @@ function QuotesPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState(emptyForm());
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [sizeTarget, setSizeTarget] = useState<{ index: number; presetKey: string | null } | null>(null);
 
   const quotes = useQuery({ queryKey: ["store", "quotes"], queryFn: () => listFn() });
   const products = useQuery({ queryKey: ["store", "products-min"], queryFn: () => productsFn() });
@@ -184,6 +186,17 @@ function QuotesPage() {
   const addProduct = (id: string) => {
     const p: any = (products.data ?? []).find((x: any) => x.id === id);
     if (!p) return;
+    const newItem: Item = {
+      product_id: p.id, name: p.name, sku: p.slug ?? null, description: "",
+      image_url: p.image_url ?? null, quantity: 1, unit_price: Number(p.price ?? 0),
+    };
+    const presetKey = detectPresetKey(String(p.name ?? ""));
+    if (presetKey) {
+      setForm((f) => ({ ...f, items: [...f.items, newItem] }));
+      setSizeTarget({ index: form.items.length, presetKey });
+      setPickerOpen(false);
+      return;
+    }
     setForm((f) => {
       const idx = f.items.findIndex((i) => i.product_id === id);
       if (idx >= 0) {
@@ -191,13 +204,7 @@ function QuotesPage() {
         items[idx] = { ...items[idx], quantity: items[idx].quantity + 1 };
         return { ...f, items };
       }
-      return {
-        ...f,
-        items: [...f.items, {
-          product_id: p.id, name: p.name, sku: p.slug ?? null, description: "",
-          image_url: p.image_url ?? null, quantity: 1, unit_price: Number(p.price ?? 0),
-        }],
-      };
+      return { ...f, items: [...f.items, newItem] };
     });
   };
 
@@ -208,6 +215,22 @@ function QuotesPage() {
     setForm((f) => ({ ...f, items: f.items.map((it, ix) => (ix === i ? { ...it, ...patch } : it)) }));
 
   const rmItem = (i: number) => setForm((f) => ({ ...f, items: f.items.filter((_, ix) => ix !== i) }));
+
+  const applySizes = (index: number, lines: SizeLine[]) =>
+    setForm((f) => {
+      const base = f.items[index];
+      if (!base) return f;
+      const expanded: Item[] = lines.map((l) => ({
+        ...base, name: `${base.name.trim() || "Item"} — Tam. ${l.size}`, quantity: l.quantity, unit_price: l.unit_price,
+      }));
+      return { ...f, items: [...f.items.slice(0, index), ...expanded, ...f.items.slice(index + 1)] };
+    });
+
+  const openSizesFor = (i: number) => {
+    const it = form.items[i];
+    if (!it) return;
+    setSizeTarget({ index: i, presetKey: detectPresetKey(it.name) });
+  };
 
   const save = async () => {
     if (!form.customer_name.trim()) { toast.error("Informe o nome do cliente"); return; }
@@ -528,7 +551,8 @@ function QuotesPage() {
                       <div className="grid gap-2 sm:grid-cols-[1fr_90px_120px_110px_36px] sm:items-end">
                         <div>
                           <Label className="text-[10px] uppercase text-neutral-500">Produto</Label>
-                          <Input className="h-9" value={it.name} onChange={(e) => updItem(i, { name: e.target.value })} placeholder="Nome do item" />
+                          <Input className="h-9" value={it.name} onChange={(e) => updItem(i, { name: e.target.value })} placeholder="Nome do item"
+                            onBlur={() => { if (!it.product_id && detectPresetKey(it.name) && !/— Tam\. /.test(it.name)) openSizesFor(i); }} />
                         </div>
                         <div>
                           <Label className="text-[10px] uppercase text-neutral-500">Qtd</Label>
@@ -562,6 +586,11 @@ function QuotesPage() {
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
+                      {!/— Tam\. /.test(it.name) && (
+                        <Button type="button" variant="outline" size="sm" className="mt-2 h-8 text-xs" onClick={() => openSizesFor(i)}>
+                          Grade de tamanhos
+                        </Button>
+                      )}
                       <Input className="mt-2 h-8 text-xs" placeholder="Detalhes / personalização (opcional)"
                         value={it.description ?? ""} onChange={(e) => updItem(i, { description: e.target.value })} />
                     </div>
@@ -668,6 +697,15 @@ function QuotesPage() {
         categories={categories.data ?? []}
         selectedIds={form.items.map((i) => i.product_id).filter(Boolean) as string[]}
         onAdd={addProduct}
+      />
+
+      <QuoteSizeGridDialog
+        open={sizeTarget !== null}
+        onOpenChange={(v) => { if (!v) setSizeTarget(null); }}
+        productName={sizeTarget ? form.items[sizeTarget.index]?.name ?? "" : ""}
+        defaultPrice={sizeTarget ? form.items[sizeTarget.index]?.unit_price ?? 0 : 0}
+        initialPresetKey={sizeTarget?.presetKey ?? null}
+        onConfirm={(lines) => { if (sizeTarget) applySizes(sizeTarget.index, lines); }}
       />
 
 
