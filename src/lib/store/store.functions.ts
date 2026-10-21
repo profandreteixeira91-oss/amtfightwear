@@ -486,6 +486,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         ? sb.from("store_categories").select("id, slug, name").eq("id", product.category_id).maybeSingle()
         : Promise.resolve({ data: null }),
     ]);
+    if (variantsR.error) throw new Error("Não foi possível consultar os tamanhos disponíveis. Tente novamente.");
     const { data: related } = product.category_id
       ? await sb.from("products").select("id, name, slug, price, compare_at_price, image_url").eq("category_id", product.category_id).neq("id", product.id).limit(4)
       : { data: [] };
@@ -882,7 +883,7 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
         description_html: z.string().optional().nullable(),
         price: z.number().optional(),
         compare_at_price: z.number().optional().nullable(),
-        stock: z.number().int().optional(),
+        stock: z.number().int().min(0).optional(),
         status: z.string().optional(),
         featured: z.boolean().optional(),
         category_id: z.string().uuid().optional().nullable(),
