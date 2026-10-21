@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { buildShippingSender, shippingDocument } from "@/lib/store/shipping-sender";
 
 const ME_PROD = "https://www.melhorenvio.com.br/api/v2";
 const ME_SANDBOX = "https://sandbox.melhorenvio.com.br/api/v2";
@@ -361,28 +362,25 @@ export const adminMelhorEnvioAddToCart = createServerFn({ method: "POST" })
     }, 0);
     const insurance = items.reduce((s, it) => s + Number(it.unit_price) * it.quantity, 0);
 
+    // Resolve identity and origin only from the connected account; never
+    // substitute the customer's address or a fabricated CPF for the sender.
+    const [profile, registeredAddresses] = await Promise.all([
+      meFetch("/me", { method: "GET" }, env),
+      meFetch("/me/addresses", { method: "GET" }, env),
+    ]);
+    const addressPage = z.object({ data: z.array(z.unknown()) }).safeParse(registeredAddresses);
+    const from = buildShippingSender(profile, addressPage.success ? addressPage.data.data : [], String(settings.origin_zip));
+    const recipientDocument = shippingDocument(order.customer_document ?? "");
+
     const meBody: Record<string, unknown> = {
       service: data.service_id,
       agency: data.agency_id,
-      from: {
-        name: "AMT Fight Wear",
-        phone: "82920016732",
-        email: "contato@amtfightwear.com.br",
-        document: "00000000000",
-        address: shipping.origin_address ?? "Rua Principal",
-        complement: "",
-        number: "1",
-        district: "Centro",
-        city: "Arapiraca",
-        country_id: "BR",
-        postal_code: onlyDigits(String(settings.origin_zip)),
-        state_abbr: "AL",
-      },
+      from,
       to: {
         name: order.customer_name,
         phone: order.customer_phone ?? "",
         email: order.customer_email,
-        document: order.customer_document ?? "",
+        ...recipientDocument,
         address: shipping.address ?? shipping.street ?? "",
         complement: shipping.complement ?? "",
         number: shipping.number ?? "S/N",
