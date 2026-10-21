@@ -1,9 +1,9 @@
 # Implantação guiada
 
 ## Auditoria de estoque AMT Fight Wear
-- [ ] Comparar estoque administrativo, variantes por tamanho e disponibilidade pública.
-- [ ] Corrigir a causa da divergência sem inventar estoque por tamanho.
-- [ ] Executar regressões e verificar novamente a seleção e inclusão no carrinho.
+- [x] Comparar estoque administrativo, variantes e disponibilidade pública: 310 produtos ativos e 3.476 variantes com estoque; bloqueio causado por combinações esparsas de tamanho/cor.
+- [x] Corrigir seleção e preservar edição de estoque geral contra sobrescrita por variantes antigas; sem alteração de dados ou permissões.
+- [x] Cinco testes passaram; quatro tamanhos reais conferidos no carrinho e seleção móvel validada; build OK. Salvamento administrativo coberto por teste da regra, não por gravação autenticada no navegador.
 
 - [x] Assistente claro e não bloqueante, aberto para donos sem alunos e retomável — SetupWizardModal.tsx.
 - [x] Dados do dojo, planos, turmas e cadastro simplificado/importação de alunos usando operações existentes — steps/StepIdentity, StepStructure, StepStudents, StepReady.
