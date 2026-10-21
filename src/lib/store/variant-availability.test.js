@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { selectAvailableVariant, stockAfterGeneralEdit } from './variant-availability';
+import { selectAvailableVariant, stockAfterGeneralEdit } from './variant-availability.ts';
 
 describe('stocked sizes and sparse colors', () => {
   const variants = [
