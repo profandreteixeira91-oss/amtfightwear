@@ -1,5 +1,11 @@
 # Implantação guiada
 
+## Erro de documento no Melhor Envio
+- [x] Identificar origem: CPF fictício e endereço inventado em adminMelhorEnvioAddToCart.
+- [x] Usar identidade/endereço da conta Melhor Envio e validar CPF/CNPJ no remetente e destinatário — shipping-sender.ts / shipping.functions.ts.
+- [x] Reauditar cadastro conectado e payload: documento válido; 11 testes passaram; sem compra de etiqueta ou criação de pedido.
+- [ ] Validar inclusão real de envio: CEP de origem 57020000 não corresponde a endereço cadastrado no Melhor Envio; usuário precisa cadastrar o endereço de postagem ou ajustar o CEP. Publicação também pendente.
+
 ## Auditoria de estoque AMT Fight Wear
 - [x] Comparar estoque administrativo, variantes e disponibilidade pública: 310 produtos ativos e 3.476 variantes com estoque; bloqueio causado por combinações esparsas de tamanho/cor.
 - [x] Corrigir seleção e preservar edição de estoque geral contra sobrescrita por variantes antigas; sem alteração de dados ou permissões.
