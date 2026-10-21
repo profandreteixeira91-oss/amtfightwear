@@ -32,8 +32,17 @@ import { PageShell } from "@/components/common/PageShell";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { stockAfterGeneralEdit } from "@/lib/store/variant-availability";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/")({
+  head: () => ({ meta: [
+    { title: "Catálogo de produtos — Administração AMT Fight Wear" },
+    { name: "description", content: "Administração do catálogo, preços e estoque por tamanho da AMT Fight Wear." },
+    { property: "og:title", content: "Catálogo de produtos — AMT Fight Wear" },
+    { property: "og:description", content: "Gestão de produtos e disponibilidade por tamanho da loja AMT Fight Wear." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: AdminProductsPage,
 });
 
@@ -65,6 +74,7 @@ function AdminProductsPage() {
   const refresh = () => {
     refetch();
     queryClient.invalidateQueries({ queryKey: ["store"] });
+    queryClient.invalidateQueries({ queryKey: ["admin", "store", "product"] });
   };
 
   // Pré-carrega os dados completos do produto (detalhes + variações) assim que
@@ -848,7 +858,7 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
         description: description || null,
         price: priceNum,
         compare_at_price: parseNum(compareAt),
-        stock: stockNum,
+        ...(stockNum !== Number(data.product.stock) ? { stock: stockNum } : {}),
         ncm: ncm.trim() || null,
         cest: cest.trim() || null,
         origem: origem.trim() || null,
@@ -870,7 +880,12 @@ function ProductEditDialog({ productId, seed, onClose, onSaved }: { productId: s
         sku: v.sku?.trim() || null,
         price: v.price,
         compare_at_price: v.compare_at_price,
-        stock: Number.isInteger(v.stock) ? v.stock : 0,
+        stock: stockAfterGeneralEdit(
+          v,
+          variantsQuery.data?.variants.find(original => original.id === v.id),
+          stockNum,
+          Number(data.product.stock),
+        ),
         weight_grams: v.weight_grams,
         sort_order: idx,
         active: v.active,

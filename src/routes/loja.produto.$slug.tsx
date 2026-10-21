@@ -17,6 +17,7 @@ import { RecentlyViewed } from "@/components/store/RecentlyViewed";
 import { pushRecentProduct } from "@/lib/store/recent";
 import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
 import { installmentValueFor, maxInstallmentsFor, pixPriceFor } from "@/lib/store/pricing";
+import { selectAvailableVariant } from "@/lib/store/variant-availability";
 
 export const Route = createFileRoute("/loja/produto/$slug")({
   loader: async ({ context, params }) => {
@@ -183,10 +184,7 @@ function ProductPage() {
     }
   }, [selectedColor, data.images, data.product]);
 
-  const variant = data.variants.find(v => 
-    (selectedSize ? v.size === selectedSize : true) && 
-    (selectedColor ? v.color === selectedColor : true)
-  ) ?? null;
+  const variant = selectAvailableVariant(data.variants, { size: selectedSize, color: selectedColor }) ?? null;
 
   // Histórico local + evento de visualização (analytics de e-commerce).
   const p = data.product;
@@ -228,8 +226,13 @@ function ProductPage() {
 
   const handleAddToCart = () => {
     if (!variant && data.variants.length > 0) {
-      toast.error("Por favor, selecione as opções do produto");
-      return;
+      toast.error("Selecione um tamanho disponível");
+      return false;
+    }
+    const availableStock = variant?.stock ?? Number(product.stock);
+    if (qty > availableStock) {
+      toast.error(`Estoque disponível: ${availableStock} unidade(s)`);
+      return false;
     }
     const variantLabel = variant ? [variant.size, variant.color].filter(Boolean).join(" / ") : null;
     add({
@@ -247,10 +250,11 @@ function ProductPage() {
       items: [toAnalyticsItem({ id: product.id, name: product.name, price, quantity: qty, variant: variantLabel })],
     });
     toast.success("Adicionado ao carrinho");
+    return true;
   };
 
   const handleBuyNow = () => {
-    handleAddToCart();
+    if (!handleAddToCart()) return;
     trackStoreEvent("begin_checkout", { value: price * qty, source: "product_buy_now" });
     navigate({ to: "/loja/carrinho" });
   };
@@ -258,7 +262,7 @@ function ProductPage() {
   /** Ao escolher o frete já na página do produto, adiciona o item e segue direto
    *  para o checkout com o CEP e a opção de envio pré-selecionados. */
   const handleSelectShipping = (option: ShippingOption, zip: string) => {
-    handleAddToCart();
+    if (!handleAddToCart()) return;
     try {
       sessionStorage.setItem("amt-checkout-shipping", JSON.stringify({ zip, option }));
     } catch { /* ignore */ }
@@ -346,16 +350,21 @@ function ProductPage() {
                         {sizes.map((s) => {
                           const selected = s === selectedSize;
                           // Verifica se o tamanho está disponível na cor selecionada (se houver cor)
-                          const variantsForSize = data.variants.filter(v => 
-                            v.size === s && (selectedColor ? v.color === selectedColor : true)
-                          );
-                          const outOfStock = variantsForSize.every(v => v.stock <= 0);
+                          const available = selectAvailableVariant(data.variants, { size: s });
+                          const outOfStock = !available;
                           
                           return (
                             <button
                               key={s}
                               disabled={outOfStock}
-                              onClick={() => setSelectedSize(s!)}
+                              onClick={() => {
+                                if (!s) return;
+                                const next = selectAvailableVariant(data.variants, { size: s, color: selectedColor }) ?? available;
+                                if (!next) return;
+                                setSelectedSize(next.size);
+                                setSelectedColor(next.color);
+                                setQty(1);
+                              }}
                               className={`min-w-[3.25rem] rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
                                 selected
                                   ? "border-primary bg-primary text-primary-foreground shadow-[var(--store-shadow-ruby)]"
@@ -384,16 +393,21 @@ function ProductPage() {
                         {colors.map((c) => {
                           const selected = c === selectedColor;
                           // Verifica se a cor está disponível no tamanho selecionado (se houver tamanho)
-                          const variantsForColor = data.variants.filter(v => 
-                            v.color === c && (selectedSize ? v.size === selectedSize : true)
-                          );
-                          const outOfStock = variantsForColor.every(v => v.stock <= 0);
+                          const available = data.variants.find(v => v.color === c && v.stock > 0);
+                          const outOfStock = !available;
 
                           return (
                             <button
                               key={c}
                               disabled={outOfStock}
-                              onClick={() => setSelectedColor(c!)}
+                              onClick={() => {
+                                if (!c) return;
+                                const next = selectAvailableVariant(data.variants, { size: selectedSize, color: c }) ?? available;
+                                if (!next) return;
+                                setSelectedSize(next.size);
+                                setSelectedColor(next.color === null ? c : next.color);
+                                setQty(1);
+                              }}
                               className={`min-w-[3.25rem] rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
                                 selected
                                   ? "border-primary bg-primary text-primary-foreground shadow-[var(--store-shadow-ruby)]"
