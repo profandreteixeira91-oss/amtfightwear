@@ -1,5 +1,10 @@
 # Implantação guiada
 
+## Erro de documento no Melhor Envio
+- [ ] Identificar origem do CPF inválido do remetente.
+- [ ] Substituir dados fictícios por cadastro real e validar CPF/CNPJ antes do envio.
+- [ ] Reauditar o payload e executar testes sem comprar etiquetas ou criar pedidos reais.
+
 ## Auditoria de estoque AMT Fight Wear
 - [x] Comparar estoque administrativo, variantes e disponibilidade pública: 310 produtos ativos e 3.476 variantes com estoque; bloqueio causado por combinações esparsas de tamanho/cor.
 - [x] Corrigir seleção e preservar edição de estoque geral contra sobrescrita por variantes antigas; sem alteração de dados ou permissões.
