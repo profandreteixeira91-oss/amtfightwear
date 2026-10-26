@@ -40,7 +40,7 @@ export const Route = createFileRoute("/dojo/app/belts")({
 
 const KNOWN_MODALITIES: Array<{ id: string; label: string }> = [
   { id: "jiu-jitsu", label: "Jiu-Jitsu" },
-  { id: "karate", label: "Karate" },
+  { id: "karate", label: "Karatê" },
   { id: "taekwondo", label: "Taekwondo" },
   { id: "muay-thai", label: "Muay Thai" },
   { id: "judo", label: "Judô" },
