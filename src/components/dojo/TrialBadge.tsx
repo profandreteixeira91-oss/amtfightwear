@@ -161,3 +161,61 @@ export function TrialBanner() {
     </div>
   );
 }
+
+/**
+ * Janela exibida quando o período de testes terminou (ou não há assinatura vigente).
+ * O sistema permanece visível ao fundo, borrado e não interativo.
+ * Não aparece na própria tela de assinatura, para permitir o pagamento.
+ */
+export function TrialExpiredOverlay({ pathname, onLogout }: { pathname: string; onLogout: () => void }) {
+  const fn = useServerFn(getMySubscription);
+  const { data } = useQuery({
+    queryKey: ["dojo", "my-subscription"],
+    queryFn: () => fn({}),
+    staleTime: 60 * 1000,
+  });
+  if (!data) return null;
+  if (pathname.startsWith("/dojo/app/subscription")) return null;
+  const sub = data as { status?: string; trial_ends_at?: string | null };
+  const trialEnd = sub.trial_ends_at ? new Date(sub.trial_ends_at).getTime() : null;
+  const expired =
+    sub.status === "expired" ||
+    (sub.status === "trialing" && trialEnd !== null && trialEnd <= Date.now());
+  if (!expired) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="trial-expired-title"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/40 p-4 backdrop-blur-md"
+    >
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center text-card-foreground shadow-2xl">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Clock className="h-6 w-6" />
+        </div>
+        <h2 id="trial-expired-title" className="text-xl font-bold">
+          Seu período de testes terminou
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Para continuar usando o Dojo Manager, assine agora. Seus dados ficam armazenados por 30 dias após o término do teste.
+        </p>
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
+          <Link
+            to="/dojo/app/subscription"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Assinar agora <ArrowRight className="h-4 w-4" />
+          </Link>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="inline-flex flex-1 items-center justify-center rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
