@@ -62,6 +62,15 @@ async function resolveDestination(_userId: string, requested?: string): Promise<
 }
 
 
+function translateAuthError(message: string): string {
+  if (/already registered|already exists/i.test(message)) return "Este e-mail já possui conta. Use “Entrar” ou “Esqueci minha senha”.";
+  if (/invalid login credentials/i.test(message)) return "E-mail ou senha incorretos.";
+  if (/rate limit|too many/i.test(message)) return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+  if (/pwned|weak|compromised/i.test(message)) return "Esta senha aparece em vazamentos conhecidos. Escolha outra senha.";
+  if (/invalid.*email|email.*invalid/i.test(message)) return "E-mail inválido. Verifique se foi digitado corretamente.";
+  return message;
+}
+
 function DojoAuthPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
