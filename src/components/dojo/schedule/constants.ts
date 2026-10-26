@@ -11,6 +11,7 @@ export const WEEKDAYS = [
 export const MODALITIES = [
   "jiu-jitsu",
   "judô",
+  "karatê",
   "nogi",
   "kids",
   "open mat",
