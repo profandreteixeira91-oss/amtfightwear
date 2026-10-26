@@ -203,7 +203,14 @@ function DojoAuthPage() {
     const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setLoading(false);
-      return toast.error("Falha ao entrar", { description: error.message });
+      if (/email not confirmed/i.test(error.message)) {
+        return toast.error("E-mail ainda não confirmado", {
+          description: "Abra o link que enviamos ao seu e-mail para ativar a conta.",
+          action: { label: "Reenviar link", onClick: () => void resendConfirmation() },
+          duration: 15000,
+        });
+      }
+      return toast.error("Falha ao entrar", { description: translateAuthError(error.message) });
     }
     // Hardening: Contas de aluno não podem acessar o Dojo Manager sob nenhuma circunstância.
     if (signInData.user) {
@@ -281,20 +288,39 @@ function DojoAuthPage() {
       },
     });
     setLoading(false);
-    if (error) return toast.error("Falha ao criar conta", { description: error.message });
-    if (data.user) {
-      // Registra o novo dono na tabela de contexto administrativo (no servidor)
-      try {
-        await registerDojoOwner({ data: { name } });
-      } catch {
-        // Sem sessão ativa (confirmação de e-mail pendente) o registro
-        // acontece no primeiro login válido.
-      }
+    if (error) return toast.error("Falha ao criar conta", { description: translateAuthError(error.message) });
+    await finishSignUp(data.user, data.session);
+  };
 
-
-      toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
-      window.location.assign("/dojo/app");
+  // Sem sessão = confirmação de e-mail pendente. Redirecionar para /dojo/app
+  // nesse estado devolvia o cliente à tela de login sem explicação.
+  const finishSignUp = async (user: { id: string } | null, session: unknown) => {
+    if (!user) return;
+    if (!session) {
+      toast.success("Conta criada! Confirme seu e-mail", {
+        description: `Enviamos um link de confirmação para ${email}. Abra-o (verifique também o spam) para acessar o sistema.`,
+        duration: 15000,
+      });
+      setMode("signin");
+      return;
     }
+    try {
+      await registerDojoOwner({ data: { name } });
+    } catch {
+      // O registro também acontece no primeiro login válido.
+    }
+    toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
+    window.location.assign("/dojo/app");
+  };
+
+  const resendConfirmation = async () => {
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/dojo/auth` },
+    });
+    if (error) return toast.error("Não foi possível reenviar", { description: translateAuthError(error.message) });
+    toast.success("Link de confirmação reenviado", { description: "Verifique sua caixa de entrada e o spam." });
   };
 
 
@@ -351,20 +377,8 @@ function DojoAuthPage() {
       },
     });
     setLoading(false);
-    if (error) return toast.error("Falha ao criar conta", { description: error.message });
-    if (data.user) {
-      // Registra o novo dono na tabela de contexto administrativo (no servidor)
-      try {
-        await registerDojoOwner({ data: { name } });
-      } catch {
-        // Sem sessão ativa (confirmação de e-mail pendente) o registro
-        // acontece no primeiro login válido.
-      }
-
-
-      toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
-      window.location.assign("/dojo/app");
-    }
+    if (error) return toast.error("Falha ao criar conta", { description: translateAuthError(error.message) });
+    await finishSignUp(data.user, data.session);
   };
 
   return (
