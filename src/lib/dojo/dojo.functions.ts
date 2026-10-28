@@ -1437,13 +1437,14 @@ export const generateMonthlyInvoices = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: enrolls, error } = await context.supabase
       .from("dojo_enrollments")
-      .select("id, student_id, due_day, custom_amount, asaas_subscription_id, plan:dojo_plans(amount), student:dojo_students(unit_id)")
+      .select("id, student_id, due_day, custom_amount, asaas_subscription_id, plan:dojo_plans(amount), student:dojo_students(unit_id, status)")
       .eq("status", "active")
       .is("asaas_subscription_id", null);
     if (error) throw new Error(error.message);
     const [y, m] = data.reference_month.split("-").map(Number);
     let created = 0;
     for (const e of (enrolls ?? []) as any[]) {
+      if (e.student?.status === "inactive") continue; // aluno inativo não recebe cobrança
       const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
       const dueDay = Math.min(e.due_day ?? 5, daysInMonth);
       const dueDate = utcCalendarISO(new Date(Date.UTC(y, m - 1, dueDay)));
