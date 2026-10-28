@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 import { studentSupabase } from "@/lib/student-auth/student-client";
+import { readRecoveryLinkError, translateRecoveryError } from "@/lib/student-auth/recovery";
 
 export const Route = createFileRoute("/app/reset-password")({
   ssr: false,
@@ -25,7 +26,17 @@ function StudentResetPasswordPage() {
   const [show, setShow] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const [linkError, setLinkError] = useState<string | null>(null);
+
   useEffect(() => {
+    // Erro vindo do link (vencido/já usado) tem prioridade: nunca mostrar o
+    // formulário com uma sessão antiga como se o link fosse válido.
+    const err = readRecoveryLinkError(window.location.hash, window.location.search);
+    if (err) {
+      setLinkError(err);
+      setReady(true);
+      return;
+    }
     const { data: sub } = studentSupabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || session) {
         setHasSession(true);
@@ -42,7 +53,6 @@ function StudentResetPasswordPage() {
   // Sessões independentes: o Portal do Aluno usa `studentSupabase` (storageKey
   // próprio). Não lemos nem alteramos a sessão do painel administrativo aqui.
 
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (password.length < 8) return toast.error("A senha precisa ter ao menos 8 caracteres");
@@ -50,10 +60,12 @@ function StudentResetPasswordPage() {
     setSaving(true);
     const { error } = await studentSupabase.auth.updateUser({ password });
     setSaving(false);
-    if (error) return toast.error("Erro ao redefinir senha", { description: error.message });
+    if (error) return toast.error("Erro ao redefinir senha", { description: translateRecoveryError(error.message) });
     toast.success("Senha atualizada com sucesso");
     navigate({ to: "/app/home", replace: true });
   }
+
+  const canReset = hasSession && !linkError;
 
   if (!ready) {
     return (
