@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
           // a recorrência. As cobranças só param quando a matrícula é cancelada
           // (status != active) ou o aluno é removido/cancelado do sistema.
           const studentStatus = String(e.student?.status ?? "active");
-          if (studentStatus === "cancelled" || e.student?.cancelled_at) { skipped++; continue; }
+          if (studentStatus === "cancelled" || studentStatus === "inactive" || e.student?.cancelled_at) { skipped++; continue; }
 
           const plan = e.plan ?? {};
           const rules = plan.rules ?? {};
