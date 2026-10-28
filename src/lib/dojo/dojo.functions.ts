@@ -1444,7 +1444,7 @@ export const generateMonthlyInvoices = createServerFn({ method: "POST" })
     const [y, m] = data.reference_month.split("-").map(Number);
     let created = 0;
     for (const e of (enrolls ?? []) as any[]) {
-      if (e.student?.status === "inactive") continue; // aluno inativo não recebe cobrança
+      if (e.student?.status === "inactive" || e.student?.status === "frozen") continue; // aluno inativo não recebe cobrança
       const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
       const dueDay = Math.min(e.due_day ?? 5, daysInMonth);
       const dueDate = utcCalendarISO(new Date(Date.UTC(y, m - 1, dueDay)));

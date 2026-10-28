@@ -22,6 +22,13 @@
       "when": 1793186655327,
       "tag": "0002_block_invoices_inactive_students",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793186865042,
+      "tag": "0003_block_invoices_frozen_students",
+      "breakpoints": true
     }
   ]
 }
