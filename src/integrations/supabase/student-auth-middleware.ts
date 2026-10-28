@@ -73,6 +73,11 @@ export const requireStudentAuth = createMiddleware({ type: "function" }).server(
   const { data, error } = await supabase.auth.getClaims(token);
   if (error || !data?.claims?.sub) throw new Error("Unauthorized: Invalid token");
 
+  const { data: studentId, error: studentError } = await supabase.rpc("get_my_student_id");
+  if (studentError || !studentId) {
+    throw new Error("Acesso ao app indisponível. Fale com sua academia para reativar sua matrícula.");
+  }
+
   return next({
     context: {
       supabase,

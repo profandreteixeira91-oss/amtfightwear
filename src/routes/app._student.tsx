@@ -42,7 +42,7 @@ function StudentShell() {
   const studentFn = useServerFn(getMyStudent);
   const configFn = useServerFn(getStudentAppConfig);
   const { data: branding } = useQuery({ queryKey: ["student", "branding"], queryFn: () => brandingFn({}) });
-  const { data: student, isSuccess: studentLoaded } = useQuery({ queryKey: ["student", "me"], queryFn: () => studentFn({}), refetchInterval: 15_000, refetchIntervalInBackground: true });
+  const { data: student, isSuccess: studentLoaded, isError: studentFailed } = useQuery({ queryKey: ["student", "me"], queryFn: () => studentFn({}), refetchInterval: 15_000, refetchIntervalInBackground: true, retry: false });
   const { data: cfgData } = useQuery({
     queryKey: ["student", "app-config"],
     queryFn: () => configFn({}),
@@ -56,8 +56,8 @@ function StudentShell() {
   // e volta para /app/login. Isso complementa as funções do banco
   // (get_my_student_id / is_my_student) que já ignoram fichas com cancelled_at.
   useEffect(() => {
-    if (!studentLoaded) return;
-    if (student) return;
+    if (!studentLoaded && !studentFailed) return;
+    if (student && !studentFailed) return;
     (async () => {
       await queryClient.cancelQueries({ queryKey: ["student"] });
       queryClient.removeQueries({ queryKey: ["student"] });
@@ -66,7 +66,7 @@ function StudentShell() {
       } catch { /* noop */ }
       navigate({ to: "/app/login", replace: true });
     })();
-  }, [studentLoaded, student, navigate, queryClient]);
+  }, [studentLoaded, studentFailed, student, navigate, queryClient]);
 
   // Regra do plano "Bloquear acesso após X dias do vencimento": mesmo com sessão
   // ativa, o aluno inadimplente é desconectado e volta para o login.
@@ -141,7 +141,7 @@ function StudentShell() {
   const appName = config.appearance.app_name || branding?.trade_name || "Portal do Aluno";
   const logo = config.appearance.logo_url || branding?.logo_url;
 
-  if (!studentLoaded || !student) return <StudentSplash />;
+  if (!studentLoaded || studentFailed || !student) return <StudentSplash />;
 
   return (
     <StudentThemeProvider branding={branding} appearance={config.appearance}>
