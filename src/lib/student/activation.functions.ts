@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { canStudentUseApp } from "@/lib/student-auth/status-access";
 
 const EmailSchema = z.object({ email: z.string().trim().email().toLowerCase() });
 
@@ -25,9 +26,7 @@ export const checkStudentAccess = createServerFn({ method: "POST" })
     if (list.length === 0) {
       return { exists: false as const, activated: false as const, blocked: false as const };
     }
-    const eligible = list.filter((r) =>
-      !r.status || ["active", "trial", "invited"].includes(r.status as string),
-    );
+    const eligible = list.filter((r) => canStudentUseApp(r.status));
 
     // Regra do plano: "Bloquear acesso após X dias corridos do vencimento".
     // O acesso só é liberado se ao menos uma ficha elegível não estiver bloqueada.
@@ -80,9 +79,7 @@ export const activateStudentAccount = createServerFn({ method: "POST" })
       throw new Error("E-mail não cadastrado. Fale com sua academia.");
     }
 
-    const eligible = rows.filter((r) =>
-      !r.status || ["active", "trial", "invited"].includes(r.status as string),
-    );
+    const eligible = rows.filter((r) => canStudentUseApp(r.status));
     if (eligible.length === 0) {
       throw new Error("Sua matrícula está inativa. Fale com sua academia.");
     }

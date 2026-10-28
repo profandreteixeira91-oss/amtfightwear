@@ -22,9 +22,16 @@ import { subscribeMyPush } from "@/lib/student/push.functions";
 
 export const Route = createFileRoute("/app/_student")({
   ssr: false,
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ location, context }) => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/app/login", search: { redirect: location.href } as never });
+    const { data: studentId, error } = await supabase.rpc("get_my_student_id");
+    if (error || !studentId) {
+      await context.queryClient.cancelQueries({ queryKey: ["student"] });
+      context.queryClient.removeQueries({ queryKey: ["student"] });
+      await supabase.auth.signOut();
+      throw redirect({ to: "/app/login", replace: true });
+    }
   },
   component: StudentShell,
 });
@@ -35,7 +42,7 @@ function StudentShell() {
   const studentFn = useServerFn(getMyStudent);
   const configFn = useServerFn(getStudentAppConfig);
   const { data: branding } = useQuery({ queryKey: ["student", "branding"], queryFn: () => brandingFn({}) });
-  const { data: student, isSuccess: studentLoaded } = useQuery({ queryKey: ["student", "me"], queryFn: () => studentFn({}) });
+  const { data: student, isSuccess: studentLoaded } = useQuery({ queryKey: ["student", "me"], queryFn: () => studentFn({}), refetchInterval: 15_000, refetchIntervalInBackground: true });
   const { data: cfgData } = useQuery({
     queryKey: ["student", "app-config"],
     queryFn: () => configFn({}),
@@ -52,12 +59,14 @@ function StudentShell() {
     if (!studentLoaded) return;
     if (student) return;
     (async () => {
+      await queryClient.cancelQueries({ queryKey: ["student"] });
+      queryClient.removeQueries({ queryKey: ["student"] });
       try {
         await supabase.auth.signOut();
       } catch { /* noop */ }
       navigate({ to: "/app/login", replace: true });
     })();
-  }, [studentLoaded, student, navigate]);
+  }, [studentLoaded, student, navigate, queryClient]);
 
   // Regra do plano "Bloquear acesso após X dias do vencimento": mesmo com sessão
   // ativa, o aluno inadimplente é desconectado e volta para o login.
@@ -131,6 +140,8 @@ function StudentShell() {
 
   const appName = config.appearance.app_name || branding?.trade_name || "Portal do Aluno";
   const logo = config.appearance.logo_url || branding?.logo_url;
+
+  if (!studentLoaded || !student) return <StudentSplash />;
 
   return (
     <StudentThemeProvider branding={branding} appearance={config.appearance}>
