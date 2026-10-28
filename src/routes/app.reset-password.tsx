@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 import { studentSupabase } from "@/lib/student-auth/student-client";
+import { readRecoveryLinkError, translateRecoveryError } from "@/lib/student-auth/recovery";
 
 export const Route = createFileRoute("/app/reset-password")({
   ssr: false,
@@ -25,7 +26,18 @@ function StudentResetPasswordPage() {
   const [show, setShow] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Lido na montagem (rota ssr:false), antes que o cliente de auth limpe o #hash.
+  const [linkError] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : readRecoveryLinkError(window.location.hash, window.location.search),
+  );
+
   useEffect(() => {
+    // Erro vindo do link (vencido/já usado) tem prioridade: nunca mostrar o
+    // formulário com uma sessão antiga como se o link fosse válido.
+    if (linkError) {
+      setReady(true);
+      return;
+    }
     const { data: sub } = studentSupabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || session) {
         setHasSession(true);
@@ -37,11 +49,10 @@ function StudentResetPasswordPage() {
       setReady(true);
     });
     return () => sub.subscription.unsubscribe();
-  }, []);
+  }, [linkError]);
 
   // Sessões independentes: o Portal do Aluno usa `studentSupabase` (storageKey
   // próprio). Não lemos nem alteramos a sessão do painel administrativo aqui.
-
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,10 +61,12 @@ function StudentResetPasswordPage() {
     setSaving(true);
     const { error } = await studentSupabase.auth.updateUser({ password });
     setSaving(false);
-    if (error) return toast.error("Erro ao redefinir senha", { description: error.message });
+    if (error) return toast.error("Erro ao redefinir senha", { description: translateRecoveryError(error.message) });
     toast.success("Senha atualizada com sucesso");
     navigate({ to: "/app/home", replace: true });
   }
+
+  const canReset = hasSession && !linkError;
 
   if (!ready) {
     return (
@@ -71,12 +84,12 @@ function StudentResetPasswordPage() {
         </div>
         <h1 className="text-xl font-bold">Redefinir senha</h1>
         <p className="mt-1 text-sm text-white/60">
-          {hasSession
+          {canReset
             ? "Escolha uma nova senha para acessar o Portal do Aluno."
-            : "Link inválido ou expirado. Solicite um novo e-mail de recuperação."}
+            : (linkError ?? "Link inválido ou expirado. Solicite um novo e-mail de recuperação.")}
         </p>
 
-        {hasSession ? (
+        {canReset ? (
           <form onSubmit={onSubmit} className="mt-5 space-y-3">
             <div className="relative">
               <input

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { studentSupabase as supabase } from "@/lib/student-auth/student-client";
 import { toast } from "sonner";
+import { translateRecoveryError } from "@/lib/student-auth/recovery";
 import { Loader2, ArrowLeft, Eye, EyeOff, ShieldCheck, Sparkles } from "lucide-react";
 import { checkStudentAccess, activateStudentAccount } from "@/lib/student/activation.functions";
 import logoAsset from "@/assets/amt-dojo-manager-logo.png.asset.json";
@@ -102,7 +103,7 @@ function LoginPage() {
       redirectTo: `${window.location.origin}/app/reset-password`,
     });
 
-    if (error) toast.error("Falha", { description: error.message });
+    if (error) toast.error("Não foi possível enviar o e-mail", { description: translateRecoveryError(error.message) });
     else toast.success("Verifique seu e-mail para redefinir a senha.");
   }
 
