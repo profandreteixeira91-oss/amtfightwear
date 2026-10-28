@@ -15,6 +15,13 @@
       "when": 1791767948181,
       "tag": "0001_dojo_setup_progress",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793186655327,
+      "tag": "0002_block_invoices_inactive_students",
+      "breakpoints": true
     }
   ]
 }
