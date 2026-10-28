@@ -11,3 +11,4 @@
 - Public free tools (e.g. /ferramentas/*) keep calculation logic as pure functions in src/lib/dojo/*-calculator.ts and never persist or send user input — they must work without login or backend.
 - Owner first-steps setup uses an independent owner-scoped progress table and existing student/plan/class operations; never reuse AMT Pay onboarding flags or seed academy data, so setup stays optional and financially isolated.
 - Store size availability uses active variant stock, with sparse size/color combinations resolved by the shared variant-availability helper; admin general-stock edits preserve explicit variant edits to prevent stale drafts from overwriting stock.
+- Student status access is enforced by database identity helpers and the attendance trigger; the app gate and periodic profile revalidation clear student cache so existing sessions cannot retain blocked access.

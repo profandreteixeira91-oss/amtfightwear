@@ -29,6 +29,13 @@
       "when": 1793186865042,
       "tag": "0003_block_invoices_frozen_students",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793191114010,
+      "tag": "0004_student_status_checkin_and_app_access",
+      "breakpoints": true
     }
   ]
 }
