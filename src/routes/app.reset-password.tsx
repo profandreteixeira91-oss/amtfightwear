@@ -26,14 +26,15 @@ function StudentResetPasswordPage() {
   const [show, setShow] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [linkError, setLinkError] = useState<string | null>(null);
+  // Lido na montagem (rota ssr:false), antes que o cliente de auth limpe o #hash.
+  const [linkError] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : readRecoveryLinkError(window.location.hash, window.location.search),
+  );
 
   useEffect(() => {
     // Erro vindo do link (vencido/já usado) tem prioridade: nunca mostrar o
     // formulário com uma sessão antiga como se o link fosse válido.
-    const err = readRecoveryLinkError(window.location.hash, window.location.search);
-    if (err) {
-      setLinkError(err);
+    if (linkError) {
       setReady(true);
       return;
     }
@@ -48,7 +49,7 @@ function StudentResetPasswordPage() {
       setReady(true);
     });
     return () => sub.subscription.unsubscribe();
-  }, []);
+  }, [linkError]);
 
   // Sessões independentes: o Portal do Aluno usa `studentSupabase` (storageKey
   // próprio). Não lemos nem alteramos a sessão do painel administrativo aqui.
