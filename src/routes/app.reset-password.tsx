@@ -83,12 +83,12 @@ function StudentResetPasswordPage() {
         </div>
         <h1 className="text-xl font-bold">Redefinir senha</h1>
         <p className="mt-1 text-sm text-white/60">
-          {hasSession
+          {canReset
             ? "Escolha uma nova senha para acessar o Portal do Aluno."
-            : "Link inválido ou expirado. Solicite um novo e-mail de recuperação."}
+            : (linkError ?? "Link inválido ou expirado. Solicite um novo e-mail de recuperação.")}
         </p>
 
-        {hasSession ? (
+        {canReset ? (
           <form onSubmit={onSubmit} className="mt-5 space-y-3">
             <div className="relative">
               <input
