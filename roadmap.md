@@ -1,6 +1,8 @@
 # Implantação guiada
 
 ## Melhor Envio no admin
+- [ ] Completar seleção de agência e validação prévia dos dados de envio nos dois acessos administrativos.
+- [ ] Verificar exigências das transportadoras, testes e fluxo autenticado sem comprar frete.
 - [x] Auditar remetente, contratação, pagamento e impressão de etiquetas; cadastro e saldo consultados na conta real.
 - [x] Corrigir fluxo, validações e confirmação de pagamento com bloqueio durável contra duplicidade.
 - [x] Quatro testes de frete, cinco de estoque; admin autenticado, endereços reais, saldo, cotação e bloqueio de origem conferidos.
