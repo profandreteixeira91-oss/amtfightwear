@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { PAID_SHIPPING_STATUSES } from "@/lib/store/shipping-flow";
 import {
   adminGetOrderDetail,
   adminAddOrderNote,
@@ -54,6 +55,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/pedidos/$orderId")({
+  head: () => ({ meta: [{ title: "Detalhes do pedido e etiqueta — AMT Fight Wear" }, { name: "description", content: "Consulta do pedido, pagamento de envio e impressão da etiqueta." }, { property: "og:title", content: "Detalhes do pedido — AMT Fight Wear" }, { property: "og:description", content: "Gestão do envio e da etiqueta do pedido." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AdminOrderDetailPage,
 });
 
@@ -91,6 +93,7 @@ function AdminOrderDetailPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["admin", "store", "order", orderId],
     queryFn: () => getFn({ data: { id: orderId } }),
+    refetchInterval: 15_000,
   });
 
   const order = (data?.order ?? null) as AnyRec | null;
@@ -620,7 +623,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
             </div>
             <Button
               size="sm"
-              disabled={!chosenServiceId || busy === "add-chosen"}
+              disabled={!chosenServiceId || busy !== null}
               onClick={() =>
                 run("add-chosen", async () => {
                   await addToCart({
@@ -655,7 +658,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
               <Button
                 size="sm"
                 variant="outline"
-                disabled={busy === "quote"}
+                disabled={busy !== null}
                 onClick={() =>
                   run("quote", async () => {
                     const opts = await quote({ data: { order_id: id } });
@@ -681,7 +684,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
                   </div>
                   <Button
                     size="sm"
-                    disabled={!!o.error || busy === `add-${o.id}`}
+                    disabled={!!o.error || busy !== null}
                     onClick={() =>
                       run(`add-${o.id}`, async () => {
                         await addToCart({
@@ -701,18 +704,19 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
         </div>
       )}
 
-      {Boolean(order.melhor_envio_cart_id) && !["paid", "generated", "posted", "delivered"].includes(meStatus) && (
+      {Boolean(order.melhor_envio_cart_id) && !PAID_SHIPPING_STATUSES.includes(meStatus) && (
         <div className="flex items-center justify-between rounded-md border p-3">
           <div>
             <div className="font-semibold">2. Comprar etiqueta</div>
-            <div className="text-xs text-muted-foreground">Debita do saldo Melhor Envio.</div>
+            <div className="text-xs text-muted-foreground">Pagamento pela carteira Melhor Envio.</div>
           </div>
           <Button
             size="sm"
-            disabled={busy === "checkout"}
+            disabled={busy !== null}
             onClick={() =>
               run("checkout", async () => {
-                await checkout({ data: { order_ids: [id] } });
+                if (!window.confirm("Confirmar pagamento do frete com o saldo da carteira Melhor Envio?")) return;
+      await checkout({ data: { order_ids: [id] } });
                 toast.success("Compra realizada");
                 onChange();
               })
@@ -723,29 +727,28 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
         </div>
       )}
 
-      {["paid", "generated", "posted", "delivered"].includes(meStatus) && (
+      {PAID_SHIPPING_STATUSES.includes(meStatus) && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3">
           <div>
             <div className="font-semibold">3. Etiqueta</div>
             <div className="text-xs text-muted-foreground">
-              {order.melhor_envio_label_url ? "PDF disponível." : "Gerar etiqueta imprimível."}
+              {order.melhor_envio_label_url ? "PDF disponível." : "Preparar etiqueta para impressão."}
             </div>
           </div>
           <div className="flex gap-2">
             <Button
               size="sm"
               variant="outline"
-              disabled={busy === "gen"}
+              disabled={busy !== null}
               onClick={() =>
                 run("gen", async () => {
-                  const r = await generate({ data: { order_ids: [id] } });
-                  toast.success("Etiqueta gerada");
-                  if (r.url) window.open(r.url, "_blank", "noopener");
+                  await generate({ data: { order_ids: [id] } });
+                  toast.success("Etiqueta pronta. Use Abrir PDF para imprimir.");
                   onChange();
                 })
               }
             >
-              <Package className="mr-1 h-3 w-3" /> {order.melhor_envio_label_url ? "Regerar" : "Gerar etiqueta"}
+              <Package className="mr-1 h-3 w-3" /> {order.melhor_envio_label_url ? "Atualizar impressão" : "Preparar impressão"}
             </Button>
             {order.melhor_envio_label_url ? (
               <Button size="sm" variant="secondary" asChild>
@@ -769,7 +772,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
           <Button
             size="sm"
             variant="outline"
-            disabled={busy === "sync"}
+            disabled={busy !== null}
             onClick={() =>
               run("sync", async () => {
                 const r = await sync({ data: { order_ids: [id] } });

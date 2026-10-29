@@ -398,50 +398,18 @@ export const adminMelhorEnvioSyncTracking = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const env = await loadMeEnv();
-    const { data: orders } = await supabaseAdmin
-      .from("store_orders")
-      .select("id, melhor_envio_cart_id, melhor_envio_order_id")
-      .in("id", data.order_ids);
-    const meIds = (orders ?? []).map((o) => o.melhor_envio_order_id ?? o.melhor_envio_cart_id).filter((x): x is string => !!x);
-    if (meIds.length === 0) return { updated: 0 };
-
-    const resp = (await meFetch(
-      "/me/shipment/tracking",
-      { method: "POST", body: JSON.stringify({ orders: meIds }) },
-      env,
-    )) as Record<string, { status?: string; tracking?: string; melhorenvio_tracking?: string }>;
-
+    const { loadShippingOrders, loadShippingSettings, shipmentStatus, saveShippingOrder, meRequest, releaseShipping } = await import("./shipping-admin.server");
+    const { z } = await import("zod");
+    const settings = await loadShippingSettings();
     let updated = 0;
-    for (const o of orders ?? []) {
-      const meId = o.melhor_envio_order_id ?? o.melhor_envio_cart_id;
-      if (!meId) continue;
-      const row = resp?.[meId];
-      if (!row) continue;
-      const tracking = row.tracking ?? row.melhorenvio_tracking ?? null;
-      const patch: {
-        melhor_envio_status: string | null;
-        melhor_envio_data: { status?: string; tracking?: string; melhorenvio_tracking?: string };
-        melhor_envio_synced_at: string;
-        shipping_tracking?: string;
-        status?: string;
-      } = {
-        melhor_envio_status: row.status ?? null,
-        melhor_envio_data: row,
-        melhor_envio_synced_at: new Date().toISOString(),
-      };
-      if (tracking) patch.shipping_tracking = tracking;
-      if (row.status === "posted") patch.status = "shipped";
-      if (row.status === "delivered") patch.status = "delivered";
-      await supabaseAdmin.from("store_orders").update(patch).eq("id", o.id);
-      const { logOrderEvent } = await import("@/lib/store/order-events.server");
-      await logOrderEvent({
-        order_id: o.id,
-        event: "shipping_tracking",
-        message: `Rastreio sincronizado: ${row.status ?? "sem status"}${tracking ? ` · ${tracking}` : ""}`,
-        metadata: row as Record<string, unknown>,
-      });
+    for (const order of await loadShippingOrders(data.order_ids)) {
+      if (!order.melhor_envio_cart_id && !order.melhor_envio_order_id) continue;
+      const current = await shipmentStatus(order, settings.env);
+      const tracking = z.record(z.string(), z.object({ tracking: z.string().nullish(), melhorenvio_tracking: z.string().nullish() })).parse(await meRequest("/me/shipment/tracking", order.melhor_envio_env || settings.env, { orders: [current.id] }));
+      const row = tracking[current.id];
+      const code = row?.tracking || row?.melhorenvio_tracking;
+      await saveShippingOrder(order.id, { melhor_envio_status: current.status, melhor_envio_order_id: current.id, melhor_envio_synced_at: new Date().toISOString(), ...(code ? { shipping_tracking: code } : {}), ...(current.status === "posted" ? { status: "shipped" } : {}), ...(current.status === "delivered" ? { status: "delivered" } : {}) });
+      if (order.melhor_envio_operation_id && ["paid", "released", "generated", "posted", "delivered"].includes(current.status)) await releaseShipping(order.id, order.melhor_envio_operation_id);
       updated += 1;
     }
     return { updated };
