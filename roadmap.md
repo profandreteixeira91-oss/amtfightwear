@@ -1,12 +1,12 @@
 # Implantação guiada
 
 ## Melhor Envio no admin
-- [ ] Completar seleção de agência e validação prévia dos dados de envio nos dois acessos administrativos.
-- [ ] Verificar exigências das transportadoras, testes e fluxo autenticado sem comprar frete.
+- [x] Completar seleção de agência e validação prévia dos dados de envio nos dois acessos administrativos; destinatário corrigível na revisão, exigências revalidadas antes da operação.
+- [x] Nove testes aprovados e build OK; pedido AMT-261025-019291 autenticado mostra agência Total Express real e só libera após seleção; outro serviço bloqueia dimensão inválida. Nenhuma contratação/pagamento efetuado.
 - [x] Auditar remetente, contratação, pagamento e impressão de etiquetas; cadastro e saldo consultados na conta real.
 - [x] Corrigir fluxo, validações e confirmação de pagamento com bloqueio durável contra duplicidade.
 - [x] Quatro testes de frete, cinco de estoque; admin autenticado, endereços reais, saldo, cotação e bloqueio de origem conferidos.
-- [ ] Compra e impressão reais aguardam escolha do remetente correto e saldo na carteira; não foram realizadas compras.
+- [ ] Compra e impressão reais não executadas para evitar cobrança; dependem da confirmação operacional do endereço/agência, saldo suficiente e publicação.
 
 ## Bloqueios de alunos trancados
 - [x] Restringir check-in a alunos ativos no banco; tentativa real de aluno trancado recusada, histórico preservado.
