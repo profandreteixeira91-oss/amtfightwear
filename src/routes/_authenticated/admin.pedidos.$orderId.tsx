@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ShippingPreparationDialog, type ShippingSelection } from "@/components/store/ShippingPreparationDialog";
 import { PAID_SHIPPING_STATUSES } from "@/lib/store/shipping-flow";
 import {
   adminGetOrderDetail,
@@ -12,7 +13,6 @@ import {
 import { adminUpdateOrderStatus } from "@/lib/store/store.functions";
 import {
   adminMelhorEnvioQuoteOrder,
-  adminMelhorEnvioAddToCart,
   adminMelhorEnvioCheckout,
   adminMelhorEnvioGenerate,
   adminMelhorEnvioSyncTracking,
@@ -571,7 +571,7 @@ function AdminOrderDetailPage() {
 
 function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => void }) {
   const quote = useServerFn(adminMelhorEnvioQuoteOrder);
-  const addToCart = useServerFn(adminMelhorEnvioAddToCart);
+  const [selection, setSelection] = useState<ShippingSelection | null>(null);
   const checkout = useServerFn(adminMelhorEnvioCheckout);
   const generate = useServerFn(adminMelhorEnvioGenerate);
   const sync = useServerFn(adminMelhorEnvioSyncTracking);
@@ -610,6 +610,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
         <Field label="Última sincronização" value={dt(order.melhor_envio_synced_at)} />
       </div>
 
+      <ShippingPreparationDialog orderId={id} selection={selection} onClose={() => setSelection(null)} onChange={onChange} />
       {!order.melhor_envio_cart_id && (
         <div className="space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3">
@@ -624,15 +625,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
             <Button
               size="sm"
               disabled={!chosenServiceId || busy !== null}
-              onClick={() =>
-                run("add-chosen", async () => {
-                  await addToCart({
-                    data: { order_id: id, service_id: chosenServiceId as number, service_name: chosenName },
-                  });
-                  toast.success("Envio adicionado ao carrinho do Melhor Envio");
-                  onChange();
-                })
-              }
+              onClick={() => { if (chosenServiceId) setSelection({ id: chosenServiceId, name: chosenName }); }}
             >
               <Truck className="mr-1 h-3 w-3" />
               {busy === "add-chosen" ? "Enviando…" : "Contratar este frete"}
@@ -685,15 +678,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
                   <Button
                     size="sm"
                     disabled={!!o.error || busy !== null}
-                    onClick={() =>
-                      run(`add-${o.id}`, async () => {
-                        await addToCart({
-                          data: { order_id: id, service_id: o.id, service_name: `${o.company} ${o.name}` },
-                        });
-                        toast.success("Adicionado ao carrinho do Melhor Envio");
-                        onChange();
-                      })
-                    }
+                    onClick={() => setSelection({ id: o.id, name: `${o.company} ${o.name}` })}
                   >
                     Escolher
                   </Button>
