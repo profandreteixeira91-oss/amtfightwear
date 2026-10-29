@@ -1,7 +1,8 @@
 # Implantação guiada
 
 ## Melhor Envio no admin
-- [ ] Permitir salvar peso e dimensões por pedido na revisão do envio e usar os volumes salvos na cotação e contratação; testar sem comprar fretes.
+- [x] Peso e dimensões por pedido editáveis na revisão compartilhada; coluna shipping_volumes aplicada, cotação e contratação usam os valores salvos com bloqueio após iniciar envio. Treze testes passam; build OK.
+- [ ] Validar salvamento e releitura da embalagem no admin autenticado; sessão indisponível e usuário solicitante sem conta correspondente para autenticação automática.
 - [x] Completar seleção de agência e validação prévia dos dados de envio nos dois acessos administrativos; destinatário corrigível na revisão, exigências revalidadas antes da operação.
 - [x] Nove testes aprovados e build OK; pedido AMT-261025-019291 autenticado mostra agência Total Express real e só libera após seleção; outro serviço bloqueia dimensão inválida. Nenhuma contratação/pagamento efetuado.
 - [x] Auditar remetente, contratação, pagamento e impressão de etiquetas; cadastro e saldo consultados na conta real.
