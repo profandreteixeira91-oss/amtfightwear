@@ -5,13 +5,13 @@ import { adminListOrders, adminUpdateOrderStatus, adminDeleteStoreOrder } from "
 import {
   adminMelhorEnvioBalance,
   adminMelhorEnvioQuoteOrder,
-  adminMelhorEnvioAddToCart,
   adminMelhorEnvioCheckout,
   adminMelhorEnvioGenerate,
   adminMelhorEnvioSyncTracking,
 } from "@/lib/store/shipping.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ShippingPreparationDialog, type ShippingSelection } from "@/components/store/ShippingPreparationDialog";
 import { PAID_SHIPPING_STATUSES } from "@/lib/store/shipping-flow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -286,7 +286,7 @@ function ShippingCell({ order, onChange }: { order: Order; onChange: () => void 
 
 function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void }) {
   const quote = useServerFn(adminMelhorEnvioQuoteOrder);
-  const addToCart = useServerFn(adminMelhorEnvioAddToCart);
+  const [selection, setSelection] = useState<ShippingSelection | null>(null);
   const checkout = useServerFn(adminMelhorEnvioCheckout);
   const generate = useServerFn(adminMelhorEnvioGenerate);
   const sync = useServerFn(adminMelhorEnvioSyncTracking);
@@ -311,12 +311,7 @@ function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void
       setOptions(opts);
     });
 
-  const doAdd = (o: (typeof options)[number]) =>
-    run(`add-${o.id}`, async () => {
-      await addToCart({ data: { order_id: order.id, service_id: o.id, service_name: `${o.company} ${o.name}` } });
-      toast.success("Adicionado ao carrinho do Melhor Envio");
-      onChange();
-    });
+  const doAdd = (o: (typeof options)[number]) => setSelection({ id: o.id, name: `${o.company} ${o.name}` });
 
   const doCheckout = () =>
     run("checkout", async () => {
@@ -349,6 +344,7 @@ function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void
         <InfoRow label="Código de rastreio" value={order.shipping_tracking ?? "—"} mono />
       </div>
 
+      <ShippingPreparationDialog orderId={order.id} selection={selection} onClose={() => setSelection(null)} onChange={onChange} />
       {!order.melhor_envio_cart_id && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
