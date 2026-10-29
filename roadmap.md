@@ -1,14 +1,15 @@
 # Implantação guiada
 
 ## Melhor Envio no admin
-- [ ] Auditar remetente, contratação, pagamento e impressão de etiquetas.
-- [ ] Corrigir fluxo e falhas com proteção contra contratação duplicada.
-- [ ] Validar testes e fluxo administrativo sem realizar compras de frete.
+- [x] Auditar remetente, contratação, pagamento e impressão de etiquetas; cadastro e saldo consultados na conta real.
+- [x] Corrigir fluxo, validações e confirmação de pagamento com bloqueio durável contra duplicidade.
+- [x] Quatro testes de frete, cinco de estoque; admin autenticado, endereços reais, saldo, cotação e bloqueio de origem conferidos.
+- [ ] Compra e impressão reais aguardam escolha do remetente correto e saldo na carteira; não foram realizadas compras.
 
 ## Bloqueios de alunos trancados
-- [ ] Restringir check-in a alunos ativos no banco, sem excluir histórico.
-- [ ] Bloquear acesso ao app para alunos trancados, incluindo sessões existentes.
-- [ ] Testar regras e verificar bloqueios aplicados.
+- [x] Restringir check-in a alunos ativos no banco; tentativa real de aluno trancado recusada, histórico preservado.
+- [x] Bloquear acesso ao app no banco, middleware e guard, com revalidação de sessões existentes.
+- [x] Seis testes e identidade de aluno trancado recusada no banco; verificação visual autenticada interrompida no pedido anterior.
 
 ## Auditoria de estoque AMT Fight Wear
 - [x] Comparar estoque administrativo, variantes e disponibilidade pública: 310 produtos ativos e 3.476 variantes com estoque; bloqueio causado por combinações esparsas de tamanho/cor.

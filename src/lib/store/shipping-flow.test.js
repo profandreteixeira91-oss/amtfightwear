@@ -9,7 +9,7 @@ describe("Melhor Envio", () => {
     expect(shippingDocument("11.222.333/0001-81")).toEqual({ company_document: "11222333000181" });
   });
   it("remetente precisa corresponder ao CEP real, sem endereço inventado", () => {
-    const profile = { name: "Remetente", email: "teste@example.com", phone: "11999999999", document: "52998224725" };
+    const profile = { name: "Remetente", email: "teste@example.com", phone: { phone: "11999999999" }, document: "52998224725" };
     const addresses = { data: [{ id: 1, postal_code: "11035190", address: "Rua real", number: "20", district: "Centro", city: { city: "Santos", state: { state_abbr: "SP" } } }] };
     expect(() => buildShippingSender(profile, addresses, "57020000")).toThrow();
     expect(buildShippingSender(profile, addresses, "11035190").address).toBe("Rua real");
