@@ -43,6 +43,13 @@
       "when": 1793273391350,
       "tag": "0005_melhor_envio_operation_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793278631987,
+      "tag": "0006_store_order_shipping_volumes",
+      "breakpoints": true
     }
   ]
 }

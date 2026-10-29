@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { buildShippingSender, SenderAddressesSchema, shippingDocument } from "./shipping-sender";
 import { assertCheckoutPaid, isShippingPaid, labelUrl } from "./shipping-flow";
-import { agencyRequired, assertAgency, normalizeRecipient, packageIssues, recipientIssues, type PostingAgency, type ShipmentVolume } from "./shipping-preflight";
+import { agencyRequired, assertAgency, assertPackageEditable, normalizeRecipient, packageIssues, recipientIssues, resolveShipmentVolumes, ShipmentVolumesSchema, type PostingAgency, type ShipmentVolume } from "./shipping-preflight";
 
 export type ShippingOrder = Database["public"]["Tables"]["store_orders"]["Row"];
 const ShipmentSchema = z.object({ id: z.string(), status: z.string(), price: z.coerce.number().optional(), protocol: z.string().nullish() });
@@ -65,6 +65,19 @@ export async function claimShipping(order: ShippingOrder): Promise<string> {
   return claim;
 }
 
+export async function saveShippingVolumes(order: ShippingOrder, volumes: ShipmentVolume[]): Promise<void> {
+  assertPackageEditable(order);
+  const validated = ShipmentVolumesSchema.parse(volumes);
+  const claim = await claimShipping(order);
+  try {
+    const db = await shippingDb();
+    const { data, error } = await db.from("store_orders").update({ shipping_volumes: validated })
+      .eq("id", order.id).eq("melhor_envio_operation_id", claim)
+      .is("melhor_envio_cart_id", null).is("melhor_envio_order_id", null).select("id").maybeSingle();
+    if (error || !data) throw new Error("Não foi possível salvar a embalagem. Atualize o pedido.");
+  } finally { await releaseShipping(order.id, claim); }
+}
+
 export async function releaseShipping(id: string, claim: string): Promise<void> {
   const db = await shippingDb();
   const { error } = await db.from("store_orders").update({ melhor_envio_operation_id: null, melhor_envio_operation_started_at: null }).eq("id", id).eq("melhor_envio_operation_id", claim);
@@ -95,11 +108,11 @@ export async function addShippingToCart(order: ShippingOrder, service: { service
   const productIds = items.flatMap((i) => i.product_id ? [i.product_id] : []);
   const { data: products, error: productError } = productIds.length ? await db.from("products").select("id,weight_grams,length_cm,width_cm,height_cm").in("id", productIds) : { data: [], error: null };
   if (productError) throw new Error(productError.message);
-  const volumes = items.map((item) => {
+  const volumes = resolveShipmentVolumes(order.shipping_volumes, items.map((item) => {
     const product = products?.find((p) => p.id === item.product_id);
     const dimension = (n: number | null | undefined, fallback: number) => n && n > 0 ? n : fallback;
     return { width: dimension(product?.width_cm, settings.default_width_cm), height: dimension(product?.height_cm, settings.default_height_cm), length: dimension(product?.length_cm, settings.default_length_cm), weight: dimension(product?.weight_grams ? product.weight_grams / 1000 : null, settings.default_weight_kg) * item.quantity };
-  });
+  }));
   const preparation = await servicePreparation(service.service_id, from, settings.env);
   const insurance = Number(items.reduce((s, i) => s + Number(i.unit_price) * i.quantity, 0).toFixed(2));
   const issues = packageIssues(preparation.service, volumes, insurance);
@@ -109,6 +122,11 @@ export async function addShippingToCart(order: ShippingOrder, service: { service
   // Do not release ambiguous writes: a timeout may still have created a cart item.
   let response: { id: string; protocol?: string | null };
   try {
+  const [latest] = await loadShippingOrders([order.id]);
+  if (!latest || JSON.stringify(latest.shipping_volumes) !== JSON.stringify(order.shipping_volumes)) {
+    await releaseShipping(order.id, claim);
+    throw new Error("A embalagem foi alterada. Revise o envio novamente.");
+  }
   response = z.object({ id: z.string(), protocol: z.string().nullish() }).parse(await meRequest("/me/cart", settings.env, {
     service: service.service_id, ...(service.agency_id ? { agency: service.agency_id } : {}), from, to,
     products: items.map((i) => ({ name: i.product_name.slice(0, 60), quantity: i.quantity, unitary_value: Number(i.unit_price) })), volumes,
@@ -194,6 +212,18 @@ export async function prepareShipping(order: ShippingOrder, serviceId: number) {
   const recipient = normalizeRecipient(order);
   const issues = recipientIssues(recipient).map((field) => `Destinatário: ${field} ausente ou inválido.`);
   let preparation: Awaited<ReturnType<typeof servicePreparation>> | null = null;
+  let volumes: ShipmentVolume[] = [];
+  const db = await shippingDb();
+  const { data: items, error } = await db.from("store_order_items").select("product_id,quantity,unit_price").eq("order_id", order.id);
+  if (error || !items?.length) throw new Error("Pedido sem itens válidos para envio.");
+  const ids = items.flatMap((i) => i.product_id ? [i.product_id] : []);
+  const { data: products, error: productError } = ids.length ? await db.from("products").select("id,weight_grams,length_cm,width_cm,height_cm").in("id", ids) : { data: [], error: null };
+  if (productError) throw new Error("Não foi possível conferir as medidas dos produtos.");
+  volumes = resolveShipmentVolumes(order.shipping_volumes, items.map((i) => {
+    const p = products?.find((p) => p.id === i.product_id);
+    const dim = (v: number | null | undefined, fallback: number): number => v && v > 0 ? v : fallback;
+    return { width: dim(p?.width_cm, settings.default_width_cm), height: dim(p?.height_cm, settings.default_height_cm), length: dim(p?.length_cm, settings.default_length_cm), weight: dim(p?.weight_grams ? p.weight_grams / 1000 : null, settings.default_weight_kg) * i.quantity };
+  }));
   try {
     const [profile, raw] = await Promise.all([meRequest("/me", settings.env), meRequest("/me/addresses", settings.env)]);
     const addresses = SenderAddressesSchema.parse(raw);
@@ -204,18 +234,7 @@ export async function prepareShipping(order: ShippingOrder, serviceId: number) {
       const doc = shippingDocument(recipient.document);
       if (("document" in doc && doc.document === from.document) || ("company_document" in doc && doc.company_document === from.company_document)) issues.push("Remetente e destinatário não podem ter o mesmo CPF/CNPJ.");
     } catch { /* Already listed by recipientIssues. */ }
-    const db = await shippingDb();
-    const { data: items, error } = await db.from("store_order_items").select("product_id,quantity,unit_price").eq("order_id", order.id);
-    if (error || !items?.length) throw new Error("Pedido sem itens válidos para envio.");
-    const ids = items.flatMap((i) => i.product_id ? [i.product_id] : []);
-    const { data: products, error: productError } = ids.length ? await db.from("products").select("id,weight_grams,length_cm,width_cm,height_cm").in("id", ids) : { data: [], error: null };
-    if (productError) throw new Error("Não foi possível conferir as medidas dos produtos.");
-    const volumes: ShipmentVolume[] = items.map((i) => {
-      const p = products?.find((p) => p.id === i.product_id);
-      const dim = (v: number | null | undefined, fallback: number): number => v && v > 0 ? v : fallback;
-      return { width: dim(p?.width_cm, settings.default_width_cm), height: dim(p?.height_cm, settings.default_height_cm), length: dim(p?.length_cm, settings.default_length_cm), weight: dim(p?.weight_grams ? p.weight_grams / 1000 : null, settings.default_weight_kg) * i.quantity };
-    });
     issues.push(...packageIssues(preparation.service, volumes, items.reduce((sum, i) => sum + Number(i.unit_price) * i.quantity, 0)));
   } catch (error) { issues.push(error instanceof Error ? error.message : "Não foi possível validar o remetente e a transportadora."); }
-  return { recipient, issues, agency_required: preparation?.required ?? false, agencies: preparation?.agencies ?? [] };
+  return { recipient, volumes, issues, agency_required: preparation?.required ?? false, agencies: preparation?.agencies ?? [] };
 }

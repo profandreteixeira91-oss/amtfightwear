@@ -4,8 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Loader2, Save, Truck } from "lucide-react";
-import { adminMelhorEnvioPrepare, adminMelhorEnvioSaveRecipient, adminMelhorEnvioAddToCart } from "@/lib/store/shipping.functions";
-import { type ShippingRecipient } from "@/lib/store/shipping-preflight";
+import { adminMelhorEnvioPrepare, adminMelhorEnvioSaveRecipient, adminMelhorEnvioSaveVolumes, adminMelhorEnvioQuoteOrder, adminMelhorEnvioAddToCart } from "@/lib/store/shipping.functions";
+import { type ShippingRecipient, type ShipmentVolume } from "@/lib/store/shipping-preflight";
+import { ShippingVolumesEditor } from "./ShippingVolumesEditor";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,9 +33,14 @@ export function ShippingPreparationDialog({ orderId, selection, onClose, onChang
 function PreparationForm({ orderId, selection, onClose, onChange }: { orderId: string; selection: ShippingSelection; onClose: () => void; onChange: () => void }): React.ReactNode {
   const prepare = useServerFn(adminMelhorEnvioPrepare);
   const save = useServerFn(adminMelhorEnvioSaveRecipient);
+  const saveVolumes = useServerFn(adminMelhorEnvioSaveVolumes);
+  const quote = useServerFn(adminMelhorEnvioQuoteOrder);
   const add = useServerFn(adminMelhorEnvioAddToCart);
   const query = useQuery({ queryKey: ["admin", "shipping", "prepare", orderId, selection.id], queryFn: () => prepare({ data: { order_id: orderId, service_id: selection.id } }), staleTime: 0 });
   const [draft, setDraft] = useState<ShippingRecipient | null>(null);
+  const [volumesDraft, setVolumesDraft] = useState<ShipmentVolume[] | null>(null);
+  const [updatedQuote, setUpdatedQuote] = useState<{ price: number; delivery_time: number | null } | null>(null);
+  const [quoteInvalid, setQuoteInvalid] = useState(false);
   const [agency, setAgency] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const recipient = draft ?? query.data?.recipient;
@@ -46,15 +52,27 @@ function PreparationForm({ orderId, selection, onClose, onChange }: { orderId: s
   if (query.error || !query.data || !recipient) return <div className="space-y-3"><p role="alert" className="text-destructive">{query.error?.message || "Dados indisponíveis."}</p><Button variant="outline" onClick={() => query.refetch()}>Tentar novamente</Button></div>;
   const data = query.data;
   return <div className="space-y-4">
-    {data.issues.length > 0 ? <div role="alert" className="space-y-2 text-sm text-destructive"><ul className="list-inside list-disc">{data.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul><Button variant="link" asChild><Link to="/admin/envio">Configurar remetente e medidas</Link></Button></div> : <p className="text-sm text-muted-foreground">Dados do envio conferidos.</p>}
+    {data.issues.length > 0 ? <div role="alert" className="space-y-2 text-sm text-destructive"><ul className="list-inside list-disc">{data.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul><Button variant="link" asChild><Link to="/admin/envio">Configurar remetente</Link></Button></div> : <p className="text-sm text-muted-foreground">Dados do envio conferidos.</p>}
     <div className="grid gap-3 sm:grid-cols-2">
       {fields.map(({ key, label }) => <div key={key}><Label htmlFor={`recipient-${orderId}-${key}`}>{label}</Label><Input id={`recipient-${orderId}-${key}`} disabled={busy} value={recipient[key]} onChange={(event) => setDraft({ ...recipient, [key]: key === "state_abbr" ? event.target.value.toUpperCase() : event.target.value })} /></div>)}
     </div>
     {draft ? <Button variant="outline" disabled={busy} onClick={() => run(async () => { await save({ data: { order_id: orderId, recipient: draft } }); setDraft(null); await query.refetch(); onChange(); toast.success("Destinatário atualizado"); })}><Save className="mr-2 h-4 w-4" /> Salvar destinatário</Button> : null}
+    <ShippingVolumesEditor volumes={volumesDraft ?? data.volumes} dirty={volumesDraft !== null} disabled={busy} onChange={setVolumesDraft} onSave={() => run(async () => {
+      if (!volumesDraft) return;
+      await saveVolumes({ data: { order_id: orderId, volumes: volumesDraft } });
+      setVolumesDraft(null); setUpdatedQuote(null); setQuoteInvalid(true);
+      await query.refetch(); onChange(); toast.success("Embalagem salva neste pedido");
+      const options = await quote({ data: { order_id: orderId } });
+      const current = options.find((option) => option.id === selection.id);
+      if (!current || current.error || current.price <= 0) throw new Error(current?.error || "Serviço indisponível para a nova embalagem. Selecione outra cotação.");
+      setUpdatedQuote({ price: current.price, delivery_time: current.delivery_time }); setQuoteInvalid(false);
+    })} />
+    {updatedQuote ? <p className="text-sm font-medium">Frete atualizado: {updatedQuote.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}{updatedQuote.delivery_time != null ? ` · ${updatedQuote.delivery_time} dias úteis` : ""}</p> : null}
+    {quoteInvalid ? <p role="alert" className="text-sm text-destructive">Cotação pendente. Feche esta janela e cote novamente antes de contratar.</p> : null}
     {data.agency_required ? <div className="space-y-2"><Label>Agência de postagem obrigatória</Label><Select value={agency} onValueChange={setAgency} disabled={busy}><SelectTrigger className="h-auto min-h-10 [&>span]:whitespace-normal [&>span]:text-left"><SelectValue placeholder="Selecione onde vai postar o pacote" /></SelectTrigger><SelectContent>{data.agencies.map((a) => <SelectItem key={a.id} value={String(a.id)} className="whitespace-normal">{a.label}</SelectItem>)}</SelectContent></Select></div> : null}
     <div className="flex flex-wrap justify-end gap-2">
       <Button variant="outline" disabled={busy} onClick={onClose}>Cancelar</Button>
-      <Button disabled={busy || query.isFetching || draft !== null || data.issues.length > 0 || (data.agency_required && !agency)} onClick={() => run(async () => {
+      <Button disabled={busy || query.isFetching || draft !== null || volumesDraft !== null || quoteInvalid || data.issues.length > 0 || (data.agency_required && !agency)} onClick={() => run(async () => {
         await add({ data: { order_id: orderId, service_id: selection.id, service_name: selection.name, ...(agency ? { agency_id: Number(agency) } : {}) } });
         toast.success("Envio adicionado. O pagamento ainda não foi efetuado."); onChange(); onClose();
       })}><Truck className="mr-2 h-4 w-4" />{busy ? "Processando…" : "Adicionar envio ao carrinho"}</Button>

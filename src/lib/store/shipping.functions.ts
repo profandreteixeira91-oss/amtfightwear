@@ -305,6 +305,8 @@ export const adminMelhorEnvioQuoteOrder = createServerFn({ method: "POST" })
       };
     });
 
+    const { resolveShipmentVolumes } = await import("./shipping-preflight");
+    const savedVolumes = order.shipping_volumes == null ? null : resolveShipmentVolumes(order.shipping_volumes, []);
     const raw = (await meFetch(
       "/me/shipment/calculate",
       {
@@ -312,7 +314,7 @@ export const adminMelhorEnvioQuoteOrder = createServerFn({ method: "POST" })
         body: JSON.stringify({
           from: { postal_code: onlyDigits(String(settings.origin_zip)) },
           to: { postal_code: toZip },
-          products: meProducts,
+          ...(savedVolumes ? { volumes: savedVolumes, options: { insurance_value: Number(items.reduce((sum, item) => sum + Number(item.unit_price) * item.quantity, 0).toFixed(2)), receipt: false, own_hand: false } } : { products: meProducts }),
         }),
       },
       env,
@@ -455,5 +457,21 @@ export const adminMelhorEnvioSaveRecipient = createServerFn({ method: "POST" })
     const { recipient: r } = data;
     const previous = z.record(z.string(), z.unknown()).safeParse(order.shipping_address);
     await saveShippingOrder(order.id, { customer_name: r.name, customer_email: r.email, customer_phone: r.phone.replace(/\D/g, ""), customer_document: r.document.replace(/\D/g, ""), shipping_address: { ...(previous.success ? previous.data : {}), street: r.address, number: r.number, complement: r.complement, neighborhood: r.district, city: r.city, zip: r.postal_code.replace(/\D/g, ""), state: r.state_abbr } });
+    return { ok: true };
+  });
+
+export const adminMelhorEnvioSaveVolumes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(async (input: unknown) => {
+    const { ShipmentVolumesSchema } = await import("./shipping-preflight");
+    return z.object({ order_id: z.string().uuid(), volumes: ShipmentVolumesSchema }).parse(input);
+  })
+  .handler(async ({ data, context }) => {
+    const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
+    await assertSaasOwner(context);
+    const { loadShippingOrders, saveShippingVolumes } = await import("./shipping-admin.server");
+    const [order] = await loadShippingOrders([data.order_id]);
+    if (!order) throw new Error("Pedido não encontrado.");
+    await saveShippingVolumes(order, data.volumes);
     return { ok: true };
   });
