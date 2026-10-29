@@ -91,7 +91,7 @@ export async function addShippingToCart(order: ShippingOrder, service: { service
   if (missing.length) throw new Error(`Corrija os dados do destinatário: ${missing.join(", ")}.`);
   const { document, ...recipientAddress } = recipient;
   const to = { ...recipientAddress, phone: recipient.phone.replace(/\D/g, ""), ...shippingDocument(document), country_id: "BR" };
-  if ((to.document && to.document === from.document) || (to.company_document && to.company_document === from.company_document)) throw new Error("Remetente e destinatário não podem ter o mesmo CPF/CNPJ.");
+  if (("document" in to && to.document === from.document) || ("company_document" in to && to.company_document === from.company_document)) throw new Error("Remetente e destinatário não podem ter o mesmo CPF/CNPJ.");
   const productIds = items.flatMap((i) => i.product_id ? [i.product_id] : []);
   const { data: products, error: productError } = productIds.length ? await db.from("products").select("id,weight_grams,length_cm,width_cm,height_cm").in("id", productIds) : { data: [], error: null };
   if (productError) throw new Error(productError.message);
