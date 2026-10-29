@@ -1,0 +1,3 @@
+ALTER TABLE public.store_orders ADD COLUMN IF NOT EXISTS shipping_volumes jsonb;
+ALTER TABLE public.store_orders ADD CONSTRAINT store_orders_shipping_volumes_array CHECK (shipping_volumes IS NULL OR (jsonb_typeof(shipping_volumes) = 'array' AND jsonb_array_length(shipping_volumes) BETWEEN 1 AND 50));
+COMMENT ON COLUMN public.store_orders.shipping_volumes IS 'Per-order packed shipment volumes (cm and kg); NULL preserves product/default estimates. Editable only before shipment operations.';
