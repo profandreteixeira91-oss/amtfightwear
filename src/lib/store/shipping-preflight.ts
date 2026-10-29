@@ -8,7 +8,20 @@ export const RecipientSchema = z.object({
 });
 export type ShippingRecipient = z.infer<typeof RecipientSchema>;
 export type PostingAgency = { id: number; label: string };
-export type ShipmentVolume = { width: number; height: number; length: number; weight: number };
+export const ShipmentVolumeSchema = z.object({
+  width: z.number().finite().positive(), height: z.number().finite().positive(),
+  length: z.number().finite().positive(), weight: z.number().finite().positive(),
+});
+export const ShipmentVolumesSchema = z.array(ShipmentVolumeSchema).min(1).max(50);
+export type ShipmentVolume = z.infer<typeof ShipmentVolumeSchema>;
+
+export function resolveShipmentVolumes(saved: unknown, estimated: ShipmentVolume[]): ShipmentVolume[] {
+  return saved == null ? ShipmentVolumesSchema.parse(estimated) : ShipmentVolumesSchema.parse(saved);
+}
+
+export function assertPackageEditable(order: { melhor_envio_cart_id: string | null; melhor_envio_order_id: string | null; melhor_envio_operation_id: string | null }): void {
+  if (order.melhor_envio_cart_id || order.melhor_envio_order_id || order.melhor_envio_operation_id) throw new Error("Não é possível alterar a embalagem após iniciar a contratação.");
+}
 
 export function agencyRequired(service: unknown): boolean {
   const parsed = z.object({ requirements: z.unknown().optional(), rules: z.unknown().optional() }).parse(service);
