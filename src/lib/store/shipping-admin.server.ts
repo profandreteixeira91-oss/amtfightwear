@@ -6,6 +6,8 @@ import { assertCheckoutPaid, isShippingPaid, labelUrl } from "./shipping-flow";
 export type ShippingOrder = Database["public"]["Tables"]["store_orders"]["Row"];
 const ShipmentSchema = z.object({ id: z.string(), status: z.string(), price: z.coerce.number().optional(), protocol: z.string().nullish() });
 
+class RejectedShippingRequest extends Error {}
+
 export async function meRequest(path: string, env: string, body?: unknown): Promise<unknown> {
   const token = process.env.MELHOR_ENVIO_TOKEN;
   if (!token) throw new Error("A conexão do Melhor Envio não está configurada.");
@@ -21,7 +23,9 @@ export async function meRequest(path: string, env: string, body?: unknown): Prom
   if (!response.ok) {
     const parsed = z.object({ message: z.string().optional(), errors: z.record(z.string(), z.unknown()).optional() }).safeParse(value);
     const message = parsed.success ? parsed.data.message || Object.values(parsed.data.errors || {}).flat().join("; ") : "Não foi possível concluir a operação.";
-    throw new Error(`Melhor Envio [${response.status}]: ${message}`);
+    const errorMessage = `Melhor Envio [${response.status}]: ${message}`;
+    if (response.status >= 400 && response.status < 500 && response.status !== 408) throw new RejectedShippingRequest(errorMessage);
+    throw new Error(errorMessage);
   }
   return value;
 }
@@ -98,11 +102,17 @@ export async function addShippingToCart(order: ShippingOrder, service: { service
   });
   const claim = await claimShipping(order);
   // Do not release ambiguous writes: a timeout may still have created a cart item.
-  const response = z.object({ id: z.string(), protocol: z.string().nullish() }).parse(await meRequest("/me/cart", settings.env, {
+  let response: { id: string; protocol?: string | null };
+  try {
+  response = z.object({ id: z.string(), protocol: z.string().nullish() }).parse(await meRequest("/me/cart", settings.env, {
     service: service.service_id, ...(service.agency_id ? { agency: service.agency_id } : {}), from, to,
     products: items.map((i) => ({ name: i.product_name.slice(0, 60), quantity: i.quantity, unitary_value: Number(i.unit_price) })), volumes,
     options: { insurance_value: Number(items.reduce((s, i) => s + Number(i.unit_price) * i.quantity, 0).toFixed(2)), receipt: false, own_hand: false, reverse: false, non_commercial: true, platform: "AMT Fight Wear", tags: [{ tag: order.order_number, url: null }] },
   }));
+  } catch (error) {
+    if (error instanceof RejectedShippingRequest) await releaseShipping(order.id, claim);
+    throw error;
+  }
   await saveShippingOrder(order.id, { melhor_envio_cart_id: response.id, melhor_envio_protocol: response.protocol || null, melhor_envio_service_id: service.service_id, melhor_envio_service_name: service.service_name || null, melhor_envio_status: "in_cart", melhor_envio_env: settings.env });
   await releaseShipping(order.id, claim);
   return { cart_id: response.id, protocol: response.protocol || null };
@@ -120,7 +130,12 @@ export async function checkoutShipping(order: ShippingOrder): Promise<void> {
   const balance = z.object({ balance: z.coerce.number() }).parse(await meRequest("/me/balance", env));
   if (current.price == null || balance.balance < current.price) throw new Error("Saldo insuficiente no Melhor Envio. Adicione saldo à carteira e atualize o painel para pagar o frete.");
   const claim = await claimShipping(order);
-  await meRequest("/me/shipment/checkout", env, { orders: [current.id] });
+  try {
+    await meRequest("/me/shipment/checkout", env, { orders: [current.id] });
+  } catch (error) {
+    if (error instanceof RejectedShippingRequest) await releaseShipping(order.id, claim);
+    throw error;
+  }
   const confirmed = await shipmentStatus(order, env);
   assertCheckoutPaid([confirmed], [current.id]);
   await saveShippingOrder(order.id, { melhor_envio_status: confirmed.status, melhor_envio_order_id: confirmed.id, melhor_envio_protocol: confirmed.protocol || order.melhor_envio_protocol, melhor_envio_synced_at: new Date().toISOString() });
