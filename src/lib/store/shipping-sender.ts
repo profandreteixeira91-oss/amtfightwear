@@ -21,7 +21,7 @@ export function shippingDocument(value: string): { document: string } | { compan
 
 export const SenderProfileSchema = z.object({
   name: z.string().nullish(), firstname: z.string().nullish(), lastname: z.string().nullish(),
-  email: z.string().email(), phone: z.string().min(1), document: z.string().nullish(), company_document: z.string().nullish(),
+  email: z.string().email(), phone: z.union([z.string().min(1), z.object({ phone: z.string().min(1) }).transform((v) => v.phone)]), document: z.string().nullish(), company_document: z.string().nullish(),
 });
 export const SenderAddressSchema = z.object({
   id: z.number(), label: z.string().nullish(), postal_code: z.string(), address: z.string().min(1),

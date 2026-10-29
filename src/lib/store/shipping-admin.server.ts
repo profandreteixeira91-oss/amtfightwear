@@ -79,7 +79,8 @@ export async function addShippingToCart(order: ShippingOrder, service: { service
   const { data: items, error } = await db.from("store_order_items").select("*").eq("order_id", order.id);
   if (error || !items?.length) throw new Error("Pedido sem itens válidos para envio.");
   const [profile, addresses] = await Promise.all([meRequest("/me", settings.env), meRequest("/me/addresses", settings.env)]);
-  const from = buildShippingSender(profile, addresses, settings.origin_zip);
+  const selectedAddresses = SenderAddressesSchema.parse(addresses);
+  const from = buildShippingSender(profile, settings.sender_address_id ? selectedAddresses.filter((a) => a.id === settings.sender_address_id) : selectedAddresses, settings.origin_zip);
   const address = z.record(z.string(), z.unknown()).parse(order.shipping_address);
   const value = (...keys: string[]) => String(keys.map((k) => address[k]).find((v) => v != null && v !== "") || "");
   const to = { name: order.customer_name, phone: (order.customer_phone || "").replace(/\D/g, ""), email: order.customer_email,
