@@ -12,3 +12,4 @@
 - Owner first-steps setup uses an independent owner-scoped progress table and existing student/plan/class operations; never reuse AMT Pay onboarding flags or seed academy data, so setup stays optional and financially isolated.
 - Store size availability uses active variant stock, with sparse size/color combinations resolved by the shared variant-availability helper; admin general-stock edits preserve explicit variant edits to prevent stale drafts from overwriting stock.
 - Student status access is enforced by database identity helpers and the attendance trigger; the app gate and periodic profile revalidation clear student cache so existing sessions cannot retain blocked access.
+- Melhor Envio admin writes require platform-admin authorization, durable per-order operation claims and provider-state reconciliation; sender identity comes from the connected account and no paid/generated state is inferred from HTTP success alone.

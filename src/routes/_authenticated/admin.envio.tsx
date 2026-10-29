@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getShippingSettings, updateShippingSettings } from "@/lib/store/shipping.functions";
+import { getShippingSettings, updateShippingSettings, adminMelhorEnvioSenderOptions } from "@/lib/store/shipping.functions";
 import { adminListPackageProducts, type PackageProduct } from "@/lib/store/packages.functions";
 import { adminListStoreCategories } from "@/lib/store/store.functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 
 
 export const Route = createFileRoute("/_authenticated/admin/envio")({
+  head: () => ({ meta: [{ title: "Configuração Melhor Envio — AMT Fight Wear" }, { name: "description", content: "Remetente e configuração de fretes da AMT Fight Wear." }, { property: "og:title", content: "Melhor Envio — AMT Fight Wear" }, { property: "og:description", content: "Configuração de remetente e envios." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(
       queryOptions({ queryKey: ["store", "shipping-settings"], queryFn: () => getShippingSettings() }),
@@ -28,12 +29,15 @@ export const Route = createFileRoute("/_authenticated/admin/envio")({
 function ShippingSettingsPage() {
   const qc = useQueryClient();
   const update = useServerFn(updateShippingSettings);
+  const senderFn = useServerFn(adminMelhorEnvioSenderOptions);
+  const senders = useQuery({ queryKey: ["admin", "shipping", "senders"], queryFn: () => senderFn() });
   const { data } = useSuspenseQuery(
     queryOptions({ queryKey: ["store", "shipping-settings"], queryFn: () => getShippingSettings() }),
   );
   const [form, setForm] = useState({
     env: (data?.env ?? "production") as "sandbox" | "production",
     origin_zip: data?.origin_zip ?? "57940000",
+    sender_address_id: data?.sender_address_id ?? null as number | null,
     default_weight_kg: Number(data?.default_weight_kg ?? 0.5),
     default_length_cm: Number(data?.default_length_cm ?? 20),
     default_width_cm: Number(data?.default_width_cm ?? 15),
@@ -49,6 +53,7 @@ function ShippingSettingsPage() {
       setForm({
         env: data.env as "sandbox" | "production",
         origin_zip: data.origin_zip,
+        sender_address_id: data.sender_address_id ?? null,
         default_weight_kg: Number(data.default_weight_kg),
         default_length_cm: Number(data.default_length_cm),
         default_width_cm: Number(data.default_width_cm),
@@ -63,6 +68,7 @@ function ShippingSettingsPage() {
     try {
       await update({ data: form });
       await qc.invalidateQueries({ queryKey: ["store", "shipping-settings"] });
+      await qc.invalidateQueries({ queryKey: ["admin", "shipping", "senders"] });
       toast.success("Configurações salvas");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao salvar");
@@ -91,6 +97,18 @@ function ShippingSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div>
+            <Label>Endereço real de postagem no Melhor Envio</Label>
+            <Select value={form.sender_address_id ? String(form.sender_address_id) : ""} onValueChange={(id) => {
+              const address = senders.data?.addresses.find((a) => String(a.id) === id);
+              if (address) setForm((f) => ({ ...f, sender_address_id: address.id, origin_zip: address.zip }));
+            }}>
+              <SelectTrigger className="mt-1"><SelectValue placeholder={senders.isLoading ? "Carregando endereços…" : "Selecione o endereço de postagem"} /></SelectTrigger>
+              <SelectContent>{senders.data?.addresses.map((a) => <SelectItem key={a.id} value={String(a.id)}>{a.label}</SelectItem>)}</SelectContent>
+            </Select>
+            {senders.data?.problem ? <p className="mt-2 text-sm text-destructive">{senders.data.problem}</p> : null}
+            {senders.error ? <p className="mt-2 text-sm text-destructive">{senders.error.message}</p> : null}
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label>Ambiente</Label>
@@ -229,7 +247,8 @@ function ProductDimensionPicker({
       const out = new Set<string>();
       const stack = [rootId];
       while (stack.length) {
-        const cur = stack.pop()!;
+        const cur = stack.pop();
+        if (!cur) continue;
         if (out.has(cur)) continue;
         out.add(cur);
         for (const kid of childrenByParent.get(cur) ?? []) stack.push(kid.id);

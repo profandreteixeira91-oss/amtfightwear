@@ -12,6 +12,7 @@ import {
 } from "@/lib/store/shipping.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { PAID_SHIPPING_STATUSES } from "@/lib/store/shipping-flow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ import { PageShell } from "@/components/common/PageShell";
 
 
 export const Route = createFileRoute("/_authenticated/admin/pedidos/")({
+  head: () => ({ meta: [{ title: "Pedidos e fretes — Administração AMT Fight Wear" }, { name: "description", content: "Gestão de pedidos, pagamento de fretes e etiquetas da AMT Fight Wear." }, { property: "og:title", content: "Pedidos — AMT Fight Wear" }, { property: "og:description", content: "Administração de pedidos e envios." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AdminOrdersPage,
 });
 
@@ -74,6 +76,7 @@ function AdminOrdersPage() {
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "orders"],
     queryFn: () => list(),
+    refetchInterval: 15_000,
   });
   const { data: meInfo } = useQuery({
     queryKey: ["admin", "store", "me-balance"],
@@ -317,6 +320,7 @@ function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void
 
   const doCheckout = () =>
     run("checkout", async () => {
+      if (!window.confirm("Confirmar pagamento do frete com o saldo da carteira Melhor Envio?")) return;
       await checkout({ data: { order_ids: [order.id] } });
       toast.success("Compra realizada (saldo debitado)");
       onChange();
@@ -324,9 +328,8 @@ function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void
 
   const doGenerate = () =>
     run("gen", async () => {
-      const r = await generate({ data: { order_ids: [order.id] } });
-      toast.success("Etiqueta gerada");
-      if (r.url) window.open(r.url, "_blank", "noopener");
+      await generate({ data: { order_ids: [order.id] } });
+      toast.success("Etiqueta pronta. Use Abrir PDF para imprimir.");
       onChange();
     });
 
@@ -350,7 +353,7 @@ function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="font-semibold">1. Cotar frete</div>
-            <Button size="sm" variant="outline" onClick={doQuote} disabled={busy === "quote"}>
+            <Button size="sm" variant="outline" onClick={doQuote} disabled={busy !== null}>
               <RefreshCw className="mr-1 h-3 w-3" /> {busy === "quote" ? "Cotando..." : "Cotar agora"}
             </Button>
           </div>
@@ -366,7 +369,7 @@ function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void
                       {o.error ? o.error : `${o.delivery_time ?? "?"} dias úteis · ${formatBRL(o.price)}`}
                     </div>
                   </div>
-                  <Button size="sm" onClick={() => doAdd(o)} disabled={!!o.error || busy === `add-${o.id}`}>
+                  <Button size="sm" onClick={() => doAdd(o)} disabled={!!o.error || busy !== null}>
                     {busy === `add-${o.id}` ? "..." : "Escolher"}
                   </Button>
                 </div>
@@ -376,29 +379,29 @@ function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void
         </div>
       )}
 
-      {order.melhor_envio_cart_id && !["paid", "generated", "posted", "delivered"].includes(order.melhor_envio_status ?? "") && (
+      {order.melhor_envio_cart_id && !PAID_SHIPPING_STATUSES.includes(order.melhor_envio_status ?? "") && (
         <div className="flex items-center justify-between rounded-md border p-3">
           <div>
-            <div className="font-semibold">2. Comprar (debita do saldo Melhor Envio)</div>
+            <div className="font-semibold">2. Pagar frete com saldo Melhor Envio</div>
             <div className="text-xs text-muted-foreground">Serviço: {order.melhor_envio_service_name}</div>
           </div>
-          <Button size="sm" onClick={doCheckout} disabled={busy === "checkout"}>
+          <Button size="sm" onClick={doCheckout} disabled={busy !== null}>
             {busy === "checkout" ? "Comprando..." : "Comprar"}
           </Button>
         </div>
       )}
 
-      {order.melhor_envio_status && ["paid", "generated", "posted", "delivered"].includes(order.melhor_envio_status) && (
+      {order.melhor_envio_status && PAID_SHIPPING_STATUSES.includes(order.melhor_envio_status) && (
         <div className="flex items-center justify-between rounded-md border p-3">
           <div>
             <div className="font-semibold">3. Etiqueta</div>
             <div className="text-xs text-muted-foreground">
-              {order.melhor_envio_label_url ? "PDF disponível para impressão." : "Gerar etiqueta imprimível."}
+              {order.melhor_envio_label_url ? "PDF disponível para impressão." : "Preparar etiqueta para impressão."}
             </div>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={doGenerate} disabled={busy === "gen"}>
-              <Package className="mr-1 h-3 w-3" /> {order.melhor_envio_label_url ? "Regerar" : "Gerar etiqueta"}
+            <Button size="sm" variant="outline" onClick={doGenerate} disabled={busy !== null}>
+              <Package className="mr-1 h-3 w-3" /> {order.melhor_envio_label_url ? "Atualizar impressão" : "Preparar impressão"}
             </Button>
             {order.melhor_envio_label_url && (
               <Button size="sm" variant="secondary" asChild>
@@ -419,7 +422,7 @@ function ShippingPanel({ order, onChange }: { order: Order; onChange: () => void
               {order.shipping_tracking ? `Código: ${order.shipping_tracking}` : "Sem código ainda."}
             </div>
           </div>
-          <Button size="sm" variant="outline" onClick={doSync} disabled={busy === "sync"}>
+          <Button size="sm" variant="outline" onClick={doSync} disabled={busy !== null}>
             <RefreshCw className="mr-1 h-3 w-3" /> {busy === "sync" ? "Atualizando..." : "Atualizar"}
           </Button>
         </div>

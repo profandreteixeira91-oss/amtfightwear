@@ -1,5 +1,10 @@
 # Implantação guiada
 
+## Melhor Envio no admin
+- [ ] Auditar remetente, contratação, pagamento e impressão de etiquetas.
+- [ ] Corrigir fluxo e falhas com proteção contra contratação duplicada.
+- [ ] Validar testes e fluxo administrativo sem realizar compras de frete.
+
 ## Bloqueios de alunos trancados
 - [ ] Restringir check-in a alunos ativos no banco, sem excluir histórico.
 - [ ] Bloquear acesso ao app para alunos trancados, incluindo sessões existentes.
