@@ -12907,7 +12907,10 @@ export type Database = {
           max_production_days: number | null
           melhor_envio_cart_id: string | null
           melhor_envio_data: Json
+          melhor_envio_env: string | null
           melhor_envio_label_url: string | null
+          melhor_envio_operation_id: string | null
+          melhor_envio_operation_started_at: string | null
           melhor_envio_order_id: string | null
           melhor_envio_protocol: string | null
           melhor_envio_service_id: number | null
@@ -12957,7 +12960,10 @@ export type Database = {
           max_production_days?: number | null
           melhor_envio_cart_id?: string | null
           melhor_envio_data?: Json
+          melhor_envio_env?: string | null
           melhor_envio_label_url?: string | null
+          melhor_envio_operation_id?: string | null
+          melhor_envio_operation_started_at?: string | null
           melhor_envio_order_id?: string | null
           melhor_envio_protocol?: string | null
           melhor_envio_service_id?: number | null
@@ -13007,7 +13013,10 @@ export type Database = {
           max_production_days?: number | null
           melhor_envio_cart_id?: string | null
           melhor_envio_data?: Json
+          melhor_envio_env?: string | null
           melhor_envio_label_url?: string | null
+          melhor_envio_operation_id?: string | null
+          melhor_envio_operation_started_at?: string | null
           melhor_envio_order_id?: string | null
           melhor_envio_protocol?: string | null
           melhor_envio_service_id?: number | null
@@ -13413,6 +13422,7 @@ export type Database = {
           env: string
           id: string
           origin_zip: string
+          sender_address_id: number | null
           singleton: boolean
           updated_at: string
         }
@@ -13426,6 +13436,7 @@ export type Database = {
           env?: string
           id?: string
           origin_zip?: string
+          sender_address_id?: number | null
           singleton?: boolean
           updated_at?: string
         }
@@ -13439,6 +13450,7 @@ export type Database = {
           env?: string
           id?: string
           origin_zip?: string
+          sender_address_id?: number | null
           singleton?: boolean
           updated_at?: string
         }
