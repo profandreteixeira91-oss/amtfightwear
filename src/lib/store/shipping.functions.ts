@@ -341,7 +341,7 @@ const AddToCartInput = z.object({
   order_id: z.string().uuid(),
   service_id: z.number().int().positive(),
   service_name: z.string().optional(),
-  agency_id: z.number().int().optional(),
+  agency_id: z.number().int().positive().optional(),
 });
 
 /**
@@ -422,4 +422,38 @@ export const adminMelhorEnvioSenderOptions = createServerFn({ method: "GET" })
     await assertSaasOwner(context);
     const { senderOptions } = await import("./shipping-admin.server");
     return senderOptions();
+  });
+
+export const adminMelhorEnvioPrepare = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ order_id: z.string().uuid(), service_id: z.number().int().positive() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
+    await assertSaasOwner(context);
+    const { loadShippingOrders, prepareShipping } = await import("./shipping-admin.server");
+    const [order] = await loadShippingOrders([data.order_id]);
+    if (!order) throw new Error("Pedido não encontrado.");
+    return prepareShipping(order, data.service_id);
+  });
+
+export const adminMelhorEnvioSaveRecipient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(async (input: unknown) => {
+    const { RecipientSchema } = await import("./shipping-preflight");
+    return z.object({ order_id: z.string().uuid(), recipient: RecipientSchema }).parse(input);
+  })
+  .handler(async ({ data, context }) => {
+    const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
+    await assertSaasOwner(context);
+    const { loadShippingOrders, saveShippingOrder } = await import("./shipping-admin.server");
+    const { recipientIssues } = await import("./shipping-preflight");
+    const issues = recipientIssues(data.recipient);
+    if (issues.length) throw new Error(`Corrija os campos: ${issues.join(", ")}.`);
+    const [order] = await loadShippingOrders([data.order_id]);
+    if (!order) throw new Error("Pedido não encontrado.");
+    if (order.melhor_envio_cart_id || order.melhor_envio_order_id || order.melhor_envio_operation_id) throw new Error("Não é possível alterar o destinatário após iniciar a contratação.");
+    const { recipient: r } = data;
+    const previous = z.record(z.string(), z.unknown()).safeParse(order.shipping_address);
+    await saveShippingOrder(order.id, { customer_name: r.name, customer_email: r.email, customer_phone: r.phone.replace(/\D/g, ""), customer_document: r.document.replace(/\D/g, ""), shipping_address: { ...(previous.success ? previous.data : {}), street: r.address, number: r.number, complement: r.complement, neighborhood: r.district, city: r.city, zip: r.postal_code.replace(/\D/g, ""), state: r.state_abbr } });
+    return { ok: true };
   });
