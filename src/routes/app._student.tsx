@@ -42,7 +42,15 @@ function StudentShell() {
   const studentFn = useServerFn(getMyStudent);
   const configFn = useServerFn(getStudentAppConfig);
   const { data: branding } = useQuery({ queryKey: ["student", "branding"], queryFn: () => brandingFn({}) });
-  const { data: student, isSuccess: studentLoaded, isError: studentFailed } = useQuery({ queryKey: ["student", "me"], queryFn: () => studentFn({}), refetchInterval: 15_000, refetchIntervalInBackground: true, retry: false });
+  const { data: student, isSuccess: studentLoaded, error: studentError } = useQuery({
+    queryKey: ["student", "me"],
+    queryFn: () => studentFn({}),
+    refetchInterval: 15_000,
+    retry: (count, err) => !isAccessDenied(err) && count < 2,
+  });
+  // Só erro explícito de acesso negado (aluno trancado/removido) derruba a sessão;
+  // falhas transitórias (rede, 5xx, timeout) mantêm os dados atuais.
+  const studentFailed = isAccessDenied(studentError);
   const { data: cfgData } = useQuery({
     queryKey: ["student", "app-config"],
     queryFn: () => configFn({}),
@@ -52,9 +60,7 @@ function StudentShell() {
   const queryClient = useQueryClient();
   const studentId = student?.id;
 
-  // Aluno cancelado/excluído: sem ficha ativa vinculada ao login → força logout
-  // e volta para /app/login. Isso complementa as funções do banco
-  // (get_my_student_id / is_my_student) que já ignoram fichas com cancelled_at.
+  // Aluno cancelado/excluído/trancado: força logout e volta para /app/login.
   useEffect(() => {
     if (!studentLoaded && !studentFailed) return;
     if (student && !studentFailed) return;
