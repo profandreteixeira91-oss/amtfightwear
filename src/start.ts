@@ -16,35 +16,44 @@ const domainRoutingMiddleware = createMiddleware().server(async ({ next, request
     return next();
   }
 
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
-  const hostHeader = forwardedHost || request.headers.get("host") || url.host;
-  const hostname = hostHeader.toLowerCase().replace(/:\d+$/, "").replace(/\.$/, "");
+  // Proxies may disagree about the public host (x-forwarded-host vs host vs URL).
+  // Treat the request as the Dojo host if ANY source says so; otherwise a
+  // proxy-rewritten header makes /dojo/* redirect to itself forever.
+  const normalize = (h: string | null | undefined) =>
+    (h ?? "").split(",")[0].trim().toLowerCase().replace(/:\d+$/, "").replace(/\.$/, "");
+  const hosts = [
+    normalize(request.headers.get("x-forwarded-host")),
+    normalize(request.headers.get("host")),
+    normalize(url.host),
+  ].filter(Boolean);
+  const hostname = hosts[0] ?? "";
+  const isDojoHost = hosts.includes(DOJO_HOST);
   const acceptsHtml = request.headers.get("accept")?.includes("text/html") ?? false;
   const isPageRequest = (request.method === "GET" || request.method === "HEAD") && acceptsHtml;
 
   if (!isPageRequest) return next();
 
   // Ambientes de desenvolvimento/preview nunca são redirecionados para o domínio público.
-  const isInternalHost =
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname.endsWith(".lovable.app") ||
-    hostname.endsWith(".lovableproject.com");
-  if (isInternalHost) return next();
+  const isInternalHost = hosts.some(
+    (h) =>
+      h === "localhost" ||
+      h === "127.0.0.1" ||
+      h.endsWith(".lovable.app") ||
+      h.endsWith(".lovableproject.com"),
+  );
+  if (isInternalHost && !isDojoHost) return next();
 
-  if (hostname !== DOJO_HOST && url.pathname.startsWith("/dojo")) {
-    return Response.redirect(
-      `https://${DOJO_HOST}${url.pathname}${url.search}${url.hash}`,
-      307,
-    );
+  if (!isDojoHost && hostname && url.pathname.startsWith("/dojo")) {
+    // Loop breaker: a request already redirected once is served as-is.
+    if (url.searchParams.has("_dh")) return next();
+    const target = new URL(`https://${DOJO_HOST}${url.pathname}${url.search}`);
+    target.searchParams.set("_dh", "1");
+    return Response.redirect(target.toString(), 307);
   }
 
-  if (hostname === DOJO_HOST && !url.pathname.startsWith("/dojo")) {
+  if (isDojoHost && !url.pathname.startsWith("/dojo")) {
     const targetPath = url.pathname === "/" ? "/dojo" : `/dojo${url.pathname}`;
-    return Response.redirect(
-      `https://${DOJO_HOST}${targetPath}${url.search}${url.hash}`,
-      307,
-    );
+    return Response.redirect(`https://${DOJO_HOST}${targetPath}${url.search}`, 307);
   }
 
   return next();
