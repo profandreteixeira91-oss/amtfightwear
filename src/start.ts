@@ -44,10 +44,11 @@ const domainRoutingMiddleware = createMiddleware().server(async ({ next, request
   if (isInternalHost && !isDojoHost) return next();
 
   if (!isDojoHost && hostname && url.pathname.startsWith("/dojo")) {
-    return Response.redirect(
-      `https://${DOJO_HOST}${url.pathname}${url.search}`,
-      307,
-    );
+    // Loop breaker: a request already redirected once is served as-is.
+    if (url.searchParams.has("_dh")) return next();
+    const target = new URL(`https://${DOJO_HOST}${url.pathname}${url.search}`);
+    target.searchParams.set("_dh", "1");
+    return Response.redirect(target.toString(), 307);
   }
 
   if (isDojoHost && !url.pathname.startsWith("/dojo")) {
