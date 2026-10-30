@@ -147,7 +147,7 @@ function StudentShell() {
   const appName = config.appearance.app_name || branding?.trade_name || "Portal do Aluno";
   const logo = config.appearance.logo_url || branding?.logo_url;
 
-  if (!studentLoaded || studentFailed || !student) return <StudentSplash />;
+  if (studentFailed || !student) return <StudentSplash />;
 
   return (
     <StudentThemeProvider branding={branding} appearance={config.appearance}>
