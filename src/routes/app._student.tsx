@@ -280,3 +280,7 @@ function DesktopNav({ items, features }: { items: any[]; features: any }) {
     </nav>
   );
 }
+
+function isAccessDenied(err: unknown): boolean {
+  return err instanceof Error && err.message.includes("Acesso ao app indisponível");
+}
