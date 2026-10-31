@@ -57,7 +57,11 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { OwnerOnly } from "@/lib/auth/owner-only";
+import { adminGetOpsInbox } from "@/lib/store/ops-inbox.functions";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 import { useAuth } from "@/contexts/AuthContext";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -125,10 +129,12 @@ export function AdminShell({
     <OwnerOnly showLoading={!hideLayoutOnLoad} description={deniedDescription}>
       {({ loading }) => (
         <SidebarProvider defaultOpen>
-          <div className={cn(
-            "admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground transition-opacity duration-300",
-            (loading && hideLayoutOnLoad) ? "opacity-0" : "opacity-100"
-          )}>
+          <div
+            className={cn(
+              "admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground transition-opacity duration-300",
+              loading && hideLayoutOnLoad ? "opacity-0" : "opacity-100",
+            )}
+          >
             <AdminSidebar />
             <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
               <AdminTopbar title={title} />
@@ -177,6 +183,7 @@ const NAV: NavGroup[] = [
       { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
       { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
       { title: "Fila de produção", url: "/admin/producao", icon: Factory },
+      { title: "Atendimento", url: "/admin/atendimento", icon: MessageCircle },
       { title: "Clientes da Loja", url: "/admin/clientes", icon: UserSquare2 },
       { title: "Atacado", url: "/admin/atacado", icon: Boxes },
       { title: "Logística / Envio", url: "/admin/envio", icon: Truck },
@@ -206,7 +213,6 @@ const NAV: NavGroup[] = [
       { title: "Assinaturas & Faturas", url: "/admin/dojo", icon: Building2 },
       { title: "Donos de Dojo", url: "/admin/clientes-growth", icon: UsersRound },
       { title: "Suporte Dojo Manager", url: "/admin/saas/suporte", icon: LifeBuoy },
-      { title: "Notificações Global", url: "/admin/notificacoes", icon: BellRing },
     ],
   },
   {
@@ -219,9 +225,12 @@ const NAV: NavGroup[] = [
       { title: "Qualificados", url: "/admin/leads/qualificados", icon: Sparkles },
       { title: "Macro / Segmentos", url: "/admin/leads/macro", icon: TrendingUp },
       { title: "CRM Unificado", url: "/admin/crm", icon: Users },
-      { title: "Atendimento", url: "/admin/atendimento", icon: MessageCircle },
       { title: "Logs de automação", url: "/admin/leads/logs", icon: ScrollText },
-      { title: "Config. da prospecção", url: "/admin/leads/configuracoes", icon: SlidersHorizontal },
+      {
+        title: "Config. da prospecção",
+        url: "/admin/leads/configuracoes",
+        icon: SlidersHorizontal,
+      },
     ],
   },
   {
@@ -270,6 +279,7 @@ const NAV: NavGroup[] = [
     items: [
       { title: "Usuários / Equipe", url: "/admin/usuarios", icon: UserCog },
       { title: "Conexões e APIs", url: "/admin/conexoes", icon: Plug },
+      { title: "Notificações e app", url: "/admin/notificacoes", icon: BellRing },
       { title: "Logs & Segurança", url: "/admin/logs", icon: ShieldCheck },
       { title: "Ajustes do Sistema", url: "/admin/configuracoes", icon: Settings },
       { title: "Meu Perfil", url: "/admin/perfil", icon: UserSquare2 },
@@ -288,11 +298,33 @@ const QUICK_ACTIONS: NavItem[] = [
   { title: "Nova campanha com IA", url: "/admin/anuncios/nova", icon: Wand2 },
 ];
 
+/**
+ * Pendências por item de menu. Usa a mesma consulta (e cache) do card
+ * "Precisa de ação" do Início, então as duas telas mostram o mesmo número.
+ */
+function useNavBadges(): Record<string, number> {
+  const getInbox = useServerFn(adminGetOpsInbox);
+  const { data } = useQuery({
+    queryKey: ["admin", "central", "ops-inbox"],
+    queryFn: () => getInbox(),
+    refetchInterval: ADMIN_REFRESH.live,
+    retry: false,
+  });
+  if (!data) return {};
+  return {
+    "/admin/pedidos": data.orders.toShip,
+    "/admin/orcamentos": data.quotes.sent,
+    "/admin/producao": data.production.late,
+    "/admin/atendimento": data.chats.human,
+    "/admin/saas/suporte": data.support?.open ?? 0,
+  };
+}
+
 /** Item de menu mais específico que corresponde à URL atual. */
 function findActive(pathname: string) {
-  return FLAT_NAV.filter(
-    (i) => pathname === i.url || pathname.startsWith(`${i.url}/`),
-  ).sort((a, b) => b.url.length - a.url.length)[0];
+  return FLAT_NAV.filter((i) => pathname === i.url || pathname.startsWith(`${i.url}/`)).sort(
+    (a, b) => b.url.length - a.url.length,
+  )[0];
 }
 
 /* --------------------------- Favoritos / Recentes ------------------------ */
@@ -331,6 +363,7 @@ function useLocalList(key: string, limit = 8) {
 function AdminTopbar({ title }: { title?: string }) {
   const [open, setOpen] = React.useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const badges = useNavBadges();
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -397,9 +430,19 @@ function AdminTopbar({ title }: { title?: string }) {
 
           <QuickCreateMenu />
 
-          <IconAction icon={Inbox} label="Atendimento" to="/admin/atendimento" />
+          <IconAction
+            icon={Inbox}
+            label={pendingLabel("Atendimento", badges["/admin/atendimento"])}
+            to="/admin/atendimento"
+            dot={(badges["/admin/atendimento"] ?? 0) > 0}
+          />
           <IconAction icon={Bell} label="Notificações" to="/admin/notificacoes" />
-          <IconAction icon={LifeBuoy} label="Suporte Dojo Manager" to="/admin/saas/suporte" />
+          <IconAction
+            icon={LifeBuoy}
+            label={pendingLabel("Suporte Dojo Manager", badges["/admin/saas/suporte"])}
+            to="/admin/saas/suporte"
+            dot={(badges["/admin/saas/suporte"] ?? 0) > 0}
+          />
 
           <EnvironmentBadge />
           <ProfileMenu />
@@ -408,6 +451,11 @@ function AdminTopbar({ title }: { title?: string }) {
       <AdminGlobalSearch open={open} onOpenChange={setOpen} />
     </>
   );
+}
+
+/** Rótulo acessível/tooltip com a contagem de pendências, quando houver. */
+function pendingLabel(label: string, count: number | undefined) {
+  return count ? `${label} · ${count} pendente(s)` : label;
 }
 
 function IconAction({
@@ -696,6 +744,7 @@ function AdminSidebar() {
   // Grupos recolhidos pelo usuário (os demais ficam abertos).
   const [closedGroups, setClosedGroups] = useLocalList(CLOSED_GROUPS_KEY, NAV.length);
   const activeItem = findActive(pathname);
+  const badges = useNavBadges();
 
   // Destaca só o item mais específico (ex.: /admin/fiscal/pedidos não acende /admin/fiscal).
   const isActive = (url: string) => activeItem?.url === url;
@@ -720,12 +769,13 @@ function AdminSidebar() {
   const renderItem = (item: NavItem & { group?: string }, keyPrefix = "") => {
     const active = isActive(item.url);
     const fav = favorites.includes(item.url);
+    const pending = badges[item.url] ?? 0;
     return (
       <SidebarMenuItem key={keyPrefix + item.url} className="group/item relative">
         <SidebarMenuButton
           asChild
           isActive={active}
-          tooltip={collapsed ? item.title : undefined}
+          tooltip={collapsed ? pendingLabel(item.title, pending) : undefined}
           className={cn(
             "h-9 w-full rounded-xl transition-all duration-200",
             active
@@ -741,13 +791,31 @@ function AdminSidebar() {
             }}
             className="flex items-center gap-2.5"
           >
-            <item.icon
-              className={cn(
-                "h-[18px] w-[18px] shrink-0 transition-transform group-hover:scale-110",
-                active ? "text-primary" : "text-foreground/60 group-hover:text-foreground",
-              )}
-            />
+            <span className="relative shrink-0">
+              <item.icon
+                className={cn(
+                  "h-[18px] w-[18px] transition-transform group-hover:scale-110",
+                  active ? "text-primary" : "text-foreground/60 group-hover:text-foreground",
+                )}
+              />
+              {collapsed && pending > 0 ? (
+                <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
+              ) : null}
+            </span>
             {!collapsed && <span className="truncate text-sm tracking-tight">{item.title}</span>}
+            {!collapsed && pending > 0 ? (
+              <span
+                className={cn(
+                  "ml-auto min-w-5 shrink-0 rounded-full bg-primary px-1.5 text-center text-[10px] font-bold leading-5 text-primary-foreground tabular-nums",
+                  // A estrela de favorito (no hover, ou fixa se favoritado) fica à direita do número.
+                  "group-hover/item:mr-6",
+                  fav && "mr-6",
+                )}
+                aria-label={`${pending} pendente(s)`}
+              >
+                {pending > 99 ? "99+" : pending}
+              </span>
+            ) : null}
           </Link>
         </SidebarMenuButton>
         {!collapsed ? (
@@ -760,7 +828,11 @@ function AdminSidebar() {
               fav && "grid text-amber-500",
             )}
           >
-            {fav ? <Star className="h-3.5 w-3.5 fill-current" /> : <StarOff className="h-3.5 w-3.5" />}
+            {fav ? (
+              <Star className="h-3.5 w-3.5 fill-current" />
+            ) : (
+              <StarOff className="h-3.5 w-3.5" />
+            )}
           </button>
         ) : null}
       </SidebarMenuItem>
@@ -770,7 +842,10 @@ function AdminSidebar() {
   return (
     <Sidebar collapsible="icon" className="admin-sidebar border-r" data-admin="true">
       <SidebarHeader className="border-b bg-background/50 p-3 backdrop-blur-sm">
-        <Link to="/admin" className="flex items-center gap-2.5 rounded-xl px-1 py-1 transition-opacity hover:opacity-80">
+        <Link
+          to="/admin"
+          className="flex items-center gap-2.5 rounded-xl px-1 py-1 transition-opacity hover:opacity-80"
+        >
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
             <Sparkles className="h-4 w-4" />
           </span>
@@ -848,7 +923,10 @@ function AdminSidebar() {
                       {group.items.length}
                     </span>
                     <ChevronDown
-                      className={cn("h-3.5 w-3.5 shrink-0 transition-transform", !open && "-rotate-90")}
+                      className={cn(
+                        "h-3.5 w-3.5 shrink-0 transition-transform",
+                        !open && "-rotate-90",
+                      )}
                     />
                   </CollapsibleTrigger>
                 </SidebarGroupLabel>
