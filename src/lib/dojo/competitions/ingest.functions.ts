@@ -4,6 +4,8 @@
 
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertSaasOwner, isSaasOwner } from "@/lib/auth/is-saas-owner";
 import { classify } from "@/lib/dojo/competitions/classifier";
 import {
   runScrapeCompetitions,
@@ -103,127 +105,147 @@ const runInputSchema = z.object({
 
 /**
  * Executa a coleta para todas as fontes habilitadas (ou apenas as fornecidas).
- * Uso: chamado pelo cron ou pelo botão "Atualizar agora" do admin.
+ * Sem checagem de acesso: quem chama (cron autenticado ou a server fn abaixo)
+ * é responsável por isso.
  */
-export const runCompetitionIngest = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) => runInputSchema.parse(i ?? {}))
-  .handler(async ({ data }) => {
-    const supabaseAdmin = await serverAdmin();
-    const { data: sources, error } = await supabaseAdmin
-      .from("competition_sources")
-      .select("id, code, name, url, enabled, connector, config")
-      .order("code");
-    if (error) throw new Error(error.message);
+export async function runIngest(data: z.infer<typeof runInputSchema>) {
+  const supabaseAdmin = await serverAdmin();
+  const { data: sources, error } = await supabaseAdmin
+    .from("competition_sources")
+    .select("id, code, name, url, enabled, connector, config")
+    .order("code");
+  if (error) throw new Error(error.message);
 
-    const targets = (sources ?? [])
-      .filter((s) => s.enabled)
-      .filter((s) => !data.onlySourceCodes || data.onlySourceCodes.includes(s.code));
+  const targets = (sources ?? [])
+    .filter((s) => s.enabled)
+    .filter((s) => !data.onlySourceCodes || data.onlySourceCodes.includes(s.code));
 
-    const perSource: Array<{ code: string; found: number; inserted: number; updated: number; error?: string }> = [];
+  const perSource: Array<{ code: string; found: number; inserted: number; updated: number; error?: string }> = [];
 
-    for (const src of targets) {
-      const { data: run } = await supabaseAdmin
-        .from("competition_ingest_runs")
-        .insert({ source_id: src.id, source_code: src.code, status: "running" })
-        .select("id")
-        .single();
-      const runId = run?.id as string | undefined;
+  for (const src of targets) {
+    const { data: run } = await supabaseAdmin
+      .from("competition_ingest_runs")
+      .insert({ source_id: src.id, source_code: src.code, status: "running" })
+      .select("id")
+      .single();
+    const runId = run?.id as string | undefined;
 
-      // Descobre quais provedores do scraper mapeiam para essa fonte.
-      const providers = Object.keys(PROVIDER_BY_ID).filter(
-        (p) => mapProviderToSourceCode(p as ProviderId) === src.code,
-      );
-      if (providers.length === 0 && src.connector !== "custom") {
-        if (runId) {
-          await supabaseAdmin
-            .from("competition_ingest_runs")
-            .update({ status: "skipped", finished_at: new Date().toISOString() })
-            .eq("id", runId);
-        }
-        perSource.push({ code: src.code, found: 0, inserted: 0, updated: 0 });
-        continue;
-      }
-
-      try {
-        let events: LiveCompetition[] = [];
-        if (src.connector === "custom") {
-          if (!src.url) throw new Error("Fonte customizada sem URL");
-          const cfg = (src.config ?? {}) as { country?: string | null };
-          events = await scrapeCustomSource(src.url, src.name, cfg.country ?? null);
-        } else {
-          const result = await runScrapeCompetitions(providers);
-          events = result.competitions ?? [];
-        }
-        let inserted = 0;
-        let updated = 0;
-        for (const ev of events) {
-          try {
-            const out = await upsertOne(supabaseAdmin, src as SourceRow, ev);
-            if (out === "inserted") inserted++;
-            else updated++;
-          } catch (e) {
-            console.error(`[ingest] upsert error for ${src.code}:`, e);
-          }
-        }
-
-        if (runId) {
-          await supabaseAdmin
-            .from("competition_ingest_runs")
-            .update({
-              status: "success",
-              finished_at: new Date().toISOString(),
-              found: events.length,
-              inserted,
-              updated,
-            })
-            .eq("id", runId);
-        }
+    // Descobre quais provedores do scraper mapeiam para essa fonte.
+    const providers = Object.keys(PROVIDER_BY_ID).filter(
+      (p) => mapProviderToSourceCode(p as ProviderId) === src.code,
+    );
+    if (providers.length === 0 && src.connector !== "custom") {
+      if (runId) {
         await supabaseAdmin
-          .from("competition_sources")
-          .update({ last_run_at: new Date().toISOString(), last_status: "success", last_error: null })
-          .eq("id", src.id);
-
-        perSource.push({ code: src.code, found: events.length, inserted, updated });
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        if (runId) {
-          await supabaseAdmin
-            .from("competition_ingest_runs")
-            .update({ status: "error", finished_at: new Date().toISOString(), error: msg })
-            .eq("id", runId);
-        }
-        await supabaseAdmin
-          .from("competition_sources")
-          .update({ last_run_at: new Date().toISOString(), last_status: "error", last_error: msg })
-          .eq("id", src.id);
-        perSource.push({ code: src.code, found: 0, inserted: 0, updated: 0, error: msg });
+          .from("competition_ingest_runs")
+          .update({ status: "skipped", finished_at: new Date().toISOString() })
+          .eq("id", runId);
       }
+      perSource.push({ code: src.code, found: 0, inserted: 0, updated: 0 });
+      continue;
     }
 
-    return { ok: true, perSource, ranAt: new Date().toISOString() };
+    try {
+      let events: LiveCompetition[] = [];
+      if (src.connector === "custom") {
+        if (!src.url) throw new Error("Fonte customizada sem URL");
+        const cfg = (src.config ?? {}) as { country?: string | null };
+        events = await scrapeCustomSource(src.url, src.name, cfg.country ?? null);
+      } else {
+        const result = await runScrapeCompetitions(providers);
+        events = result.competitions ?? [];
+      }
+      let inserted = 0;
+      let updated = 0;
+      for (const ev of events) {
+        try {
+          const out = await upsertOne(supabaseAdmin, src as SourceRow, ev);
+          if (out === "inserted") inserted++;
+          else updated++;
+        } catch (e) {
+          console.error(`[ingest] upsert error for ${src.code}:`, e);
+        }
+      }
+
+      if (runId) {
+        await supabaseAdmin
+          .from("competition_ingest_runs")
+          .update({
+            status: "success",
+            finished_at: new Date().toISOString(),
+            found: events.length,
+            inserted,
+            updated,
+          })
+          .eq("id", runId);
+      }
+      await supabaseAdmin
+        .from("competition_sources")
+        .update({ last_run_at: new Date().toISOString(), last_status: "success", last_error: null })
+        .eq("id", src.id);
+
+      perSource.push({ code: src.code, found: events.length, inserted, updated });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (runId) {
+        await supabaseAdmin
+          .from("competition_ingest_runs")
+          .update({ status: "error", finished_at: new Date().toISOString(), error: msg })
+          .eq("id", runId);
+      }
+      await supabaseAdmin
+        .from("competition_sources")
+        .update({ last_run_at: new Date().toISOString(), last_status: "error", last_error: msg })
+        .eq("id", src.id);
+      perSource.push({ code: src.code, found: 0, inserted: 0, updated: 0, error: msg });
+    }
+  }
+
+  return { ok: true, perSource, ranAt: new Date().toISOString() };
+}
+
+// As fontes e a coleta são globais (valem para todos os dojos): só o dono da
+// plataforma pode consultá-las ou alterá-las.
+
+/** Botão "Atualizar agora" da aba Fontes. O cron usa runIngest direto. */
+export const runCompetitionIngest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => runInputSchema.parse(i ?? {}))
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
+    return runIngest(data);
   });
 
 /**
  * Retorna estado atual das fontes + últimas execuções.
  */
-export const getIngestStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const supabaseAdmin = await serverAdmin();
-  const { data: sources } = await supabaseAdmin
-    .from("competition_sources")
-    .select("*")
-    .order("code");
-  const { data: runs } = await supabaseAdmin
-    .from("competition_ingest_runs")
-    .select("*")
-    .order("started_at", { ascending: false })
-    .limit(20);
-  return { sources: sources ?? [], runs: runs ?? [] };
-});
+export const canManageCompetitionSources = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => ({ allowed: await isSaasOwner(context) }));
+
+export const getIngestStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSaasOwner(context);
+    const supabaseAdmin = await serverAdmin();
+    const { data: sources } = await supabaseAdmin
+      .from("competition_sources")
+      .select("*")
+      .order("code");
+    const { data: runs } = await supabaseAdmin
+      .from("competition_ingest_runs")
+      .select("*")
+      .order("started_at", { ascending: false })
+      .limit(20);
+    return { sources: sources ?? [], runs: runs ?? [] };
+  });
 
 const toggleSchema = z.object({ id: z.string(), enabled: z.boolean() });
 export const setSourceEnabled = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => toggleSchema.parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const supabaseAdmin = await serverAdmin();
     const { error } = await supabaseAdmin
       .from("competition_sources")
@@ -240,8 +262,10 @@ const addSchema = z.object({
   country: z.string().max(80).nullable().optional(),
 });
 export const addCompetitionSource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => addSchema.parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const supabaseAdmin = await serverAdmin();
     const { error } = await supabaseAdmin.from("competition_sources").insert({
       code: data.code.toLowerCase(),
@@ -257,8 +281,10 @@ export const addCompetitionSource = createServerFn({ method: "POST" })
 
 const deleteSchema = z.object({ id: z.string() });
 export const deleteCompetitionSource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => deleteSchema.parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const supabaseAdmin = await serverAdmin();
     const { error } = await supabaseAdmin.from("competition_sources").delete().eq("id", data.id);
     if (error) throw new Error(error.message);

@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   runCompetitionIngest, getIngestStatus, setSourceEnabled,
-  addCompetitionSource, deleteCompetitionSource,
+  addCompetitionSource, deleteCompetitionSource, canManageCompetitionSources,
 } from "@/lib/dojo/competitions/ingest.functions";
 import {
   addCompetitionToCalendar, addCompetitionsBulkToCalendar, listAcademyCompetitions,
@@ -37,6 +37,10 @@ export const Route = createFileRoute("/dojo/app/competitions/")({
 });
 
 function CompetitionsPage() {
+  // Fontes e coleta são globais da plataforma: só o dono do SaaS gerencia.
+  const accessFn = useServerFn(canManageCompetitionSources);
+  const access = useQuery({ queryKey: ["comp-sources-access"], queryFn: () => accessFn(), staleTime: Infinity });
+  const canManageSources = access.data?.allowed === true;
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
       {/* ============ HERO — ============ */}
@@ -64,7 +68,7 @@ function CompetitionsPage() {
             <TabsTrigger value="calendar" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><CalendarDays className="mr-2 h-4 w-4" /> Meu Calendário</TabsTrigger>
             <TabsTrigger value="ranking" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><Medal className="mr-2 h-4 w-4" /> Ranking</TabsTrigger>
             <TabsTrigger value="stats" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><PieIcon className="mr-2 h-4 w-4" /> Estatísticas</TabsTrigger>
-            <TabsTrigger value="sources" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><Settings2 className="mr-2 h-4 w-4" /> Fontes</TabsTrigger>
+            {canManageSources && <TabsTrigger value="sources" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><Settings2 className="mr-2 h-4 w-4" /> Fontes</TabsTrigger>}
           </TabsList>
         </div>
 
@@ -73,7 +77,7 @@ function CompetitionsPage() {
         <TabsContent value="calendar"><CalendarTab /></TabsContent>
         <TabsContent value="ranking"><RankingPanel /></TabsContent>
         <TabsContent value="stats"><StatsPanel /></TabsContent>
-        <TabsContent value="sources"><SourcesTab /></TabsContent>
+        {canManageSources && <TabsContent value="sources"><SourcesTab /></TabsContent>}
       </Tabs>
     </div>
   );

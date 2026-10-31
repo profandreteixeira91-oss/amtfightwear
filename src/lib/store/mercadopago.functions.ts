@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
 const MP_BASE = "https://api.mercadopago.com";
 
@@ -345,7 +346,8 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
  */
 export const adminRegenerateStorePixQrCodes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: orders, error } = await supabaseAdmin
       .from("store_orders")

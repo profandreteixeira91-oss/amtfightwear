@@ -11,7 +11,6 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/common/PageHeader";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { settingsService } from "@/services/settingsService";
 
 export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
@@ -36,7 +35,6 @@ const DEFAULTS: GeneralSettings = {
 };
 
 function SettingsPage() {
-  const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useState<GeneralSettings>(DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -71,26 +69,8 @@ function SettingsPage() {
         description="Ajuste preferências gerais da plataforma."
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Aparência</CardTitle>
-            <CardDescription>Escolha entre tema claro ou escuro.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <div className="font-medium">Modo escuro</div>
-                <div className="text-xs text-muted-foreground">Ative para reduzir cansaço visual</div>
-              </div>
-              <Switch
-                checked={theme === "dark"}
-                onCheckedChange={(v) => setTheme(v ? "dark" : "light")}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
+      {/* A Central AMT usa sempre o tema claro; não há opção de aparência aqui. */}
+      <div className="grid max-w-2xl grid-cols-1 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Geral</CardTitle>

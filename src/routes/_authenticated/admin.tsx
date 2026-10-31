@@ -1,7 +1,6 @@
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { OwnerOnly } from "@/lib/auth/owner-only";
 
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -40,12 +39,14 @@ function AdminLayout() {
     };
   }, []);
 
+  // O AdminShell já aplica o OwnerOnly; aqui só passamos a mensagem desta área.
   return (
-    <OwnerOnly description="O painel administrativo da AMT Fight Wear é independente do Portal do Aluno e do Dojo Manager. Sua conta não tem permissão para acessar esta área.">
-      <AdminShell title={isFiscal ? "Módulo Fiscal" : undefined}>
-        <Outlet />
-      </AdminShell>
-    </OwnerOnly>
+    <AdminShell
+      title={isFiscal ? "Módulo Fiscal" : undefined}
+      deniedDescription="O painel administrativo da AMT Fight Wear é independente do Portal do Aluno e do Dojo Manager. Sua conta não tem permissão para acessar esta área."
+    >
+      <Outlet />
+    </AdminShell>
   );
 }
 

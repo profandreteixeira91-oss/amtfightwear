@@ -411,7 +411,7 @@ function AdminOverview() {
             <span className="flex items-center gap-2">
               <Building2 className="h-4 w-4 text-red-600" /> Últimos dojos
             </span>
-            <Link to="/admin/saas" className="text-xs font-semibold text-red-600 hover:underline">
+            <Link to="/admin/dojo" className="text-xs font-semibold text-red-600 hover:underline">
               ver todos
             </Link>
           </div>

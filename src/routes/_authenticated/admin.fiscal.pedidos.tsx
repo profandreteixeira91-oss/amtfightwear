@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { 
   FileText, 
   Search, 

@@ -1,10 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
 export const adminListSalesConversations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("sales_conversations")
@@ -17,7 +19,8 @@ export const adminListSalesConversations = createServerFn({ method: "GET" })
 export const adminListSalesMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ conversation_id: z.string().uuid() }).parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows } = await supabaseAdmin
       .from("sales_messages")
@@ -33,7 +36,8 @@ export const adminSendSalesReply = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
     z.object({ conversation_id: z.string().uuid(), text: z.string().trim().min(1).max(4000) }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // Salva como 'assistant' para aparecer inline no widget do cliente,
     // mas marca origem humana no parts.source para o painel diferenciar.
@@ -67,7 +71,8 @@ export const adminSetSalesConversationStatus = createServerFn({ method: "POST" }
       status: z.enum(["active", "human", "closed"]),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("sales_conversations")
@@ -81,7 +86,8 @@ export const adminSetSalesConversationStatus = createServerFn({ method: "POST" }
 
 export const adminGetChatSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("sales_agent_settings")
@@ -115,7 +121,8 @@ const settingsSchema = z.object({
 export const adminUpdateChatSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => settingsSchema.parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const payload = { ...data, business_hours_json: data.business_hours_json as never, updated_at: new Date().toISOString() };
     if (data.id) {
@@ -137,7 +144,8 @@ export const adminUpdateChatSettings = createServerFn({ method: "POST" })
 
 export const adminListKbArticles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("sales_kb_articles")
@@ -159,7 +167,8 @@ export const adminUpsertKbArticle = createServerFn({ method: "POST" })
       })
       .parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const payload = { ...data, updated_at: new Date().toISOString() };
     if (data.id) {
@@ -182,7 +191,8 @@ export const adminUpsertKbArticle = createServerFn({ method: "POST" })
 export const adminDeleteKbArticle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("sales_kb_articles").delete().eq("id", data.id);
     if (error) throw new Error(error.message);

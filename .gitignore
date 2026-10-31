@@ -30,3 +30,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Dados da migração para fora do Lovable (backup, arquivos de alunos, credenciais)
+*.backup
+*.zip
+/alunos/
+/postgreSQL.txt

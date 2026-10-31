@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
 const BUCKET = "product-images";
 const BATCH_SIZE = 25;
@@ -19,6 +20,7 @@ function extFromContentType(ct: string | null, url: string): string {
 export const getProductImageStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await assertSaasOwner(context);
     const { supabase } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -52,7 +54,8 @@ const migrateInput = z.object({ limit: z.number().int().min(1).max(50).optional(
 export const migrateProductImagesBatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((v: unknown) => migrateInput.parse(v))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const limit = data.limit ?? BATCH_SIZE;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

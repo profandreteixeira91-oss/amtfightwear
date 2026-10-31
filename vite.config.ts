@@ -34,10 +34,11 @@ export default defineConfig({
     resolve: {
       alias: {
         // React Email's htmlparser2 needs entities v4.5.0; v7+ removed ./lib/decode.js.
-        // Force every entities import to the hoisted v4.5.0 copy.
+        // Only the ./lib/*.js paths are forced to the hoisted v4.5.0 copy: a bare
+        // "entities" alias would also catch "entities/decode" from htmlparser2 v10
+        // (which ships its own entities v7) and break the dependency optimizer.
         "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
         "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
-        entities: path.resolve(__dirname, "node_modules/entities"),
       },
     },
   },

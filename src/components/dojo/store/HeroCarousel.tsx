@@ -22,7 +22,7 @@ const SLIDES: Slide[] = [
     ctaLabel: "Ver kimonos",
     categoria: "kimonos-de-jiu-jitsu",
     image:
-      "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/0942e202-4ed2-406f-a3d7-d71773d8b064/2e851916-ee1b-4a35-b246-6922e147667c.jpg",
+      "https://gudjmkiyprgwgxmzbgji.supabase.co/storage/v1/object/public/product-images/0942e202-4ed2-406f-a3d7-d71773d8b064/2e851916-ee1b-4a35-b246-6922e147667c.jpg",
     focus: "center",
   },
   {
@@ -32,7 +32,7 @@ const SLIDES: Slide[] = [
     ctaLabel: "Explorar faixas",
     categoria: "faixas-de-jiu-jitsu",
     image:
-      "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/6a8dde04-897a-4bd0-88d8-6e549e028aaa/9bdb3b0b-7a5b-4cfe-a179-71e986bb1457.jpg",
+      "https://gudjmkiyprgwgxmzbgji.supabase.co/storage/v1/object/public/product-images/6a8dde04-897a-4bd0-88d8-6e549e028aaa/9bdb3b0b-7a5b-4cfe-a179-71e986bb1457.jpg",
     focus: "center",
   },
   {
@@ -42,7 +42,7 @@ const SLIDES: Slide[] = [
     ctaLabel: "Ver faixas de judô",
     categoria: "faixas-de-judo",
     image:
-      "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/c503c54b-f770-4a9b-85f0-802b5a8e3849/3bb4938e-b34e-4b5a-887e-00496d1009a6.jpg",
+      "https://gudjmkiyprgwgxmzbgji.supabase.co/storage/v1/object/public/product-images/c503c54b-f770-4a9b-85f0-802b5a8e3849/3bb4938e-b34e-4b5a-887e-00496d1009a6.jpg",
     focus: "center",
   },
   {
@@ -52,7 +52,7 @@ const SLIDES: Slide[] = [
     ctaLabel: "Ver patches",
     categoria: "patches",
     image:
-      "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/81ce0ac8-ae59-4bb6-b53b-eb64836de4ce/2f03631d-e3d9-451f-bc3f-1e79c4f83c18.png",
+      "https://gudjmkiyprgwgxmzbgji.supabase.co/storage/v1/object/public/product-images/81ce0ac8-ae59-4bb6-b53b-eb64836de4ce/2f03631d-e3d9-451f-bc3f-1e79c4f83c18.png",
     focus: "center",
   },
 ];

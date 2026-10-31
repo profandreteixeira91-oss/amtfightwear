@@ -763,9 +763,6 @@ a.btn:hover,
     radial-gradient(1100px 520px at 0% -12%, color-mix(in oklab, var(--primary) 8%, transparent), transparent 62%),
     radial-gradient(900px 480px at 100% -6%, rgba(16, 18, 27, 0.05), transparent 60%);
 }
-.dark .admin-surface {
-  background-color: oklch(0.16 0.005 260);
-}
 
 /* Topbar translúcida */
 .admin-shell .admin-topbar {

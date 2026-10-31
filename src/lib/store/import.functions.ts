@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
 const FIRECRAWL_V2 = "https://api.firecrawl.dev/v2";
 
@@ -40,6 +41,7 @@ async function firecrawl<T = unknown>(path: string, body: Record<string, unknown
 export const startCatalogImport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await assertSaasOwner(context);
     const { data: job, error } = await context.supabase
       .from("store_import_jobs")
       .insert({
@@ -68,6 +70,7 @@ export const getImportJob = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { data: job } = await context.supabase.from("store_import_jobs").select("*").eq("id", data.id).maybeSingle();
     return job;
   });

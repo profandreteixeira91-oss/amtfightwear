@@ -67,7 +67,6 @@ import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminDojoRouteImport } from './routes/_authenticated/admin.dojo'
 import { Route as AuthenticatedAdminEnvioRouteImport } from './routes/_authenticated/admin.envio'
-import { Route as AuthenticatedAdminFiscalRouteImport } from './routes/_authenticated/admin.fiscal'
 import { Route as AuthenticatedAdminInstagramRouteImport } from './routes/_authenticated/admin.instagram'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
 import { Route as AuthenticatedAdminLojaRouteImport } from './routes/_authenticated/admin.loja'
@@ -77,7 +76,6 @@ import { Route as AuthenticatedAdminOrcamentosRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminPerfilRouteImport } from './routes/_authenticated/admin.perfil'
 import { Route as AuthenticatedAdminProducaoRouteImport } from './routes/_authenticated/admin.producao'
 import { Route as AuthenticatedAdminProspectRouteImport } from './routes/_authenticated/admin.prospect'
-import { Route as AuthenticatedAdminSaasRouteImport } from './routes/_authenticated/admin.saas'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authenticated/ads.alerts'
 import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
@@ -101,6 +99,7 @@ import { Route as AuthenticatedInstagramCommentsRouteImport } from './routes/_au
 import { Route as AuthenticatedInstagramCrmRouteImport } from './routes/_authenticated/instagram.crm'
 import { Route as AuthenticatedInstagramDashboardRouteImport } from './routes/_authenticated/instagram.dashboard'
 import { Route as AuthenticatedInstagramInboxRouteImport } from './routes/_authenticated/instagram.inbox'
+import { Route as AuthenticatedMarketIndexRouteImport } from './routes/_authenticated/market.index'
 import { Route as AuthenticatedMarketCatalogRouteImport } from './routes/_authenticated/market.catalog'
 import { Route as AuthenticatedMarketConnectionsRouteImport } from './routes/_authenticated/market.connections'
 import { Route as AuthenticatedMarketContentRouteImport } from './routes/_authenticated/market.content'
@@ -221,6 +220,7 @@ import { Route as AuthenticatedAdminAnunciosCriativosRouteImport } from './route
 import { Route as AuthenticatedAdminAnunciosEscalaRouteImport } from './routes/_authenticated/admin.anuncios.escala'
 import { Route as AuthenticatedAdminAnunciosNovaRouteImport } from './routes/_authenticated/admin.anuncios.nova'
 import { Route as AuthenticatedAdminAnunciosOtimizacaoRouteImport } from './routes/_authenticated/admin.anuncios.otimizacao'
+import { Route as AuthenticatedAdminFiscalIndexRouteImport } from './routes/_authenticated/admin.fiscal.index'
 import { Route as AuthenticatedAdminFiscalPedidosRouteImport } from './routes/_authenticated/admin.fiscal.pedidos'
 import { Route as AuthenticatedAdminInstagramIndexRouteImport } from './routes/_authenticated/admin.instagram.index'
 import { Route as AuthenticatedAdminInstagramAdminRouteImport } from './routes/_authenticated/admin.instagram.admin'
@@ -238,9 +238,14 @@ import { Route as AuthenticatedAdminLeadsMacroRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminLeadsPipelineRouteImport } from './routes/_authenticated/admin.leads.pipeline'
 import { Route as AuthenticatedAdminLeadsQualificadosRouteImport } from './routes/_authenticated/admin.leads.qualificados'
 import { Route as AuthenticatedAdminMarketingIndexRouteImport } from './routes/_authenticated/admin.marketing.index'
+import { Route as AuthenticatedAdminMarketingCatalogoRouteImport } from './routes/_authenticated/admin.marketing.catalogo'
+import { Route as AuthenticatedAdminMarketingConteudoRouteImport } from './routes/_authenticated/admin.marketing.conteudo'
+import { Route as AuthenticatedAdminMarketingCrmEmailRouteImport } from './routes/_authenticated/admin.marketing.crm-email'
 import { Route as AuthenticatedAdminMarketingInteligenciaRouteImport } from './routes/_authenticated/admin.marketing.inteligencia'
 import { Route as AuthenticatedAdminMarketingKpisRouteImport } from './routes/_authenticated/admin.marketing.kpis'
 import { Route as AuthenticatedAdminMarketingMercadoRouteImport } from './routes/_authenticated/admin.marketing.mercado'
+import { Route as AuthenticatedAdminMarketingPainelRouteImport } from './routes/_authenticated/admin.marketing.painel'
+import { Route as AuthenticatedAdminMarketingPrecosRouteImport } from './routes/_authenticated/admin.marketing.precos'
 import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated/admin.pedidos.index'
 import { Route as AuthenticatedAdminPedidosOrderIdRouteImport } from './routes/_authenticated/admin.pedidos.$orderId'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated/admin.produtos.index'
@@ -249,6 +254,7 @@ import { Route as AuthenticatedAdminProdutosImagensRouteImport } from './routes/
 import { Route as AuthenticatedAdminProdutosImportarRouteImport } from './routes/_authenticated/admin.produtos.importar'
 import { Route as AuthenticatedAdminProdutosPacotesRouteImport } from './routes/_authenticated/admin.produtos.pacotes'
 import { Route as AuthenticatedAdminProdutosTamanhosRouteImport } from './routes/_authenticated/admin.produtos.tamanhos'
+import { Route as AuthenticatedAdminSaasIndexRouteImport } from './routes/_authenticated/admin.saas.index'
 import { Route as AuthenticatedAdminSaasSuporteRouteImport } from './routes/_authenticated/admin.saas.suporte'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as ApiDesktopProductsIdRouteImport } from './routes/api/desktop/products.$id'
@@ -645,12 +651,6 @@ const AuthenticatedAdminEnvioRoute = AuthenticatedAdminEnvioRouteImport.update({
   path: '/envio',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminFiscalRoute =
-  AuthenticatedAdminFiscalRouteImport.update({
-    id: '/fiscal',
-    path: '/fiscal',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminInstagramRoute =
   AuthenticatedAdminInstagramRouteImport.update({
     id: '/instagram',
@@ -703,11 +703,6 @@ const AuthenticatedAdminProspectRoute =
     path: '/prospect',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminSaasRoute = AuthenticatedAdminSaasRouteImport.update({
-  id: '/saas',
-  path: '/saas',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
 const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/usuarios',
@@ -839,6 +834,12 @@ const AuthenticatedInstagramInboxRoute =
     id: '/inbox',
     path: '/inbox',
     getParentRoute: () => AuthenticatedInstagramRoute,
+  } as any)
+const AuthenticatedMarketIndexRoute =
+  AuthenticatedMarketIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedMarketRoute,
   } as any)
 const AuthenticatedMarketCatalogRoute =
   AuthenticatedMarketCatalogRouteImport.update({
@@ -1487,11 +1488,17 @@ const AuthenticatedAdminAnunciosOtimizacaoRoute =
     path: '/otimizacao',
     getParentRoute: () => AuthenticatedAdminAnunciosRoute,
   } as any)
+const AuthenticatedAdminFiscalIndexRoute =
+  AuthenticatedAdminFiscalIndexRouteImport.update({
+    id: '/fiscal/',
+    path: '/fiscal/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminFiscalPedidosRoute =
   AuthenticatedAdminFiscalPedidosRouteImport.update({
-    id: '/pedidos',
-    path: '/pedidos',
-    getParentRoute: () => AuthenticatedAdminFiscalRoute,
+    id: '/fiscal/pedidos',
+    path: '/fiscal/pedidos',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInstagramIndexRoute =
   AuthenticatedAdminInstagramIndexRouteImport.update({
@@ -1589,6 +1596,24 @@ const AuthenticatedAdminMarketingIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAdminMarketingRoute,
   } as any)
+const AuthenticatedAdminMarketingCatalogoRoute =
+  AuthenticatedAdminMarketingCatalogoRouteImport.update({
+    id: '/catalogo',
+    path: '/catalogo',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
+const AuthenticatedAdminMarketingConteudoRoute =
+  AuthenticatedAdminMarketingConteudoRouteImport.update({
+    id: '/conteudo',
+    path: '/conteudo',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
+const AuthenticatedAdminMarketingCrmEmailRoute =
+  AuthenticatedAdminMarketingCrmEmailRouteImport.update({
+    id: '/crm-email',
+    path: '/crm-email',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
 const AuthenticatedAdminMarketingInteligenciaRoute =
   AuthenticatedAdminMarketingInteligenciaRouteImport.update({
     id: '/inteligencia',
@@ -1605,6 +1630,18 @@ const AuthenticatedAdminMarketingMercadoRoute =
   AuthenticatedAdminMarketingMercadoRouteImport.update({
     id: '/mercado',
     path: '/mercado',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
+const AuthenticatedAdminMarketingPainelRoute =
+  AuthenticatedAdminMarketingPainelRouteImport.update({
+    id: '/painel',
+    path: '/painel',
+    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+  } as any)
+const AuthenticatedAdminMarketingPrecosRoute =
+  AuthenticatedAdminMarketingPrecosRouteImport.update({
+    id: '/precos',
+    path: '/precos',
     getParentRoute: () => AuthenticatedAdminMarketingRoute,
   } as any)
 const AuthenticatedAdminPedidosIndexRoute =
@@ -1655,11 +1692,17 @@ const AuthenticatedAdminProdutosTamanhosRoute =
     path: '/produtos/tamanhos',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSaasIndexRoute =
+  AuthenticatedAdminSaasIndexRouteImport.update({
+    id: '/saas/',
+    path: '/saas/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSaasSuporteRoute =
   AuthenticatedAdminSaasSuporteRouteImport.update({
-    id: '/suporte',
-    path: '/suporte',
-    getParentRoute: () => AuthenticatedAdminSaasRoute,
+    id: '/saas/suporte',
+    path: '/saas/suporte',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdsCampaignsIdRoute =
   AuthenticatedAdsCampaignsIdRouteImport.update({
@@ -2256,7 +2299,6 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/admin/fiscal': typeof AuthenticatedAdminFiscalRouteWithChildren
   '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
@@ -2266,7 +2308,6 @@ export interface FileRoutesByFullPath {
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
-  '/admin/saas': typeof AuthenticatedAdminSaasRouteWithChildren
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
@@ -2386,6 +2427,7 @@ export interface FileRoutesByFullPath {
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/events': typeof LovableEmailEventsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/market/': typeof AuthenticatedMarketIndexRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
@@ -2423,9 +2465,14 @@ export interface FileRoutesByFullPath {
   '/admin/leads/macro': typeof AuthenticatedAdminLeadsMacroRoute
   '/admin/leads/pipeline': typeof AuthenticatedAdminLeadsPipelineRoute
   '/admin/leads/qualificados': typeof AuthenticatedAdminLeadsQualificadosRoute
+  '/admin/marketing/catalogo': typeof AuthenticatedAdminMarketingCatalogoRoute
+  '/admin/marketing/conteudo': typeof AuthenticatedAdminMarketingConteudoRoute
+  '/admin/marketing/crm-email': typeof AuthenticatedAdminMarketingCrmEmailRoute
   '/admin/marketing/inteligencia': typeof AuthenticatedAdminMarketingInteligenciaRoute
   '/admin/marketing/kpis': typeof AuthenticatedAdminMarketingKpisRoute
   '/admin/marketing/mercado': typeof AuthenticatedAdminMarketingMercadoRoute
+  '/admin/marketing/painel': typeof AuthenticatedAdminMarketingPainelRoute
+  '/admin/marketing/precos': typeof AuthenticatedAdminMarketingPrecosRoute
   '/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
   '/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
@@ -2506,11 +2553,13 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/admin/fiscal/': typeof AuthenticatedAdminFiscalIndexRoute
   '/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
+  '/admin/saas/': typeof AuthenticatedAdminSaasIndexRoute
   '/app/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
@@ -2553,7 +2602,6 @@ export interface FileRoutesByTo {
   '/growth': typeof AuthenticatedGrowthRouteWithChildren
   '/instagram': typeof AuthenticatedInstagramRouteWithChildren
   '/logs': typeof AuthenticatedLogsRoute
-  '/market': typeof AuthenticatedMarketRouteWithChildren
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -2586,7 +2634,6 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/admin/fiscal': typeof AuthenticatedAdminFiscalRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
@@ -2594,7 +2641,6 @@ export interface FileRoutesByTo {
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
-  '/admin/saas': typeof AuthenticatedAdminSaasRouteWithChildren
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
@@ -2705,6 +2751,7 @@ export interface FileRoutesByTo {
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/events': typeof LovableEmailEventsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/market': typeof AuthenticatedMarketIndexRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
   '/dojo/app': typeof DojoAppIndexRoute
@@ -2742,9 +2789,14 @@ export interface FileRoutesByTo {
   '/admin/leads/macro': typeof AuthenticatedAdminLeadsMacroRoute
   '/admin/leads/pipeline': typeof AuthenticatedAdminLeadsPipelineRoute
   '/admin/leads/qualificados': typeof AuthenticatedAdminLeadsQualificadosRoute
+  '/admin/marketing/catalogo': typeof AuthenticatedAdminMarketingCatalogoRoute
+  '/admin/marketing/conteudo': typeof AuthenticatedAdminMarketingConteudoRoute
+  '/admin/marketing/crm-email': typeof AuthenticatedAdminMarketingCrmEmailRoute
   '/admin/marketing/inteligencia': typeof AuthenticatedAdminMarketingInteligenciaRoute
   '/admin/marketing/kpis': typeof AuthenticatedAdminMarketingKpisRoute
   '/admin/marketing/mercado': typeof AuthenticatedAdminMarketingMercadoRoute
+  '/admin/marketing/painel': typeof AuthenticatedAdminMarketingPainelRoute
+  '/admin/marketing/precos': typeof AuthenticatedAdminMarketingPrecosRoute
   '/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
   '/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
@@ -2823,11 +2875,13 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/ads': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/admin/fiscal': typeof AuthenticatedAdminFiscalIndexRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramIndexRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/marketing': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
+  '/admin/saas': typeof AuthenticatedAdminSaasIndexRoute
   '/app/documents': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates': typeof DojoAppContractTemplatesIndexRoute
@@ -2914,7 +2968,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/_authenticated/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/_authenticated/admin/fiscal': typeof AuthenticatedAdminFiscalRouteWithChildren
   '/_authenticated/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/loja': typeof AuthenticatedAdminLojaRoute
@@ -2924,7 +2977,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/_authenticated/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/_authenticated/admin/prospect': typeof AuthenticatedAdminProspectRoute
-  '/_authenticated/admin/saas': typeof AuthenticatedAdminSaasRouteWithChildren
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
@@ -3044,6 +3096,7 @@ export interface FileRoutesById {
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/events': typeof LovableEmailEventsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/market/': typeof AuthenticatedMarketIndexRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
@@ -3081,9 +3134,14 @@ export interface FileRoutesById {
   '/_authenticated/admin/leads/macro': typeof AuthenticatedAdminLeadsMacroRoute
   '/_authenticated/admin/leads/pipeline': typeof AuthenticatedAdminLeadsPipelineRoute
   '/_authenticated/admin/leads/qualificados': typeof AuthenticatedAdminLeadsQualificadosRoute
+  '/_authenticated/admin/marketing/catalogo': typeof AuthenticatedAdminMarketingCatalogoRoute
+  '/_authenticated/admin/marketing/conteudo': typeof AuthenticatedAdminMarketingConteudoRoute
+  '/_authenticated/admin/marketing/crm-email': typeof AuthenticatedAdminMarketingCrmEmailRoute
   '/_authenticated/admin/marketing/inteligencia': typeof AuthenticatedAdminMarketingInteligenciaRoute
   '/_authenticated/admin/marketing/kpis': typeof AuthenticatedAdminMarketingKpisRoute
   '/_authenticated/admin/marketing/mercado': typeof AuthenticatedAdminMarketingMercadoRoute
+  '/_authenticated/admin/marketing/painel': typeof AuthenticatedAdminMarketingPainelRoute
+  '/_authenticated/admin/marketing/precos': typeof AuthenticatedAdminMarketingPrecosRoute
   '/_authenticated/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
   '/_authenticated/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/_authenticated/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
@@ -3164,11 +3222,13 @@ export interface FileRoutesById {
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/_authenticated/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/_authenticated/admin/fiscal/': typeof AuthenticatedAdminFiscalIndexRoute
   '/_authenticated/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/_authenticated/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/_authenticated/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
+  '/_authenticated/admin/saas/': typeof AuthenticatedAdminSaasIndexRoute
   '/app/_student/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
@@ -3254,7 +3314,6 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dojo'
     | '/admin/envio'
-    | '/admin/fiscal'
     | '/admin/instagram'
     | '/admin/logs'
     | '/admin/loja'
@@ -3264,7 +3323,6 @@ export interface FileRouteTypes {
     | '/admin/perfil'
     | '/admin/producao'
     | '/admin/prospect'
-    | '/admin/saas'
     | '/admin/usuarios'
     | '/ads/alerts'
     | '/ads/campaigns'
@@ -3384,6 +3442,7 @@ export interface FileRouteTypes {
     | '/loja/produto/$slug'
     | '/lovable/email/events'
     | '/admin/'
+    | '/market/'
     | '/prospect/'
     | '/store/'
     | '/dojo/app/'
@@ -3421,9 +3480,14 @@ export interface FileRouteTypes {
     | '/admin/leads/macro'
     | '/admin/leads/pipeline'
     | '/admin/leads/qualificados'
+    | '/admin/marketing/catalogo'
+    | '/admin/marketing/conteudo'
+    | '/admin/marketing/crm-email'
     | '/admin/marketing/inteligencia'
     | '/admin/marketing/kpis'
     | '/admin/marketing/mercado'
+    | '/admin/marketing/painel'
+    | '/admin/marketing/precos'
     | '/admin/pedidos/$orderId'
     | '/admin/produtos/faixa-calc'
     | '/admin/produtos/imagens'
@@ -3504,11 +3568,13 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/preview'
     | '/admin/ads/'
     | '/admin/anuncios/'
+    | '/admin/fiscal/'
     | '/admin/instagram/'
     | '/admin/leads/'
     | '/admin/marketing/'
     | '/admin/pedidos/'
     | '/admin/produtos/'
+    | '/admin/saas/'
     | '/app/documents/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
@@ -3551,7 +3617,6 @@ export interface FileRouteTypes {
     | '/growth'
     | '/instagram'
     | '/logs'
-    | '/market'
     | '/profile'
     | '/settings'
     | '/users'
@@ -3584,7 +3649,6 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dojo'
     | '/admin/envio'
-    | '/admin/fiscal'
     | '/admin/logs'
     | '/admin/loja'
     | '/admin/notificacoes'
@@ -3592,7 +3656,6 @@ export interface FileRouteTypes {
     | '/admin/perfil'
     | '/admin/producao'
     | '/admin/prospect'
-    | '/admin/saas'
     | '/admin/usuarios'
     | '/ads/alerts'
     | '/ads/campaigns'
@@ -3703,6 +3766,7 @@ export interface FileRouteTypes {
     | '/loja/produto/$slug'
     | '/lovable/email/events'
     | '/admin'
+    | '/market'
     | '/prospect'
     | '/store'
     | '/dojo/app'
@@ -3740,9 +3804,14 @@ export interface FileRouteTypes {
     | '/admin/leads/macro'
     | '/admin/leads/pipeline'
     | '/admin/leads/qualificados'
+    | '/admin/marketing/catalogo'
+    | '/admin/marketing/conteudo'
+    | '/admin/marketing/crm-email'
     | '/admin/marketing/inteligencia'
     | '/admin/marketing/kpis'
     | '/admin/marketing/mercado'
+    | '/admin/marketing/painel'
+    | '/admin/marketing/precos'
     | '/admin/pedidos/$orderId'
     | '/admin/produtos/faixa-calc'
     | '/admin/produtos/imagens'
@@ -3821,11 +3890,13 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/preview'
     | '/admin/ads'
     | '/admin/anuncios'
+    | '/admin/fiscal'
     | '/admin/instagram'
     | '/admin/leads'
     | '/admin/marketing'
     | '/admin/pedidos'
     | '/admin/produtos'
+    | '/admin/saas'
     | '/app/documents'
     | '/dojo/app/competitions'
     | '/dojo/app/contract-templates'
@@ -3911,7 +3982,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/dojo'
     | '/_authenticated/admin/envio'
-    | '/_authenticated/admin/fiscal'
     | '/_authenticated/admin/instagram'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/loja'
@@ -3921,7 +3991,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/perfil'
     | '/_authenticated/admin/producao'
     | '/_authenticated/admin/prospect'
-    | '/_authenticated/admin/saas'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/ads/alerts'
     | '/_authenticated/ads/campaigns'
@@ -4041,6 +4110,7 @@ export interface FileRouteTypes {
     | '/loja/produto/$slug'
     | '/lovable/email/events'
     | '/_authenticated/admin/'
+    | '/_authenticated/market/'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
     | '/dojo/app/'
@@ -4078,9 +4148,14 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/leads/macro'
     | '/_authenticated/admin/leads/pipeline'
     | '/_authenticated/admin/leads/qualificados'
+    | '/_authenticated/admin/marketing/catalogo'
+    | '/_authenticated/admin/marketing/conteudo'
+    | '/_authenticated/admin/marketing/crm-email'
     | '/_authenticated/admin/marketing/inteligencia'
     | '/_authenticated/admin/marketing/kpis'
     | '/_authenticated/admin/marketing/mercado'
+    | '/_authenticated/admin/marketing/painel'
+    | '/_authenticated/admin/marketing/precos'
     | '/_authenticated/admin/pedidos/$orderId'
     | '/_authenticated/admin/produtos/faixa-calc'
     | '/_authenticated/admin/produtos/imagens'
@@ -4161,11 +4236,13 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/preview'
     | '/_authenticated/admin/ads/'
     | '/_authenticated/admin/anuncios/'
+    | '/_authenticated/admin/fiscal/'
     | '/_authenticated/admin/instagram/'
     | '/_authenticated/admin/leads/'
     | '/_authenticated/admin/marketing/'
     | '/_authenticated/admin/pedidos/'
     | '/_authenticated/admin/produtos/'
+    | '/_authenticated/admin/saas/'
     | '/app/_student/documents/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
@@ -4670,13 +4747,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEnvioRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/fiscal': {
-      id: '/_authenticated/admin/fiscal'
-      path: '/fiscal'
-      fullPath: '/admin/fiscal'
-      preLoaderRoute: typeof AuthenticatedAdminFiscalRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/instagram': {
       id: '/_authenticated/admin/instagram'
       path: '/instagram'
@@ -4738,13 +4808,6 @@ declare module '@tanstack/react-router' {
       path: '/prospect'
       fullPath: '/admin/prospect'
       preLoaderRoute: typeof AuthenticatedAdminProspectRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/saas': {
-      id: '/_authenticated/admin/saas'
-      path: '/saas'
-      fullPath: '/admin/saas'
-      preLoaderRoute: typeof AuthenticatedAdminSaasRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/usuarios': {
@@ -4907,6 +4970,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/instagram/inbox'
       preLoaderRoute: typeof AuthenticatedInstagramInboxRouteImport
       parentRoute: typeof AuthenticatedInstagramRoute
+    }
+    '/_authenticated/market/': {
+      id: '/_authenticated/market/'
+      path: '/'
+      fullPath: '/market/'
+      preLoaderRoute: typeof AuthenticatedMarketIndexRouteImport
+      parentRoute: typeof AuthenticatedMarketRoute
     }
     '/_authenticated/market/catalog': {
       id: '/_authenticated/market/catalog'
@@ -5748,12 +5818,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAnunciosOtimizacaoRouteImport
       parentRoute: typeof AuthenticatedAdminAnunciosRoute
     }
+    '/_authenticated/admin/fiscal/': {
+      id: '/_authenticated/admin/fiscal/'
+      path: '/fiscal'
+      fullPath: '/admin/fiscal/'
+      preLoaderRoute: typeof AuthenticatedAdminFiscalIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/fiscal/pedidos': {
       id: '/_authenticated/admin/fiscal/pedidos'
-      path: '/pedidos'
+      path: '/fiscal/pedidos'
       fullPath: '/admin/fiscal/pedidos'
       preLoaderRoute: typeof AuthenticatedAdminFiscalPedidosRouteImport
-      parentRoute: typeof AuthenticatedAdminFiscalRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/instagram/': {
       id: '/_authenticated/admin/instagram/'
@@ -5867,6 +5944,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMarketingIndexRouteImport
       parentRoute: typeof AuthenticatedAdminMarketingRoute
     }
+    '/_authenticated/admin/marketing/catalogo': {
+      id: '/_authenticated/admin/marketing/catalogo'
+      path: '/catalogo'
+      fullPath: '/admin/marketing/catalogo'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingCatalogoRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
+    '/_authenticated/admin/marketing/conteudo': {
+      id: '/_authenticated/admin/marketing/conteudo'
+      path: '/conteudo'
+      fullPath: '/admin/marketing/conteudo'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingConteudoRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
+    '/_authenticated/admin/marketing/crm-email': {
+      id: '/_authenticated/admin/marketing/crm-email'
+      path: '/crm-email'
+      fullPath: '/admin/marketing/crm-email'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingCrmEmailRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
     '/_authenticated/admin/marketing/inteligencia': {
       id: '/_authenticated/admin/marketing/inteligencia'
       path: '/inteligencia'
@@ -5886,6 +5984,20 @@ declare module '@tanstack/react-router' {
       path: '/mercado'
       fullPath: '/admin/marketing/mercado'
       preLoaderRoute: typeof AuthenticatedAdminMarketingMercadoRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
+    '/_authenticated/admin/marketing/painel': {
+      id: '/_authenticated/admin/marketing/painel'
+      path: '/painel'
+      fullPath: '/admin/marketing/painel'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingPainelRouteImport
+      parentRoute: typeof AuthenticatedAdminMarketingRoute
+    }
+    '/_authenticated/admin/marketing/precos': {
+      id: '/_authenticated/admin/marketing/precos'
+      path: '/precos'
+      fullPath: '/admin/marketing/precos'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingPrecosRouteImport
       parentRoute: typeof AuthenticatedAdminMarketingRoute
     }
     '/_authenticated/admin/pedidos/': {
@@ -5944,12 +6056,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProdutosTamanhosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/saas/': {
+      id: '/_authenticated/admin/saas/'
+      path: '/saas'
+      fullPath: '/admin/saas/'
+      preLoaderRoute: typeof AuthenticatedAdminSaasIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/saas/suporte': {
       id: '/_authenticated/admin/saas/suporte'
-      path: '/suporte'
+      path: '/saas/suporte'
       fullPath: '/admin/saas/suporte'
       preLoaderRoute: typeof AuthenticatedAdminSaasSuporteRouteImport
-      parentRoute: typeof AuthenticatedAdminSaasRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/ads/campaigns/$id': {
       id: '/_authenticated/ads/campaigns/$id'
@@ -6718,20 +6837,6 @@ const AuthenticatedAdminAnunciosRouteWithChildren =
     AuthenticatedAdminAnunciosRouteChildren,
   )
 
-interface AuthenticatedAdminFiscalRouteChildren {
-  AuthenticatedAdminFiscalPedidosRoute: typeof AuthenticatedAdminFiscalPedidosRoute
-}
-
-const AuthenticatedAdminFiscalRouteChildren: AuthenticatedAdminFiscalRouteChildren =
-  {
-    AuthenticatedAdminFiscalPedidosRoute: AuthenticatedAdminFiscalPedidosRoute,
-  }
-
-const AuthenticatedAdminFiscalRouteWithChildren =
-  AuthenticatedAdminFiscalRoute._addFileChildren(
-    AuthenticatedAdminFiscalRouteChildren,
-  )
-
 interface AuthenticatedAdminInstagramRouteChildren {
   AuthenticatedAdminInstagramAdminRoute: typeof AuthenticatedAdminInstagramAdminRoute
   AuthenticatedAdminInstagramAutomacoesRoute: typeof AuthenticatedAdminInstagramAutomacoesRoute
@@ -6765,19 +6870,34 @@ const AuthenticatedAdminInstagramRouteWithChildren =
   )
 
 interface AuthenticatedAdminMarketingRouteChildren {
+  AuthenticatedAdminMarketingCatalogoRoute: typeof AuthenticatedAdminMarketingCatalogoRoute
+  AuthenticatedAdminMarketingConteudoRoute: typeof AuthenticatedAdminMarketingConteudoRoute
+  AuthenticatedAdminMarketingCrmEmailRoute: typeof AuthenticatedAdminMarketingCrmEmailRoute
   AuthenticatedAdminMarketingInteligenciaRoute: typeof AuthenticatedAdminMarketingInteligenciaRoute
   AuthenticatedAdminMarketingKpisRoute: typeof AuthenticatedAdminMarketingKpisRoute
   AuthenticatedAdminMarketingMercadoRoute: typeof AuthenticatedAdminMarketingMercadoRoute
+  AuthenticatedAdminMarketingPainelRoute: typeof AuthenticatedAdminMarketingPainelRoute
+  AuthenticatedAdminMarketingPrecosRoute: typeof AuthenticatedAdminMarketingPrecosRoute
   AuthenticatedAdminMarketingIndexRoute: typeof AuthenticatedAdminMarketingIndexRoute
 }
 
 const AuthenticatedAdminMarketingRouteChildren: AuthenticatedAdminMarketingRouteChildren =
   {
+    AuthenticatedAdminMarketingCatalogoRoute:
+      AuthenticatedAdminMarketingCatalogoRoute,
+    AuthenticatedAdminMarketingConteudoRoute:
+      AuthenticatedAdminMarketingConteudoRoute,
+    AuthenticatedAdminMarketingCrmEmailRoute:
+      AuthenticatedAdminMarketingCrmEmailRoute,
     AuthenticatedAdminMarketingInteligenciaRoute:
       AuthenticatedAdminMarketingInteligenciaRoute,
     AuthenticatedAdminMarketingKpisRoute: AuthenticatedAdminMarketingKpisRoute,
     AuthenticatedAdminMarketingMercadoRoute:
       AuthenticatedAdminMarketingMercadoRoute,
+    AuthenticatedAdminMarketingPainelRoute:
+      AuthenticatedAdminMarketingPainelRoute,
+    AuthenticatedAdminMarketingPrecosRoute:
+      AuthenticatedAdminMarketingPrecosRoute,
     AuthenticatedAdminMarketingIndexRoute:
       AuthenticatedAdminMarketingIndexRoute,
   }
@@ -6785,20 +6905,6 @@ const AuthenticatedAdminMarketingRouteChildren: AuthenticatedAdminMarketingRoute
 const AuthenticatedAdminMarketingRouteWithChildren =
   AuthenticatedAdminMarketingRoute._addFileChildren(
     AuthenticatedAdminMarketingRouteChildren,
-  )
-
-interface AuthenticatedAdminSaasRouteChildren {
-  AuthenticatedAdminSaasSuporteRoute: typeof AuthenticatedAdminSaasSuporteRoute
-}
-
-const AuthenticatedAdminSaasRouteChildren: AuthenticatedAdminSaasRouteChildren =
-  {
-    AuthenticatedAdminSaasSuporteRoute: AuthenticatedAdminSaasSuporteRoute,
-  }
-
-const AuthenticatedAdminSaasRouteWithChildren =
-  AuthenticatedAdminSaasRoute._addFileChildren(
-    AuthenticatedAdminSaasRouteChildren,
   )
 
 interface AuthenticatedAdminRouteChildren {
@@ -6814,7 +6920,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminDojoRoute: typeof AuthenticatedAdminDojoRoute
   AuthenticatedAdminEnvioRoute: typeof AuthenticatedAdminEnvioRoute
-  AuthenticatedAdminFiscalRoute: typeof AuthenticatedAdminFiscalRouteWithChildren
   AuthenticatedAdminInstagramRoute: typeof AuthenticatedAdminInstagramRouteWithChildren
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminLojaRoute: typeof AuthenticatedAdminLojaRoute
@@ -6824,9 +6929,9 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPerfilRoute: typeof AuthenticatedAdminPerfilRoute
   AuthenticatedAdminProducaoRoute: typeof AuthenticatedAdminProducaoRoute
   AuthenticatedAdminProspectRoute: typeof AuthenticatedAdminProspectRoute
-  AuthenticatedAdminSaasRoute: typeof AuthenticatedAdminSaasRouteWithChildren
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminFiscalPedidosRoute: typeof AuthenticatedAdminFiscalPedidosRoute
   AuthenticatedAdminLeadsIdRoute: typeof AuthenticatedAdminLeadsIdRoute
   AuthenticatedAdminLeadsBuscaRoute: typeof AuthenticatedAdminLeadsBuscaRoute
   AuthenticatedAdminLeadsConfiguracoesRoute: typeof AuthenticatedAdminLeadsConfiguracoesRoute
@@ -6840,9 +6945,12 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminProdutosImportarRoute: typeof AuthenticatedAdminProdutosImportarRoute
   AuthenticatedAdminProdutosPacotesRoute: typeof AuthenticatedAdminProdutosPacotesRoute
   AuthenticatedAdminProdutosTamanhosRoute: typeof AuthenticatedAdminProdutosTamanhosRoute
+  AuthenticatedAdminSaasSuporteRoute: typeof AuthenticatedAdminSaasSuporteRoute
+  AuthenticatedAdminFiscalIndexRoute: typeof AuthenticatedAdminFiscalIndexRoute
   AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
   AuthenticatedAdminPedidosIndexRoute: typeof AuthenticatedAdminPedidosIndexRoute
   AuthenticatedAdminProdutosIndexRoute: typeof AuthenticatedAdminProdutosIndexRoute
+  AuthenticatedAdminSaasIndexRoute: typeof AuthenticatedAdminSaasIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -6858,7 +6966,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAdminDojoRoute: AuthenticatedAdminDojoRoute,
   AuthenticatedAdminEnvioRoute: AuthenticatedAdminEnvioRoute,
-  AuthenticatedAdminFiscalRoute: AuthenticatedAdminFiscalRouteWithChildren,
   AuthenticatedAdminInstagramRoute:
     AuthenticatedAdminInstagramRouteWithChildren,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
@@ -6870,9 +6977,9 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPerfilRoute: AuthenticatedAdminPerfilRoute,
   AuthenticatedAdminProducaoRoute: AuthenticatedAdminProducaoRoute,
   AuthenticatedAdminProspectRoute: AuthenticatedAdminProspectRoute,
-  AuthenticatedAdminSaasRoute: AuthenticatedAdminSaasRouteWithChildren,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminFiscalPedidosRoute: AuthenticatedAdminFiscalPedidosRoute,
   AuthenticatedAdminLeadsIdRoute: AuthenticatedAdminLeadsIdRoute,
   AuthenticatedAdminLeadsBuscaRoute: AuthenticatedAdminLeadsBuscaRoute,
   AuthenticatedAdminLeadsConfiguracoesRoute:
@@ -6893,9 +7000,12 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminProdutosPacotesRoute,
   AuthenticatedAdminProdutosTamanhosRoute:
     AuthenticatedAdminProdutosTamanhosRoute,
+  AuthenticatedAdminSaasSuporteRoute: AuthenticatedAdminSaasSuporteRoute,
+  AuthenticatedAdminFiscalIndexRoute: AuthenticatedAdminFiscalIndexRoute,
   AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,
   AuthenticatedAdminPedidosIndexRoute: AuthenticatedAdminPedidosIndexRoute,
   AuthenticatedAdminProdutosIndexRoute: AuthenticatedAdminProdutosIndexRoute,
+  AuthenticatedAdminSaasIndexRoute: AuthenticatedAdminSaasIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
@@ -6997,6 +7107,7 @@ interface AuthenticatedMarketRouteChildren {
   AuthenticatedMarketCrmRoute: typeof AuthenticatedMarketCrmRoute
   AuthenticatedMarketOverviewRoute: typeof AuthenticatedMarketOverviewRoute
   AuthenticatedMarketPricingRoute: typeof AuthenticatedMarketPricingRoute
+  AuthenticatedMarketIndexRoute: typeof AuthenticatedMarketIndexRoute
 }
 
 const AuthenticatedMarketRouteChildren: AuthenticatedMarketRouteChildren = {
@@ -7006,6 +7117,7 @@ const AuthenticatedMarketRouteChildren: AuthenticatedMarketRouteChildren = {
   AuthenticatedMarketCrmRoute: AuthenticatedMarketCrmRoute,
   AuthenticatedMarketOverviewRoute: AuthenticatedMarketOverviewRoute,
   AuthenticatedMarketPricingRoute: AuthenticatedMarketPricingRoute,
+  AuthenticatedMarketIndexRoute: AuthenticatedMarketIndexRoute,
 }
 
 const AuthenticatedMarketRouteWithChildren =

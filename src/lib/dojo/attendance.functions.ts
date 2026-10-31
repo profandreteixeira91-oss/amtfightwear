@@ -226,9 +226,14 @@ export const manualCheckin = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const isAdmin = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" as any });
-    const isTeacher = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "moderator" as any }); // 'teacher' mapping to 'moderator' enum
-    const isOverride = !!(isAdmin.data || isTeacher.data);
+    // Pode forçar o check-in quem é dono do aluno, professor ou admin da plataforma.
+    // (O papel "admin" era dado a todo cadastro, inclusive alunos, e não serve para isso.)
+    const [{ data: studentRow }, isTeacher, isAmtAdmin] = await Promise.all([
+      context.supabase.from("dojo_students").select("owner_id").eq("id", data.studentId).maybeSingle(),
+      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "moderator" as any }), // 'teacher' mapping to 'moderator' enum
+      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "amt_admin" as any }),
+    ]);
+    const isOverride = studentRow?.owner_id === context.userId || !!(isTeacher.data || isAmtAdmin.data);
 
     const validation = await validateAndResolveCheckin(
       context.supabase,

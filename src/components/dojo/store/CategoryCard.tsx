@@ -3,7 +3,7 @@ import { ArrowUpRight, LucideIcon, Shirt, Sparkles, Award, Layers } from "lucide
 
 // Fotos reais dos produtos publicados em amtfightwear.com.br
 const SB =
-  "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images";
+  "https://gudjmkiyprgwgxmzbgji.supabase.co/storage/v1/object/public/product-images";
 
 const ICONS: Record<string, LucideIcon> = {
   "faixas-de-jiu-jitsu": Award,

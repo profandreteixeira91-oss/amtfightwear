@@ -108,7 +108,7 @@ function CampaignDetailPage() {
   });
   const delMut = useMutation({
     mutationFn: () => del({ data: { id } }),
-    onSuccess: () => { toast.success("Campanha removida"); nav({ to: "/ads/campaigns" }); },
+    onSuccess: () => { toast.success("Campanha removida"); nav({ to: "/admin/anuncios/campanhas" }); },
     onError: (e: Error) => toast.error(e.message),
   });
 

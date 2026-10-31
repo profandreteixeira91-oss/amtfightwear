@@ -46,7 +46,8 @@ const NAV: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/ads/pixel", label: "Pixel", icon: Crosshair },
   { to: "/admin/ads/historico", label: "Histórico", icon: History },
   { to: "/admin/ads/gerador-ia", label: "Gerador Criativo", icon: Wand2 },
-  { to: "/admin/ads/configuracoes", label: "Configurações", icon: Settings },
+  // Não existe /admin/ads/configuracoes: contas e tokens da Meta ficam na tela de conexão.
+  { to: "/admin/anuncios/conexoes", label: "Configurações", icon: Settings },
 ];
 
 export function AdsManagerShell({ children }: { children: React.ReactNode }) {

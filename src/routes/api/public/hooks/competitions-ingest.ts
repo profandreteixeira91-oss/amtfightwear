@@ -18,7 +18,8 @@ export const Route = createFileRoute("/api/public/hooks/competitions-ingest")({
 
         // Import dinâmico para manter o server-only fora do bundle client
         const mod = await import("@/lib/dojo/competitions/ingest.functions");
-        const result = await (mod.runCompetitionIngest as unknown as (i: { data: object }) => Promise<unknown>)({ data: {} });
+        // runIngest direto: a server function exige login do dono da plataforma.
+        const result = await mod.runIngest({});
         return new Response(JSON.stringify(result), {
           headers: { "Content-Type": "application/json" },
         });

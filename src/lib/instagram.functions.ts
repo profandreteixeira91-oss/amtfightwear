@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
@@ -188,6 +189,7 @@ export const uploadContentImage = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Aceita data URL completa ou só base64

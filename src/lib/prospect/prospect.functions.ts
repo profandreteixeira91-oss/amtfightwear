@@ -7,6 +7,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { normalizeName, computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
 // Tipo JSON-serializável aceito pelo TanStack Start.
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
@@ -764,6 +765,7 @@ export const uploadOutreachImage = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const raw = data.base64.includes(",") ? data.base64.split(",")[1] : data.base64;
     const bin = atob(raw);

@@ -40,7 +40,7 @@ export const getClassRanking = createServerFn({ method: "GET" })
     if (clsErr) throw new Error(clsErr.message);
     if (!cls) throw new Error("Turma não encontrada");
     if (cls.owner_id !== userId) {
-      const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+      const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "amt_admin" });
       if (!isAdmin) throw new Error("Sem permissão para esta turma");
     }
 

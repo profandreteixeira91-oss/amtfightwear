@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { 
   FileText, 
   Send, 
@@ -47,7 +46,7 @@ import { toast } from "sonner";
 import { useRef, useState, useMemo, useEffect } from "react";
 
 
-export const Route = createFileRoute("/_authenticated/admin/fiscal")({
+export const Route = createFileRoute("/_authenticated/admin/fiscal/")({
   validateSearch: (search: Record<string, unknown>) => {
     return {
       orderId: search.orderId as string | undefined,

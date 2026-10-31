@@ -52,11 +52,11 @@ function SearchPage() {
         </TabsList>
 
         <TabsContent value="martial">
-          <MartialArtsSweepPanel onDone={() => navigate({ to: "/prospect/leads" })} />
+          <MartialArtsSweepPanel onDone={() => navigate({ to: "/admin/leads", search: { q: undefined, pipeline_stage: undefined, focus: undefined } })} />
         </TabsContent>
 
         <TabsContent value="guided">
-          <GuidedSearchPanel onDone={() => navigate({ to: "/prospect/leads" })} />
+          <GuidedSearchPanel onDone={() => navigate({ to: "/admin/leads", search: { q: undefined, pipeline_stage: undefined, focus: undefined } })} />
         </TabsContent>
       </Tabs>
     </PageShell>

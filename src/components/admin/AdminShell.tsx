@@ -36,18 +36,31 @@ import {
   StarOff,
   History,
   LifeBuoy,
-  GraduationCap,
-  Plus,
-  Moon,
-  Sun,
   PanelsTopLeft,
   ChevronRight,
+  ChevronDown,
   LogOut,
   Bell,
   Inbox,
   Factory,
+  Zap,
+  Wand2,
+  AlertTriangle,
+  Gauge,
+  Globe,
+  MessagesSquare,
+  Plug,
+  ScrollText,
+  Images,
+  Upload,
+  Receipt,
+  SlidersHorizontal,
 } from "lucide-react";
+import { toast } from "sonner";
 import { OwnerOnly } from "@/lib/auth/owner-only";
+import { useAuth } from "@/contexts/AuthContext";
+import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -92,18 +105,24 @@ import { cn } from "@/lib/utils";
  * topbar, breadcrumb, tema e guard de permissões.
  *
  * Camada 100% visual — nenhuma regra de negócio, rota ou permissão foi alterada.
+ * A Central AMT é sempre clara: o tema escuro global não se aplica aqui.
  */
 export function AdminShell({
   title,
   children,
   hideLayoutOnLoad = false,
+  deniedDescription,
 }: {
   title?: string;
   children: React.ReactNode;
   hideLayoutOnLoad?: boolean;
+  /** Mensagem exibida quando a conta não tem permissão de acesso. */
+  deniedDescription?: string;
 }) {
+  useForceLightTheme();
+
   return (
-    <OwnerOnly showLoading={!hideLayoutOnLoad}>
+    <OwnerOnly showLoading={!hideLayoutOnLoad} description={deniedDescription}>
       {({ loading }) => (
         <SidebarProvider defaultOpen>
           <div className={cn(
@@ -139,15 +158,55 @@ type NavGroup = { label: string; items: NavItem[] };
 /**
  * Mapa único de navegação da Central AMT.
  * As URLs permanecem apontando para as rotas atuais (compatibilidade total).
+ * Cada URL aparece uma única vez e toda página administrativa (exceto telas de
+ * detalhe e as subpáginas do Gerenciador de Anúncios, que tem menu próprio)
+ * tem uma entrada aqui.
  */
 const NAV: NavGroup[] = [
   {
     label: "Geral",
     items: [
       { title: "Início", url: "/admin", icon: LayoutDashboard },
-      { title: "Clientes (Loja)", url: "/admin/clientes", icon: UserSquare2 },
-      { title: "Visão Geral SaaS", url: "/admin/dojo", icon: Building2 },
       { title: "Analytics Global", url: "/admin/dashboard", icon: TrendingUp },
+    ],
+  },
+  {
+    label: "Loja AMT Fight Wear",
+    items: [
+      { title: "Gestão da Loja", url: "/admin/loja", icon: Store },
+      { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
+      { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
+      { title: "Fila de produção", url: "/admin/producao", icon: Factory },
+      { title: "Clientes da Loja", url: "/admin/clientes", icon: UserSquare2 },
+      { title: "Atacado", url: "/admin/atacado", icon: Boxes },
+      { title: "Logística / Envio", url: "/admin/envio", icon: Truck },
+    ],
+  },
+  {
+    label: "Catálogo",
+    items: [
+      { title: "Produtos", url: "/admin/produtos", icon: Package },
+      { title: "Imagens de produtos", url: "/admin/produtos/imagens", icon: Images },
+      { title: "Importar catálogo", url: "/admin/produtos/importar", icon: Upload },
+      { title: "Tabela de tamanhos", url: "/admin/produtos/tamanhos", icon: Ruler },
+      { title: "Pacotes (dimensões)", url: "/admin/produtos/pacotes", icon: Box },
+      { title: "Calc. de Faixas", url: "/admin/produtos/faixa-calc", icon: Calculator },
+    ],
+  },
+  {
+    label: "Fiscal",
+    items: [
+      { title: "Fiscal & Certificado", url: "/admin/fiscal", icon: Landmark },
+      { title: "Central de Faturamento", url: "/admin/fiscal/pedidos", icon: Receipt },
+    ],
+  },
+  {
+    label: "Dojo Manager (SaaS)",
+    items: [
+      { title: "Assinaturas & Faturas", url: "/admin/dojo", icon: Building2 },
+      { title: "Donos de Dojo", url: "/admin/clientes-growth", icon: UsersRound },
+      { title: "Suporte Dojo Manager", url: "/admin/saas/suporte", icon: LifeBuoy },
+      { title: "Notificações Global", url: "/admin/notificacoes", icon: BellRing },
     ],
   },
   {
@@ -155,55 +214,62 @@ const NAV: NavGroup[] = [
     items: [
       { title: "Leads (Inbox)", url: "/admin/leads", icon: Target },
       { title: "Pipeline", url: "/admin/leads/pipeline", icon: KanbanSquare },
+      { title: "Central de Prospecção", url: "/admin/prospect", icon: Globe },
       { title: "Prospects (Radar)", url: "/admin/leads/busca", icon: ScanSearch },
       { title: "Qualificados", url: "/admin/leads/qualificados", icon: Sparkles },
       { title: "Macro / Segmentos", url: "/admin/leads/macro", icon: TrendingUp },
       { title: "CRM Unificado", url: "/admin/crm", icon: Users },
       { title: "Atendimento", url: "/admin/atendimento", icon: MessageCircle },
-      { title: "Suporte Dojo Manager", url: "/admin/saas/suporte", icon: LifeBuoy },
+      { title: "Logs de automação", url: "/admin/leads/logs", icon: ScrollText },
+      { title: "Config. da prospecção", url: "/admin/leads/configuracoes", icon: SlidersHorizontal },
     ],
   },
   {
-    label: "Ads & Instagram",
+    label: "Anúncios",
     items: [
       { title: "Ads Dashboard", url: "/admin/anuncios", icon: Megaphone },
+      { title: "Nova campanha com IA", url: "/admin/anuncios/nova", icon: Wand2 },
+      { title: "Campanhas IA", url: "/admin/anuncios/campanhas", icon: Rocket },
       { title: "Gerenciador de Anúncios", url: "/admin/ads", icon: Target },
-      { title: "Criativos & Copys", url: "/admin/anuncios/criativos", icon: ImageIcon },
+      { title: "Criativos", url: "/admin/anuncios/criativos", icon: ImageIcon },
+      { title: "Biblioteca de Copies", url: "/admin/anuncios/copies", icon: FileText },
+      { title: "Otimização contínua", url: "/admin/anuncios/otimizacao", icon: Gauge },
+      { title: "Escala", url: "/admin/anuncios/escala", icon: TrendingUp },
+      { title: "Alertas", url: "/admin/anuncios/alertas", icon: AlertTriangle },
+      { title: "Conexão Meta Ads", url: "/admin/anuncios/conexoes", icon: Plug },
+    ],
+  },
+  {
+    label: "Marketing",
+    items: [
+      { title: "Painel de marketing", url: "/admin/marketing/painel", icon: LayoutDashboard },
+      { title: "Insights IA", url: "/admin/marketing", icon: Sparkles },
+      { title: "Inteligência comercial", url: "/admin/marketing/inteligencia", icon: CommandIcon },
+      { title: "KPIs de marketing", url: "/admin/marketing/kpis", icon: TrendingUp },
+      { title: "Mercado", url: "/admin/marketing/mercado", icon: Globe },
+      { title: "Pesquisa de preços", url: "/admin/marketing/precos", icon: Calculator },
+      { title: "Conteúdo com IA", url: "/admin/marketing/conteudo", icon: Wand2 },
+      { title: "CRM & E-mail", url: "/admin/marketing/crm-email", icon: Inbox },
+      { title: "Analytics do catálogo", url: "/admin/marketing/catalogo", icon: Package },
+    ],
+  },
+  {
+    label: "Instagram",
+    items: [
+      { title: "Visão geral", url: "/admin/instagram", icon: LayoutDashboard },
+      { title: "Inbox", url: "/admin/instagram/inbox", icon: Instagram },
+      { title: "CRM do Instagram", url: "/admin/instagram/crm", icon: Users },
+      { title: "Comentários e Menções", url: "/admin/instagram/comentarios", icon: MessagesSquare },
       { title: "Automações", url: "/admin/instagram/automacoes", icon: Sparkles },
-      { title: "IG Inbox / CRM", url: "/admin/instagram/inbox", icon: Instagram },
-      { title: "Inteligência AI", url: "/admin/marketing/inteligencia", icon: CommandIcon },
-      { title: "KPIs / Escala", url: "/admin/anuncios/escala", icon: Rocket },
-    ],
-  },
-  {
-    label: "AMT Fight Wear",
-    items: [
-      { title: "Gestão da Loja", url: "/admin/loja", icon: Store },
-      { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
-      { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
-      { title: "Catálogo", url: "/admin/produtos", icon: Package },
-      { title: "Pacotes (dimensões)", url: "/admin/produtos/pacotes", icon: Box },
-      { title: "Fila de produção", url: "/admin/producao", icon: Factory },
-      { title: "Calc. de Faixas", url: "/admin/produtos/faixa-calc", icon: Calculator },
-      { title: "Atacado", url: "/admin/atacado", icon: Boxes },
-      { title: "Logística / Envio", url: "/admin/envio", icon: Truck },
-      { title: "Fiscal & Certificado", url: "/admin/fiscal", icon: FileText },
-      { title: "Config. Fiscal Antiga", url: "/admin/produtos/tamanhos", icon: Ruler },
-    ],
-  },
-  {
-    label: "Gestão SaaS",
-    items: [
-      { title: "Donos de Dojo (SaaS)", url: "/admin/clientes-growth", icon: UsersRound },
-      { title: "Clientes da Loja (AMT)", url: "/admin/clientes", icon: UserSquare2 },
-      { title: "Assinaturas / Financeiro", url: "/admin/dojo", icon: Landmark },
-      { title: "Notificações Global", url: "/admin/notificacoes", icon: BellRing },
+      { title: "Conta do Instagram", url: "/admin/instagram/conta", icon: UserSquare2 },
+      { title: "Webhook e logs", url: "/admin/instagram/admin", icon: ScrollText },
     ],
   },
   {
     label: "Configurações",
     items: [
       { title: "Usuários / Equipe", url: "/admin/usuarios", icon: UserCog },
+      { title: "Conexões e APIs", url: "/admin/conexoes", icon: Plug },
       { title: "Logs & Segurança", url: "/admin/logs", icon: ShieldCheck },
       { title: "Ajustes do Sistema", url: "/admin/configuracoes", icon: Settings },
       { title: "Meu Perfil", url: "/admin/perfil", icon: UserSquare2 },
@@ -213,18 +279,27 @@ const NAV: NavGroup[] = [
 
 const FLAT_NAV = NAV.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })));
 
+/** Atalhos para as telas mais usadas (levam à página do módulo). */
 const QUICK_ACTIONS: NavItem[] = [
-  { title: "Novo pedido", url: "/admin/pedidos", icon: ShoppingCart },
-  { title: "Novo orçamento", url: "/admin/orcamentos", icon: FileText },
-  { title: "Novo produto", url: "/admin/produtos", icon: Package },
-  { title: "Novo lead", url: "/admin/leads", icon: Target },
-  { title: "Nova campanha", url: "/admin/anuncios", icon: Megaphone },
+  { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
+  { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
+  { title: "Produtos", url: "/admin/produtos", icon: Package },
+  { title: "Leads", url: "/admin/leads", icon: Target },
+  { title: "Nova campanha com IA", url: "/admin/anuncios/nova", icon: Wand2 },
 ];
+
+/** Item de menu mais específico que corresponde à URL atual. */
+function findActive(pathname: string) {
+  return FLAT_NAV.filter(
+    (i) => pathname === i.url || pathname.startsWith(`${i.url}/`),
+  ).sort((a, b) => b.url.length - a.url.length)[0];
+}
 
 /* --------------------------- Favoritos / Recentes ------------------------ */
 
 const FAV_KEY = "amt-admin-favorites";
 const RECENT_KEY = "amt-admin-recents";
+const CLOSED_GROUPS_KEY = "amt-admin-closed-groups";
 
 function useLocalList(key: string, limit = 8) {
   const [list, setList] = React.useState<string[]>([]);
@@ -272,7 +347,7 @@ function AdminTopbar({ title }: { title?: string }) {
 
   return (
     <>
-      <header className="admin-topbar sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md transition-all duration-300 sm:px-8">
+      <header className="admin-topbar sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur-md sm:px-6">
         <SidebarTrigger className="h-10 w-10 text-muted-foreground transition-colors hover:text-primary" />
         <div className="mx-1 hidden h-6 w-px bg-border/60 md:block" />
 
@@ -281,14 +356,16 @@ function AdminTopbar({ title }: { title?: string }) {
           className="hidden min-w-0 items-center gap-1.5 text-sm text-muted-foreground md:flex"
         >
           {crumbs.map((c, i, arr) => (
-            <React.Fragment key={c.href + i}>
+            <React.Fragment key={`${c.label}-${i}`}>
               {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-border" />}
               {i === arr.length - 1 ? (
                 <span className="truncate font-medium text-foreground">{c.label}</span>
-              ) : (
+              ) : c.href ? (
                 <Link to={c.href} className="truncate transition-colors hover:text-foreground">
                   {c.label}
                 </Link>
+              ) : (
+                <span className="truncate">{c.label}</span>
               )}
             </React.Fragment>
           ))}
@@ -306,7 +383,7 @@ function AdminTopbar({ title }: { title?: string }) {
             className="hidden h-9 items-center gap-2 rounded-full pl-3 pr-2 text-xs font-normal text-muted-foreground shadow-sm transition-all hover:text-foreground lg:inline-flex"
           >
             <Search className="h-3.5 w-3.5" />
-            <span>Buscar no ecossistema</span>
+            <span>Ir para um módulo</span>
             <kbd className="ml-4 inline-flex items-center gap-0.5 rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
               <CommandIcon className="h-3 w-3" />K
             </kbd>
@@ -320,12 +397,10 @@ function AdminTopbar({ title }: { title?: string }) {
 
           <QuickCreateMenu />
 
-          <IconAction icon={Inbox} label="Mensagens" to="/admin/atendimento" />
-          <IconAction icon={Bell} label="Notificações" to="/admin/notificacoes" dot />
-          <IconAction icon={GraduationCap} label="Tutorial guiado" to="/dojo/app/tutorial" />
-          <IconAction icon={LifeBuoy} label="Ajuda / Suporte" to="/admin/saas/suporte" />
+          <IconAction icon={Inbox} label="Atendimento" to="/admin/atendimento" />
+          <IconAction icon={Bell} label="Notificações" to="/admin/notificacoes" />
+          <IconAction icon={LifeBuoy} label="Suporte Dojo Manager" to="/admin/saas/suporte" />
 
-          <ThemeToggle />
           <EnvironmentBadge />
           <ProfileMenu />
         </div>
@@ -408,28 +483,17 @@ function QuickCreateMenu() {
           size="sm"
           className="h-9 gap-1.5 rounded-xl px-3 text-xs shadow-sm transition-transform active:scale-[0.97]"
         >
-          <Plus className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Criar</span>
+          <Zap className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Atalhos</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-          Acesso rápido
+          Ir para
         </DropdownMenuLabel>
         {QUICK_ACTIONS.map((a) => (
           <DropdownMenuItem key={a.title} asChild>
-            <Link
-              to={a.url}
-              className="flex items-center gap-2"
-              onClick={() => {
-                if (window.innerWidth < 1024) {
-                  // O SidebarContext não está acessível aqui facilmente sem prop drilling pesado,
-                  // mas como é mobile, podemos disparar um clique no trigger se estiver aberto
-                  // ou usar o window dispatch se necessário.
-                  // No entanto, para o dropdown de "Criar", ele já fecha sozinho ao clicar.
-                }
-              }}
-            >
+            <Link to={a.url} className="flex items-center gap-2">
               <a.icon className="h-4 w-4 text-muted-foreground" />
               {a.title}
             </Link>
@@ -437,31 +501,6 @@ function QuickCreateMenu() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-}
-
-function ThemeToggle() {
-  const [dark, setDark] = React.useState(false);
-  React.useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
-  }, []);
-  const toggle = () => {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    try {
-      window.localStorage.setItem("amt-admin-theme", next ? "dark" : "light");
-    } catch {
-      /* ignore */
-    }
-  };
-  return (
-    <IconAction
-      icon={dark ? Sun : Moon}
-      label={dark ? "Tema claro" : "Tema escuro"}
-      onClick={toggle}
-      className="hidden sm:inline-flex"
-    />
   );
 }
 
@@ -487,6 +526,29 @@ function EnvironmentBadge() {
 }
 
 function ProfileMenu() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const fullName = (user?.user_metadata?.full_name as string | undefined) ?? null;
+  const email = user?.email ?? null;
+  const initials =
+    (fullName ?? email ?? "AMT")
+      .split(/[\s@._-]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join("") || "AMT";
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Sessão encerrada");
+      navigate({ to: "/auth", replace: true });
+    } catch {
+      toast.error("Não foi possível encerrar a sessão");
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -495,13 +557,15 @@ function ProfileMenu() {
           aria-label="Perfil e conta"
           className="ml-1 grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-xs font-semibold text-primary-foreground shadow-sm transition-transform hover:scale-[1.03]"
         >
-          AMT
+          {initials}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel>
-          <p className="text-sm font-semibold">Central AMT</p>
-          <p className="text-xs font-normal text-muted-foreground">Administração do ecossistema</p>
+          <p className="truncate text-sm font-semibold">{fullName ?? "Central AMT"}</p>
+          <p className="truncate text-xs font-normal text-muted-foreground">
+            {email ?? "Administração do ecossistema"}
+          </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
@@ -520,26 +584,23 @@ function ProfileMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link to="/auth" className="flex items-center gap-2">
-            <LogOut className="h-4 w-4 text-muted-foreground" /> Sair
-          </Link>
+        <DropdownMenuItem onSelect={handleSignOut} className="flex items-center gap-2">
+          <LogOut className="h-4 w-4 text-muted-foreground" /> Sair
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-function buildBreadcrumbs(pathname: string): Array<{ label: string; href: string }> {
-  const active = FLAT_NAV.filter(
-    (i) => pathname === i.url || pathname.startsWith(`${i.url}/`),
-  ).sort((a, b) => b.url.length - a.url.length)[0];
-  const crumbs: Array<{ label: string; href: string }> = [
+function buildBreadcrumbs(pathname: string): Array<{ label: string; href?: string }> {
+  const active = findActive(pathname);
+  const crumbs: Array<{ label: string; href?: string }> = [
     { label: "Central AMT", href: "/admin" },
   ];
-  if (active) {
-    crumbs.push({ label: active.group, href: active.url });
-    if (active.url !== "/admin") crumbs.push({ label: active.title, href: active.url });
+  if (active && active.url !== "/admin") {
+    // O grupo é só um rótulo: não existe página própria para ele.
+    crumbs.push({ label: active.group });
+    crumbs.push({ label: active.title, href: active.url });
   }
   return crumbs;
 }
@@ -566,7 +627,7 @@ function AdminGlobalSearch({
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="Buscar alunos, turmas, pedidos, módulos e relatórios…" />
+      <CommandInput placeholder="Buscar módulos e páginas da Central AMT…" />
       <CommandList>
         <CommandEmpty>Nenhum resultado.</CommandEmpty>
         {favorites.length ? (
@@ -632,20 +693,17 @@ function AdminSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const [favorites, setFavorites] = useLocalList(FAV_KEY, 6);
   const [recents, setRecents] = useLocalList(RECENT_KEY, 5);
-  const hoverExpanded = React.useRef(false);
+  // Grupos recolhidos pelo usuário (os demais ficam abertos).
+  const [closedGroups, setClosedGroups] = useLocalList(CLOSED_GROUPS_KEY, NAV.length);
+  const activeItem = findActive(pathname);
 
-  const isActive = (url: string) =>
-    url === "/admin"
-      ? pathname === "/admin"
-      : pathname === url || pathname.startsWith(`${url}/`);
+  // Destaca só o item mais específico (ex.: /admin/fiscal/pedidos não acende /admin/fiscal).
+  const isActive = (url: string) => activeItem?.url === url;
 
   // Histórico de módulos visitados (apenas visual)
   React.useEffect(() => {
-    const match = FLAT_NAV.filter(
-      (i) => pathname === i.url || pathname.startsWith(`${i.url}/`),
-    ).sort((a, b) => b.url.length - a.url.length)[0];
-    if (!match) return;
-    setRecents([match.url, ...recents.filter((u) => u !== match.url)]);
+    if (!activeItem) return;
+    setRecents([activeItem.url, ...recents.filter((u) => u !== activeItem.url)]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
@@ -654,17 +712,10 @@ function AdminSidebar() {
       favorites.includes(url) ? favorites.filter((u) => u !== url) : [url, ...favorites],
     );
 
-  // Colapso inteligente: expande suavemente no hover quando recolhida
-  const onEnter = () => {
-    if (isMobile || state !== "collapsed") return;
-    hoverExpanded.current = true;
-    setOpen(true);
-  };
-  const onLeave = () => {
-    if (isMobile || !hoverExpanded.current) return;
-    hoverExpanded.current = false;
-    setOpen(false);
-  };
+  const isGroupOpen = (label: string) =>
+    activeItem?.group === label || !closedGroups.includes(label);
+  const setGroupOpen = (label: string, open: boolean) =>
+    setClosedGroups(open ? closedGroups.filter((g) => g !== label) : [...closedGroups, label]);
 
   const renderItem = (item: NavItem & { group?: string }, keyPrefix = "") => {
     const active = isActive(item.url);
@@ -717,13 +768,7 @@ function AdminSidebar() {
   };
 
   return (
-    <Sidebar
-      collapsible="icon"
-      className="admin-sidebar border-r"
-      data-admin="true"
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-    >
+    <Sidebar collapsible="icon" className="admin-sidebar border-r" data-admin="true">
       <SidebarHeader className="border-b bg-background/50 p-3 backdrop-blur-sm">
         <Link to="/admin" className="flex items-center gap-2.5 rounded-xl px-1 py-1 transition-opacity hover:opacity-80">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
@@ -776,19 +821,46 @@ function AdminSidebar() {
           </SidebarGroup>
         ) : null}
 
-        {NAV.map((group, gi) => (
-          <SidebarGroup key={group.label} className="px-0">
-            {gi > 0 ? <div className="mx-2 my-1.5 h-px bg-border/40" /> : null}
-            {!collapsed && (
-              <SidebarGroupLabel className="px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
-                {group.label}
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu>{group.items.map((item) => renderItem(item))}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        {NAV.map((group, gi) => {
+          // Recolhida, a sidebar mostra só ícones: todos os grupos ficam visíveis.
+          if (collapsed) {
+            return (
+              <SidebarGroup key={group.label} className="px-0">
+                {gi > 0 ? <div className="mx-2 my-1.5 h-px bg-border/40" /> : null}
+                <SidebarGroupContent>
+                  <SidebarMenu>{group.items.map((item) => renderItem(item))}</SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          }
+          const open = isGroupOpen(group.label);
+          return (
+            <Collapsible
+              key={group.label}
+              open={open}
+              onOpenChange={(v) => setGroupOpen(group.label, v)}
+            >
+              <SidebarGroup className="px-0 py-1">
+                <SidebarGroupLabel asChild>
+                  <CollapsibleTrigger className="flex w-full items-center gap-1 rounded-lg px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 hover:bg-muted hover:text-foreground">
+                    <span className="truncate">{group.label}</span>
+                    <span className="ml-auto text-[10px] font-semibold tracking-normal text-muted-foreground/50">
+                      {group.items.length}
+                    </span>
+                    <ChevronDown
+                      className={cn("h-3.5 w-3.5 shrink-0 transition-transform", !open && "-rotate-90")}
+                    />
+                  </CollapsibleTrigger>
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>{group.items.map((item) => renderItem(item))}</SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+          );
+        })}
       </SidebarContent>
 
       <SidebarFooter className="border-t bg-background/50 p-2 backdrop-blur-sm">
@@ -796,15 +868,15 @@ function AdminSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              tooltip={collapsed ? "Tutorial guiado" : undefined}
+              tooltip={collapsed ? "Ir para o Dojo Manager" : undefined}
               className="h-9 rounded-xl"
             >
               <Link
-                to="/dojo/app/tutorial"
+                to="/dojo/app"
                 className="flex items-center gap-2.5 text-[13px] font-medium text-muted-foreground hover:text-foreground"
               >
-                <GraduationCap className="h-4 w-4 shrink-0" />
-                {!collapsed && <span className="truncate">Tutorial guiado</span>}
+                <PanelsTopLeft className="h-4 w-4 shrink-0" />
+                {!collapsed && <span className="truncate">Ir para o Dojo Manager</span>}
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
