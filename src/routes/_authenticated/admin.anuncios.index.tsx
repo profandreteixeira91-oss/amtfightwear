@@ -20,6 +20,7 @@ import {
 import { brl } from "@/lib/format";
 import { getAdsDashboard } from "@/lib/ads/ads.functions";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/anuncios/")({
   head: () => ({ meta: [{ title: "Tráfego Pago IA — Dashboard" }] }),
@@ -31,7 +32,7 @@ function AdsDashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ["ads", "dashboard"],
     queryFn: () => fetchDash(),
-    refetchInterval: 60_000,
+    refetchInterval: ADMIN_REFRESH.dashboard,
   });
 
   const kpis = data?.kpis;

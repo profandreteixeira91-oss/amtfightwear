@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { brl } from "@/lib/format";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/catalogo")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Analytics Catálogo" }] }),
@@ -25,7 +26,7 @@ async function fetchCatalog() {
 }
 
 function CatalogPage() {
-  const { data: products, isLoading } = useQuery({ queryKey: ["catalog"], queryFn: fetchCatalog, refetchInterval: 60_000 });
+  const { data: products, isLoading } = useQuery({ queryKey: ["catalog"], queryFn: fetchCatalog, refetchInterval: ADMIN_REFRESH.analytics });
 
   const total = products?.length ?? 0;
   const avgPrice = total ? (products!.reduce((s, p) => s + Number(p.price), 0) / total) : 0;

@@ -18,6 +18,7 @@ import {
   postMessage,
   setTicketStatus,
 } from "@/lib/dojo/support.functions";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/saas/suporte")({
   // Permite abrir já filtrado (ex.: card "Suporte Dojo Manager" do Início).
@@ -58,7 +59,7 @@ function AdminSupportPage() {
     queryKey: ["admin-dojo-support", "tickets"],
     queryFn: () => listFn(),
     // A lista cruza perfis e usuários do Auth a cada carga; a conversa aberta tem atualização própria.
-    refetchInterval: 30_000,
+    refetchInterval: ADMIN_REFRESH.live,
   });
 
   const initialStatus = Route.useSearch().status;
@@ -216,7 +217,7 @@ function AdminConversation({
   const { data, refetch } = useQuery({
     queryKey: ["admin-dojo-support", "ticket", ticketId],
     queryFn: () => getFn({ data: { ticketId } }),
-    refetchInterval: 5_000,
+    refetchInterval: ADMIN_REFRESH.chat,
   });
 
   useEffect(() => {

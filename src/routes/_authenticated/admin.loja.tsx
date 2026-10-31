@@ -21,6 +21,7 @@ import { adminGetDashboard } from "@/lib/store/dashboard.functions";
 import { orderStatusLabel } from "@/lib/store/order-status";
 import { VisitorsPanel } from "@/components/store/VisitorsPanel";
 import { PageShell } from "@/components/common/PageShell";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "90d" | "year";
 
@@ -49,7 +50,7 @@ function StoreDashboard() {
   const { data, isLoading, isFetching, refetch, dataUpdatedAt } = useQuery({
     queryKey: ["store", "dashboard", range],
     queryFn: () => fetchDash({ data: { range } }),
-    refetchInterval: 30_000,
+    refetchInterval: ADMIN_REFRESH.live,
   });
 
   const now = useMemo(() => new Date(), []);

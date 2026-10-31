@@ -13,6 +13,7 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { growthService } from "@/services/growthService";
 import { intFmt } from "@/lib/format";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/mercado")({
   head: () => ({ meta: [{ title: "Mercado — AMT Growth" }] }),
@@ -23,7 +24,7 @@ function MarketPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["market_metrics"],
     queryFn: growthService.marketMetrics,
-    refetchInterval: 60_000,
+    refetchInterval: ADMIN_REFRESH.analytics,
   });
 
   const metrics = data ?? [];

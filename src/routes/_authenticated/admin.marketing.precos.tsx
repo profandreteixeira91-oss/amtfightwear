@@ -40,6 +40,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { brl } from "@/lib/format";
 import { runPriceResearch, applySuggestedPrice } from "@/lib/market-research.functions";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/precos")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Pesquisa de Mercado & Preços" }] }),
@@ -127,18 +128,18 @@ function PricingPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const qc = useQueryClient();
 
-  const productsQ = useQuery({ queryKey: ["pricing-products"], queryFn: fetchProducts, refetchInterval: 60_000 });
+  const productsQ = useQuery({ queryKey: ["pricing-products"], queryFn: fetchProducts, refetchInterval: ADMIN_REFRESH.dashboard });
   const researchQ = useQuery({
     queryKey: ["price-research", selectedId],
     queryFn: () => fetchResearch(selectedId),
     enabled: !!selectedId,
-    refetchInterval: 30_000,
+    refetchInterval: ADMIN_REFRESH.live,
   });
   const suggestionQ = useQuery({
     queryKey: ["price-suggestion", selectedId],
     queryFn: () => fetchSuggestion(selectedId),
     enabled: !!selectedId,
-    refetchInterval: 30_000,
+    refetchInterval: ADMIN_REFRESH.live,
   });
 
   const selected = productsQ.data?.find((p) => p.id === selectedId) ?? null;

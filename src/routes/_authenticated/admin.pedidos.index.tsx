@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   adminListOrders,
+  adminCountOrdersByStatus,
   adminUpdateOrderStatus,
   adminDeleteStoreOrder,
 } from "@/lib/store/store.functions";
@@ -57,7 +58,7 @@ import {
 } from "@/lib/store/order-status";
 import { formatBRDateTime } from "@/lib/dates";
 import { whatsappLink } from "@/features/prospect/utils";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Truck,
   RefreshCw,
@@ -87,6 +88,7 @@ import { PageShell } from "@/components/common/PageShell";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { cn } from "@/lib/utils";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 /** Abas da fila de pedidos, na ordem em que o pedido avança. */
 const TABS = [
@@ -151,22 +153,48 @@ type Order = {
   shipping_tracking?: string | null;
 };
 
-const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-
 function AdminOrdersPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const tab: TabKey = search.tab ?? "todos";
   const q = search.q ?? "";
 
+  const qc = useQueryClient();
   const list = useServerFn(adminListOrders);
+  const countFn = useServerFn(adminCountOrdersByStatus);
   const update = useServerFn(adminUpdateOrderStatus);
   const del = useServerFn(adminDeleteStoreOrder);
   const balanceFn = useServerFn(adminMelhorEnvioBalance);
+
+  const setSearch = (next: OrdersSearch) =>
+    navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
+
+  // O campo responde na hora; a URL (e a consulta no servidor) recebe o termo após uma pausa.
+  const [qInput, setQInput] = useState(q);
+  useEffect(() => setQInput(q), [q]);
+  useEffect(() => {
+    if (qInput.trim() === q.trim()) return;
+    const t = setTimeout(() => setSearch({ q: qInput.trim() || undefined }), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qInput]);
+
+  // Busca e aba são filtradas no servidor: a fila não fica limitada aos 200 pedidos mais recentes.
+  const tabStatuses = TABS.find((t) => t.key === tab)?.statuses;
   const { data, refetch, isLoading, isFetching, error } = useQuery({
-    queryKey: ["admin", "store", "orders"],
-    queryFn: async () => (await list()) as Order[],
-    refetchInterval: 15_000,
+    queryKey: ["admin", "store", "orders", "list", { q, tab }],
+    queryFn: async () =>
+      (await list({
+        data: { q: q || undefined, statuses: tabStatuses ? [...tabStatuses] : undefined },
+      })) as Order[],
+    placeholderData: keepPreviousData,
+    refetchInterval: ADMIN_REFRESH.queue,
+  });
+  const statusCounts = useQuery({
+    queryKey: ["admin", "store", "orders", "counts", q],
+    queryFn: () => countFn({ data: { q: q || undefined } }),
+    placeholderData: keepPreviousData,
+    refetchInterval: ADMIN_REFRESH.queue,
   });
   const { data: meInfo } = useQuery({
     queryKey: ["admin", "store", "me-balance"],
@@ -174,39 +202,22 @@ function AdminOrdersPage() {
     staleTime: 60_000,
   });
 
-  const setSearch = (next: OrdersSearch) =>
-    navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
+  const refreshOrders = () => qc.invalidateQueries({ queryKey: ["admin", "store", "orders"] });
 
-  const orders = useMemo(() => data ?? [], [data]);
+  const visible = useMemo(() => data ?? [], [data]);
 
-  const searched = useMemo(() => {
-    const term = normalize(q.trim());
-    if (!term) return orders;
-    const digits = term.replace(/\D/g, "");
-    return orders.filter((o) => {
-      const hay = normalize(`${o.order_number} ${o.customer_name ?? ""} ${o.customer_email ?? ""}`);
-      if (hay.includes(term)) return true;
-      return digits.length >= 4 && (o.customer_phone ?? "").replace(/\D/g, "").includes(digits);
-    });
-  }, [orders, q]);
-
-  // Contadores por aba respeitam a busca: a aba mostra quantos resultados terá.
   const counts = useMemo(() => {
+    const byStatus = statusCounts.data ?? {};
     const out = {} as Record<TabKey, number>;
     for (const t of TABS) {
       const statuses = t.statuses as readonly string[] | null;
-      out[t.key] = statuses
-        ? searched.filter((o) => statuses.includes(o.status)).length
-        : searched.length;
+      out[t.key] = Object.entries(byStatus)
+        .filter(([s]) => !statuses || statuses.includes(s))
+        .reduce((a, [, n]) => a + n, 0);
     }
     return out;
-  }, [searched]);
-
-  const visible = useMemo(() => {
-    const statuses = TABS.find((t) => t.key === tab)?.statuses as
-      readonly string[] | null | undefined;
-    return statuses ? searched.filter((o) => statuses.includes(o.status)) : searched;
-  }, [searched, tab]);
+  }, [statusCounts.data]);
+  const countsLoading = statusCounts.isLoading;
 
   const visibleTotal = visible.reduce((a, o) => a + Number(o.total || 0), 0);
 
@@ -214,7 +225,7 @@ function AdminOrdersPage() {
     try {
       await update({ data: { id, status } });
       toast.success("Status atualizado");
-      refetch();
+      refreshOrders();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro");
     }
@@ -224,7 +235,7 @@ function AdminOrdersPage() {
     try {
       await del({ data: { id } });
       toast.success("Pedido excluído");
-      refetch();
+      refreshOrders();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro");
     }
@@ -243,7 +254,7 @@ function AdminOrdersPage() {
       } else if (r.updated === 0) {
         toast.info("Nenhum pedido Pix pendente");
       }
-      refetch();
+      refreshOrders();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro");
     } finally {
@@ -255,7 +266,7 @@ function AdminOrdersPage() {
     <PageShell
       title="Pedidos"
       description={
-        isLoading
+        countsLoading
           ? "Carregando pedidos…"
           : `${counts.pagamento} aguardando pagamento · ${counts.enviar} a preparar/enviar · ${counts.producao} em produção`
       }
@@ -282,7 +293,7 @@ function AdminOrdersPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => refetch()}
+            onClick={() => refreshOrders()}
             disabled={isFetching}
             aria-label="Recarregar pedidos"
           >
@@ -320,7 +331,7 @@ function AdminOrdersPage() {
                     active ? "bg-primary-foreground/20" : "bg-muted text-foreground/70",
                   )}
                 >
-                  {isLoading ? "…" : counts[t.key]}
+                  {countsLoading ? "…" : counts[t.key]}
                 </span>
               </button>
             );
@@ -331,16 +342,19 @@ function AdminOrdersPage() {
           <div className="relative w-full sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              value={q}
-              onChange={(e) => setSearch({ q: e.target.value || undefined })}
+              value={qInput}
+              onChange={(e) => setQInput(e.target.value)}
               placeholder="Buscar por nº, cliente, e-mail ou telefone"
               className="pl-9 pr-9"
               aria-label="Buscar pedidos"
             />
-            {q ? (
+            {qInput ? (
               <button
                 type="button"
-                onClick={() => setSearch({ q: undefined })}
+                onClick={() => {
+                  setQInput("");
+                  setSearch({ q: undefined });
+                }}
                 className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
                 aria-label="Limpar busca"
               >
@@ -375,7 +389,9 @@ function AdminOrdersPage() {
               <EmptyState
                 icon={ShoppingCart}
                 className="m-4"
-                title={orders.length === 0 ? "Nenhum pedido ainda" : "Nenhum pedido neste filtro"}
+                title={
+                  counts.todos === 0 && !q ? "Nenhum pedido ainda" : "Nenhum pedido neste filtro"
+                }
                 description={q ? `Nada encontrado para “${q}”.` : undefined}
                 action={
                   q || tab !== "todos" ? (
@@ -454,7 +470,7 @@ function AdminOrdersPage() {
                         </Select>
                       </TableCell>
                       <TableCell>
-                        <ShippingCell order={o} onChange={() => refetch()} />
+                        <ShippingCell order={o} onChange={refreshOrders} />
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
@@ -531,9 +547,10 @@ function AdminOrdersPage() {
           </CardContent>
         </Card>
       )}
-      {orders.length >= LIST_LIMIT ? (
+      {visible.length >= LIST_LIMIT ? (
         <p className="text-center text-xs text-muted-foreground">
-          Exibindo os {LIST_LIMIT} pedidos mais recentes. A busca considera apenas esses pedidos.
+          Exibindo os {LIST_LIMIT} pedidos mais recentes deste filtro. Refine a busca para encontrar
+          pedidos mais antigos.
         </p>
       ) : null}
     </PageShell>

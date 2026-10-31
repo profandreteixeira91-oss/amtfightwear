@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { listLogs } from "@/lib/prospect/prospect.functions";
 import { fmtDateTime } from "@/features/prospect/utils";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/leads/logs")({
   head: () => ({ meta: [{ title: "Logs — Prospect Engine" }] }),
@@ -22,7 +23,7 @@ function LogsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["prospect", "logs"],
     queryFn: () => fetchFn(),
-    refetchInterval: 15_000,
+    refetchInterval: ADMIN_REFRESH.queue,
   });
 
   const logs = (data ?? []) as Log[];

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { getMetaAuthUrl, getMetaConnection, disconnectMeta } from "@/lib/meta.functions";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/conexoes")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Conexões e APIs" }] }),
@@ -27,7 +28,7 @@ function ConnectionsPage() {
   const { data: conn, isLoading } = useQuery({
     queryKey: ["meta-connection"],
     queryFn: () => fetchConnection(),
-    refetchInterval: 15000,
+    refetchInterval: ADMIN_REFRESH.dashboard,
   });
 
   const connectMutation = useMutation({

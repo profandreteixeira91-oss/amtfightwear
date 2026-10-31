@@ -30,6 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes-growth")({
   head: () => ({
@@ -73,7 +74,7 @@ function CustomersPage() {
   const { data, isLoading, error, refetch } = useQuery<DojoAccountRow[]>({
     queryKey: ["admin", "growth", "dojo-accounts"],
     queryFn: () => fetchAccounts(),
-    refetchInterval: 60_000,
+    refetchInterval: ADMIN_REFRESH.dashboard,
   });
 
   const { mutate: deleteAccount, isPending: isDeleting } = useMutation({

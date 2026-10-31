@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { growthService } from "@/services/growthService";
 import { brl, intFmt } from "@/lib/format";
 import { dayISO } from "@/lib/dates";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/inteligencia")({
   head: () => ({
@@ -32,9 +33,9 @@ export const Route = createFileRoute("/_authenticated/admin/marketing/inteligenc
 });
 
 function IntelligencePage() {
-  const orders = useQuery({ queryKey: ["orders"], queryFn: growthService.orders, refetchInterval: 30_000 });
-  const customers = useQuery({ queryKey: ["customers"], queryFn: growthService.customers, refetchInterval: 30_000 });
-  const products = useQuery({ queryKey: ["products"], queryFn: growthService.products, refetchInterval: 30_000 });
+  const orders = useQuery({ queryKey: ["orders"], queryFn: growthService.orders, refetchInterval: ADMIN_REFRESH.analytics });
+  const customers = useQuery({ queryKey: ["customers"], queryFn: growthService.customers, refetchInterval: ADMIN_REFRESH.analytics });
+  const products = useQuery({ queryKey: ["products"], queryFn: growthService.products, refetchInterval: ADMIN_REFRESH.analytics });
 
   const loading = orders.isLoading || customers.isLoading || products.isLoading;
   const error = orders.error || customers.error || products.error;

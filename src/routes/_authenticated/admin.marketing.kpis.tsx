@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { growthService } from "@/services/growthService";
 import { intFmt } from "@/lib/format";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/kpis")({
   head: () => ({ meta: [{ title: "KPIs — AMT Growth" }] }),
@@ -24,7 +25,7 @@ function KpisPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["kpi_snapshots"],
     queryFn: growthService.kpiSnapshots,
-    refetchInterval: 30_000,
+    refetchInterval: ADMIN_REFRESH.analytics,
   });
 
   const rows = data ?? [];

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { brl } from "@/lib/format";
 import { SocialInsights } from "@/components/market/SocialInsights";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/painel")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Painel Geral" }] }),
@@ -35,7 +36,7 @@ function OverviewPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["market", "overview"],
     queryFn: fetchOverview,
-    refetchInterval: 30_000,
+    refetchInterval: ADMIN_REFRESH.dashboard,
   });
 
   return (

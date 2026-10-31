@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { growthService } from "@/services/growthService";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/")({
   head: () => ({ meta: [{ title: "Insights IA — AMT Growth" }] }),
@@ -28,7 +29,7 @@ function InsightsPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["ai_insights"],
     queryFn: growthService.aiInsights,
-    refetchInterval: 60_000,
+    refetchInterval: ADMIN_REFRESH.analytics,
   });
 
   const insights = data ?? [];

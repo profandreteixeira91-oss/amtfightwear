@@ -22,6 +22,7 @@ import { generateMarketingContent, suggestViralTopics, autoBriefFromViral } from
 import { createInstagramPost, listInstagramPosts, uploadContentImage } from "@/lib/instagram.functions";
 import { Upload } from "lucide-react";
 import { PostCalendar, type CalendarPost } from "@/components/marketing/PostCalendar";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/conteudo")({
@@ -64,7 +65,7 @@ function ContentPage() {
   const { data: posts } = useQuery({
     queryKey: ["ig-posts"],
     queryFn: () => listFn(),
-    refetchInterval: 15000,
+    refetchInterval: ADMIN_REFRESH.queue,
   });
 
   const [productId, setProductId] = useState<string>("");

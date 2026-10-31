@@ -49,6 +49,7 @@ import {
   adminGetDojoLandingStats,
   type DojoAccountRow,
 } from "@/lib/store/dojo-admin.functions";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/dojo")({
   head: () => ({
@@ -115,7 +116,7 @@ function normalizeStatus(s: string | null): StatusFilter | "other" {
   return "other";
 }
 
-const REFRESH_MS = 15_000;
+const REFRESH_MS = ADMIN_REFRESH.dashboard;
 
 function AdminDojoManagerPage() {
   const fetchAccounts = useServerFn(adminListDojoAccounts);

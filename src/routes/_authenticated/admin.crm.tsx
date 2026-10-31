@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { growthService, type CrmDeal } from "@/services/growthService";
 import { brl, intFmt } from "@/lib/format";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/crm")({
   head: () => ({ meta: [{ title: "CRM — AMT Growth" }] }),
@@ -31,7 +32,7 @@ function CrmPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["crm_deals"],
     queryFn: growthService.crmDeals,
-    refetchInterval: 30_000,
+    refetchInterval: ADMIN_REFRESH.dashboard,
   });
 
   const deals = data ?? [];

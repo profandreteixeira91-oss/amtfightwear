@@ -702,19 +702,60 @@ export const cancelStoreOrder = createServerFn({ method: "POST" })
 
 // ============ ADMIN ============
 
+const OrderListFilterSchema = z
+  .object({
+    q: z.string().trim().max(120).optional(),
+    statuses: z.array(z.string().max(40)).max(10).optional(),
+  })
+  .default({});
+
+/**
+ * Busca textual em pedidos via filtro `or` do PostgREST. Remove os caracteres
+ * com significado na sintaxe do filtro (vírgula, parênteses, curingas, aspas)
+ * para o termo do usuário não alterar a consulta.
+ */
+function orderSearchFilter(q: string | undefined): string | null {
+  const term = (q ?? "").replace(/[,()*%"\\:]/g, " ").trim();
+  if (!term) return null;
+  const like = `%${term}%`;
+  return ["order_number", "customer_name", "customer_email", "customer_phone"]
+    .map((col) => `${col}.ilike.${like}`)
+    .join(",");
+}
+
 export const adminListOrders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
+  .handler(async ({ context, data: filter }) => {
     // Só as colunas da listagem: payment_raw, melhor_envio_data e o QR Pix em base64
     // pesavam centenas de KB a cada atualização automática da tela.
-    const { data } = await context.supabase
+    let query = context.supabase
       .from("store_orders")
       .select(
         "id, order_number, customer_name, customer_email, customer_phone, total, payment_status, payment_method, status, created_at, melhor_envio_service_name, melhor_envio_status, melhor_envio_cart_id, melhor_envio_order_id, melhor_envio_label_url, shipping_tracking",
       )
       .order("created_at", { ascending: false })
       .limit(200);
+    const search = orderSearchFilter(filter.q);
+    if (search) query = query.or(search);
+    if (filter.statuses?.length) query = query.in("status", filter.statuses);
+    const { data } = await query;
     return data ?? [];
+  });
+
+/** Quantidade de pedidos por status (abas da fila), respeitando a mesma busca da listagem. */
+export const adminCountOrdersByStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
+  .handler(async ({ context, data: filter }) => {
+    let query = context.supabase.from("store_orders").select("status").limit(20000);
+    const search = orderSearchFilter(filter.q);
+    if (search) query = query.or(search);
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    const counts: Record<string, number> = {};
+    for (const row of data ?? []) counts[row.status] = (counts[row.status] ?? 0) + 1;
+    return counts;
   });
 
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })

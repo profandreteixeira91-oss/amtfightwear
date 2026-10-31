@@ -44,10 +44,11 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 /** Pendências mudam rápido; o panorama de 30 dias é mais pesado e muda devagar. */
-const INBOX_REFRESH_MS = 30_000;
-const DASHBOARD_REFRESH_MS = 60_000;
+const INBOX_REFRESH_MS = ADMIN_REFRESH.live;
+const DASHBOARD_REFRESH_MS = ADMIN_REFRESH.dashboard;
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({

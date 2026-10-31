@@ -54,6 +54,7 @@ import {
   StickyNote,
   Factory,
 } from "lucide-react";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/pedidos/$orderId")({
   head: () => ({ meta: [{ title: "Detalhes do pedido e etiqueta — AMT Fight Wear" }, { name: "description", content: "Consulta do pedido, pagamento de envio e impressão da etiqueta." }, { property: "og:title", content: "Detalhes do pedido — AMT Fight Wear" }, { property: "og:description", content: "Gestão do envio e da etiqueta do pedido." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -94,7 +95,7 @@ function AdminOrderDetailPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["admin", "store", "order", orderId],
     queryFn: () => getFn({ data: { id: orderId } }),
-    refetchInterval: 15_000,
+    refetchInterval: ADMIN_REFRESH.queue,
   });
 
   const order = (data?.order ?? null) as AnyRec | null;

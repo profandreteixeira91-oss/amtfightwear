@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getDashboardStats } from "@/lib/prospect/prospect.functions";
 import { fmtDateTime } from "@/features/prospect/utils";
+import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
 export const Route = createFileRoute("/_authenticated/admin/prospect")({
   head: () => ({
@@ -31,7 +32,7 @@ function ProspectDashboardPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["prospect", "dashboard"],
     queryFn: () => fetchStats(),
-    refetchInterval: 60_000,
+    refetchInterval: ADMIN_REFRESH.dashboard,
   });
 
   return (
