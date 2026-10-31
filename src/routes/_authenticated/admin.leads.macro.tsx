@@ -747,7 +747,7 @@ function MacroPage() {
                     <Button
                       className={
                         autoMode
-                          ? "w-full bg-red-600 hover:bg-red-700 text-white"
+                          ? "w-full bg-primary hover:bg-primary/90 text-white"
                           : "w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                       }
                       size="lg"
@@ -848,7 +848,7 @@ function MacroPage() {
                   </div>
                 )}
                 {dailyReached && (
-                  <div className="rounded-md border border-red-500/30 bg-red-500/5 p-2 text-xs text-red-700 dark:text-red-300">
+                  <div className="rounded-md border border-primary/50/30 bg-primary/5 p-2 text-xs text-primary dark:text-red-300">
                     Limite diário atingido. Retomar amanhã reduz o risco de bloqueio.
                   </div>
                 )}

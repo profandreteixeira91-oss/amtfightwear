@@ -9,6 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PageShell } from "@/components/common/PageShell";
+import { EmptyState } from "@/components/common/EmptyState";
 import {
   adminListTickets,
   getTicketWithMessages,
@@ -17,6 +20,10 @@ import {
 } from "@/lib/dojo/support.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/saas/suporte")({
+  // Permite abrir já filtrado (ex.: card "Suporte Dojo Manager" do Início).
+  validateSearch: (search: Record<string, unknown>): { status?: string } => ({
+    status: typeof search.status === "string" && search.status in STATUS_LABELS ? search.status : undefined,
+  }),
   head: () => ({
     meta: [{ title: "Suporte Dojo — Admin AMT" }],
   }),
@@ -41,7 +48,7 @@ const STATUS_STYLE: Record<string, string> = {
   aberto: "bg-blue-100 text-blue-700 border-blue-200",
   em_atendimento: "bg-amber-100 text-amber-800 border-amber-200",
   resolvido: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  fechado: "bg-neutral-200 text-neutral-700 border-neutral-300",
+  fechado: "bg-muted text-foreground/80 border-border",
 };
 
 function AdminSupportPage() {
@@ -50,11 +57,13 @@ function AdminSupportPage() {
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ["admin-dojo-support", "tickets"],
     queryFn: () => listFn(),
-    refetchInterval: 10_000,
+    // A lista cruza perfis e usuários do Auth a cada carga; a conversa aberta tem atualização própria.
+    refetchInterval: 30_000,
   });
 
+  const initialStatus = Route.useSearch().status;
   const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatus ?? "all");
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
@@ -80,15 +89,12 @@ function AdminSupportPage() {
   }, [tickets]);
 
   return (
-    <div className="mx-auto max-w-7xl p-3 sm:p-4 md:p-6">
-      <div className="mb-6">
-        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
-          <LifeBuoy className="h-5 w-5 shrink-0 text-primary sm:h-6 sm:w-6" /> Suporte AMT Dojo Manager
-        </h1>
-        <p className="text-sm text-muted-foreground">Chamados abertos pelos donos de dojo — atendimento humano por chat.</p>
-      </div>
-
-      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+    <PageShell
+      eyebrow="Dojo Manager"
+      title="Suporte AMT Dojo Manager"
+      description="Chamados abertos pelos donos de dojo — atendimento humano por chat."
+    >
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Chamados" value={kpis.total} />
         <Kpi label="Abertos" value={kpis.abertos} accent="text-blue-700" />
         <Kpi label="Em atendimento" value={kpis.emAt} accent="text-amber-700" />
@@ -105,7 +111,7 @@ function AdminSupportPage() {
           onChanged={() => qc.invalidateQueries({ queryKey: ["admin-dojo-support"] })}
         />
       ) : (
-        <div className="rounded-2xl border border-border bg-white shadow-sm">
+        <div className="rounded-2xl border border-border bg-card shadow-sm">
           <div className="flex flex-col gap-3 border-b border-border p-3 sm:flex-row sm:flex-wrap sm:items-center">
             <div className="relative min-w-0 flex-1 sm:min-w-[220px]">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -123,9 +129,24 @@ function AdminSupportPage() {
           </div>
 
           {isLoading ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">Carregando...</div>
+            <div className="space-y-2 p-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-14 w-full" />
+              ))}
+            </div>
           ) : filtered.length === 0 ? (
-            <div className="p-10 text-center text-sm text-muted-foreground">Nenhum chamado encontrado.</div>
+            <EmptyState
+              icon={LifeBuoy}
+              className="m-4"
+              title={tickets.length === 0 ? "Nenhum chamado ainda" : "Nenhum chamado neste filtro"}
+              action={
+                q || statusFilter !== "all" ? (
+                  <Button size="sm" variant="outline" onClick={() => { setQ(""); setStatusFilter("all"); }}>
+                    Limpar filtros
+                  </Button>
+                ) : undefined
+              }
+            />
           ) : (
             <ul className="divide-y divide-border">
               {filtered.map((t) => (
@@ -158,13 +179,13 @@ function AdminSupportPage() {
           )}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
 
 function Kpi({ label, value, accent }: { label: string; value: number; accent?: string }) {
   return (
-    <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
       <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className={`mt-1 text-2xl font-bold ${accent ?? "text-foreground"}`}>{value}</div>
     </div>
@@ -216,7 +237,7 @@ function AdminConversation({
   const status = data?.ticket.status ?? "aberto";
 
   return (
-    <div className="rounded-2xl border border-border bg-white shadow-sm">
+    <div className="rounded-2xl border border-border bg-card shadow-sm">
       <div className="flex flex-wrap items-center gap-2 border-b border-border px-3 py-3 sm:gap-3 sm:px-4">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
           <ArrowLeft className="h-4 w-4" /> Voltar

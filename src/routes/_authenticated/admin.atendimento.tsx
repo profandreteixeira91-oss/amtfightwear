@@ -14,6 +14,7 @@ import {
 } from "@/lib/store/sales-chat.functions";
 import { Bot, Headset, Send, User, Loader2, CheckCircle2, Settings, BookOpen, MessageSquare, Save, Plus, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
+import { useConfirm } from "@/components/common/ConfirmDialog";
 
 type Conv = {
   id: string;
@@ -514,6 +515,7 @@ function ChannelBlock({ title, enabled, onToggle, greeting, onGreeting }: { titl
 type KbArticle = { id?: string; title: string; body_md: string; tags: string[]; is_active: boolean; updated_at?: string };
 
 function ChatKbPanel() {
+  const [confirm, confirmDialog] = useConfirm();
   const listFn = useServerFn(adminListKbArticles);
   const upsertFn = useServerFn(adminUpsertKbArticle);
   const deleteFn = useServerFn(adminDeleteKbArticle);
@@ -553,13 +555,14 @@ function ChatKbPanel() {
     }
   }
   async function remove(id: string) {
-    if (!confirm("Excluir este artigo?")) return;
+    if (!(await confirm({ title: "Excluir este artigo?", description: "Esta ação não pode ser desfeita.", confirmLabel: "Excluir", destructive: true }))) return;
     await deleteFn({ data: { id } });
     await refresh();
   }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_1.5fr]">
+      {confirmDialog}
       <section className="rounded-lg border bg-card">
         <div className="flex items-center justify-between border-b p-3">
           <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Artigos</h2>

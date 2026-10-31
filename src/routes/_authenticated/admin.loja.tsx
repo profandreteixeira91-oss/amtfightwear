@@ -20,6 +20,7 @@ import {
 import { adminGetDashboard } from "@/lib/store/dashboard.functions";
 import { orderStatusLabel } from "@/lib/store/order-status";
 import { VisitorsPanel } from "@/components/store/VisitorsPanel";
+import { PageShell } from "@/components/common/PageShell";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "90d" | "year";
 
@@ -52,72 +53,50 @@ function StoreDashboard() {
   });
 
   const now = useMemo(() => new Date(), []);
-  const greeting = useMemo(() => {
-    const h = now.getHours();
-    if (h < 12) return "Bom dia";
-    if (h < 18) return "Boa tarde";
-    return "Boa noite";
-  }, [now]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-50 via-white to-neutral-50/50">
-      <div className="mx-auto max-w-[1400px] space-y-6 p-4 sm:p-6 md:space-y-8 md:p-8">
-        {/* Header premium — SaaS style (Stripe/Linear/Vercel) */}
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-600 shadow-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-600" />
-              AMT Store
-            </div>
-            <h1 className="truncate text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl md:text-[32px] md:leading-tight">
-              {greeting}, Admin
-            </h1>
-            <p className="mt-1.5 flex items-center gap-2 truncate text-xs text-neutral-500 sm:text-sm">
-              <span className="capitalize">
-                {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-              </span>
-              <span className="text-neutral-300">·</span>
-              <span className={`inline-flex items-center gap-1.5 ${isFetching ? "text-neutral-500" : "text-emerald-600"}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${isFetching ? "animate-pulse bg-neutral-400" : "bg-emerald-500"}`} />
-                {isFetching ? "sincronizando" : `atualizado ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`}
-              </span>
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 hover:shadow disabled:opacity-50"
-              aria-label="Atualizar"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
-              <span className="hidden sm:inline">Atualizar</span>
-            </button>
-            <a
-              href="/loja"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-neutral-900 px-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-neutral-800"
-              aria-label="Ver loja"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Ver loja</span>
-              <span className="sm:hidden">Loja</span>
+    <PageShell
+      eyebrow="AMT Fight Wear"
+      title="Gestão da Loja"
+      description={
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="capitalize">
+            {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+          </span>
+          <span className="text-muted-foreground/50">·</span>
+          <span className={`inline-flex items-center gap-1.5 ${isFetching ? "text-muted-foreground" : "text-emerald-600"}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${isFetching ? "animate-pulse bg-muted-foreground" : "bg-emerald-500"}`} />
+            {isFetching ? "sincronizando" : `atualizado ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`}
+          </span>
+        </span>
+      }
+      actions={
+        <>
+          <Button variant="outline" onClick={() => refetch()} disabled={isFetching} aria-label="Atualizar">
+            <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+          <Button asChild>
+            <a href="/loja" target="_blank" rel="noreferrer">
+              <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+              Ver loja
             </a>
-          </div>
-        </div>
+          </Button>
+        </>
+      }
+    >
 
         {/* Filtros de período */}
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <div className="inline-flex min-w-max gap-0.5 rounded-xl border border-neutral-200 bg-white p-1 shadow-sm">
+          <div className="inline-flex min-w-max gap-0.5 rounded-xl border border-border bg-card p-1 shadow-sm">
             {RANGES.map((r) => (
               <button
                 key={r.key}
                 onClick={() => setRange(r.key)}
                 className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                   range === r.key
-                    ? "bg-neutral-900 text-white shadow-sm"
-                    : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+                    ? "bg-foreground text-white shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 {r.label}
@@ -220,7 +199,7 @@ function StoreDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden shadow-sm ring-1 ring-neutral-200">
+        <Card className="relative overflow-hidden shadow-sm ring-1 ring-border">
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 to-emerald-400" />
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -242,16 +221,16 @@ function StoreDashboard() {
                   <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Receita Líquida (A)
                   </div>
-                  <div className="text-2xl font-bold tracking-tight text-neutral-900">
+                  <div className="text-2xl font-bold tracking-tight text-foreground">
                     {BRL(data?.finance.net_revenue ?? 0)}
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1 border-l-2 border-red-500 pl-3">
+                <div className="flex flex-col gap-1 border-l-2 border-primary/50 pl-3">
                   <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Custo de Produção (B)
                   </div>
-                  <div className="text-xl font-bold tracking-tight text-red-600">
+                  <div className="text-xl font-bold tracking-tight text-primary">
                     − {BRL(data?.finance.production_revenue ?? 0)}
                   </div>
                   <p className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
@@ -259,8 +238,8 @@ function StoreDashboard() {
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-neutral-900 p-4 text-white shadow-inner">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                <div className="rounded-xl bg-foreground p-4 text-white shadow-inner">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
                     Lucro Bruto (A − B)
                   </div>
                   <div className="mt-1 text-3xl font-black tracking-tight text-emerald-400">
@@ -658,8 +637,7 @@ function StoreDashboard() {
           </CardContent>
         </Card>
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }
 
@@ -685,14 +663,14 @@ function KpiCard({
   live?: boolean;
 }) {
   const toneClass = {
-    revenue: { icon: "bg-red-50 text-red-600 ring-1 ring-red-100", accent: "bg-red-500" },
+    revenue: { icon: "bg-primary/5 text-primary ring-1 ring-primary/30", accent: "bg-primary/90" },
     orders: { icon: "bg-blue-50 text-blue-600 ring-1 ring-blue-100", accent: "bg-blue-500" },
     live: { icon: "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100", accent: "bg-emerald-500" },
     cart: { icon: "bg-amber-50 text-amber-600 ring-1 ring-amber-100", accent: "bg-amber-500" },
   }[tone];
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] sm:p-5">
+    <div className="group relative overflow-hidden rounded-2xl border border-border/80 bg-card p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] sm:p-5">
       <div className="flex items-center justify-between gap-2">
         <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${toneClass.icon}`}>
           <Icon className="h-4 w-4" />
@@ -704,26 +682,26 @@ function KpiCard({
           </span>
         )}
       </div>
-      <div className="mt-3 truncate text-[11px] font-medium uppercase tracking-wider text-neutral-500 sm:text-xs">
+      <div className="mt-3 truncate text-[11px] font-medium uppercase tracking-wider text-muted-foreground sm:text-xs">
         {label}
       </div>
       {loading ? (
         <Skeleton className="mt-1.5 h-8 w-24" />
       ) : (
-        <div className="mt-1 truncate text-2xl font-bold tracking-tight text-neutral-900 sm:text-[28px] sm:leading-tight">
+        <div className="mt-1 truncate text-2xl font-bold tracking-tight text-foreground sm:text-[28px] sm:leading-tight">
           {value ?? "—"}
         </div>
       )}
       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] sm:gap-2 sm:text-xs">
         {typeof delta === "number" && (
           <span className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold sm:text-[11px] ${
-            delta >= 0 ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" : "bg-red-50 text-red-700 ring-1 ring-red-100"
+            delta >= 0 ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" : "bg-primary/5 text-primary ring-1 ring-primary/30"
           }`}>
             {delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
             {delta >= 0 ? "+" : ""}{delta.toFixed(1)}%
           </span>
         )}
-        {hint && <span className="truncate text-neutral-500">{hint}</span>}
+        {hint && <span className="truncate text-muted-foreground">{hint}</span>}
       </div>
       <div className={`absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 ${toneClass.accent} transition-transform duration-300 group-hover:scale-x-100`} />
     </div>
@@ -738,7 +716,7 @@ function FinanceRow({ label, value, loading, highlight, negative }: { label: str
       {loading ? (
         <Skeleton className="h-4 w-20" />
       ) : (
-        <span className={`font-bold ${highlight ? "text-lg text-primary" : negative ? "text-red-600" : ""}`}>
+        <span className={`font-bold ${highlight ? "text-lg text-primary" : negative ? "text-primary" : ""}`}>
           {negative && (value ?? 0) > 0 ? "− " : ""}{BRL(value ?? 0)}
         </span>
       )}
@@ -769,7 +747,7 @@ function PaymentBadge({ status }: { status: string | null | undefined }) {
     paid: { label: "Pago", cls: "bg-emerald-500/15 text-emerald-700" },
     approved: { label: "Aprovado", cls: "bg-emerald-500/15 text-emerald-700" },
     pending: { label: "Pendente", cls: "bg-amber-500/15 text-amber-700" },
-    failed: { label: "Falhou", cls: "bg-red-500/15 text-red-700" },
+    failed: { label: "Falhou", cls: "bg-primary/15 text-primary" },
     refunded: { label: "Reembolsado", cls: "bg-slate-500/15 text-slate-700" },
     cancelled: { label: "Cancelado", cls: "bg-slate-500/15 text-slate-700" },
   };

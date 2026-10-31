@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { listSizePresets, upsertSizePreset, deleteSizePreset, syncAllSizePresets, type SizePreset } from "@/lib/store/sizes.functions";
 import { PageShell } from "@/components/common/PageShell";
+import { useConfirm } from "@/components/common/ConfirmDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/tamanhos")({
   component: SizesPage,
@@ -28,6 +29,7 @@ type Draft = {
 const empty: Draft = { category_key: "", category_label: "", sizes: [], sort_order: 0 };
 
 function SizesPage() {
+  const [confirm, confirmDialog] = useConfirm();
   const load = useServerFn(listSizePresets);
   const save = useServerFn(upsertSizePreset);
   const del = useServerFn(deleteSizePreset);
@@ -74,7 +76,7 @@ function SizesPage() {
   };
 
   const onDelete = async (id: string) => {
-    if (!window.confirm("Excluir esta categoria de tamanhos?")) return;
+    if (!(await confirm({ title: "Excluir esta categoria de tamanhos?", confirmLabel: "Excluir", destructive: true }))) return;
     try {
       await del({ data: { id } });
       toast.success("Removida");
@@ -117,7 +119,7 @@ function SizesPage() {
         </div>
       }
     >
-
+      {confirmDialog}
       <p className="text-xs text-muted-foreground">
         As chaves reconhecidas para sincronização automática são <code>faixa</code>, <code>kimono</code>, <code>camiseta</code> e <code>rashguard</code>.
         Ao salvar ou clicar em <b>Sincronizar produtos</b>, os tamanhos das variantes são alinhados aos presets (preço, estoque e SKU são preservados quando o tamanho continua no preset).

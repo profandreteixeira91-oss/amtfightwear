@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { formatBRL } from "@/lib/store/cart-store";
 import { ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save, Pencil, Trash2, Plus, Search, Filter, MoreHorizontal, Package, AlertCircle, LayoutGrid, Receipt, Settings2, BarChart3, Info } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
+import { useConfirm } from "@/components/common/ConfirmDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -53,6 +54,7 @@ const PRODUCT_GC_TIME = 1000 * 60 * 30;
 type EditState = Record<string, { price?: string; stock?: string }>;
 
 function AdminProductsPage() {
+  const [confirm, confirmDialog] = useConfirm();
   const list = useServerFn(adminListStoreProducts);
   const update = useServerFn(adminUpdateStoreProduct);
   const deleteProduct = useServerFn(adminDeleteStoreProduct);
@@ -340,6 +342,7 @@ function AdminProductsPage() {
         </div>
       }
     >
+      {confirmDialog}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-2">
         <div className="lg:col-span-3 space-y-6">
           {/* Quick Stats or Highlights could go here if needed, keeping it clean for now */}
@@ -390,7 +393,7 @@ function AdminProductsPage() {
                       size="sm" 
                       className="text-xs"
                       onClick={async () => {
-                        if (!confirm(`Excluir ${selected.size} produto(s)?`)) return;
+                        if (!(await confirm({ title: `Excluir ${selected.size} produto(s)?`, description: "Esta ação não pode ser desfeita.", confirmLabel: "Excluir", destructive: true }))) return;
                         setSaving(true);
                         for (const id of Array.from(selected)) await deleteProduct({ data: { id } });
                         setSaving(false);
@@ -505,7 +508,7 @@ function AdminProductsPage() {
                               <div className="min-w-0">
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <div className="font-bold text-neutral-900 truncate max-w-[180px] sm:max-w-[240px] cursor-help">{p.name}</div>
+                                    <div className="font-bold text-foreground truncate max-w-[180px] sm:max-w-[240px] cursor-help">{p.name}</div>
                                   </TooltipTrigger>
                                   <TooltipContent side="top" className="max-w-xs">
                                     {p.name}
@@ -618,7 +621,7 @@ function AdminProductsPage() {
                                     variant="ghost"
                                     className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10"
                                     onClick={async () => {
-                                      if (!confirm(`Excluir o produto "${p.name}"?`)) return;
+                                      if (!(await confirm({ title: `Excluir o produto "${p.name}"?`, description: "Esta ação não pode ser desfeita.", confirmLabel: "Excluir", destructive: true }))) return;
                                       try {
                                         setSaving(true);
                                         await deleteProduct({ data: { id: p.id } });
@@ -653,7 +656,7 @@ function AdminProductsPage() {
                     <div className="bg-muted rounded-full p-6 mb-4">
                       <Search className="h-10 w-10 text-muted-foreground/30" />
                     </div>
-                    <h3 className="text-base font-bold text-neutral-900 mb-1">Nenhum produto encontrado</h3>
+                    <h3 className="text-base font-bold text-foreground mb-1">Nenhum produto encontrado</h3>
                     <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
                       {search ? "Tente ajustar seus filtros de busca ou categoria." : "Seu catálogo está vazio. Comece adicionando seu primeiro produto ou importando dados."}
                     </p>
@@ -1354,7 +1357,7 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
                     <Input 
                       value={fiscalData.ncm || ""} 
                       onChange={(e) => setFiscalData({...fiscalData, ncm: e.target.value})}
-                      className="h-8 text-xs bg-white/50 border-blue-200" 
+                      className="h-8 text-xs bg-card/50 border-blue-200" 
                     />
                   </div>
                   <div className="space-y-1">
@@ -1362,7 +1365,7 @@ function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCr
                     <Input 
                       value={fiscalData.cfop_internal || ""} 
                       onChange={(e) => setFiscalData({...fiscalData, cfop_internal: e.target.value})}
-                      className="h-8 text-xs bg-white/50 border-blue-200" 
+                      className="h-8 text-xs bg-card/50 border-blue-200" 
                     />
                   </div>
                 </div>
@@ -1413,6 +1416,7 @@ function emptyCatDraft(): CatDraft {
 }
 
 function CategoriesDialog({ onClose }: { onClose: () => void }) {
+  const [confirm, confirmDialog] = useConfirm();
   const listCats = useServerFn(adminListStoreCategories);
   const upsert = useServerFn(adminUpsertStoreCategory);
   const del = useServerFn(adminDeleteStoreCategory);
@@ -1480,7 +1484,7 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Excluir categoria? Produtos vinculados ficarão sem categoria.")) return;
+    if (!(await confirm({ title: "Excluir categoria?", description: "Produtos vinculados ficarão sem categoria.", confirmLabel: "Excluir", destructive: true }))) return;
     try {
       await del({ data: { id } });
       toast.success("Categoria excluída");
@@ -1493,7 +1497,7 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
 
   const applyToProducts = async () => {
     if (!draft.id) return;
-    if (!confirm("Aplicar os dados fiscais desta categoria em TODOS os produtos vinculados? Isso sobrescreve NCM, CEST, Origem, CFOP e Unidade nos produtos.")) return;
+    if (!(await confirm({ title: "Aplicar dados fiscais em todos os produtos da categoria?", description: "Isso sobrescreve NCM, CEST, Origem, CFOP e Unidade nos produtos vinculados.", confirmLabel: "Aplicar" }))) return;
     setApplying(true);
     try {
       const res = await applyFiscal({
@@ -1511,6 +1515,7 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
+    <>
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-2xl">
         <div className="flex flex-col h-[85vh]">
@@ -1667,6 +1672,8 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
         </div>
       </DialogContent>
     </Dialog>
+    {confirmDialog}
+    </>
   );
 }
 

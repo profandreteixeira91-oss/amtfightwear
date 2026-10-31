@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { PageShell } from "@/components/common/PageShell";
 import { 
   getPricingConfig, 
   getFixedExpenses, 
@@ -273,21 +274,26 @@ function CalculatorV2() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-foreground">Dojo Manager Finance 2.0</h1>
-          <p className="text-muted-foreground mt-1">Gestão de custos, margens e estratégia de precificação.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            <RefreshCw className="h-4 w-4 mr-2" /> Atualizar
-          </Button>
-          <Button onClick={() => toast.success("Dados sincronizados com o estoque")}>
-            <Save className="h-4 w-4 mr-2" /> Salvar Alterações
-          </Button>
-        </div>
-      </div>
+    <PageShell
+      eyebrow="Calc. de Faixas"
+      title="Dojo Manager Finance 2.0"
+      description="Gestão de custos, margens e estratégia de precificação. Cada seção salva ao confirmar."
+      actions={
+        // Recarrega só os dados da calculadora (antes recarregava a página inteira).
+        <Button
+          variant="outline"
+          onClick={() =>
+            Promise.all(
+              ["pricing-config", "fixed-expenses", "marketing-investments", "all-product-pricing", "store-categories"].map(
+                (key) => queryClient.invalidateQueries({ queryKey: [key] }),
+              ),
+            ).then(() => toast.success("Dados atualizados"))
+          }
+        >
+          <RefreshCw className="h-4 w-4 mr-2" /> Atualizar
+        </Button>
+      }
+    >
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-muted/50 p-1 w-full max-w-4xl grid grid-cols-6 h-auto">
@@ -301,7 +307,7 @@ function CalculatorV2() {
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <MetricCard label="Despesas Fixas" value={formatMoney(totalFixedExpenses)} icon={<DollarSign className="text-red-500" />} />
+            <MetricCard label="Despesas Fixas" value={formatMoney(totalFixedExpenses)} icon={<DollarSign className="text-primary" />} />
             <MetricCard label="Investimento Mkt" value={formatMoney(totalMarketing)} icon={<TrendingUp className="text-blue-500" />} />
             <MetricCard label="Ponto de Equilíbrio" value={formatMoney(breakEvenPoint)} icon={<Target className="text-orange-500" />} description="Custo para atingir margem alvo" />
             <MetricCard label="Mix de Vendas" value="42% Premium" icon={<PieChart className="text-purple-500" />} description="Foco: Kimonos Pro" />
@@ -883,7 +889,7 @@ function CalculatorV2() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageShell>
   );
 }
 
@@ -899,13 +905,13 @@ function MetricCard({
   description?: string;
 }) {
   return (
-    <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
+    <Card className="overflow-hidden border-none shadow-md bg-card/50 backdrop-blur-sm">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{label}</span>
           <div className="p-2 bg-muted/50 rounded-lg">{icon}</div>
         </div>
-        <div className="text-2xl font-black text-neutral-900 tracking-tight">{value}</div>
+        <div className="text-2xl font-black text-foreground tracking-tight">{value}</div>
         {description && <p className="text-[10px] mt-1 text-muted-foreground italic">{description}</p>}
       </CardContent>
     </Card>

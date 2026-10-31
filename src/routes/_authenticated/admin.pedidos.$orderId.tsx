@@ -39,6 +39,7 @@ import {
   paymentStatusOptions,
   orderStatusBadgeClass,
 } from "@/lib/store/order-status";
+import { useConfirm } from "@/components/common/ConfirmDialog";
 import {
   ArrowLeft,
   Package,
@@ -573,6 +574,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
   const quote = useServerFn(adminMelhorEnvioQuoteOrder);
   const [selection, setSelection] = useState<ShippingSelection | null>(null);
   const checkout = useServerFn(adminMelhorEnvioCheckout);
+  const [confirm, confirmDialog] = useConfirm();
   const generate = useServerFn(adminMelhorEnvioGenerate);
   const sync = useServerFn(adminMelhorEnvioSyncTracking);
 
@@ -600,6 +602,7 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
 
   return (
     <div className="space-y-4 text-sm">
+      {confirmDialog}
       <div className="grid gap-3 rounded-md border bg-muted/40 p-3 sm:grid-cols-2">
         <Field label="Serviço escolhido pelo cliente" value={chosenName} />
         <Field label="Valor do frete" value={formatBRL(chosenPrice)} />
@@ -700,8 +703,13 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
             disabled={busy !== null}
             onClick={() =>
               run("checkout", async () => {
-                if (!window.confirm("Confirmar pagamento do frete com o saldo da carteira Melhor Envio?")) return;
-      await checkout({ data: { order_ids: [id] } });
+                const ok = await confirm({
+                  title: "Pagar frete com o saldo Melhor Envio?",
+                  description: "O valor do frete será debitado da carteira Melhor Envio.",
+                  confirmLabel: "Confirmar pagamento",
+                });
+                if (!ok) return;
+                await checkout({ data: { order_ids: [id] } });
                 toast.success("Compra realizada");
                 onChange();
               })

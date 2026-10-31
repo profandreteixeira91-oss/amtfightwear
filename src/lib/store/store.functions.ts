@@ -705,7 +705,15 @@ export const cancelStoreOrder = createServerFn({ method: "POST" })
 export const adminListOrders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.from("store_orders").select("*").order("created_at", { ascending: false }).limit(200);
+    // Só as colunas da listagem: payment_raw, melhor_envio_data e o QR Pix em base64
+    // pesavam centenas de KB a cada atualização automática da tela.
+    const { data } = await context.supabase
+      .from("store_orders")
+      .select(
+        "id, order_number, customer_name, customer_email, customer_phone, total, payment_status, payment_method, status, created_at, melhor_envio_service_name, melhor_envio_status, melhor_envio_cart_id, melhor_envio_order_id, melhor_envio_label_url, shipping_tracking",
+      )
+      .order("created_at", { ascending: false })
+      .limit(200);
     return data ?? [];
   });
 

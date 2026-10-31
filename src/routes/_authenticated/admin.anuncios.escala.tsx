@@ -153,7 +153,7 @@ function ScalePage() {
                   h.action === "scale_up"
                     ? "text-emerald-600"
                     : h.action === "pause"
-                    ? "text-red-600"
+                    ? "text-primary"
                     : "text-amber-600";
                 return (
                   <div key={h.id} className="flex items-start gap-3 rounded-lg border p-3">

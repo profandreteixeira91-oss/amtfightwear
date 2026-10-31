@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Instagram, RefreshCw, ExternalLink, CheckCircle2, AlertCircle, Unplug, Facebook, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
+import { useConfirm } from "@/components/common/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/admin/instagram/conta")({
 
 function IgAccount() {
   const qc = useQueryClient();
+  const [confirm, confirmDialog] = useConfirm();
   const fetchAccount = useServerFn(getIgAccount);
   const syncProfile = useServerFn(syncIgProfile);
   const syncMedia = useServerFn(syncIgMedia);
@@ -61,6 +63,7 @@ function IgAccount() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+      {confirmDialog}
       <PageHeader
         title="Conta do Instagram"
         description="Perfil oficial conectado via Meta Business. Sincronize sob demanda ou aguarde o job automático."
@@ -78,10 +81,14 @@ function IgAccount() {
               <Button
                 variant="outline"
                 className="text-destructive hover:text-destructive"
-                onClick={() => {
-                  if (confirm("Desconectar a conta Meta? As sincronizações vão parar até reconectar.")) {
-                    mDisconnect.mutate(metaConn.id);
-                  }
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: "Desconectar a conta Meta?",
+                    description: "As sincronizações vão parar até reconectar.",
+                    confirmLabel: "Desconectar",
+                    destructive: true,
+                  });
+                  if (ok) mDisconnect.mutate(metaConn.id);
                 }}
                 disabled={mDisconnect.isPending}
               >

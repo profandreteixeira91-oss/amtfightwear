@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { 
   FileText, 
-  Search, 
-  Filter, 
+  Search,
+  ChevronLeft,
   ChevronRight,
   Clock,
   CheckCircle2,
@@ -18,6 +18,7 @@ import { listBillingOrders } from "@/lib/fiscal/FiscalOrderService";
 import { format } from "date-fns";
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/common/PageShell";
 
 export const Route = createFileRoute("/_authenticated/admin/fiscal/pedidos")({
   component: FiscalOrdersPage,
@@ -34,11 +35,13 @@ function FiscalOrdersPage() {
   });
 
   const filteredOrders = useMemo(() => {
+    const term = search.trim().toLowerCase();
     return (orders as any[]).filter(o => {
-      const matchesSearch = 
-        String(o.number).toLowerCase().includes(search.toLowerCase()) ||
-        o.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-        o.customer_document.includes(search);
+      const matchesSearch =
+        !term ||
+        String(o.number ?? "").toLowerCase().includes(term) ||
+        String(o.customer_name ?? "").toLowerCase().includes(term) ||
+        String(o.customer_document ?? "").includes(term);
       
       const matchesType = filterType === "all" || o.type === filterType;
       
@@ -57,41 +60,34 @@ function FiscalOrdersPage() {
   }, [orders]);
 
   return (
-    <div className="flex flex-col gap-8 p-6 md:p-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-              <Link to="/admin/fiscal" search={{ orderId: undefined, type: undefined }} className="hover:text-foreground transition-colors">Fiscal</Link>
-              <ChevronRight className="h-4 w-4" />
-              <span className="text-foreground font-medium">Pedidos para Faturamento</span>
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Central de Faturamento</h1>
-            <p className="text-muted-foreground">Gerencie pedidos da loja e orçamentos aguardando emissão de NF-e.</p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filtros Avançados
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <PageShell
+      eyebrow="Fiscal"
+      title="Central de Faturamento"
+      description="Pedidos da loja e orçamentos aguardando emissão de NF-e."
+      actions={
+        <Button variant="outline" asChild>
+          <Link to="/admin/fiscal" search={{ orderId: undefined, type: undefined }}>
+            <ChevronLeft className="mr-1 h-4 w-4" />
+            Gestão Fiscal
+          </Link>
+        </Button>
+      }
+    >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Aguardando" value={stats.pending} icon={Clock} color="amber" />
           <StatCard title="Prontos" value={stats.ready} icon={CheckCircle2} color="blue" />
           <StatCard title="Emitindo" value={stats.emitting} icon={Receipt} color="purple" />
           <StatCard title="Autorizados" value={stats.authorized} icon={ShieldCheck} color="emerald" />
         </div>
 
-        <Card className="border-neutral-200/60 shadow-sm overflow-hidden bg-white">
-          <CardHeader className="pb-3 border-b border-neutral-100">
+        <Card className="border-border/60 shadow-sm overflow-hidden bg-card">
+          <CardHeader className="pb-3 border-b border-border">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input 
                   placeholder="Buscar por número, cliente ou CPF/CNPJ..." 
-                  className="pl-9 h-10 ring-offset-background focus-visible:ring-1 focus-visible:ring-red-500"
+                  className="pl-9 h-10 ring-offset-background focus-visible:ring-1 focus-visible:ring-primary/30"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -101,7 +97,7 @@ function FiscalOrdersPage() {
                   variant={filterType === "all" ? "default" : "outline"} 
                   size="sm" 
                   onClick={() => setFilterType("all")}
-                  className={cn("h-9", filterType === "all" && "bg-neutral-900 text-white")}
+                  className={cn("h-9", filterType === "all" && "bg-foreground text-white")}
                 >
                   Todos
                 </Button>
@@ -109,7 +105,7 @@ function FiscalOrdersPage() {
                   variant={filterType === "store_order" ? "default" : "outline"} 
                   size="sm" 
                   onClick={() => setFilterType("store_order")}
-                  className={cn("h-9", filterType === "store_order" && "bg-neutral-900 text-white")}
+                  className={cn("h-9", filterType === "store_order" && "bg-foreground text-white")}
                 >
                   Loja
                 </Button>
@@ -117,7 +113,7 @@ function FiscalOrdersPage() {
                   variant={filterType === "quote" ? "default" : "outline"} 
                   size="sm" 
                   onClick={() => setFilterType("quote")}
-                  className={cn("h-9", filterType === "quote" && "bg-neutral-900 text-white")}
+                  className={cn("h-9", filterType === "quote" && "bg-foreground text-white")}
                 >
                   Orçamentos
                 </Button>
@@ -127,7 +123,7 @@ function FiscalOrdersPage() {
           <CardContent className="p-0">
             <div className="relative overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-neutral-50/80 text-[11px] font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-100">
+                <thead className="bg-muted/30 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border">
                   <tr>
                     <th className="px-6 py-4">Pedido</th>
                     <th className="px-6 py-4">Cliente</th>
@@ -137,11 +133,11 @@ function FiscalOrdersPage() {
                     <th className="px-6 py-4 text-right">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
+                <tbody className="divide-y divide-border bg-card">
                   {isLoading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                       <tr key={i} className="animate-pulse">
-                        <td colSpan={6} className="h-20 px-6 py-4 bg-neutral-50/10" />
+                        <td colSpan={6} className="h-20 px-6 py-4 bg-muted/30" />
                       </tr>
                     ))
                   ) : filteredOrders.length === 0 ? (
@@ -152,10 +148,10 @@ function FiscalOrdersPage() {
                     </tr>
                   ) : (
                     filteredOrders.map((o: any) => (
-                      <tr key={`${o.type}-${o.id}`} className="group hover:bg-neutral-50/50 transition-all duration-200">
+                      <tr key={`${o.type}-${o.id}`} className="group hover:bg-muted/30 transition-all duration-200">
                         <td className="px-6 py-5">
                           <div className="flex flex-col">
-                            <span className="font-bold text-neutral-900">#{o.number}</span>
+                            <span className="font-bold text-foreground">#{o.number}</span>
                             <div className="flex items-center gap-1.5 mt-1">
                               <Badge variant="outline" className={cn(
                                 "text-[10px] px-1.5 py-0 h-4 border-none font-bold",
@@ -169,26 +165,26 @@ function FiscalOrdersPage() {
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-neutral-800">{o.customer_name}</span>
+                            <span className="font-semibold text-foreground">{o.customer_name}</span>
                             <span className="text-xs text-muted-foreground font-mono mt-0.5">{o.customer_document || "Sem docto."}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex flex-col">
-                            <span className="text-neutral-700 font-medium">{o.city || "—"}</span>
+                            <span className="text-foreground/80 font-medium">{o.city || "—"}</span>
                             <span className="text-xs text-muted-foreground uppercase">{o.state || "—"}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5 text-right">
-                          <span className="font-bold text-neutral-900 tabular-nums">
-                            {o.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          <span className="font-bold text-foreground tabular-nums">
+                            {Number(o.total ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                           </span>
                         </td>
                         <td className="px-6 py-5">
                           <StatusBadge status={o.fiscal_status} />
                         </td>
                         <td className="px-6 py-5 text-right">
-                          <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-neutral-100 text-neutral-400 hover:text-red-600 rounded-full transition-colors" asChild>
+                          <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-muted text-muted-foreground/80 hover:text-primary rounded-full transition-colors" asChild>
                             <Link to="/admin/fiscal" search={{ orderId: o.id, type: o.type === "store_order" ? "order" : "quote" }}>
                               <ChevronRight className="h-5 w-5" />
                             </Link>
@@ -202,8 +198,7 @@ function FiscalOrdersPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
-    
+    </PageShell>
   );
 }
 
@@ -216,12 +211,12 @@ function StatCard({ title, value, icon: Icon, color }: { title: string, value: n
   };
 
   return (
-    <Card className="border-neutral-200/60 shadow-sm overflow-hidden bg-white transition-all hover:shadow-md group">
+    <Card className="border-border/60 shadow-sm overflow-hidden bg-card transition-all hover:shadow-md group">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-bold text-neutral-500 uppercase tracking-wider">{title}</p>
-            <h3 className="text-3xl font-black mt-2 text-neutral-900 tabular-nums tracking-tight">{value}</h3>
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{title}</p>
+            <h3 className="text-3xl font-black mt-2 text-foreground tabular-nums tracking-tight">{value}</h3>
           </div>
           <div className={cn("p-3.5 rounded-2xl border transition-transform group-hover:scale-110 duration-300", colors[color])}>
             <Icon className="h-6 w-6" />
@@ -234,12 +229,12 @@ function StatCard({ title, value, icon: Icon, color }: { title: string, value: n
 
 function StatusBadge({ status }: { status: string }) {
   const configs: Record<string, { label: string, className: string }> = {
-    pending: { label: "Aguardando", className: "bg-neutral-100 text-neutral-600 border-neutral-200" },
+    pending: { label: "Aguardando", className: "bg-muted text-muted-foreground border-border" },
     ready: { label: "Pronto", className: "bg-blue-50 text-blue-600 border-blue-100" },
     emitting: { label: "Emitindo", className: "bg-purple-50 text-purple-600 border-purple-100" },
     authorized: { label: "Autorizada", className: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-    rejected: { label: "Rejeitada", className: "bg-red-50 text-red-600 border-red-100" },
-    error: { label: "Erro", className: "bg-red-50 text-red-600 border-red-100" },
+    rejected: { label: "Rejeitada", className: "bg-primary/5 text-primary border-primary/30" },
+    error: { label: "Erro", className: "bg-primary/5 text-primary border-primary/30" },
   };
 
   const config = configs[status] || configs.pending;

@@ -44,7 +44,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { useRef, useState, useMemo, useEffect } from "react";
-
+import { PageShell } from "@/components/common/PageShell";
+import { useConfirm } from "@/components/common/ConfirmDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/fiscal/")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -65,6 +66,7 @@ export const Route = createFileRoute("/_authenticated/admin/fiscal/")({
 function FiscalDashboard() {
   const { orderId, type } = Route.useSearch();
   const queryClient = useQueryClient();
+  const [confirm, confirmDialog] = useConfirm();
   const fetchStatus = useServerFn(getFiscalStatus);
   const fetchInvoices = useServerFn(getFiscalInvoices);
   const uploadCertFn = useServerFn(uploadCertificate);
@@ -243,100 +245,63 @@ function FiscalDashboard() {
   };
 
   return (
-    <div className="w-full space-y-10 p-6 md:p-8 lg:p-10 bg-neutral-50/30 min-h-screen">
-        {/* Hero Section - Premium Design */}
-        <section className="relative overflow-hidden rounded-[2.5rem] border border-neutral-200/60 bg-white p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:p-14">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-gradient-to-br from-red-500/10 to-red-600/5 blur-[100px]"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -left-24 -bottom-24 h-96 w-96 rounded-full bg-gradient-to-tr from-neutral-200/20 to-transparent blur-[100px]"
-          />
-          
-          <div className="relative flex flex-col gap-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-600/5 text-red-600 ring-1 ring-red-600/10">
-                <ShieldCheck className="h-6 w-6" />
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-neutral-100 bg-neutral-50/50 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-500 backdrop-blur-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-40" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
-                </span>
-                AMT Fiscal & Legal
-              </div>
-            </div>
+    <PageShell
+      eyebrow="AMT Fiscal & Legal"
+      title="Gestão Fiscal"
+      description="Emissão de NF-e e NFS-e integrada aos pedidos e orçamentos do ecossistema AMT."
+      actions={
+        <>
+          <Button
+            variant="ghost"
+            className="gap-2 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
+            onClick={async () => {
+              const ok = await confirm({
+                title: "Auditar notas do simulador?",
+                description:
+                  "Notas geradas pelo simulador anterior, sem transmissão real à Sefaz, serão marcadas como 'erro'.",
+                confirmLabel: "Auditar",
+              });
+              if (!ok) return;
+              toast.promise(runReconciliation(), {
+                loading: "Auditando base de dados...",
+                success: (res: any) => `${res.count} notas fictícias foram invalidadas.`,
+                error: "Erro na auditoria.",
+              });
+            }}
+          >
+            <AlertCircle className="h-4 w-4" />
+            Auditar
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={() => setActiveTab("config")}>
+            <Settings className="h-4 w-4" />
+            Emitente
+          </Button>
+          <Button variant="outline" className="gap-2" asChild>
+            <Link to="/admin/fiscal/pedidos" search={{ orderId: undefined, type: undefined }}>
+              <Package className="h-4 w-4" />
+              Central de Faturamento
+            </Link>
+          </Button>
+          <Button onClick={() => setShowOrderSelection(true)} disabled={isEmitting} className="gap-2">
+            {isEmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {emissionStep || "Processando..."}
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4" />
+                Emitir NF-e
+              </>
+            )}
+          </Button>
+        </>
+      }
+    >
+        {confirmDialog}
 
-            <div className="flex flex-col gap-8">
-              <div className="space-y-4">
-                <h1 className="text-4xl font-extrabold tracking-tight text-neutral-900 md:text-6xl lg:leading-[1.1]">
-                  Gestão Fiscal <span className="text-red-600">Inteligente</span>
-                </h1>
-                <p className="max-w-3xl text-base leading-relaxed text-neutral-500 md:text-lg">
-                  Automatize sua emissão de NF-e e NFS-e com total segurança jurídica e integração nativa ao ecossistema AMT.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-4">
-                <Button 
-                  onClick={() => setShowOrderSelection(true)}
-                  disabled={isEmitting}
-                  className="h-14 gap-3 rounded-2xl bg-red-600 px-8 text-base font-semibold shadow-[0_10px_20px_-5px_rgba(220,38,38,0.3)] transition-all hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] w-full"
-                >
-                  {isEmitting ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      {emissionStep || "Processando..."}
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-5 w-5" />
-                      Emitir NF-e
-                    </>
-                  )}
-                </Button>
-                <Link to="/admin/fiscal/pedidos" search={{ orderId: undefined, type: undefined }} className="w-full sm:w-auto">
-                  <Button 
-                    variant="outline" 
-                    className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50"
-                  >
-                    <Package className="h-5 w-5" />
-                    Central de Faturamento
-                  </Button>
-                </Link>
-                <Button 
-                  onClick={() => setActiveTab("config")}
-                  variant="outline" 
-                  className="h-14 w-full gap-3 rounded-2xl border-neutral-200 bg-white px-8 text-base font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 sm:w-auto"
-                >
-                  <Settings className="h-5 w-5" />
-                  Emitente
-                </Button>
-                <Button 
-                  onClick={async () => {
-                    if (window.confirm("Deseja invalidar notas geradas pelo simulador anterior? Isso marcará como 'erro' notas sem transmissão real.")) {
-                      toast.promise(runReconciliation(), {
-                        loading: 'Auditando base de dados...',
-                        success: (res: any) => `${res.count} notas fictícias foram invalidadas.`,
-                        error: 'Erro na auditoria.'
-                      });
-                    }
-                  }}
-                  variant="ghost" 
-                  className="h-14 w-full gap-3 rounded-2xl border-neutral-200 px-8 text-base font-semibold text-amber-600 hover:text-amber-700 hover:bg-amber-50 sm:w-auto"
-                >
-                  <AlertCircle className="h-5 w-5" />
-                  Audit
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* KPIs Grid - Premium Cards */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 -mt-8 relative z-10">
+        {/* KPIs */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
             tone="emerald"
             icon={Send}
@@ -371,40 +336,40 @@ function FiscalDashboard() {
 
         {/* Conteúdo Principal */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-10">
-          <TabsList className="flex h-16 w-full items-center justify-start gap-2 overflow-x-auto rounded-[1.5rem] border border-neutral-200/60 bg-white/50 p-2 backdrop-blur-md sm:w-fit sm:justify-center">
+          <TabsList className="flex h-16 w-full items-center justify-start gap-2 overflow-x-auto rounded-[1.5rem] border border-border/60 bg-card/50 p-2 backdrop-blur-md sm:w-fit sm:justify-center">
             <TabsTrigger 
               value="overview" 
-              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               Visão Geral
             </TabsTrigger>
             <TabsTrigger 
               value="invoices"
-              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               Histórico de Notas
             </TabsTrigger>
             <TabsTrigger 
               value="certificate"
-              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               Certificado A1
             </TabsTrigger>
             <TabsTrigger 
               value="config"
-              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+              className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               Emitente
             </TabsTrigger>
               <TabsTrigger 
                 value="products"
-                className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+                className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
               >
                 Produtos
               </TabsTrigger>
               <TabsTrigger 
                 value="automation"
-                className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm"
+                className="h-12 rounded-2xl px-6 text-sm font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
               >
                 Parametrização
               </TabsTrigger>
@@ -429,7 +394,7 @@ function FiscalDashboard() {
                           <div className="flex items-center gap-4">
                             <div className={`rounded-xl p-2.5 transition-colors ${
                               inv.status === 'authorized' ? 'bg-emerald-500/10 text-emerald-600' : 
-                              inv.status === 'rejected' ? 'bg-red-500/10 text-red-600' : 
+                              inv.status === 'rejected' ? 'bg-primary/10 text-primary' : 
                               inv.status === 'error' ? 'bg-amber-500/10 text-amber-600' :
                               'bg-muted text-muted-foreground'
                             }`}>
@@ -437,7 +402,7 @@ function FiscalDashboard() {
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-bold text-neutral-900">NF-e #{inv.invoice_number}</span>
+                                <span className="font-bold text-foreground">NF-e #{inv.invoice_number}</span>
                                 {inv.status === 'error' && (
                                   <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px]">
                                     Erro Sefaz
@@ -445,9 +410,9 @@ function FiscalDashboard() {
                                 )}
                               </div>
                               <div className="flex flex-col gap-1">
-                                <p className="text-xs text-neutral-500 line-clamp-1">{inv.recipient_name} • R$ {Number(inv.total_amount).toLocaleString('pt-BR')}</p>
+                                <p className="text-xs text-muted-foreground line-clamp-1">{inv.recipient_name} • R$ {Number(inv.total_amount).toLocaleString('pt-BR')}</p>
                                 {inv.access_key && (
-                                  <p className="font-mono text-[10px] text-neutral-400">
+                                  <p className="font-mono text-[10px] text-muted-foreground/80">
                                     Chave: {inv.access_key}
                                   </p>
                                 )}
@@ -462,7 +427,7 @@ function FiscalDashboard() {
                                   </p>
                                 )}
                                 {inv.error_message && (
-                                  <p className="text-[10px] text-red-600 italic">
+                                  <p className="text-[10px] text-primary italic">
                                     Erro: {inv.error_message}
                                   </p>
                                 )}
@@ -472,7 +437,7 @@ function FiscalDashboard() {
                           <div className="flex flex-row items-center justify-between gap-4 sm:flex-col sm:items-end sm:gap-1.5">
                             <Badge variant="outline" className={`capitalize ${
                               inv.status === 'authorized' ? 'bg-emerald-500/10 text-emerald-700 border-emerald-200/50' : 
-                              inv.status === 'rejected' ? 'bg-red-500/10 text-red-700 border-red-200/50' : 
+                              inv.status === 'rejected' ? 'bg-primary/10 text-primary border-primary/30/50' : 
                               inv.status === 'error' ? 'bg-amber-500/10 text-amber-700 border-amber-200/50' :
                               ''
                             } px-2 py-0`}>
@@ -535,7 +500,7 @@ function FiscalDashboard() {
                     <Button 
                      onClick={() => setShowOrderSelection(true)}
                      disabled={isEmitting}
-                     className="gap-2 bg-red-600 hover:bg-red-700"
+                     className="gap-2 bg-primary hover:bg-primary/90"
                     >
                       {isEmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                       {isEmitting ? "Emitindo..." : "Nova NF-e"}
@@ -727,7 +692,7 @@ function FiscalDashboard() {
                          <Button 
                            variant="ghost" 
                            size="sm" 
-                           className="mt-2 text-xs text-muted-foreground hover:text-red-600"
+                           className="mt-2 text-xs text-muted-foreground hover:text-primary"
                            onClick={(e) => {
                              e.stopPropagation();
                              fileInputRef.current?.click();
@@ -932,7 +897,7 @@ function FiscalDashboard() {
                   </div>
                   
                   <div className="md:col-span-2 flex justify-end gap-3 pt-4 border-t">
-                    <Button type="submit" className="bg-red-600 hover:bg-red-700">
+                    <Button type="submit" className="bg-primary hover:bg-primary/90">
                       Salvar Configurações
                     </Button>
                   </div>
@@ -962,15 +927,15 @@ function FiscalDashboard() {
                 {productsLoading ? (
                   <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
                 ) : productsError ? (
-                  <div className="p-12 text-center text-sm text-red-600">
+                  <div className="p-12 text-center text-sm text-primary">
                     Erro ao carregar produtos: {(productsError as Error).message}
                   </div>
                 ) : (
 
-                  <div className="overflow-x-auto rounded-xl border border-neutral-200">
+                  <div className="overflow-x-auto rounded-xl border border-border">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b bg-neutral-50 text-left font-semibold text-neutral-900">
+                        <tr className="border-b bg-muted/40 text-left font-semibold text-foreground">
                           <th className="p-4">Produto</th>
                           <th className="p-4">NCM</th>
                           <th className="p-4">CEST</th>
@@ -979,20 +944,20 @@ function FiscalDashboard() {
                           <th className="p-4 text-right">Ações</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-neutral-100">
+                      <tbody className="divide-y divide-border">
                         {filteredProducts?.length === 0 ? (
                           <tr><td colSpan={5} className="p-12 text-center text-muted-foreground italic">Nenhum produto encontrado.</td></tr>
                         ) : (
                           filteredProducts?.map((p: any) => (
-                            <tr key={p.id} className="group transition-colors hover:bg-neutral-50/50">
+                            <tr key={p.id} className="group transition-colors hover:bg-muted/30">
                               <td className="p-4">
                                 <div className="flex items-center gap-3">
-                                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
+                                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                                     <Package className="h-5 w-5" />
                                   </div>
                                   <div>
-                                    <p className="font-medium text-neutral-900">{p.name}</p>
-                                    <p className="text-xs text-neutral-500">R$ {Number(p.price).toLocaleString('pt-BR')}</p>
+                                    <p className="font-medium text-foreground">{p.name}</p>
+                                    <p className="text-xs text-muted-foreground">R$ {Number(p.price).toLocaleString('pt-BR')}</p>
                                     {p.store_categories?.ncm && !p.ncm && (
                                       <Badge variant="outline" className="mt-1 text-[9px] bg-blue-50 text-blue-600 border-blue-100">
                                         Sincronizado da Categoria
@@ -1057,10 +1022,10 @@ function FiscalDashboard() {
                 <CardDescription>Defina os padrões que serão sugeridos automaticamente no cadastro de produtos.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto rounded-xl border border-neutral-200">
+                <div className="overflow-x-auto rounded-xl border border-border">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b bg-neutral-50 text-left font-semibold text-neutral-900">
+                      <tr className="border-b bg-muted/40 text-left font-semibold text-foreground">
                         <th className="p-4">Categoria</th>
                         <th className="p-4">NCM Padrão</th>
                         <th className="p-4">CFOP Interno</th>
@@ -1069,12 +1034,12 @@ function FiscalDashboard() {
                         <th className="p-4 text-right">Ações</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-neutral-100">
+                    <tbody className="divide-y divide-border">
                       {!categorySettings || categorySettings.length === 0 ? (
                         <tr><td colSpan={6} className="p-8 text-center text-muted-foreground italic">Nenhuma parametrização cadastrada. Utilize o Módulo de Catálogo para propagar dados.</td></tr>
                       ) : (
                         categorySettings.map((set: any) => (
-                          <tr key={set.id} className="hover:bg-neutral-50/50">
+                          <tr key={set.id} className="hover:bg-muted/30">
                             <td className="p-4 font-medium">{set.store_categories?.name}</td>
                             <td className="p-4">{set.ncm}</td>
                             <td className="p-4">{set.cfop_internal}</td>
@@ -1109,18 +1074,18 @@ function FiscalDashboard() {
             </DialogHeader>
             
             <div className="space-y-4 py-4">
-              <div className="rounded-lg bg-neutral-50 p-4 space-y-3 text-sm">
+              <div className="rounded-lg bg-muted/40 p-4 space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-neutral-500">Número / Série:</span>
-                  <span className="font-bold text-neutral-900">{lastInvoice?.invoice_number} / {lastInvoice?.series}</span>
+                  <span className="text-muted-foreground">Número / Série:</span>
+                  <span className="font-bold text-foreground">{lastInvoice?.invoice_number} / {lastInvoice?.series}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-neutral-500">Protocolo:</span>
-                  <span className="font-mono text-neutral-700">{lastInvoice?.protocol}</span>
+                  <span className="text-muted-foreground">Protocolo:</span>
+                  <span className="font-mono text-foreground/80">{lastInvoice?.protocol}</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-neutral-500">Chave de Acesso:</span>
-                  <p className="font-mono text-[10px] break-all bg-white p-2 border rounded">{lastInvoice?.access_key}</p>
+                  <span className="text-muted-foreground">Chave de Acesso:</span>
+                  <p className="font-mono text-[10px] break-all bg-card p-2 border rounded">{lastInvoice?.access_key}</p>
                 </div>
               </div>
 
@@ -1178,7 +1143,7 @@ function FiscalDashboard() {
               <Button onClick={() => {
                 setShowSuccessModal(false);
                 setActiveTab("invoices");
-              }} className="w-full bg-neutral-900">
+              }} className="w-full bg-foreground">
                 Ir para Notas Emitidas
               </Button>
             </DialogFooter>
@@ -1205,21 +1170,21 @@ function FiscalDashboard() {
                   pendingOrders.map((order: any) => (
                     <div 
                       key={order.id} 
-                      className="flex items-center justify-between p-4 border rounded-xl hover:bg-neutral-50 transition-colors cursor-pointer group"
+                      className="flex items-center justify-between p-4 border rounded-xl hover:bg-muted/40 transition-colors cursor-pointer group"
                       onClick={() => handleEmitNFe(order.id, order.type as any)}
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="font-bold text-neutral-900">{order.number}</p>
+                          <p className="font-bold text-foreground">{order.number}</p>
                           <Badge variant="outline" className="text-[10px] h-4 px-1.5 uppercase font-medium">
                             {order.type === 'quote' ? 'Orçamento' : 'Pedido'}
                           </Badge>
                         </div>
-                        <p className="text-xs text-neutral-500">{order.customer} • {new Date(order.date).toLocaleDateString('pt-BR')}</p>
+                        <p className="text-xs text-muted-foreground">{order.customer} • {new Date(order.date).toLocaleDateString('pt-BR')}</p>
                       </div>
                       <div className="text-right flex items-center gap-3">
-                        <p className="font-semibold text-neutral-900">R$ {order.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                        <ArrowRight className="h-4 w-4 text-neutral-300 group-hover:text-red-600 transition-colors" />
+                        <p className="font-semibold text-foreground">R$ {order.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                       </div>
                     </div>
                   ))
@@ -1228,7 +1193,7 @@ function FiscalDashboard() {
             </ScrollArea>
           </DialogContent>
         </Dialog>
-    </div>
+    </PageShell>
   );
 }
 
@@ -1246,31 +1211,31 @@ function KpiCard({
   tone?: "red" | "amber" | "emerald" | "slate" | "neutral";
 }) {
   const iconTones = {
-    red: "bg-red-500/10 text-red-600",
+    red: "bg-primary/10 text-primary",
     amber: "bg-amber-500/10 text-amber-600",
     emerald: "bg-emerald-500/10 text-emerald-600",
     slate: "bg-slate-500/10 text-slate-600",
-    neutral: "bg-neutral-500/10 text-neutral-600",
+    neutral: "bg-neutral-500/10 text-muted-foreground",
   };
 
   return (
     <div className={cn(
-      "relative group flex flex-col gap-4 rounded-[2rem] border border-neutral-200/60 bg-white p-7 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+      "relative group flex flex-col gap-4 rounded-[2rem] border border-border/60 bg-card p-7 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
     )}>
       <div className="flex items-center justify-between">
         <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-110 group-hover:rotate-3", iconTones[tone])}>
           <Icon className="h-6 w-6" />
         </div>
-        <Badge variant="outline" className="rounded-full border-neutral-200/60 bg-neutral-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+        <Badge variant="outline" className="rounded-full border-border/60 bg-muted/40 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
           {hint}
         </Badge>
       </div>
       
       <div className="space-y-1">
-        <div className="text-3xl font-black tracking-tight text-neutral-900 md:text-4xl">
+        <div className="text-3xl font-black tracking-tight text-foreground md:text-4xl">
           {value}
         </div>
-        <p className="text-xs font-medium leading-relaxed text-neutral-500">
+        <p className="text-xs font-medium leading-relaxed text-muted-foreground">
           {label}
         </p>
       </div>
