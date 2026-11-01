@@ -70,7 +70,7 @@ async function geminiGenerateText(prompt: string): Promise<string> {
 
 export const generateMarketingContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => GenerateInput.parse(input))
+  .validator((input: unknown) => GenerateInput.parse(input))
   .handler(async ({ data }) => {
     const { audience, typeBrief } = buildBrief(data);
 
@@ -146,7 +146,7 @@ const SuggestInput = z.object({
 
 export const suggestViralTopics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => SuggestInput.parse(input))
+  .validator((input: unknown) => SuggestInput.parse(input))
   .handler(async ({ data, context }) => {
     const { data: viral } = await context.supabase
       .from("ig_media_cache")
@@ -238,7 +238,7 @@ const AutoBriefInput = z.object({
 
 export const autoBriefFromViral = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => AutoBriefInput.parse(input ?? {}))
+  .validator((input: unknown) => AutoBriefInput.parse(input ?? {}))
   .handler(async ({ data, context }) => {
     // 1. Posts virais recentes (por engajamento)
     const { data: viral } = await context.supabase

@@ -164,7 +164,7 @@ async function applyPresetToProducts(
 
 export const upsertSizePreset = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => upsertInput.parse(i))
+  .validator((i: unknown) => upsertInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const categoryKey = data.category_key.toLowerCase();
@@ -191,7 +191,7 @@ export const upsertSizePreset = createServerFn({ method: "POST" })
 
 export const deleteSizePreset = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase.from("store_size_presets" as never).delete().eq("id", data.id);

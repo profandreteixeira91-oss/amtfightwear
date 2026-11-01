@@ -65,7 +65,7 @@ async function loadInvoiceForPayment(supabaseAdmin: any, invoiceId: string) {
 
 // ============ PIX ============
 export const getInvoicePix = createServerFn({ method: "POST" })
-  .inputValidator((i) => z.object({ invoiceId: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ invoiceId: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const inv = await loadInvoiceForPayment(supabaseAdmin, data.invoiceId);
@@ -94,7 +94,7 @@ export const getInvoicePix = createServerFn({ method: "POST" })
 
 // ============ BOLETO ============
 export const getInvoiceBoleto = createServerFn({ method: "POST" })
-  .inputValidator((i) => z.object({ invoiceId: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ invoiceId: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const inv = await loadInvoiceForPayment(supabaseAdmin, data.invoiceId);
@@ -152,7 +152,7 @@ const cardSchema = z.object({
 });
 
 export const payInvoiceWithCard = createServerFn({ method: "POST" })
-  .inputValidator((i) => cardSchema.parse(i))
+  .validator((i) => cardSchema.parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const inv = await loadInvoiceForPayment(supabaseAdmin, data.invoiceId);
@@ -217,7 +217,7 @@ export const payInvoiceWithCard = createServerFn({ method: "POST" })
 
 // ============ POLL STATUS ============
 export const pollInvoiceStatus = createServerFn({ method: "POST" })
-  .inputValidator((i) => z.object({ invoiceId: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ invoiceId: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: inv, error } = await supabaseAdmin

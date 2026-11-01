@@ -68,7 +68,7 @@ const unitPayloadSchema = z.object({
 
 export const saveDojoUnit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => unitPayloadSchema.parse(i))
+  .validator((i: unknown) => unitPayloadSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const payload: Record<string, any> = {};
@@ -89,7 +89,7 @@ export const saveDojoUnit = createServerFn({ method: "POST" })
 
 export const deleteDojoUnit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_units").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -98,7 +98,7 @@ export const deleteDojoUnit = createServerFn({ method: "POST" })
 
 export const getDojoUnit = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("dojo_units").select("*").eq("id", data.id).maybeSingle();
@@ -118,7 +118,7 @@ export const listDojoBelts = createServerFn({ method: "GET" })
 
 export const saveDojoBelt = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().uuid().optional(),
     modality: z.string().min(1).max(60),
     name: z.string().min(1).max(80),
@@ -156,7 +156,7 @@ export const saveDojoBelt = createServerFn({ method: "POST" })
 
 export const deleteDojoBelt = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_belts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -165,7 +165,7 @@ export const deleteDojoBelt = createServerFn({ method: "POST" })
 
 export const reorderDojoBelts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     items: z.array(z.object({ id: z.string().uuid(), sort_order: z.number().int().min(0).max(9999) })).min(1).max(500),
   }).parse(i))
   .handler(async ({ data, context }) => {
@@ -276,7 +276,7 @@ export const listDojoStudents = createServerFn({ method: "GET" })
 
 export const getDojoStudent = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: student, error } = await context.supabase
       .from("dojo_students").select("*").eq("id", data.id).single();
@@ -413,7 +413,7 @@ export const listGraduationProgress = createServerFn({ method: "GET" })
 
 export const saveDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     full_name: z.string().min(1).max(200),
     unit_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
@@ -497,7 +497,7 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
 
 export const deleteDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     // Matrícula cancelada => exclusão definitiva: nenhum registro do aluno
     // permanece e o acesso ao app do aluno é removido.
@@ -532,7 +532,7 @@ export const deleteDojoStudent = createServerFn({ method: "POST" })
 
 export const freezeDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     frozen_until: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida").optional().nullable(),
   }).parse(i))
@@ -572,7 +572,7 @@ export const freezeDojoStudent = createServerFn({ method: "POST" })
 
 export const unfreezeDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_students")
@@ -584,7 +584,7 @@ export const unfreezeDojoStudent = createServerFn({ method: "POST" })
 
 export const restoreDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_students")
@@ -603,7 +603,7 @@ export const restoreDojoStudent = createServerFn({ method: "POST" })
 // ============ GRADUATIONS ============
 export const addDojoGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     belt_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     degree: z.number().int().min(0).max(20).default(0),
@@ -663,7 +663,7 @@ export const addDojoGraduation = createServerFn({ method: "POST" })
 
 export const updateDojoGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     graduation_date: z.string().min(1),
     evaluator: z.string().max(200).optional().nullable(),
@@ -688,7 +688,7 @@ export const updateDojoGraduation = createServerFn({ method: "POST" })
 
 export const deleteDojoGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     // Descobre o aluno antes de excluir para poder recalcular a faixa atual.
     const { data: grad } = await context.supabase
@@ -727,7 +727,7 @@ export const listDojoPlans = createServerFn({ method: "GET" })
 
 export const saveDojoPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     name: z.string().min(1).max(120),
     description: z.string().max(500).optional().nullable(),
@@ -766,7 +766,7 @@ export const saveDojoPlan = createServerFn({ method: "POST" })
 
 export const deleteDojoPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_plans").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -781,7 +781,7 @@ export const deleteDojoPlan = createServerFn({ method: "POST" })
  */
 export const getStudentAllowedPaymentMethods = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
   }).parse(i))
   .handler(async ({ data, context }) => {
@@ -805,7 +805,7 @@ export const getStudentAllowedPaymentMethods = createServerFn({ method: "POST" }
 // ============ ENROLLMENTS ============
 export const saveDojoEnrollment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     plan_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
@@ -829,7 +829,7 @@ export const saveDojoEnrollment = createServerFn({ method: "POST" })
 
 export const deleteDojoEnrollment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_enrollments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -839,7 +839,7 @@ export const deleteDojoEnrollment = createServerFn({ method: "POST" })
 // ============ INVOICES ============
 export const listDojoInvoices = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     status: z.string().optional(),
     from: z.string().optional(),
     to: z.string().optional(),
@@ -858,7 +858,7 @@ export const listDojoInvoices = createServerFn({ method: "GET" })
 
 export const saveDojoInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     enrollment_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
@@ -958,7 +958,7 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
 
 export const markDojoInvoicePaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     method: z.string().max(30).optional(),
     paid_at: z.string().datetime().optional(),
@@ -1003,7 +1003,7 @@ export const markDojoInvoicePaid = createServerFn({ method: "POST" })
 
 export const deleteDojoInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: invoice, error: invoiceError } = await context.supabase
       .from("dojo_invoices")
@@ -1047,7 +1047,7 @@ export const deleteDojoInvoice = createServerFn({ method: "POST" })
  */
 export const enrollStudentWithPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     plan_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     due_day: z.number().int().min(1).max(31),
@@ -1255,7 +1255,7 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
  */
 export const cancelEnrollment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     enrollment_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
   }).parse(i))
   .handler(async ({ data, context }) => {
@@ -1297,7 +1297,7 @@ export const cancelEnrollment = createServerFn({ method: "POST" })
  */
 export const changeStudentPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     student_id: z.string().uuid(),
     plan_id: z.string().uuid(),
     due_day: z.number().int().min(1).max(31),
@@ -1429,7 +1429,7 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
 
 export const generateMonthlyInvoices = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     reference_month: z.string(),
   }).parse(i))
   .handler(async ({ data, context }) => {
@@ -1485,7 +1485,7 @@ export const listDojoExpenses = createServerFn({ method: "GET" })
 
 export const saveDojoExpense = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     unit_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     category: z.string().max(80).optional().nullable(),
@@ -1527,7 +1527,7 @@ export const saveDojoExpense = createServerFn({ method: "POST" })
 
 export const deleteDojoExpense = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_expenses").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -1537,7 +1537,7 @@ export const deleteDojoExpense = createServerFn({ method: "POST" })
 // ============ FINANCE OVERVIEW ============
 export const dojoFinanceOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     from: z.string().optional(),
     to: z.string().optional(),
   }).parse(i ?? {}))
@@ -1570,7 +1570,7 @@ export const listCertificateTemplates = createServerFn({ method: "GET" })
 
 export const saveCertificateTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     name: z.string().min(1).max(200),
     background_url: z.string().max(2000).optional().default(""),
@@ -1612,7 +1612,7 @@ export const saveCertificateTemplate = createServerFn({ method: "POST" })
 
 export const deleteCertificateTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_certificate_templates").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -1621,7 +1621,7 @@ export const deleteCertificateTemplate = createServerFn({ method: "POST" })
 
 export const issueCertificate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     graduation_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     template_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
@@ -1667,7 +1667,7 @@ export const listIssuedCertificates = createServerFn({ method: "GET" })
 
 export const deleteIssuedCertificate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(uuidRx, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(uuidRx, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_certificates").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -1676,7 +1676,7 @@ export const deleteIssuedCertificate = createServerFn({ method: "POST" })
 
 export const updateIssuedCertificatePdf = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(uuidRx, "UUID inválido"),
     pdf_url: z.string().url().max(2000),
   }).parse(i))
@@ -1691,7 +1691,7 @@ export const updateIssuedCertificatePdf = createServerFn({ method: "POST" })
 
 export const getCertificateIssueContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().regex(uuidRx, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().regex(uuidRx, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const [s, a, g] = await Promise.all([
       context.supabase.from("dojo_students")
@@ -1729,7 +1729,7 @@ export const getGraduationSettings = createServerFn({ method: "GET" })
 
 export const saveGraduationSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     system: z.enum(["merit", "classes", "period"]),
     classes_by_belt: z.record(z.string(), z.number()).optional(),
     period_months_by_belt: z.record(z.string(), z.number()).optional(),
@@ -1757,7 +1757,7 @@ export const saveGraduationSettings = createServerFn({ method: "POST" })
 // ============ BULK GRADUATION ============
 export const addBulkGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => {
+  .validator((i: unknown) => {
     const uuid = z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido");
     return z.object({
       // Legado: mesma faixa/grau para todos
@@ -1968,7 +1968,7 @@ export const listDojoEvaluations = createServerFn({ method: "GET" })
 
 export const saveDojoEvaluation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     belt_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     degree: z.number().int().min(0).max(10).default(0),
@@ -2005,7 +2005,7 @@ export const saveDojoEvaluation = createServerFn({ method: "POST" })
 
 export const deleteDojoEvaluation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_evaluations").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -2040,7 +2040,7 @@ const bulkStudentRow = z.object({
 
 export const bulkImportDojoStudents = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ rows: z.array(bulkStudentRow).min(1).max(500) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -2067,7 +2067,7 @@ export const bulkImportDojoStudents = createServerFn({ method: "POST" })
 
 export const addStudentReferencePhoto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     studentId: z.string().uuid(),
     photoUrl: z.string().url()
   }).parse(i))
@@ -2085,7 +2085,7 @@ export const addStudentReferencePhoto = createServerFn({ method: "POST" })
 
 export const deleteStudentReferencePhoto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_student_reference_photos")

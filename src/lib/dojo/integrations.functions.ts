@@ -6,7 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // ============== TESTE DE CONEXÃO ==============
 export const testIntegrationConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       integrationId: z.string(),
       credentials: z.record(z.string(), z.string()).optional(),

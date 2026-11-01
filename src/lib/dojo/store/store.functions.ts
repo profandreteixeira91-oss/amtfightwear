@@ -16,7 +16,7 @@ export const dsListCategories = createServerFn({ method: "GET" })
 
 export const dsListProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     search: z.string().optional(),
     categorySlug: z.string().optional(),
     featured: z.boolean().optional(),
@@ -30,7 +30,7 @@ export const dsListProducts = createServerFn({ method: "GET" })
 
 export const dsGetProduct = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ slug: z.string() }).parse(i))
+  .validator((i: unknown) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data, context }) => {
     return getStoreProvider(context.supabase).getProductBySlug(data.slug);
   });
@@ -51,7 +51,7 @@ export const dsGetSettings = createServerFn({ method: "GET" })
 
 export const dsUpdateSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     wholesale_min_qty_per_product: z.number().int().min(1).max(1000).optional(),
     wholesale_min_order_value: z.number().min(0).optional(),
   }).parse(i))
@@ -215,7 +215,7 @@ export const dsGetCart = createServerFn({ method: "GET" })
 
 export const dsAddToCart = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     product_id: UUID,
     variant_id: UUID.nullable().optional(),
     quantity: z.number().int().min(1).max(999).default(1),
@@ -257,7 +257,7 @@ export const dsAddToCart = createServerFn({ method: "POST" })
 
 export const dsUpdateCartItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: UUID, quantity: z.number().int().min(1).max(999) }).parse(i))
+  .validator((i: unknown) => z.object({ id: UUID, quantity: z.number().int().min(1).max(999) }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_store_cart_items").update({ quantity: data.quantity }).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -266,7 +266,7 @@ export const dsUpdateCartItem = createServerFn({ method: "POST" })
 
 export const dsRemoveCartItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ id: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_store_cart_items").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -294,7 +294,7 @@ export const dsListFavoriteLists = createServerFn({ method: "GET" })
 
 export const dsCreateFavoriteList = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ name: z.string().min(1).max(120) }).parse(i))
+  .validator((i: unknown) => z.object({ name: z.string().min(1).max(120) }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_store_favorite_lists").insert({ owner_id: context.userId, name: data.name });
     if (error) throw new Error(error.message);
@@ -303,7 +303,7 @@ export const dsCreateFavoriteList = createServerFn({ method: "POST" })
 
 export const dsToggleFavorite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ product_id: UUID, list_id: UUID.nullable().optional() }).parse(i))
+  .validator((i: unknown) => z.object({ product_id: UUID, list_id: UUID.nullable().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const list_id = data.list_id ?? null;
     let query = context.supabase.from("dojo_store_favorites").select("id").eq("product_id", data.product_id);
@@ -322,7 +322,7 @@ export const dsToggleFavorite = createServerFn({ method: "POST" })
    ============================================================ */
 export const dsCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     shipping_cost: z.number().min(0).default(0),
     notes: z.string().max(500).optional(),
   }).parse(i))
@@ -393,7 +393,7 @@ export const dsListOrders = createServerFn({ method: "GET" })
 
 export const dsGetOrder = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ id: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: order, error } = await context.supabase
       .from("dojo_store_orders")
@@ -406,7 +406,7 @@ export const dsGetOrder = createServerFn({ method: "GET" })
 
 export const dsReorder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ order_id: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ order_id: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: items } = await context.supabase
       .from("dojo_store_order_items")
@@ -429,7 +429,7 @@ export const dsReorder = createServerFn({ method: "POST" })
 
 export const dsAttachToStudents = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     order_item_id: UUID,
     student_ids: z.array(UUID).min(1),
   }).parse(i))

@@ -29,7 +29,7 @@ function dueDateFor(month: string, dueDay: number): string {
  */
 export const getStudentPrepayContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ studentId: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ studentId: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: enrollments, error } = await context.supabase
       .from("dojo_enrollments")
@@ -111,7 +111,7 @@ export const getStudentPrepayContext = createServerFn({ method: "GET" })
  */
 export const createPrepaidInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         studentId: UUID,

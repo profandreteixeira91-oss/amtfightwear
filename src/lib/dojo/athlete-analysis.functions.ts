@@ -44,7 +44,7 @@ const idInput = z.object({ studentId: z.string().uuid() });
 // -------- Overview --------
 export const getAthleteOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => idInput.parse(i))
+  .validator((i: unknown) => idInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudentOwnership(supabase, userId, data.studentId);
@@ -99,7 +99,7 @@ export const getAthleteOverview = createServerFn({ method: "GET" })
 // -------- Attendance / Heatmap --------
 export const getAthleteAttendance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     idInput.extend({ days: z.number().int().min(30).max(730).optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -177,7 +177,7 @@ export const getAthleteAttendance = createServerFn({ method: "GET" })
 // -------- Performance Score --------
 export const getAthletePerformanceScore = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => idInput.parse(i))
+  .validator((i: unknown) => idInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudentOwnership(supabase, userId, data.studentId);
@@ -252,7 +252,7 @@ export const getAthletePerformanceScore = createServerFn({ method: "GET" })
 // -------- Physical (dojo_evaluations items heurístico) --------
 export const getAthletePhysical = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => idInput.parse(i))
+  .validator((i: unknown) => idInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { owner_id } = await assertStudentOwnership(supabase, userId, data.studentId);
@@ -275,7 +275,7 @@ export const getAthletePhysical = createServerFn({ method: "GET" })
 // -------- Technical (radar da última avaliação) --------
 export const getAthleteTechnical = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => idInput.parse(i))
+  .validator((i: unknown) => idInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudentOwnership(supabase, userId, data.studentId);
@@ -312,7 +312,7 @@ export const getAthleteTechnical = createServerFn({ method: "GET" })
 // -------- Graduations --------
 export const getAthleteGraduations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => idInput.parse(i))
+  .validator((i: unknown) => idInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudentOwnership(supabase, userId, data.studentId);
@@ -343,7 +343,7 @@ export const getAthleteGraduations = createServerFn({ method: "GET" })
 // -------- Competitions --------
 export const getAthleteCompetitions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => idInput.parse(i))
+  .validator((i: unknown) => idInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudentOwnership(supabase, userId, data.studentId);
@@ -367,7 +367,7 @@ export const getAthleteCompetitions = createServerFn({ method: "GET" })
 // -------- Videos --------
 export const getAthleteVideos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => idInput.parse(i))
+  .validator((i: unknown) => idInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudentOwnership(supabase, userId, data.studentId);
@@ -386,7 +386,7 @@ export const getAthleteVideos = createServerFn({ method: "GET" })
 // -------- Insights (heurísticos) --------
 export const getAthleteInsights = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => idInput.parse(i))
+  .validator((i: unknown) => idInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudentOwnership(supabase, userId, data.studentId);
@@ -433,7 +433,7 @@ export const getAthleteInsights = createServerFn({ method: "GET" })
 // -------- Compare two athletes --------
 export const compareAthletes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ a: z.string().uuid(), b: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {

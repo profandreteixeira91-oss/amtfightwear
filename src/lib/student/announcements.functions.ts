@@ -11,7 +11,7 @@ async function currentStudent(supabase: any) {
 
 export const listMyAnnouncements = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       q: z.string().optional(),
       category_id: z.string().optional(),
@@ -97,7 +97,7 @@ export const listMyAnnouncements = createServerFn({ method: "GET" })
 
 export const getMyAnnouncement = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const studentId = await currentStudent(context.supabase);
 
@@ -154,7 +154,7 @@ export const getMyAnnouncement = createServerFn({ method: "GET" })
 
 export const confirmRead = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid, device: z.string().optional() }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid, device: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const studentId = await currentStudent(context.supabase);
     if (!studentId) throw new Error("Aluno não encontrado");
@@ -172,7 +172,7 @@ export const confirmRead = createServerFn({ method: "POST" })
 
 export const toggleLike = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const studentId = await currentStudent(context.supabase);
     if (!studentId) throw new Error("Aluno não encontrado");
@@ -199,7 +199,7 @@ export const toggleLike = createServerFn({ method: "POST" })
 
 export const addComment = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: uuid, comment: z.string().trim().min(1).max(1000) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -223,7 +223,7 @@ export const addComment = createServerFn({ method: "POST" })
 
 export const deleteMyComment = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_announcement_comments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);

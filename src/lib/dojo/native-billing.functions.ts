@@ -75,7 +75,7 @@ export const getNativeBillingConfig = createServerFn({ method: "GET" })
 
 export const saveNativeBillingConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => {
+  .validator((i: unknown) => {
     const parsed = schema.parse(i);
     if (parsed.pix_enabled) {
       const problem = validatePixKey(parsed.pix_key, parsed.pix_key_type);
@@ -102,7 +102,7 @@ export const saveNativeBillingConfig = createServerFn({ method: "POST" })
  */
 export const getNativeBillingForInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         invoice_id: z

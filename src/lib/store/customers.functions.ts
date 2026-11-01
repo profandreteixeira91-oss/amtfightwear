@@ -36,7 +36,7 @@ export const adminListStoreCustomers = createServerFn({ method: "GET" })
 
 export const adminGetCustomerDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

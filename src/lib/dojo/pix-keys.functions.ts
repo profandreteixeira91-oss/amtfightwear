@@ -21,7 +21,7 @@ export const listPixKeys = createServerFn({ method: "GET" })
 
 export const createPixKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         key_type: keyTypeSchema,
@@ -50,7 +50,7 @@ export const createPixKey = createServerFn({ method: "POST" })
 
 export const setDefaultPixKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await context.supabase
       .from("dojo_pix_keys")
@@ -67,7 +67,7 @@ export const setDefaultPixKey = createServerFn({ method: "POST" })
 
 export const deletePixKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_pix_keys")

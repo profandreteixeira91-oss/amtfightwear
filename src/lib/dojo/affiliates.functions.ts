@@ -52,7 +52,7 @@ export const listAffiliates = createServerFn({ method: "GET" })
 
 export const getAffiliate = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await (context.supabase as any)
       .from("dojo_affiliates").select("*").eq("id", data.id).maybeSingle();
@@ -62,7 +62,7 @@ export const getAffiliate = createServerFn({ method: "GET" })
 
 export const saveAffiliate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => affiliateSchema.parse(i))
+  .validator((i: unknown) => affiliateSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const payload: Record<string, any> = {};
@@ -87,7 +87,7 @@ export const saveAffiliate = createServerFn({ method: "POST" })
 
 export const deleteAffiliate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await (context.supabase as any)
       .from("dojo_affiliates").delete().eq("id", data.id);
@@ -98,7 +98,7 @@ export const deleteAffiliate = createServerFn({ method: "POST" })
 // ============ FINANCEIRO (usa dojo_invoices existentes) ============
 export const listAffiliateInvoices = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ affiliate_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ affiliate_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await (context.supabase as any)
       .from("dojo_invoices")
@@ -111,7 +111,7 @@ export const listAffiliateInvoices = createServerFn({ method: "GET" })
 
 export const createAffiliateInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     affiliate_id: z.string().uuid(),
     description: z.string().min(1).max(300),
     amount: z.number().positive(),
@@ -144,7 +144,7 @@ export const createAffiliateInvoice = createServerFn({ method: "POST" })
 // ============ CONTRATOS ============
 export const listAffiliateContracts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ affiliate_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ affiliate_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await (context.supabase as any)
       .from("dojo_affiliate_contracts").select("*")
@@ -156,7 +156,7 @@ export const listAffiliateContracts = createServerFn({ method: "GET" })
 
 export const saveAffiliateContract = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().uuid().optional(),
     affiliate_id: z.string().uuid(),
     title: z.string().max(200).optional(),
@@ -180,7 +180,7 @@ export const saveAffiliateContract = createServerFn({ method: "POST" })
 
 export const deleteAffiliateContract = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await (context.supabase as any)
       .from("dojo_affiliate_contracts").delete().eq("id", data.id);

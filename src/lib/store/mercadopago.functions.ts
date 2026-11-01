@@ -167,7 +167,7 @@ const CardSchema = z.object({
 });
 
 export const createMercadopagoPayment = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         order_id: z.string().uuid(),
@@ -411,7 +411,7 @@ export const adminRegenerateStorePixQrCodes = createServerFn({ method: "POST" })
 
 export const syncMercadopagoPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ order_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ order_id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: order } = await supabaseAdmin

@@ -38,7 +38,7 @@ function monthKey(d: Date) {
 
 export const dojoFinanceDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ monthsBack: z.number().int().min(1).max(24).optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {

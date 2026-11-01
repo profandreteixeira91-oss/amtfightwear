@@ -16,7 +16,7 @@ export const getAdminPushPublicKey = createServerFn({ method: "GET" }).handler(a
 /** Salva/atualiza a inscrição do navegador do admin. */
 export const saveAdminPushSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: { endpoint: string; p256dh: string; auth: string; userAgent?: string | null }) => data,
   )
   .handler(async ({ data, context }) => {
@@ -40,7 +40,7 @@ export const saveAdminPushSubscription = createServerFn({ method: "POST" })
 /** Remove a inscrição por endpoint (chamado ao desativar as notificações). */
 export const removeAdminPushSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { endpoint: string }) => data)
+  .validator((data: { endpoint: string }) => data)
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
@@ -97,7 +97,7 @@ export const getAdminNotificationPrefs = createServerFn({ method: "GET" })
 /** Ativa/desativa um tipo de notificação para o admin logado. */
 export const setAdminNotificationPref = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { event: string; enabled: boolean }) => data)
+  .validator((data: { event: string; enabled: boolean }) => data)
   .handler(async ({ data, context }) => {
     await ensureAmtAdmin(context);
     const { isAdminNotificationEvent } = await import("@/lib/push/admin-events");
@@ -118,7 +118,7 @@ export const setAdminNotificationPref = createServerFn({ method: "POST" })
 /** Envia uma notificação de teste de um evento específico para o admin logado. */
 export const sendAdminPushEventTest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { event: string }) => data)
+  .validator((data: { event: string }) => data)
   .handler(async ({ data, context }) => {
     await ensureAmtAdmin(context);
     const { ADMIN_NOTIFICATION_CATALOG, isAdminNotificationEvent } = await import(

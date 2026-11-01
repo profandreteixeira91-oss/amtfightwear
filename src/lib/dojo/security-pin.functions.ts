@@ -34,7 +34,7 @@ export const getSecurityPinStatus = createServerFn({ method: "GET" })
 
 export const createSecurityPin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { pin: string; confirm: string }) => {
+  .validator((input: { pin: string; confirm: string }) => {
     if (!PIN_RE.test(input.pin)) throw new Error("O PIN deve conter 6 dígitos numéricos.");
     if (input.pin !== input.confirm) throw new Error("Os PINs digitados não coincidem.");
     return input;
@@ -73,7 +73,7 @@ export const createSecurityPin = createServerFn({ method: "POST" })
 
 export const verifySecurityPin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { pin: string }) => {
+  .validator((input: { pin: string }) => {
     if (!PIN_RE.test(input.pin)) throw new Error("PIN inválido.");
     return input;
   })
@@ -96,7 +96,7 @@ export const verifySecurityPin = createServerFn({ method: "POST" })
 
 export const changeSecurityPin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { currentPin: string; newPin: string; confirmPin: string }) => {
+  .validator((input: { currentPin: string; newPin: string; confirmPin: string }) => {
     if (!PIN_RE.test(input.currentPin)) throw new Error("PIN atual inválido.");
     if (!PIN_RE.test(input.newPin)) throw new Error("O novo PIN deve conter 6 dígitos numéricos.");
     if (input.newPin !== input.confirmPin) throw new Error("Os novos PINs não coincidem.");

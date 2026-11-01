@@ -42,7 +42,7 @@ const dimsSchema = z.object({
 
 export const adminSavePackageDimensions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         rows: z
@@ -65,7 +65,7 @@ export const adminSavePackageDimensions = createServerFn({ method: "POST" })
 
 export const adminBulkApplyPackageDimensions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         ids: z.array(z.string().uuid()).min(1).max(2000),

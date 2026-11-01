@@ -135,7 +135,7 @@ export const getStudentNotificationPrefs = createServerFn({ method: "GET" })
 
 export const saveStudentNotificationPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: {
+  .validator((input: {
     categories: Partial<Record<NotificationCategoryKey, boolean>>;
     extras?: Partial<NotificationExtras>;
   }) => input)

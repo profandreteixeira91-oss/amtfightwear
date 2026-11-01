@@ -40,7 +40,7 @@ const SettingsInput = z.object({
 
 export const updateShippingSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: z.infer<typeof SettingsInput>) => SettingsInput.parse(i))
+  .validator((i: z.infer<typeof SettingsInput>) => SettingsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
@@ -93,7 +93,7 @@ export type ShippingOption = {
 };
 
 export const calculateShipping = createServerFn({ method: "POST" })
-  .inputValidator((i: z.infer<typeof QuoteInput>) => QuoteInput.parse(i))
+  .validator((i: z.infer<typeof QuoteInput>) => QuoteInput.parse(i))
   .handler(async ({ data }): Promise<{ options: ShippingOption[] }> => {
     const token = process.env.MELHOR_ENVIO_TOKEN;
     const userAgent = process.env.MELHOR_ENVIO_USER_AGENT ?? "AMT Fight Wear";
@@ -258,7 +258,7 @@ const OrderIdInput = z.object({ order_id: z.string().uuid() });
  */
 export const adminMelhorEnvioQuoteOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: z.infer<typeof OrderIdInput>) => OrderIdInput.parse(i))
+  .validator((i: z.infer<typeof OrderIdInput>) => OrderIdInput.parse(i))
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
@@ -352,7 +352,7 @@ const AddToCartInput = z.object({
  */
 export const adminMelhorEnvioAddToCart = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: z.infer<typeof AddToCartInput>) => AddToCartInput.parse(i))
+  .validator((i: z.infer<typeof AddToCartInput>) => AddToCartInput.parse(i))
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
@@ -369,7 +369,7 @@ const CartIdsInput = z.object({ order_ids: z.array(z.string().uuid()).min(1) });
  */
 export const adminMelhorEnvioCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
+  .validator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
@@ -383,7 +383,7 @@ export const adminMelhorEnvioCheckout = createServerFn({ method: "POST" })
  */
 export const adminMelhorEnvioGenerate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
+  .validator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
@@ -396,7 +396,7 @@ export const adminMelhorEnvioGenerate = createServerFn({ method: "POST" })
  */
 export const adminMelhorEnvioSyncTracking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
+  .validator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
@@ -428,7 +428,7 @@ export const adminMelhorEnvioSenderOptions = createServerFn({ method: "GET" })
 
 export const adminMelhorEnvioPrepare = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ order_id: z.string().uuid(), service_id: z.number().int().positive() }).parse(input))
+  .validator((input: unknown) => z.object({ order_id: z.string().uuid(), service_id: z.number().int().positive() }).parse(input))
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
@@ -440,7 +440,7 @@ export const adminMelhorEnvioPrepare = createServerFn({ method: "POST" })
 
 export const adminMelhorEnvioSaveRecipient = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(async (input: unknown) => {
+  .validator(async (input: unknown) => {
     const { RecipientSchema } = await import("./shipping-preflight");
     return z.object({ order_id: z.string().uuid(), recipient: RecipientSchema }).parse(input);
   })
@@ -462,7 +462,7 @@ export const adminMelhorEnvioSaveRecipient = createServerFn({ method: "POST" })
 
 export const adminMelhorEnvioSaveVolumes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(async (input: unknown) => {
+  .validator(async (input: unknown) => {
     const { ShipmentVolumesSchema } = await import("./shipping-preflight");
     return z.object({ order_id: z.string().uuid(), volumes: ShipmentVolumesSchema }).parse(input);
   })

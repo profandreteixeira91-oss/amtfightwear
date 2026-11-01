@@ -34,7 +34,7 @@ export const listCustomTemplates = createServerFn({ method: "GET" }).handler(asy
 });
 
 export const getCustomTemplate = createServerFn({ method: "GET" })
-  .inputValidator((i: { kind: string }) => z.object({ kind: z.string().min(1) }).parse(i))
+  .validator((i: { kind: string }) => z.object({ kind: z.string().min(1) }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: template } = await sb
@@ -96,7 +96,7 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
 
 export const updateCustomLayout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => layoutInput.parse(i))
+  .validator((i: unknown) => layoutInput.parse(i))
   .handler(async ({ data, context }) => {
     if (!(await isSaasOwner(context))) throw new Error("Forbidden");
 

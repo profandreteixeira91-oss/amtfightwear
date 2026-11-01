@@ -7,7 +7,7 @@ import { z } from "zod";
  * configuração de métodos de pagamento aceitos (plano + status AMT Pay).
  */
 export const getPublicInvoice = createServerFn({ method: "GET" })
-  .inputValidator((i) => z.object({ invoiceId: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ invoiceId: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: inv, error } = await supabaseAdmin

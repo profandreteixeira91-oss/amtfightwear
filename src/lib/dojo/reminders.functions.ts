@@ -94,7 +94,7 @@ const updateSchema = z.object({
 
 export const updateReminderSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => updateSchema.parse(i))
+  .validator((i: unknown) => updateSchema.parse(i))
   .handler(async ({ data, context }) => {
     const row = await ensureSettings(context.supabase, context.userId);
     const extras = { ...(row.extras ?? {}), reminders: data };
@@ -123,7 +123,7 @@ export const listRecentReminders = createServerFn({ method: "GET" })
 
 export const sendReminderNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ invoiceId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {

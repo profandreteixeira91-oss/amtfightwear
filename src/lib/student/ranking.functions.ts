@@ -38,7 +38,7 @@ async function collectAttendance(
  */
 export const getMyClassRanking = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         classId: z.string().uuid().optional(),

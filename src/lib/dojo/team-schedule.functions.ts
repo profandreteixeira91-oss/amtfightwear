@@ -8,7 +8,7 @@ const uuid = z.string().uuid();
 
 export const listTeamSchedule = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         from: z.string(), // YYYY-MM-DD
@@ -47,7 +47,7 @@ export const listTeamSchedule = createServerFn({ method: "GET" })
 
 export const generateOccurrences = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         from: z.string(),
@@ -116,7 +116,7 @@ const substituteSchema = z.object({
 
 export const substituteTeacher = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => substituteSchema.parse(i))
+  .validator((i: unknown) => substituteSchema.parse(i))
   .handler(async ({ data, context }) => {
     // 1. Buscar ocorrência
     const { data: occ, error: occErr } = await context.supabase
@@ -184,7 +184,7 @@ export const substituteTeacher = createServerFn({ method: "POST" })
 
 export const revertSubstitution = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ occurrence_id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ occurrence_id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_class_occurrences")
@@ -209,7 +209,7 @@ export const revertSubstitution = createServerFn({ method: "POST" })
 
 export const listSubstitutions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         teacher_id: uuid.nullable().optional(),

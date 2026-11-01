@@ -30,7 +30,7 @@ export const getAcademyMedalSummary = createServerFn({ method: "GET" })
 
 export const getAcademyAthleteRanking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ belt_id: uuid.nullable().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -60,7 +60,7 @@ export const getAcademyAthleteRanking = createServerFn({ method: "POST" })
 
 export const getStudentCompetitionHistory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,7 +123,7 @@ const resultSchema = z.object({
 
 export const upsertAthleteResult = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => resultSchema.parse(i))
+  .validator((i: unknown) => resultSchema.parse(i))
   .handler(async ({ data, context }) => {
     const payload = { ...data, owner_id: context.userId };
     const { data: row, error } = data.id
@@ -145,7 +145,7 @@ export const upsertAthleteResult = createServerFn({ method: "POST" })
 
 export const listAthleteResults = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ academy_competition_id: uuid }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -161,7 +161,7 @@ export const listAthleteResults = createServerFn({ method: "POST" })
 
 export const deleteAthleteResult = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("academy_competition_results")

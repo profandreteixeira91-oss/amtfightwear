@@ -45,7 +45,7 @@ export const asaasCheckConnection = createServerFn({ method: "GET" })
 /** Salva a chave PIX no perfil do dojo. */
 export const setDojoPixKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         pixKey: z.string().trim().min(1).max(200),
@@ -122,7 +122,7 @@ export const getMyAsaasConfig = createServerFn({ method: "GET" })
  */
 export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         // Campos opcionais para complementar o perfil na hora do onboarding
@@ -435,7 +435,7 @@ export const resetMyAsaasConfig = createServerFn({ method: "POST" })
  */
 export const linkExistingAsaasAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         walletId: z
@@ -681,7 +681,7 @@ export const sendMyAsaasDocuments = createServerFn({ method: "POST" })
  */
 export const uploadAsaasDocumentForPending = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         pendingId: z.string().trim().min(1).max(120),

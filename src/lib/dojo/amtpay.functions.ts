@@ -85,7 +85,7 @@ export const getWalletSettings = createServerFn({ method: "GET" })
 
 export const updateWalletSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         min_withdrawal_amount: z.number().min(0).optional(),
@@ -152,7 +152,7 @@ export const listBankAccounts = createServerFn({ method: "GET" })
 
 export const saveBankAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid().optional(), account: bankAccountSchema }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -352,7 +352,7 @@ export const getWalletDashboard = createServerFn({ method: "GET" })
 // ------------------------------------------------------------
 export const listWalletTransactions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         from: z.string().optional(),
@@ -500,7 +500,7 @@ export const listWithdrawals = createServerFn({ method: "GET" })
 
 export const requestWithdrawal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         amount: z.number().positive(),
@@ -619,7 +619,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
  */
 export const retryWithdrawal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: wd } = await context.supabase
       .from("dojo_withdrawals")
@@ -646,7 +646,7 @@ export const retryWithdrawal = createServerFn({ method: "POST" })
 
 export const cancelWithdrawal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: wd } = await context.supabase
       .from("dojo_withdrawals")

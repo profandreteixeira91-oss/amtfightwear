@@ -55,7 +55,7 @@ function tokenizeQuery(q: string): string[] {
 
 export const listCompetitions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => listSchema.parse(i ?? {}))
+  .validator((i: unknown) => listSchema.parse(i ?? {}))
   .handler(async ({ data, context }) => {
     let query = context.supabase
       .from("competitions")
@@ -99,7 +99,7 @@ export const listCompetitions = createServerFn({ method: "POST" })
 
 export const getCompetition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("competitions")
@@ -163,7 +163,7 @@ const manualSchema = z.object({
  */
 export const createManualCompetition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => manualSchema.parse(i))
+  .validator((i: unknown) => manualSchema.parse(i))
   .handler(async ({ data, context }) => {
     const cls = classify({
       name: data.name,

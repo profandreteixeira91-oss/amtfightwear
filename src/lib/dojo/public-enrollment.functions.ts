@@ -60,7 +60,7 @@ export type PublicEnrollmentBundle = {
 
 
 export const getPublicEnrollmentBundle = createServerFn({ method: "GET" })
-  .inputValidator((i: unknown) => z.object({ slug: slugSchema }).parse(i))
+  .validator((i: unknown) => z.object({ slug: slugSchema }).parse(i))
   .handler(async ({ data }): Promise<PublicEnrollmentBundle> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -191,7 +191,7 @@ const enrollInput = z.object({
 
 
 export const publicEnrollStudent = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) => enrollInput.parse(i))
+  .validator((i: unknown) => enrollInput.parse(i))
   .handler(async ({ data }) => {
     if (!data.lgpd_consent || !data.terms_accepted) {
       throw new Error("É necessário aceitar os termos e o consentimento LGPD.");
@@ -419,7 +419,7 @@ const photoInput = z.object({
 });
 
 export const publicUploadEnrollmentPhoto = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) => photoInput.parse(i))
+  .validator((i: unknown) => photoInput.parse(i))
   .handler(async ({ data }) => {
     const match = /^data:(image\/(jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(data.data_url);
     if (!match) throw new Error("Formato de imagem inválido");

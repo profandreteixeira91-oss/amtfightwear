@@ -38,7 +38,7 @@ export const adminGetStudentAppConfig = createServerFn({ method: "GET" })
 
 export const adminSaveDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { draft: StudentAppConfig }) => input)
+  .validator((input: { draft: StudentAppConfig }) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const draft = normalizeConfig(data.draft);
@@ -69,7 +69,7 @@ export const adminSaveDraft = createServerFn({ method: "POST" })
 
 export const adminPublishConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { label?: string | null }) => input ?? { label: null })
+  .validator((input: { label?: string | null }) => input ?? { label: null })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: existing } = await supabase
@@ -123,7 +123,7 @@ export const adminListAppVersions = createServerFn({ method: "GET" })
 
 export const adminRestoreAppVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { version: number }) => input)
+  .validator((input: { version: number }) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: v } = await supabase
@@ -177,7 +177,7 @@ type NewsInput = {
 
 export const adminUpsertAppNews = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: NewsInput) => input)
+  .validator((input: NewsInput) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const payload = {
@@ -214,7 +214,7 @@ export const adminUpsertAppNews = createServerFn({ method: "POST" })
 
 export const adminDeleteAppNews = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) => input)
+  .validator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

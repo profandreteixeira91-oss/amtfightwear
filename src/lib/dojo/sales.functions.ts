@@ -26,7 +26,7 @@ export const listSalesProducts = createServerFn({ method: "GET" })
 
 export const saveSalesProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: uuid.optional(),
@@ -66,7 +66,7 @@ export const saveSalesProduct = createServerFn({ method: "POST" })
 
 export const deleteSalesProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_sales_products")
@@ -97,7 +97,7 @@ export const listSales = createServerFn({ method: "GET" })
 
 export const getSale = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("dojo_sales")
@@ -119,7 +119,7 @@ const saleItemInput = z.object({
 
 export const createSale = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: uuid.nullable().optional(),
@@ -270,7 +270,7 @@ export const createSale = createServerFn({ method: "POST" })
 
 export const updateSaleStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: uuid,
@@ -290,7 +290,7 @@ export const updateSaleStatus = createServerFn({ method: "POST" })
 
 export const deleteSale = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_sales")

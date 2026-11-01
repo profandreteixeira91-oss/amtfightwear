@@ -21,7 +21,7 @@ export const listRankingClasses = createServerFn({ method: "GET" })
 // ---------- Ranking por turma ----------
 export const getClassRanking = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       classId: z.string().uuid(),
       period: z.enum(["all", "year", "month", "week"]).optional(),

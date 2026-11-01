@@ -60,7 +60,7 @@ export const listRecurringCharges = createServerFn({ method: "GET" })
 /** Atualiza campos da regra de cobrança recorrente. */
 export const updateRecurringCharge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -89,7 +89,7 @@ export const updateRecurringCharge = createServerFn({ method: "POST" })
 /** Pausa a cobrança (não gera novas faturas no período informado). */
 export const pauseRecurringCharge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), until: z.string().nullable().optional() }).parse(i)
   )
   .handler(async ({ context, data }) => {
@@ -106,7 +106,7 @@ export const pauseRecurringCharge = createServerFn({ method: "POST" })
 /** Retoma a cobrança. */
 export const resumeRecurringCharge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     const { error } = await context.supabase
       .from("dojo_enrollments")
@@ -120,7 +120,7 @@ export const resumeRecurringCharge = createServerFn({ method: "POST" })
 /** Cancela a cobrança recorrente definitivamente. */
 export const cancelRecurringCharge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     const { error } = await context.supabase
       .from("dojo_enrollments")
@@ -137,7 +137,7 @@ export const cancelRecurringCharge = createServerFn({ method: "POST" })
 /** Gera imediatamente a próxima fatura pendente. Idempotente por mês. */
 export const generateNextInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     const { data: enr, error } = await context.supabase
       .from("dojo_enrollments")

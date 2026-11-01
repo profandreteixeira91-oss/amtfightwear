@@ -124,7 +124,7 @@ Retorne SOMENTE JSON válido:
 
 export const runPriceResearch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ productId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ productId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: product, error: pErr } = await context.supabase
       .from("products")
@@ -211,7 +211,7 @@ export const runPriceResearch = createServerFn({ method: "POST" })
 
 export const applySuggestedPrice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ productId: z.string().uuid(), price: z.number().positive() }).parse(i))
+  .validator((i: unknown) => z.object({ productId: z.string().uuid(), price: z.number().positive() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("products").update({ price: data.price }).eq("id", data.productId);
     if (error) throw error;

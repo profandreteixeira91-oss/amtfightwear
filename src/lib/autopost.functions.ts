@@ -23,7 +23,7 @@ const UpdateInput = z.object({
 
 export const updateAutoPostSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => UpdateInput.parse(i))
+  .validator((i: unknown) => UpdateInput.parse(i))
   .handler(async ({ data, context }) => {
     const patch = { ...data, updated_by: context.userId };
     const { data: row, error } = await context.supabase
@@ -39,7 +39,7 @@ export const updateAutoPostSettings = createServerFn({ method: "POST" })
 
 export const runAutoPostNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ type: z.enum(["post", "carousel", "story", "reel"]).optional() }).parse(i ?? {}))
+  .validator((i: unknown) => z.object({ type: z.enum(["post", "carousel", "story", "reel"]).optional() }).parse(i ?? {}))
   .handler(async ({ data }) => {
     const base = "https://project--673d932e-eb85-41a4-9454-a94c54c26ec9.lovable.app/api/public/hooks/auto-instagram-post";
     const url = data.type ? `${base}?force=1&type=${data.type}` : `${base}?force=1`;

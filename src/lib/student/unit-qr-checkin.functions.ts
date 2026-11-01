@@ -14,7 +14,7 @@ import { fetchActiveStudent } from "./_me";
 //  - owner_id e unit_id gravados a partir do token, jamais do cliente
 export const checkinByUnitQr = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         token: z

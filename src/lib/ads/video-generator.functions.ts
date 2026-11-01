@@ -12,7 +12,7 @@ const videoGenSchema = z.object({
 
 export const generateMetaAdVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => videoGenSchema.parse(v))
+  .validator((v: unknown) => videoGenSchema.parse(v))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
 

@@ -25,7 +25,7 @@ function publicClient() {
 }
 
 export const recordStoreVisit = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       session_id: z.string().min(4).max(80),
       path: z.string().max(500).optional().nullable(),

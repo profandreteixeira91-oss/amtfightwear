@@ -39,7 +39,7 @@ function rangeToDates(range: string) {
 
 export const adminGetDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => RangeSchema.parse(i ?? {}))
+  .validator((i: unknown) => RangeSchema.parse(i ?? {}))
   .handler(async ({ context, data }) => {
     await assertSaasOwner(context);
 

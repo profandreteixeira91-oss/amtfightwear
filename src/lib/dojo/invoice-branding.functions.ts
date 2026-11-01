@@ -69,7 +69,7 @@ export const getInvoiceBranding = createServerFn({ method: "GET" })
 
 export const updateInvoiceBranding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => brandingSchema.parse(i))
+  .validator((i: unknown) => brandingSchema.parse(i))
   .handler(async ({ data, context }) => {
     await ensureRow(context.supabase, context.userId);
     const normalized: Record<string, string | null> = Object.fromEntries(

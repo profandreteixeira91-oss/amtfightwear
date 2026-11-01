@@ -6,7 +6,7 @@ import { validateAndResolveCheckin } from "./attendance.functions";
 
 export const startFaceRecognition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       photoUrl: z.string().url(),
       classId: z.string().uuid(),
@@ -108,7 +108,7 @@ export const startFaceRecognition = createServerFn({ method: "POST" })
 
 export const confirmSmartCheckins = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       classPhotoId: z.string().uuid(),
       confirms: z.array(z.object({
@@ -175,7 +175,7 @@ export const confirmSmartCheckins = createServerFn({ method: "POST" })
 
 export const getSmartCheckinDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ classPhotoId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ classPhotoId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const supa = context.supabase;
     

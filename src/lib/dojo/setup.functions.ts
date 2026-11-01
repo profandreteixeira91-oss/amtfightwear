@@ -20,7 +20,7 @@ export const getSetupState = createServerFn({ method: "GET" })
 
 export const saveSetupProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ step: z.number().int().min(0).max(4), status: z.enum(["paused", "completed"]) }).parse(input))
+  .validator((input: unknown) => z.object({ step: z.number().int().min(0).max(4), status: z.enum(["paused", "completed"]) }).parse(input))
   .handler(async ({ context, data }) => {
     const { error } = await context.supabase.from("dojo_setup_progress").upsert({ owner_id: context.userId, ...data, updated_at: new Date().toISOString() }, { onConflict: "owner_id" });
     if (error) throw new Error(error.message);
@@ -29,7 +29,7 @@ export const saveSetupProgress = createServerFn({ method: "POST" })
 
 export const saveSetupIdentity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({
+  .validator((input: unknown) => z.object({
     trade_name: z.string().trim().min(2).max(200),
     whatsapp: z.string().trim().max(20), city: z.string().trim().max(120),
     state: z.string().trim().regex(/^([A-Za-z]{2})?$/),

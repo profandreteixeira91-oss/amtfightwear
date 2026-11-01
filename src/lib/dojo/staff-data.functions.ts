@@ -197,7 +197,7 @@ export type StaffStudent = {
 
 export const listStaffStudents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ q: z.string().max(120).optional() }).parse(i ?? {}))
+  .validator((i: unknown) => z.object({ q: z.string().max(120).optional() }).parse(i ?? {}))
   .handler(async ({ context, data }): Promise<StaffStudent[]> => {
     const { staff, admin } = await scope(context.supabase, "students", "read");
     let query = admin
@@ -282,7 +282,7 @@ export type StaffAttendance = {
 
 export const listStaffAttendance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }).parse(i ?? {}),
   )
   .handler(async ({ context, data }): Promise<StaffAttendance[]> => {
@@ -309,7 +309,7 @@ export const listStaffAttendance = createServerFn({ method: "GET" })
 
 export const staffRegisterCheckin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: uuid, class_id: uuid.optional().nullable() }).parse(i),
   )
   .handler(async ({ context, data }): Promise<{ ok: true }> => {
@@ -389,7 +389,7 @@ export const listStaffBelts = createServerFn({ method: "GET" })
 
 export const staffRegisterGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: uuid,
@@ -451,7 +451,7 @@ export const listStaffAnnouncements = createServerFn({ method: "GET" })
 
 export const staffCreateAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         title: z.string().min(3).max(160),

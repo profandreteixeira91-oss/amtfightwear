@@ -22,7 +22,7 @@ const addToCalendarSchema = z.object({
 
 export const addCompetitionToCalendar = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => addToCalendarSchema.parse(i))
+  .validator((i: unknown) => addToCalendarSchema.parse(i))
   .handler(async ({ data, context }) => {
     const payload = {
       owner_id: context.userId,
@@ -70,7 +70,7 @@ export const addCompetitionToCalendar = createServerFn({ method: "POST" })
 
 export const addCompetitionsBulkToCalendar = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       competition_ids: z.array(uuid).min(1).max(200),
       visibility: z.enum(["all", "class", "belt", "custom"]).default("all"),
@@ -132,7 +132,7 @@ export const listAcademyCompetitions = createServerFn({ method: "GET" })
 
 export const getAcademyCompetition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("academy_competitions")
@@ -147,7 +147,7 @@ export const getAcademyCompetition = createServerFn({ method: "POST" })
 
 export const updateAcademyCompetition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: uuid,
       status: z.string().optional(),
@@ -172,7 +172,7 @@ export const updateAcademyCompetition = createServerFn({ method: "POST" })
 
 export const removeAcademyCompetition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("academy_competitions")
@@ -215,7 +215,7 @@ const athleteSchema = z.object({
 
 export const upsertCompetitionAthlete = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => athleteSchema.parse(i))
+  .validator((i: unknown) => athleteSchema.parse(i))
   .handler(async ({ data, context }) => {
     const payload = { ...data, owner_id: context.userId };
 
@@ -310,7 +310,7 @@ export const upsertCompetitionAthlete = createServerFn({ method: "POST" })
 
 export const listCompetitionAthletes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ academy_competition_id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ academy_competition_id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("academy_competition_athletes")
@@ -324,7 +324,7 @@ export const listCompetitionAthletes = createServerFn({ method: "POST" })
 
 export const deleteCompetitionAthlete = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("academy_competition_athletes")
@@ -356,7 +356,7 @@ const tableMap: Record<SubTable, string> = {
 
 export const listCompetitionSubRows = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       academy_competition_id: uuid,
       table: z.enum(["staff", "finances", "hotels", "transport", "results", "documents"]),
@@ -377,7 +377,7 @@ export const listCompetitionSubRows = createServerFn({ method: "POST" })
 
 export const upsertCompetitionSubRow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       table: z.enum(["staff", "finances", "hotels", "transport", "results", "documents"]),
       row: z.record(z.string(), z.unknown()),
@@ -399,7 +399,7 @@ export const upsertCompetitionSubRow = createServerFn({ method: "POST" })
 
 export const deleteCompetitionSubRow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       table: z.enum(["staff", "finances", "hotels", "transport", "results", "documents"]),
       id: uuid,

@@ -22,7 +22,7 @@ async function assertOwnership(supabase: any, userId: string, studentId: string)
 // ---------- Fundamentos (por modalidade) ----------
 export const listFundamentals = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ modality: z.string().trim().min(1).optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -43,7 +43,7 @@ export const listFundamentals = createServerFn({ method: "GET" })
 
 export const upsertFundamental = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -83,7 +83,7 @@ export const upsertFundamental = createServerFn({ method: "POST" })
 
 export const deleteFundamental = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -98,7 +98,7 @@ export const deleteFundamental = createServerFn({ method: "POST" })
 // Semeia um conjunto padrão de fundamentos para a modalidade, se ainda não houver
 export const seedDefaultFundamentals = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ modality: z.string().trim().min(1) }).parse(i))
+  .validator((i: unknown) => z.object({ modality: z.string().trim().min(1) }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { count } = await supabase
@@ -134,7 +134,7 @@ export const seedDefaultFundamentals = createServerFn({ method: "POST" })
 // ---------- Notas do aluno ----------
 export const listStudentTechnicalScores = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({ studentId: z.string().uuid(), modality: z.string().trim().min(1).optional() })
       .parse(i),
@@ -169,7 +169,7 @@ export const listStudentTechnicalScores = createServerFn({ method: "GET" })
 
 export const upsertStudentTechnicalScore = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         studentId: z.string().uuid(),
@@ -201,7 +201,7 @@ export const upsertStudentTechnicalScore = createServerFn({ method: "POST" })
 
 export const deleteStudentTechnicalScore = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -216,7 +216,7 @@ export const deleteStudentTechnicalScore = createServerFn({ method: "POST" })
 // Modalidades do atleta (deriva de current_belts + faixa atual)
 export const listStudentModalities = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertOwnership(supabase, userId, data.studentId);

@@ -61,7 +61,7 @@ export const amListAccounts = createServerFn({ method: "GET" })
 
 export const amGetOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string; since: string; until: string }) => rangeSchema.parse(i))
+  .validator((i: { accountId?: string; since: string; until: string }) => rangeSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const act = normalizeAccount(data.accountId);
@@ -167,7 +167,7 @@ type CampaignRaw = {
 
 export const amListCampaigns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string; since: string; until: string }) => rangeSchema.parse(i))
+  .validator((i: { accountId?: string; since: string; until: string }) => rangeSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const act = normalizeAccount(data.accountId);
@@ -227,7 +227,7 @@ export const amListCampaigns = createServerFn({ method: "GET" })
 
 export const amListAdSets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string; since: string; until: string; campaignId?: string }) =>
+  .validator((i: { accountId?: string; since: string; until: string; campaignId?: string }) =>
     rangeSchema.extend({ campaignId: z.string().optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -297,7 +297,7 @@ export const amListAdSets = createServerFn({ method: "GET" })
 
 export const amListAds = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string; since: string; until: string; adsetId?: string }) =>
+  .validator((i: { accountId?: string; since: string; until: string; adsetId?: string }) =>
     rangeSchema.extend({ adsetId: z.string().optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -368,7 +368,7 @@ export const amListAds = createServerFn({ method: "GET" })
 
 export const amListAudiences = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string }) => z.object({ accountId: z.string().optional() }).parse(i))
+  .validator((i: { accountId?: string }) => z.object({ accountId: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const act = normalizeAccount(data.accountId);
@@ -414,7 +414,7 @@ export const amListAudiences = createServerFn({ method: "GET" })
 
 export const amCreateLookalike = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string; name: string; sourceId: string; ratio: number; country: string }) =>
+  .validator((i: { accountId?: string; name: string; sourceId: string; ratio: number; country: string }) =>
     z
       .object({
         accountId: z.string().optional(),
@@ -452,7 +452,7 @@ export const amCreateLookalike = createServerFn({ method: "POST" })
 
 export const amListCreatives = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string }) => z.object({ accountId: z.string().optional() }).parse(i))
+  .validator((i: { accountId?: string }) => z.object({ accountId: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const act = normalizeAccount(data.accountId);
@@ -485,7 +485,7 @@ export const amListCreatives = createServerFn({ method: "GET" })
 
 export const amListMedia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string }) => z.object({ accountId: z.string().optional() }).parse(i))
+  .validator((i: { accountId?: string }) => z.object({ accountId: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const act = normalizeAccount(data.accountId);
@@ -529,7 +529,7 @@ export const amListMedia = createServerFn({ method: "GET" })
 
 export const amUploadImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string; name: string; base64: string }) =>
+  .validator((i: { accountId?: string; name: string; base64: string }) =>
     z
       .object({
         accountId: z.string().optional(),
@@ -559,7 +559,7 @@ export const amUploadImage = createServerFn({ method: "POST" })
 
 export const amDeleteImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string; hash: string }) =>
+  .validator((i: { accountId?: string; hash: string }) =>
     z.object({ accountId: z.string().optional(), hash: z.string().min(4) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -585,7 +585,7 @@ export const amDeleteImage = createServerFn({ method: "POST" })
 
 export const amListPixels = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string }) => z.object({ accountId: z.string().optional() }).parse(i))
+  .validator((i: { accountId?: string }) => z.object({ accountId: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const act = normalizeAccount(data.accountId);
@@ -643,7 +643,7 @@ async function logAudit(
 
 export const amSetStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; status: string; level?: string }) =>
+  .validator((i: { id: string; status: string; level?: string }) =>
     idSchema.extend({ status: STATUS, level: z.string().optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -658,7 +658,7 @@ export const amSetStatus = createServerFn({ method: "POST" })
 
 export const amUpdateBudget = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; dailyBudget?: number; lifetimeBudget?: number }) =>
+  .validator((i: { id: string; dailyBudget?: number; lifetimeBudget?: number }) =>
     idSchema
       .extend({ dailyBudget: z.number().min(1).optional(), lifetimeBudget: z.number().min(1).optional() })
       .refine((v) => v.dailyBudget !== undefined || v.lifetimeBudget !== undefined, {
@@ -679,7 +679,7 @@ export const amUpdateBudget = createServerFn({ method: "POST" })
 
 export const amUpdateSchedule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; startAt?: string; endAt?: string }) =>
+  .validator((i: { id: string; startAt?: string; endAt?: string }) =>
     idSchema.extend({ startAt: z.string().optional(), endAt: z.string().optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -695,7 +695,7 @@ export const amUpdateSchedule = createServerFn({ method: "POST" })
 
 export const amUpdateBidStrategy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; bidStrategy: string }) =>
+  .validator((i: { id: string; bidStrategy: string }) =>
     idSchema
       .extend({
         bidStrategy: z.enum([
@@ -718,7 +718,7 @@ export const amUpdateBidStrategy = createServerFn({ method: "POST" })
 
 export const amRename = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; name: string }) =>
+  .validator((i: { id: string; name: string }) =>
     idSchema.extend({ name: z.string().min(2).max(180) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -730,7 +730,7 @@ export const amRename = createServerFn({ method: "POST" })
 
 export const amDuplicate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; kind: string }) =>
+  .validator((i: { id: string; kind: string }) =>
     idSchema.extend({ kind: z.enum(["campaign", "adset", "ad"]) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -750,7 +750,7 @@ export const amDuplicate = createServerFn({ method: "POST" })
 
 export const amDelete = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; kind?: string }) =>
+  .validator((i: { id: string; kind?: string }) =>
     idSchema.extend({ kind: z.string().optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -764,7 +764,7 @@ export const amDelete = createServerFn({ method: "POST" })
 
 export const amBulkAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (i: {
       ids: string[];
       action: string;
@@ -841,7 +841,7 @@ export const amBulkAction = createServerFn({ method: "POST" })
 
 export const amCreateCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (i: {
       accountId?: string;
       name: string;
@@ -923,7 +923,7 @@ export const amListAuditLog = createServerFn({ method: "GET" })
 
 export const amBuildReport = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { accountId?: string; since: string; until: string; level: string }) =>
+  .validator((i: { accountId?: string; since: string; until: string; level: string }) =>
     rangeSchema.extend({ level: z.enum(["campaign", "adset", "ad"]) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -966,7 +966,7 @@ export const amBuildReport = createServerFn({ method: "GET" })
  */
 export const amUpdateAdCreative = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (i: {
       accountId?: string;
       adId: string;

@@ -120,7 +120,7 @@ function parseProfile(d: unknown) {
 /** Salva/atualiza o perfil do dojo com dados de onboarding (sem finalizar). */
 export const saveOnboardingProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => parseProfile(d))
+  .validator((d) => parseProfile(d))
   .handler(async ({ data, context }) => {
     const cnpj = data.cnpj.replace(/\D/g, "");
     const isCpf = cnpj.length === 11;
@@ -168,7 +168,7 @@ export const saveOnboardingProfile = createServerFn({ method: "POST" })
 /** Registra (ou substitui) um documento já enviado ao bucket dojo-documents. */
 export const recordOnboardingDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         docType: z.enum(DOC_TYPES),
@@ -202,7 +202,7 @@ export const recordOnboardingDocument = createServerFn({ method: "POST" })
 /** Remove um documento enviado. */
 export const removeOnboardingDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ docType: z.enum(DOC_TYPES) }).parse(d))
+  .validator((d) => z.object({ docType: z.enum(DOC_TYPES) }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: row } = await context.supabase
       .from("dojo_onboarding_documents")

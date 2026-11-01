@@ -121,7 +121,7 @@ const profileUpdateSchema = z.object({
 
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => profileUpdateSchema.parse(i))
+  .validator((i: unknown) => profileUpdateSchema.parse(i))
   .handler(async ({ data, context }) => {
     const me = await fetchActiveStudent<{ id: string }>(context.supabase, "id");
     if (!me) throw new Error("Aluno não encontrado");
@@ -163,7 +163,7 @@ export const getMyAnamnesis = createServerFn({ method: "GET" })
 
 export const updateMyAnamnesis = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       anamnesis: anamnesisSchema,
       health_insurance: z.string().max(200).optional().nullable(),
@@ -194,7 +194,7 @@ export const getMyConsents = createServerFn({ method: "GET" })
 
 export const updateMyConsents = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       lgpd_consent: z.boolean(),
       facial_recognition_consent: z.boolean(),
@@ -227,7 +227,7 @@ export const updateMyConsents = createServerFn({ method: "POST" })
 
 export const uploadMyPhoto = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       data_url: z.string().min(30).max(6_500_000), // ~5MB base64
       content_type: z.string().max(100).default("image/jpeg"),
@@ -336,7 +336,7 @@ export const getMyHome = createServerFn({ method: "GET" })
 
 export const getMyAgenda = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ from: z.string().optional(), to: z.string().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -427,7 +427,7 @@ export const getMyAgenda = createServerFn({ method: "GET" })
 
 export const selfCheckin = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       method: z.enum(["app", "qr", "pin", "fixed_qr"]).default("app"),
       lat: z.number().min(-90).max(90).optional().nullable(),
@@ -548,7 +548,7 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
 
 export const getMyAttendance = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ limit: z.number().int().min(1).max(200).optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -642,7 +642,7 @@ export const getMyCompetitions = createServerFn({ method: "GET" })
 
 export const getMyVideos = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ q: z.string().optional(), categoryId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -672,7 +672,7 @@ export const getMyNotifications = createServerFn({ method: "GET" })
 
 export const markNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_student_notifications")
@@ -699,7 +699,7 @@ export const listMyContracts = createServerFn({ method: "GET" })
 
 export const getMyContract = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     }).parse(i),

@@ -56,7 +56,7 @@ const updateSchema = z
 
 export const updatePaymentSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => updateSchema.parse(i))
+  .validator((i: unknown) => updateSchema.parse(i))
   .handler(async ({ data, context }) => {
     await ensure(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
@@ -118,7 +118,7 @@ export function calcFees(
 /** Preview público (server fn) para a UI mostrar o cálculo em tempo real. */
 export const previewFees = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         amount: z.number().positive(),

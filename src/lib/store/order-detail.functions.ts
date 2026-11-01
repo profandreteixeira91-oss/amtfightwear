@@ -8,7 +8,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 export const adminGetOrderDetail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { assertSaasOwner } = await import("@/lib/auth/is-saas-owner");
     await assertSaasOwner(context);
@@ -84,7 +84,7 @@ export const adminGetOrderDetail = createServerFn({ method: "GET" })
 
 export const adminAddOrderNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), note: z.string().trim().min(1).max(2000) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -103,7 +103,7 @@ export const adminAddOrderNote = createServerFn({ method: "POST" })
 
 export const adminUpdateOrderFields = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),

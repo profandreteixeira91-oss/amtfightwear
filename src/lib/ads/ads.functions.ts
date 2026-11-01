@@ -67,7 +67,7 @@ function extractJson(text: string): JsonValue {
 
 export const createBriefing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => BriefingInput.parse(i))
+  .validator((i: unknown) => BriefingInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("ads_briefings")
@@ -98,7 +98,7 @@ export const createBriefing = createServerFn({ method: "POST" })
 
 export const getBriefing = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("ads_briefings")
@@ -113,7 +113,7 @@ export const getBriefing = createServerFn({ method: "GET" })
 
 export const generateAdsStrategy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: b, error } = await context.supabase
       .from("ads_briefings")
@@ -173,7 +173,7 @@ Devolva SOMENTE JSON no formato:
 
 export const suggestAudiences = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: b, error } = await context.supabase
       .from("ads_briefings")
@@ -212,7 +212,7 @@ Devolva SOMENTE JSON:
 
 export const estimateBudget = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: b, error } = await context.supabase
       .from("ads_briefings")
@@ -261,7 +261,7 @@ const CopyInput = z.object({
 
 export const generateAdCopy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => CopyInput.parse(i))
+  .validator((i: unknown) => CopyInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: b, error } = await context.supabase
       .from("ads_briefings")
@@ -343,7 +343,7 @@ export const listCampaigns = createServerFn({ method: "GET" })
 
 export const createCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         briefingId: z.string().uuid(),
@@ -394,7 +394,7 @@ export const listCopies = createServerFn({ method: "GET" })
 
 export const toggleCopyFavorite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), value: z.boolean() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -408,7 +408,7 @@ export const toggleCopyFavorite = createServerFn({ method: "POST" })
 
 export const deleteCopy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ads_copies").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -429,7 +429,7 @@ export const listCreatives = createServerFn({ method: "GET" })
 
 export const saveCreative = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         briefingId: z.string().uuid().nullable().optional(),
@@ -461,7 +461,7 @@ export const saveCreative = createServerFn({ method: "POST" })
 
 export const deleteCreative = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("ads_creatives")
@@ -784,7 +784,7 @@ const PublishInput = z.object({
 
 export const publishCampaignToMeta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => PublishInput.parse(i))
+  .validator((i: unknown) => PublishInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: campaign, error: cErr } = await context.supabase
       .from("ads_campaigns")
@@ -957,7 +957,7 @@ async function setMetaStatus(
 
 export const pauseCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await setMetaStatus(
       context.supabase as unknown as Parameters<typeof setMetaStatus>[0],
@@ -970,7 +970,7 @@ export const pauseCampaign = createServerFn({ method: "POST" })
 
 export const resumeCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await setMetaStatus(
       context.supabase as unknown as Parameters<typeof setMetaStatus>[0],
@@ -1056,7 +1056,7 @@ export async function syncCampaignInsightsInternal(
 
 export const syncCampaignInsights = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: campaign } = await context.supabase
       .from("ads_campaigns")
@@ -1077,7 +1077,7 @@ export const syncCampaignInsights = createServerFn({ method: "POST" })
 
 export const getCampaign = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: campaign, error } = await context.supabase
       .from("ads_campaigns")
@@ -1099,7 +1099,7 @@ export const getCampaign = createServerFn({ method: "GET" })
 
 export const deleteCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ads_campaigns").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -1126,7 +1126,7 @@ export const listAlerts = createServerFn({ method: "GET" })
 
 export const markAlertRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("ads_alerts")
@@ -1149,7 +1149,7 @@ export const markAllAlertsRead = createServerFn({ method: "POST" })
 
 export const dismissAlert = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ads_alerts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -1186,7 +1186,7 @@ export const runOptimizationNow = createServerFn({ method: "POST" })
 
 export const applyOptimization = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: opt, error } = await context.supabase
       .from("ads_optimizations")
@@ -1244,7 +1244,7 @@ export const applyOptimization = createServerFn({ method: "POST" })
 
 export const dismissOptimization = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("ads_optimizations")
@@ -1276,7 +1276,7 @@ const ABTestInput = z.object({
 
 export const createABTest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => ABTestInput.parse(i))
+  .validator((i: unknown) => ABTestInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: test, error } = await context.supabase
       .from("ads_ab_tests")
@@ -1307,7 +1307,7 @@ export const createABTest = createServerFn({ method: "POST" })
 
 export const listABTests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ campaignId: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -1323,7 +1323,7 @@ export const listABTests = createServerFn({ method: "GET" })
 
 export const endABTest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), winnerVariantId: z.string().uuid().nullable().optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -1341,7 +1341,7 @@ export const endABTest = createServerFn({ method: "POST" })
 
 export const deleteABTest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ads_ab_tests").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -1356,7 +1356,7 @@ import { todayISO } from "@/lib/dates";
 
 export const listScaleHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ campaignId: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -1440,7 +1440,7 @@ export const runScaleNow = createServerFn({ method: "POST" })
 
 export const suggestFromWinners = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         productName: z.string().min(1),

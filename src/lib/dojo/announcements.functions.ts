@@ -27,7 +27,7 @@ export const listAnnouncementCategories = createServerFn({ method: "GET" })
 
 export const upsertAnnouncementCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => categorySchema.parse(i))
+  .validator((i: unknown) => categorySchema.parse(i))
   .handler(async ({ data, context }) => {
     const payload = {
       name: data.name,
@@ -45,7 +45,7 @@ export const upsertAnnouncementCategory = createServerFn({ method: "POST" })
 
 export const deleteAnnouncementCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_announcement_categories").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -103,7 +103,7 @@ function normalize(input: z.infer<typeof announcementSchema>) {
 
 export const listAnnouncements = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       q: z.string().optional(),
       status: z.enum(["all", "draft", "scheduled", "published", "archived"]).default("all"),
@@ -128,7 +128,7 @@ export const listAnnouncements = createServerFn({ method: "GET" })
 
 export const getAnnouncement = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("dojo_announcements")
@@ -196,7 +196,7 @@ async function notifyStudentsForAnnouncement(supabase: any, ownerId: string, row
 
 export const saveAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => announcementSchema.parse(i))
+  .validator((i: unknown) => announcementSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, targets, payload } = normalize(data);
 
@@ -239,7 +239,7 @@ export const saveAnnouncement = createServerFn({ method: "POST" })
 
 export const deleteAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_announcements").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -248,7 +248,7 @@ export const deleteAnnouncement = createServerFn({ method: "POST" })
 
 export const setAnnouncementStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: uuid, status: z.enum(["draft", "scheduled", "published", "archived"]) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -310,7 +310,7 @@ export const announcementStats = createServerFn({ method: "GET" })
 // ============ READ REPORT ============
 export const readReport = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const [reads, students] = await Promise.all([
       context.supabase.from("dojo_announcement_reads").select("*, student:dojo_students(id, full_name, photo_url)").eq("announcement_id", data.id),

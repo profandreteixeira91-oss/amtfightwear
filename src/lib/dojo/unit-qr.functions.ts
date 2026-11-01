@@ -51,7 +51,7 @@ export const listUnitQrTokens = createServerFn({ method: "GET" })
 // Regeneração invalida imediatamente o token anterior.
 export const regenerateUnitQrToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ unitId: uuidSchema }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -104,7 +104,7 @@ export const regenerateUnitQrToken = createServerFn({ method: "POST" })
 // ============ Owner: revoga o QR de uma unidade ============
 export const revokeUnitQrToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ unitId: uuidSchema }).parse(i))
+  .validator((i: unknown) => z.object({ unitId: uuidSchema }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_unit_qr_tokens")

@@ -101,7 +101,7 @@ async function computeAutoProgress(supabase: any, goal: any): Promise<number> {
 
 export const listAthleteGoals = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertOwnership(supabase, userId, data.studentId);
@@ -131,7 +131,7 @@ export const listAthleteGoals = createServerFn({ method: "GET" })
 
 export const upsertAthleteGoal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => upsertSchema.parse(i))
+  .validator((i: unknown) => upsertSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const owner = await assertOwnership(supabase, userId, data.studentId);
@@ -174,7 +174,7 @@ export const upsertAthleteGoal = createServerFn({ method: "POST" })
 
 export const setGoalStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), status: goalStatusEnum }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -196,7 +196,7 @@ export const setGoalStatus = createServerFn({ method: "POST" })
 
 export const updateGoalProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), currentValue: z.number().min(0) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -220,7 +220,7 @@ export const updateGoalProgress = createServerFn({ method: "POST" })
 
 export const deleteAthleteGoal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: g } = await supabase

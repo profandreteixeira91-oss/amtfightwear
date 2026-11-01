@@ -71,7 +71,7 @@ const CreateInput = z.object({
 
 export const createInstagramPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => CreateInput.parse(i))
+  .validator((i: unknown) => CreateInput.parse(i))
   .handler(async ({ data, context }) => {
     const status = data.publishNow ? "publishing" : data.scheduledFor ? "scheduled" : "draft";
     const { data: row, error } = await context.supabase
@@ -120,7 +120,7 @@ export const listInstagramPosts = createServerFn({ method: "GET" })
 
 export const cancelInstagramPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("scheduled_posts")
@@ -133,7 +133,7 @@ export const cancelInstagramPost = createServerFn({ method: "POST" })
 
 export const rescheduleInstagramPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
       scheduledFor: z.string().datetime().nullable(),
@@ -167,7 +167,7 @@ export const rescheduleInstagramPost = createServerFn({ method: "POST" })
 
 export const deleteInstagramPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("scheduled_posts")
@@ -182,7 +182,7 @@ export const deleteInstagramPost = createServerFn({ method: "POST" })
 // Retorna URL assinada de 6h — pública o suficiente para o Instagram Graph consumir.
 export const uploadContentImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       base64: z.string().min(100),
       ext: z.enum(["png", "jpg", "jpeg"]).optional(),

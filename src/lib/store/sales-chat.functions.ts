@@ -18,7 +18,7 @@ export const adminListSalesConversations = createServerFn({ method: "GET" })
 
 export const adminListSalesMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ conversation_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ conversation_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -33,7 +33,7 @@ export const adminListSalesMessages = createServerFn({ method: "GET" })
 
 export const adminSendSalesReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ conversation_id: z.string().uuid(), text: z.string().trim().min(1).max(4000) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -65,7 +65,7 @@ export const adminSendSalesReply = createServerFn({ method: "POST" })
 
 export const adminSetSalesConversationStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       conversation_id: z.string().uuid(),
       status: z.enum(["active", "human", "closed"]),
@@ -120,7 +120,7 @@ const settingsSchema = z.object({
 
 export const adminUpdateChatSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => settingsSchema.parse(i))
+  .validator((i: unknown) => settingsSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -156,7 +156,7 @@ export const adminListKbArticles = createServerFn({ method: "GET" })
 
 export const adminUpsertKbArticle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -190,7 +190,7 @@ export const adminUpsertKbArticle = createServerFn({ method: "POST" })
 
 export const adminDeleteKbArticle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

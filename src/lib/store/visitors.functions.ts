@@ -90,7 +90,7 @@ function labelPath(path: string): string {
 
 export const adminGetVisitors = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => InputSchema.parse(i ?? {}))
+  .validator((i: unknown) => InputSchema.parse(i ?? {}))
   .handler(async ({ context, data }) => {
     await assertSaasOwner(context);
 

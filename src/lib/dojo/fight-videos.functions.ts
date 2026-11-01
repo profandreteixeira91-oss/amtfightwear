@@ -25,7 +25,7 @@ async function assertStudent(supabase: any, userId: string, studentId: string, a
 // -------- List videos + notes --------
 export const listFightVideos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudent(supabase, userId, data.studentId, true);
@@ -59,7 +59,7 @@ export const listFightVideos = createServerFn({ method: "GET" })
 // -------- Register uploaded video --------
 export const createFightVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     studentId: z.string().uuid(),
     title: z.string().min(1).max(200),
     description: z.string().max(2000).optional().nullable(),
@@ -99,7 +99,7 @@ export const createFightVideo = createServerFn({ method: "POST" })
 // -------- Delete video --------
 export const deleteFightVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row } = await supabase
@@ -117,7 +117,7 @@ export const deleteFightVideo = createServerFn({ method: "POST" })
 // -------- Update video metadata --------
 export const updateFightVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().uuid(),
     title: z.string().min(1).max(200).optional(),
     description: z.string().max(2000).optional().nullable(),
@@ -140,7 +140,7 @@ export const updateFightVideo = createServerFn({ method: "POST" })
 // -------- Notes --------
 export const addFightVideoNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     video_id: z.string().uuid(),
     timestamp_seconds: z.number().min(0),
     title: z.string().max(200).optional().nullable(),
@@ -182,7 +182,7 @@ export const addFightVideoNote = createServerFn({ method: "POST" })
 
 export const updateFightVideoNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().uuid(),
     timestamp_seconds: z.number().min(0).optional(),
     title: z.string().max(200).optional().nullable(),
@@ -203,7 +203,7 @@ export const updateFightVideoNote = createServerFn({ method: "POST" })
 
 export const deleteFightVideoNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

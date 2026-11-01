@@ -63,7 +63,7 @@ export const adminListQuotes = createServerFn({ method: "GET" })
 
 export const adminGetQuote = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("store_quotes")
@@ -76,7 +76,7 @@ export const adminGetQuote = createServerFn({ method: "GET" })
 
 export const adminSaveQuote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => quoteSchema.parse(i))
+  .validator((i: unknown) => quoteSchema.parse(i))
   .handler(async ({ data, context }) => {
     const subtotal = data.items.reduce((acc, it) => acc + it.quantity * it.unit_price, 0);
     const total = Math.max(0, subtotal - (data.discount ?? 0) + (data.shipping_cost ?? 0));
@@ -140,7 +140,7 @@ export const adminSaveQuote = createServerFn({ method: "POST" })
 
 export const adminDeleteQuote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await (await import("./quote-sync.server")).syncQuoteEverywhere(context.supabase, { id: data.id, status: "rejected", total: 0 });
     const { error } = await context.supabase
@@ -154,7 +154,7 @@ export const adminDeleteQuote = createServerFn({ method: "POST" })
 
 export const adminUpdateQuoteStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
       status: z.enum(QUOTE_STATUSES),
@@ -187,7 +187,7 @@ export const adminGetQuoteSettings = createServerFn({ method: "GET" })
 
 export const adminSaveQuoteSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       company_name: z.string().trim().max(160).default("AMT Fight Wear"),
       cnpj: z.string().trim().max(40).default(""),

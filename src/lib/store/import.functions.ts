@@ -68,7 +68,7 @@ export const startCatalogImport = createServerFn({ method: "POST" })
 
 export const getImportJob = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const { data: job } = await context.supabase.from("store_import_jobs").select("*").eq("id", data.id).maybeSingle();

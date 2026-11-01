@@ -41,7 +41,7 @@ const SubscribeSchema = z.object({
 
 export const subscribeOwnerPush = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => SubscribeSchema.parse(i))
+  .validator((i: unknown) => SubscribeSchema.parse(i))
   .handler(async ({ data, context }) => {
     const payload: Record<string, unknown> = {
       user_id: context.userId,
@@ -63,7 +63,7 @@ export const subscribeOwnerPush = createServerFn({ method: "POST" })
 
 export const unsubscribeOwnerPush = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ endpoint: z.string().url() }).parse(i))
+  .validator((i: unknown) => z.object({ endpoint: z.string().url() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_owner_push_subscriptions" as never)
@@ -87,7 +87,7 @@ export const listMyOwnerPushSubscriptions = createServerFn({ method: "GET" })
 
 export const updateOwnerPushCategories = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         endpoint: z.string().url().optional(),

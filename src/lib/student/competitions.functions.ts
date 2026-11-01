@@ -22,7 +22,7 @@ export const listStudentCompetitions = createServerFn({ method: "GET" })
 
 export const getStudentCompetition = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("academy_competitions")
@@ -60,7 +60,7 @@ export const getStudentCompetition = createServerFn({ method: "POST" })
 
 export const setMyInterest = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       academy_competition_id: uuid,
       status: z.enum(["interested", "confirmed", "cancelled"]),
@@ -93,7 +93,7 @@ export const setMyInterest = createServerFn({ method: "POST" })
 
 export const uploadMyCompetitionDocument = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       academy_competition_id: uuid,
       kind: z.string(),

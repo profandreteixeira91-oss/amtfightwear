@@ -61,7 +61,7 @@ export const getWholesaleSettings = createServerFn({ method: "GET" }).handler(as
 
 export const adminSaveWholesaleSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       enabled: z.boolean(),
       default_discount_percent: z.number().min(0).max(90),
@@ -79,7 +79,7 @@ export const adminSaveWholesaleSettings = createServerFn({ method: "POST" })
 
 export const adminBulkSetWholesaleEnabled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ enabled: z.boolean() }).parse(i))
+  .validator((i: unknown) => z.object({ enabled: z.boolean() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error, count } = await context.supabase
       .from("products")
@@ -138,7 +138,7 @@ const WholesaleItemSchema = z.object({
 
 export const createWholesaleOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       customer_email: z.string().email(),
       customer_name: z.string().min(2),
@@ -434,7 +434,7 @@ export const listStoreCategories = createServerFn({ method: "GET" }).handler(asy
 });
 
 export const getCategoryWithProducts = createServerFn({ method: "GET" })
-  .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
+  .validator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: category } = await sb.from("store_categories").select("*").eq("slug", data.slug).eq("active", true).maybeSingle() as any;
@@ -474,7 +474,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
 
 
 export const getProductBySlug = createServerFn({ method: "GET" })
-  .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
+  .validator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: product } = await sb.from("products").select("*").eq("slug", data.slug).maybeSingle() as any;
@@ -531,7 +531,7 @@ const CheckoutItemSchema = z.union([
 
 export const createStoreOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       customer_email: z.string().email(),
       customer_name: z.string().min(2),
@@ -666,7 +666,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
 
 
 export const getStoreOrder = createServerFn({ method: "GET" })
-  .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: order } = await supabaseAdmin.from("store_orders").select("*").eq("id", data.id).maybeSingle();
@@ -676,7 +676,7 @@ export const getStoreOrder = createServerFn({ method: "GET" })
   });
 
 export const cancelStoreOrder = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: order } = await supabaseAdmin.from("store_orders").select("id, status, payment_status").eq("id", data.id).maybeSingle();
@@ -725,7 +725,7 @@ function orderSearchFilter(q: string | undefined): string | null {
 
 export const adminListOrders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
+  .validator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
   .handler(async ({ context, data: filter }) => {
     // Só as colunas da listagem: payment_raw, melhor_envio_data e o QR Pix em base64
     // pesavam centenas de KB a cada atualização automática da tela.
@@ -746,7 +746,7 @@ export const adminListOrders = createServerFn({ method: "GET" })
 /** Quantidade de pedidos por status (abas da fila), respeitando a mesma busca da listagem. */
 export const adminCountOrdersByStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
+  .validator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
   .handler(async ({ context, data: filter }) => {
     let query = context.supabase.from("store_orders").select("status").limit(20000);
     const search = orderSearchFilter(filter.q);
@@ -760,7 +760,7 @@ export const adminCountOrdersByStatus = createServerFn({ method: "GET" })
 
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), status: z.string(), payment_status: z.string().optional() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid(), status: z.string(), payment_status: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const patch: { status: string; payment_status?: string } = { status: data.status };
     if (data.payment_status) patch.payment_status = data.payment_status;
@@ -820,7 +820,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
 
 export const adminDeleteStoreOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("store_orders").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -848,7 +848,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
 
 export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().uuid().optional(),
       slug: z.string().min(1),
@@ -881,7 +881,7 @@ export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
  */
 export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       category_id: z.string().uuid(),
       fields: z.array(z.enum(["ncm", "cest", "origem", "cfop", "unidade"])).min(1),
@@ -921,7 +921,7 @@ export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST
 
 export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
       patch: z.object({
@@ -976,7 +976,7 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
 
 export const adminGetStoreProduct = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     // Ambas as consultas são independentes: rodam em paralelo para reduzir
     // o tempo de abertura do diálogo de edição (antes eram sequenciais).
@@ -1000,7 +1000,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
 // paralelo, sem bloquear os campos do produto nem o botão Salvar.
 export const adminGetStoreProductVariants = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("store_product_variants")
@@ -1028,7 +1028,7 @@ const VariantSchema = z.object({
 
 export const adminSaveVariants = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       product_id: z.string().uuid(),
       variants: z.array(VariantSchema),
@@ -1074,7 +1074,7 @@ export const adminListStoreCategories = createServerFn({ method: "GET" })
 
 export const adminDeleteStoreCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("store_categories").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -1083,7 +1083,7 @@ export const adminDeleteStoreCategory = createServerFn({ method: "POST" })
 
 export const adminCreateStoreProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       name: z.string().min(1),
       slug: z.string().min(1),
@@ -1117,7 +1117,7 @@ export const adminCreateStoreProduct = createServerFn({ method: "POST" })
 
 export const adminDeleteStoreProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("products").delete().eq("id", data.id);
     if (error) throw new Error(error.message);

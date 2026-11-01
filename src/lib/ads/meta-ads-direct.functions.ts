@@ -96,7 +96,7 @@ const dateRangeSchema = z.object({
 
 export const getDirectMetaInsights = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { since: string; until: string }) => dateRangeSchema.parse(input))
+  .validator((input: { since: string; until: string }) => dateRangeSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const dataRes = await graphFetch<{
@@ -140,7 +140,7 @@ export const getDirectMetaInsights = createServerFn({ method: "GET" })
 
 export const toggleDirectMetaCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { campaignId: string; active: boolean }) =>
+  .validator((input: { campaignId: string; active: boolean }) =>
     z.object({ campaignId: z.string(), active: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -160,7 +160,7 @@ export const toggleDirectMetaCampaign = createServerFn({ method: "POST" })
 
 export const updateDirectMetaCampaignBudget = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { campaignId: string; dailyBudget?: number; lifetimeBudget?: number }) =>
+  .validator((input: { campaignId: string; dailyBudget?: number; lifetimeBudget?: number }) =>
     z
       .object({
         campaignId: z.string(),

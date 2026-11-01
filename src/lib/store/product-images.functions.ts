@@ -53,7 +53,7 @@ const migrateInput = z.object({ limit: z.number().int().min(1).max(50).optional(
 /** Migrates a batch of external image URLs to Storage. Idempotent / re-entrant. */
 export const migrateProductImagesBatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => migrateInput.parse(v))
+  .validator((v: unknown) => migrateInput.parse(v))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const limit = data.limit ?? BATCH_SIZE;

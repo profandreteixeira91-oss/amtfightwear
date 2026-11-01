@@ -43,7 +43,7 @@ export type StaffSession = {
 
 /** Identidade pública do dojo pai (nome/logo/cores) por ID ou slug. */
 export const getStaffPortalBrand = createServerFn({ method: "GET" })
-  .inputValidator((i: unknown) => z.object({ dojo: z.string().min(1).max(120) }).parse(i))
+  .validator((i: unknown) => z.object({ dojo: z.string().min(1).max(120) }).parse(i))
   .handler(async ({ data }): Promise<StaffPortalBrand | null> => {
     const client = createClient<Database>(
       process.env["SUPABASE_URL"]!,

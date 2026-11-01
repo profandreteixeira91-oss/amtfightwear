@@ -49,7 +49,7 @@ export const listMyTickets = createServerFn({ method: "GET" })
 
 export const createTicket = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { subject: string; category: string; body: string; priority?: string }) =>
+  .validator((i: { subject: string; category: string; body: string; priority?: string }) =>
     z
       .object({
         subject: z.string().trim().min(3).max(200),
@@ -99,7 +99,7 @@ export const createTicket = createServerFn({ method: "POST" })
 
 export const getTicketWithMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { ticketId: string }) => z.object({ ticketId: z.string().uuid() }).parse(i))
+  .validator((i: { ticketId: string }) => z.object({ ticketId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: ticket, error } = await context.supabase
       .from("dojo_support_tickets")
@@ -126,7 +126,7 @@ export const getTicketWithMessages = createServerFn({ method: "GET" })
 
 export const postMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { ticketId: string; body: string }) =>
+  .validator((i: { ticketId: string; body: string }) =>
     z.object({ ticketId: z.string().uuid(), body: z.string().trim().min(1).max(4000) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -165,7 +165,7 @@ export const postMessage = createServerFn({ method: "POST" })
 
 export const setTicketStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { ticketId: string; status: string }) =>
+  .validator((i: { ticketId: string; status: string }) =>
     z
       .object({
         ticketId: z.string().uuid(),

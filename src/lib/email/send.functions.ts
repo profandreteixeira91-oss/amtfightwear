@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 
 export const sendTransactionalEmailFn = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       templateName: string
       recipientEmail: string

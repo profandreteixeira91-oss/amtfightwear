@@ -18,7 +18,7 @@ export type PublicAcademy = {
 
 // Public — no auth. Returns branding only (safe to expose).
 export const getAcademyBySlug = createServerFn({ method: "GET" })
-  .inputValidator((i: unknown) => slugSchema.parse(i))
+  .validator((i: unknown) => slugSchema.parse(i))
   .handler(async ({ data }): Promise<PublicAcademy | null> => {
     const url = process.env.SUPABASE_URL!;
     const key = process.env.SUPABASE_PUBLISHABLE_KEY!;

@@ -20,7 +20,7 @@ export const listTeamMembers = createServerFn({ method: "GET" })
 
 export const getTeamMember = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: member, error } = await context.supabase
       .from("dojo_team_members").select("*").eq("id", data.id).maybeSingle();
@@ -83,7 +83,7 @@ const memberSchema = z.object({
 
 export const upsertTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => memberSchema.parse(i))
+  .validator((i: unknown) => memberSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const payload = { ...rest, email: rest.email === "" ? null : rest.email } as typeof rest;
@@ -119,7 +119,7 @@ export const upsertTeamMember = createServerFn({ method: "POST" })
 
 export const updateTeamMemberStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: uuid,
     status: z.enum(["active", "inactive", "leave", "vacation", "terminated"]),
   }).parse(i))
@@ -142,7 +142,7 @@ export const updateTeamMemberStatus = createServerFn({ method: "POST" })
 
 export const deleteTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     // Archive: set status = terminated, keep history intact
     const { error } = await context.supabase.from("dojo_team_members")
@@ -164,7 +164,7 @@ export const deleteTeamMember = createServerFn({ method: "POST" })
  */
 export const purgeTeamMembers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ ids: z.array(uuid).min(1).max(200) }).parse(i))
+  .validator((i: unknown) => z.object({ ids: z.array(uuid).min(1).max(200) }).parse(i))
   .handler(async ({ data, context }) => {
     // RLS do dono confirma a titularidade antes de qualquer operação privilegiada.
     const { data: owned, error } = await context.supabase
@@ -201,7 +201,7 @@ const permissionMap = z.record(z.string().min(1).max(50), permissionLevel);
 
 export const updateTeamMemberPermissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid, permissions: permissionMap }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid, permissions: permissionMap }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_team_members")
@@ -222,7 +222,7 @@ export const updateTeamMemberPermissions = createServerFn({ method: "POST" })
 
 export const linkTeamMemberUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid, email: z.string().email() }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid, email: z.string().email() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: userId, error } = await context.supabase.rpc("dojo_link_team_member_by_email", {
       _member_id: data.id,
@@ -234,7 +234,7 @@ export const linkTeamMemberUser = createServerFn({ method: "POST" })
 
 export const unlinkTeamMemberUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_team_members")
@@ -253,7 +253,7 @@ export const unlinkTeamMemberUser = createServerFn({ method: "POST" })
  */
 export const setTeamMemberLogin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: uuid,
       password: z.string().min(6).max(72),
@@ -363,7 +363,7 @@ export const setTeamMemberLogin = createServerFn({ method: "POST" })
  * criado pelo dono no módulo Equipe.
  */
 export const isEmailTeamMember = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ email: z.string().email() }).parse(i),
   )
   .handler(async ({ data }) => {
@@ -497,7 +497,7 @@ const payrollSchema = z.object({
 
 export const upsertPayrollConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => payrollSchema.parse(i))
+  .validator((i: unknown) => payrollSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_team_payroll_config")
       .upsert({ ...data, owner_id: context.userId }, { onConflict: "member_id" });
@@ -514,7 +514,7 @@ export const upsertPayrollConfig = createServerFn({ method: "POST" })
 
 export const listPayments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     member_id: uuid.optional(),
     month: z.string().optional(), // YYYY-MM
   }).parse(i))
@@ -591,7 +591,7 @@ async function ensureExpenseForPayment(supabase: any, ownerId: string, paymentId
 
 export const upsertPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => paymentSchema.parse(i))
+  .validator((i: unknown) => paymentSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     let paymentId = id;
@@ -619,7 +619,7 @@ export const upsertPayment = createServerFn({ method: "POST" })
 
 export const markPaymentPaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid, paid_at: z.string().optional() }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid, paid_at: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_team_payments")
       .update({ status: "paid", paid_at: data.paid_at ?? new Date().toISOString() }).eq("id", data.id);
@@ -630,7 +630,7 @@ export const markPaymentPaid = createServerFn({ method: "POST" })
 
 export const deletePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_team_payments")
       .update({ status: "canceled" }).eq("id", data.id);
@@ -650,7 +650,7 @@ function hoursBetween(startTime: string, endTime: string): number {
 
 export const computeMemberEarnings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       member_id: uuid,
       from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -718,7 +718,7 @@ function monthBounds(month: string) {
 
 export const computePayrollPreview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ month: z.string().regex(/^\d{4}-\d{2}$/) }).parse(i))
+  .validator((i: unknown) => z.object({ month: z.string().regex(/^\d{4}-\d{2}$/) }).parse(i))
   .handler(async ({ data, context }) => {
     const { start, end } = monthBounds(data.month);
     const [{ data: members }, { data: configs }, { data: occs }, { data: att }, { data: existing }] =
@@ -814,7 +814,7 @@ export const computePayrollPreview = createServerFn({ method: "POST" })
 
 export const closePayrollMonth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         month: z.string().regex(/^\d{4}-\d{2}$/),
@@ -869,7 +869,7 @@ export const closePayrollMonth = createServerFn({ method: "POST" })
 
 export const listTeamAttendance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     member_id: uuid.optional(),
     month: z.string().optional(),
   }).parse(i))
@@ -889,7 +889,7 @@ export const listTeamAttendance = createServerFn({ method: "GET" })
 
 export const recordAttendance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: uuid.optional(),
     member_id: uuid,
     work_date: z.string(),
@@ -917,7 +917,7 @@ export const recordAttendance = createServerFn({ method: "POST" })
 
 export const listTeamDocuments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ member_id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ member_id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase.from("dojo_team_documents")
       .select("*").eq("member_id", data.member_id).is("archived_at", null)
@@ -928,7 +928,7 @@ export const listTeamDocuments = createServerFn({ method: "GET" })
 
 export const addTeamDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     member_id: uuid,
     kind: z.enum(["contract", "rg", "cpf", "proof", "certificate", "course", "diploma", "other"]),
     title: z.string().min(1),
@@ -946,7 +946,7 @@ export const addTeamDocument = createServerFn({ method: "POST" })
 
 export const archiveTeamDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_team_documents")
       .update({ archived_at: new Date().toISOString() }).eq("id", data.id);
@@ -958,7 +958,7 @@ export const archiveTeamDocument = createServerFn({ method: "POST" })
 
 export const upsertSignature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     member_id: uuid,
     signature_url: z.string().url(),
     display_name: z.string().min(1),
@@ -988,7 +988,7 @@ export const listCertificateSigners = createServerFn({ method: "GET" })
 
 export const listTeamHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ member_id: uuid }).parse(i))
+  .validator((i: unknown) => z.object({ member_id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase.from("dojo_team_history")
       .select("*").eq("member_id", data.member_id).order("created_at", { ascending: false }).limit(200);

@@ -179,7 +179,7 @@ export const listCorporateIntegrations = createServerFn({ method: "GET" })
 // Etapa 1 do wizard — snapshot editável da academia
 export const startCorporateConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       provider: providerSchema,
       academySnapshot: z.object({
@@ -241,7 +241,7 @@ export const startCorporateConnection = createServerFn({ method: "POST" })
 // o auth_state pelo token retornado pelo provedor.
 export const completeCorporateConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       provider: providerSchema,
       // Handle interno opcional (código de academia na plataforma). Nunca API key.
@@ -273,7 +273,7 @@ export const completeCorporateConnection = createServerFn({ method: "POST" })
 
 export const disconnectCorporateIntegration = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ provider: providerSchema }).parse(i))
+  .validator((i: unknown) => z.object({ provider: providerSchema }).parse(i))
   .handler(async ({ data, context }) => {
     const now = new Date().toISOString();
     const { error } = await context.supabase
@@ -289,7 +289,7 @@ export const disconnectCorporateIntegration = createServerFn({ method: "POST" })
 // ---------- Beneficiários ----------
 export const listMyCorporateBeneficiaries = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       provider: providerSchema.optional(),
       studentId: z.string().uuid().optional(),
@@ -314,7 +314,7 @@ export const listMyCorporateBeneficiaries = createServerFn({ method: "GET" })
 
 export const getStudentCorporateBenefits = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("dojo_corporate_beneficiaries")
@@ -328,7 +328,7 @@ export const getStudentCorporateBenefits = createServerFn({ method: "GET" })
 
 export const upsertStudentCorporateBenefit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       studentId: z.string().uuid(),
       provider: providerSchema,
@@ -400,7 +400,7 @@ export const upsertStudentCorporateBenefit = createServerFn({ method: "POST" })
 // beneficiários existentes atualizando last_sync_at e registra log/histórico.
 export const syncCorporateProvider = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ provider: providerSchema }).parse(i))
+  .validator((i: unknown) => z.object({ provider: providerSchema }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: integ } = await context.supabase
       .from("dojo_corporate_integrations")
@@ -461,7 +461,7 @@ export const syncCorporateProvider = createServerFn({ method: "POST" })
 
 export const syncCorporateBeneficiary = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       studentId: z.string().uuid(),
       provider: providerSchema,
@@ -492,7 +492,7 @@ export const syncCorporateBeneficiary = createServerFn({ method: "POST" })
 // ---------- Histórico / Logs ----------
 export const listCorporateHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       provider: providerSchema.optional(),
       limit: z.number().int().min(1).max(200).default(100),
@@ -513,7 +513,7 @@ export const listCorporateHistory = createServerFn({ method: "GET" })
 
 export const listCorporateSyncLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       provider: providerSchema.optional(),
       limit: z.number().int().min(1).max(200).default(50),
@@ -538,7 +538,7 @@ export const listCorporateSyncLogs = createServerFn({ method: "GET" })
 // pode validar entrada por benefício corporativo — este é o contrato.
 export const validateCorporateBenefit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       studentId: z.string().uuid(),
       provider: providerSchema,

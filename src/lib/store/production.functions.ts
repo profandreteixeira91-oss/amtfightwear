@@ -273,7 +273,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
 /** Cria uma ordem de produção manual (pedido interno). */
 export const adminCreateProductionJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         product_name: z.string().trim().min(1).max(200),
@@ -304,7 +304,7 @@ export const adminCreateProductionJob = createServerFn({ method: "POST" })
 /** Atualiza um item da fila (etapa, prazo, responsável, urgência, observações). */
 export const adminUpdateProductionJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -373,7 +373,7 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
 /** Move um item para outra etapa (drag & drop, scanner e ações rápidas). */
 export const adminMoveProductionStage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -406,7 +406,7 @@ export const adminMoveProductionStage = createServerFn({ method: "POST" })
 /** Ações em massa: etapa, responsável, urgência, prazo, pausa e finalização. */
 export const adminBulkUpdateProductionJobs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         ids: z.array(z.string().uuid()).min(1).max(2000),
@@ -440,7 +440,7 @@ export const adminBulkUpdateProductionJobs = createServerFn({ method: "POST" })
 /** Remove itens da fila (não afeta o pedido/orçamento de origem). */
 export const adminDeleteProductionJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ ids: z.array(z.string().uuid()).min(1).max(2000) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -455,7 +455,7 @@ export const adminDeleteProductionJob = createServerFn({ method: "POST" })
 /** Linha do tempo + observações internas de um item. */
 export const adminProductionJobDetail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(
     async ({
       data,
@@ -487,7 +487,7 @@ export const adminProductionJobDetail = createServerFn({ method: "GET" })
 /** Comentário interno (nunca exibido ao cliente). */
 export const adminAddProductionComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         job_id: z.string().uuid(),

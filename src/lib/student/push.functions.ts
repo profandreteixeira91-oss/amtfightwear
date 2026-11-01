@@ -16,7 +16,7 @@ const SubscribeSchema = z.object({
 
 export const subscribeMyPush = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => SubscribeSchema.parse(i))
+  .validator((i: unknown) => SubscribeSchema.parse(i))
   .handler(async ({ data, context }) => {
     // Registra a inscrição para TODOS os alunos que este login legitimamente
     // possui (mesmo e-mail / mesmo user_id). Assim, um dispositivo compartilhado
@@ -45,7 +45,7 @@ export const subscribeMyPush = createServerFn({ method: "POST" })
 
 export const unsubscribeMyPush = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .inputValidator((i: unknown) => z.object({ endpoint: z.string().url() }).parse(i))
+  .validator((i: unknown) => z.object({ endpoint: z.string().url() }).parse(i))
   .handler(async ({ data, context }) => {
     // Remove a inscrição deste endpoint para todos os alunos deste login.
     const { error } = await context.supabase

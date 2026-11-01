@@ -49,7 +49,7 @@ export const listContractTemplates = createServerFn({ method: "GET" })
 
 export const getContractTemplate = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: uuid }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("dojo_contract_templates")
@@ -62,7 +62,7 @@ export const getContractTemplate = createServerFn({ method: "GET" })
 
 export const saveContractTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => templateSchema.parse(d))
+  .validator((d: unknown) => templateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const payload = { ...data, owner_id: context.userId };
     const q = context.supabase.from("dojo_contract_templates");
@@ -78,7 +78,7 @@ export const saveContractTemplate = createServerFn({ method: "POST" })
 
 export const deleteContractTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: uuid }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_contract_templates").delete().eq("id", data.id);
     if (error) throw error;
@@ -103,7 +103,7 @@ const contractSchema = z.object({
 
 export const listStudentContracts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { student_id: string }) => z.object({ student_id: uuid }).parse(d))
+  .validator((d: { student_id: string }) => z.object({ student_id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("dojo_student_contracts")
@@ -116,7 +116,7 @@ export const listStudentContracts = createServerFn({ method: "GET" })
 
 export const getStudentContract = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: uuid }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("dojo_student_contracts")
@@ -129,7 +129,7 @@ export const getStudentContract = createServerFn({ method: "GET" })
 
 export const saveStudentContract = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => contractSchema.parse(d))
+  .validator((d: unknown) => contractSchema.parse(d))
   .handler(async ({ data, context }) => {
     const payload = { ...data, owner_id: context.userId };
     const q = context.supabase.from("dojo_student_contracts");
@@ -145,7 +145,7 @@ export const saveStudentContract = createServerFn({ method: "POST" })
 
 export const deleteStudentContract = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: uuid }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_student_contracts").delete().eq("id", data.id);
     if (error) throw error;
@@ -190,7 +190,7 @@ export const CONTRACT_STATUS_LABELS: Record<string, string> = {
 /** List templates with filters (categoria/status/busca). Inclui modelos globais (owner_id NULL). */
 export const listTemplatesAdvanced = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { category?: string; status?: string; q?: string } | undefined) =>
+  .validator((d: { category?: string; status?: string; q?: string } | undefined) =>
     z.object({
       category: z.enum(CONTRACT_CATEGORIES).optional(),
       status: z.enum(["active","inactive","review","archived"]).optional(),
@@ -213,7 +213,7 @@ export const listTemplatesAdvanced = createServerFn({ method: "GET" })
 /** Duplica um modelo existente (cria como propriedade do usuário). */
 export const duplicateTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: uuid }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: src, error: e1 } = await context.supabase
       .from("dojo_contract_templates").select("*").eq("id", data.id).maybeSingle();
@@ -246,7 +246,7 @@ export const duplicateTemplate = createServerFn({ method: "POST" })
 /** Arquiva / reativa modelo. */
 export const setTemplateStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string; status: string }) =>
+  .validator((d: { id: string; status: string }) =>
     z.object({ id: uuid, status: z.enum(["active","inactive","review","archived"]) }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -270,7 +270,7 @@ export const nextContractNumber = createServerFn({ method: "POST" })
 /** Emitir contrato de aluno a partir de um modelo. */
 export const generateStudentContract = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: {
+  .validator((d: {
     student_id: string;
     template_id: string;
     resolved_content: string;
@@ -348,7 +348,7 @@ export const generateStudentContract = createServerFn({ method: "POST" })
 /** Atualiza status de um contrato + registra evento. */
 export const updateContractStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string; kind: "student"|"affiliate"|"team"; status: string; note?: string }) =>
+  .validator((d: { id: string; kind: "student"|"affiliate"|"team"; status: string; note?: string }) =>
     z.object({
       id: uuid,
       kind: z.enum(["student","affiliate","team"]),
@@ -380,7 +380,7 @@ export const updateContractStatus = createServerFn({ method: "POST" })
 /** Timeline de um contrato. */
 export const listContractEvents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind: "student"|"affiliate"|"team"; contract_id: string }) =>
+  .validator((d: { kind: "student"|"affiliate"|"team"; contract_id: string }) =>
     z.object({ kind: z.enum(["student","affiliate","team"]), contract_id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -396,7 +396,7 @@ export const listContractEvents = createServerFn({ method: "GET" })
 /** Lista global de contratos emitidos (aluno + filial) + busca. */
 export const listIssuedContracts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind?: "student"|"affiliate"|"team"|"all"; status?: string; q?: string } | undefined) =>
+  .validator((d: { kind?: "student"|"affiliate"|"team"|"all"; status?: string; q?: string } | undefined) =>
     z.object({
       kind: z.enum(["student","affiliate","team","all"]).optional().default("all"),
       status: z.string().optional(),
@@ -507,7 +507,7 @@ export const contractsDashboardStats = createServerFn({ method: "GET" })
 /** Detalhe de contrato emitido (student, affiliate ou team) + academia. */
 export const getIssuedContract = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind: "student"|"affiliate"|"team"; id: string }) =>
+  .validator((d: { kind: "student"|"affiliate"|"team"; id: string }) =>
     z.object({ kind: z.enum(["student","affiliate","team"]), id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     if (data.kind === "student") {
@@ -556,7 +556,7 @@ const teamContractSchema = z.object({
 
 export const listTeamContracts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { team_member_id: string }) => z.object({ team_member_id: uuid }).parse(d))
+  .validator((d: { team_member_id: string }) => z.object({ team_member_id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("dojo_team_contracts")
@@ -569,7 +569,7 @@ export const listTeamContracts = createServerFn({ method: "GET" })
 
 export const saveTeamContract = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => teamContractSchema.parse(d))
+  .validator((d: unknown) => teamContractSchema.parse(d))
   .handler(async ({ data, context }) => {
     const payload = { ...data, owner_id: context.userId };
     const q = context.supabase.from("dojo_team_contracts");
@@ -585,7 +585,7 @@ export const saveTeamContract = createServerFn({ method: "POST" })
 
 export const deleteTeamContract = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: uuid }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_team_contracts").delete().eq("id", data.id);
     if (error) throw error;

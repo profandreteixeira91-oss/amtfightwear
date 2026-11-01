@@ -77,7 +77,7 @@ const BlockSchema = z.object({
 // ================================================================
 export const listLessonPlans = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         from: z.string().optional(),
@@ -115,7 +115,7 @@ export const listLessonPlans = createServerFn({ method: "GET" })
 
 export const getLessonPlan = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ id: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("dojo_lesson_plans")
@@ -153,7 +153,7 @@ const UpsertSchema = z.object({
 
 export const upsertLessonPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => UpsertSchema.parse(i))
+  .validator((i: unknown) => UpsertSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const record = { ...rest, owner_id: context.userId, created_by: context.userId };
@@ -166,7 +166,7 @@ export const upsertLessonPlan = createServerFn({ method: "POST" })
 
 export const deleteLessonPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ id: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_lesson_plans").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -175,7 +175,7 @@ export const deleteLessonPlan = createServerFn({ method: "POST" })
 
 export const duplicateLessonPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: UUID,
@@ -230,7 +230,7 @@ export const duplicateLessonPlan = createServerFn({ method: "POST" })
 // ================================================================
 export const bulkDuplicateLessonPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: UUID,
@@ -325,7 +325,7 @@ export const listLessonTemplates = createServerFn({ method: "GET" })
 
 export const upsertLessonTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => TemplateSchema.parse(i))
+  .validator((i: unknown) => TemplateSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const record = { ...rest, owner_id: context.userId };
@@ -338,7 +338,7 @@ export const upsertLessonTemplate = createServerFn({ method: "POST" })
 
 export const deleteLessonTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ id: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_lesson_templates").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -347,7 +347,7 @@ export const deleteLessonTemplate = createServerFn({ method: "POST" })
 
 export const createPlanFromTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         templateId: UUID.optional(),
@@ -661,7 +661,7 @@ export const lessonPlansDashboard = createServerFn({ method: "GET" })
 // ================================================================
 export const listContentLibrary = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({ modality: z.string().optional(), search: z.string().optional() })
       .parse(i ?? {}),
@@ -681,7 +681,7 @@ export const listContentLibrary = createServerFn({ method: "GET" })
 
 export const upsertContentLibrary = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: UUID.optional(),
@@ -721,7 +721,7 @@ export const upsertContentLibrary = createServerFn({ method: "POST" })
 
 export const deleteContentLibrary = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ id: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_lesson_content_library")
@@ -736,7 +736,7 @@ export const deleteContentLibrary = createServerFn({ method: "POST" })
 // ================================================================
 export const listTechniques = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({ modality: z.string().optional(), search: z.string().optional() })
       .parse(i ?? {}),
@@ -758,7 +758,7 @@ export const listTechniques = createServerFn({ method: "GET" })
 
 export const upsertTechnique = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: UUID.optional(),
@@ -786,7 +786,7 @@ export const upsertTechnique = createServerFn({ method: "POST" })
 
 export const deleteTechnique = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ id: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_techniques_bank").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -838,7 +838,7 @@ export const listClassesForPicker = createServerFn({ method: "GET" })
 // Lista alunos matriculados na turma (para chamada de presença)
 export const listClassStudentsForAttendance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ classId: UUID }).parse(i))
+  .validator((i: unknown) => z.object({ classId: UUID }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("dojo_class_students")
@@ -861,7 +861,7 @@ export const listClassStudentsForAttendance = createServerFn({ method: "GET" })
 // e marca o plano como "ministrada".
 export const registerLessonDelivery = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         planId: UUID,
@@ -948,7 +948,7 @@ export const registerLessonDelivery = createServerFn({ method: "POST" })
 // Histórico real (dojo_lesson_history) com join no plano e turma
 export const listLessonHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         from: z.string().optional(),

@@ -161,7 +161,7 @@ export const getMpPublicKey = createServerFn({ method: "GET" })
  */
 export const subscribeWithCardToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         cardTokenId: z.string().min(4),
@@ -258,7 +258,7 @@ export const cancelMySubscription = createServerFn({ method: "POST" })
 /** Sincroniza status do preapproval a partir do MP (usado no retorno do checkout). */
 export const syncMySubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({}).parse(i ?? {}))
+  .validator((i: unknown) => z.object({}).parse(i ?? {}))
   .handler(async ({ context }) => {
     const { data: sub } = await context.supabase
       .from("dojo_subscriptions")
@@ -351,7 +351,7 @@ export const listMySubscriptionPayments = createServerFn({ method: "GET" })
  */
 export const subscribeWithPix = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         payerEmail: z.string().email(),
@@ -426,7 +426,7 @@ export const subscribeWithPix = createServerFn({ method: "POST" })
  */
 export const syncPixPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ paymentId: z.string() }).parse(i))
+  .validator((i: unknown) => z.object({ paymentId: z.string() }).parse(i))
   .handler(async ({ data, context }) => {
     const payment = await mpAmt<any>(`/v1/payments/${data.paymentId}`);
     

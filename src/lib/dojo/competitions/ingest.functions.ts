@@ -210,7 +210,7 @@ export async function runIngest(data: z.infer<typeof runInputSchema>) {
 /** Botão "Atualizar agora" da aba Fontes. O cron usa runIngest direto. */
 export const runCompetitionIngest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => runInputSchema.parse(i ?? {}))
+  .validator((i: unknown) => runInputSchema.parse(i ?? {}))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     return runIngest(data);
@@ -243,7 +243,7 @@ export const getIngestStatus = createServerFn({ method: "GET" })
 const toggleSchema = z.object({ id: z.string(), enabled: z.boolean() });
 export const setSourceEnabled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => toggleSchema.parse(i))
+  .validator((i: unknown) => toggleSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const supabaseAdmin = await serverAdmin();
@@ -263,7 +263,7 @@ const addSchema = z.object({
 });
 export const addCompetitionSource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => addSchema.parse(i))
+  .validator((i: unknown) => addSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const supabaseAdmin = await serverAdmin();
@@ -282,7 +282,7 @@ export const addCompetitionSource = createServerFn({ method: "POST" })
 const deleteSchema = z.object({ id: z.string() });
 export const deleteCompetitionSource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => deleteSchema.parse(i))
+  .validator((i: unknown) => deleteSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
     const supabaseAdmin = await serverAdmin();

@@ -13,7 +13,7 @@ const adSetSchema = z.object({
 
 export const generateAdCreativeSet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => adSetSchema.parse(v))
+  .validator((v: unknown) => adSetSchema.parse(v))
   .handler(async ({ data, context }) => {
     await assertSaasOwner(context);
 

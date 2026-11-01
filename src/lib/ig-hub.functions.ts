@@ -267,7 +267,7 @@ type IgPaged<T> = { data?: T[]; paging?: { cursors?: { after?: string }; next?: 
 
 export const syncIgInbox = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       maxConversations: z.number().min(1).max(2000).optional(),
       messagesPerConversation: z.number().min(1).max(2000).optional(),
@@ -455,7 +455,7 @@ export const syncIgInbox = createServerFn({ method: "POST" })
 
 export const listConversations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       status: z.string().optional(),
       search: z.string().optional(),
@@ -481,7 +481,7 @@ export const listConversations = createServerFn({ method: "GET" })
 
 export const getConversation = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: conv, error } = await context.supabase
       .from("ig_conversations").select("*").eq("id", data.id).eq("user_id", context.userId).single();
@@ -510,7 +510,7 @@ export const getConversation = createServerFn({ method: "GET" })
 
 export const sendMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ conversationId: z.string().uuid(), text: z.string().min(1).max(1000) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -577,7 +577,7 @@ export const sendMessage = createServerFn({ method: "POST" })
 
 export const updateConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
       status: z.string().optional(),
@@ -607,7 +607,7 @@ export const updateConversation = createServerFn({ method: "POST" })
 
 export const promoteConversationToLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ conversationId: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ conversationId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: conv } = await context.supabase
       .from("ig_conversations").select("*").eq("id", data.conversationId).eq("user_id", context.userId).single();
@@ -702,7 +702,7 @@ export const listAutomations = createServerFn({ method: "GET" })
 
 export const upsertAutomation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => AutomationInput.parse(i))
+  .validator((i: unknown) => AutomationInput.parse(i))
   .handler(async ({ data, context }) => {
     if (data.id) {
       const { data: row, error } = await (context.supabase as any).from("ig_automations")
@@ -721,7 +721,7 @@ export const upsertAutomation = createServerFn({ method: "POST" })
 
 export const deleteAutomation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await (context.supabase as any).from("ig_automations").delete().eq("id", data.id).eq("user_id", context.userId);
     if (error) throw new Error(error.message);
@@ -755,7 +755,7 @@ const AiInput = z.object({
 
 export const aiConversationTools = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => AiInput.parse(i))
+  .validator((i: unknown) => AiInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: conv } = await context.supabase
       .from("ig_conversations").select("*").eq("id", data.conversationId).eq("user_id", context.userId).single();
@@ -838,7 +838,7 @@ export const listInboxConnectedHandles = createServerFn({ method: "GET" })
  */
 export const sendLeadOutreachDm = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       igHandle: z.string().min(1).max(120),
       text: z.string().min(1).max(1000),

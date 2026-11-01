@@ -14,7 +14,7 @@ const EmailSchema = z.object({ email: z.string().trim().email().toLowerCase() })
  *  - "blocked" = TODOS os registros com o e-mail estão em status não elegível.
  */
 export const checkStudentAccess = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => EmailSchema.parse(input))
+  .validator((input: unknown) => EmailSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
@@ -65,7 +65,7 @@ const ActivateSchema = z.object({
  * enxergando apenas seus próprios alunos e o aluno vê apenas seu registro.
  */
 export const activateStudentAccount = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => ActivateSchema.parse(input))
+  .validator((input: unknown) => ActivateSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

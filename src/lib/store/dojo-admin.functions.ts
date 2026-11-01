@@ -280,7 +280,7 @@ export const adminGetDojoLandingStats = createServerFn({ method: "GET" })
 
 export const adminDeleteDojoOwnerAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ ownerId: z.string().uuid() }).parse(data))
+  .validator((data) => z.object({ ownerId: z.string().uuid() }).parse(data))
   .handler(async ({ context, data }) => {
     await assertSaasOwner(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

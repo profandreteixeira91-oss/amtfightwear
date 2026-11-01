@@ -13,7 +13,7 @@ import { z } from "zod";
  */
 export const registerDojoOwner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z.object({ name: z.string().trim().max(200).optional() }).parse(data ?? {}),
   )
   .handler(async ({ context, data }) => {

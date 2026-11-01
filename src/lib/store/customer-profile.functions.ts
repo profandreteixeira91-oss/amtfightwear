@@ -29,7 +29,7 @@ export const getMyCustomerProfile = createServerFn({ method: "GET" })
 
 export const saveMyCustomerProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => profileInput.parse(i))
+  .validator((i: unknown) => profileInput.parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("profiles")
