@@ -1,4 +1,4 @@
-import { createLovableAiGateway } from "@/lib/ai-gateway.server";
+import { createAiGateway } from "@/lib/ai-gateway.server";
 
 export interface FaceBox {
   x: number;

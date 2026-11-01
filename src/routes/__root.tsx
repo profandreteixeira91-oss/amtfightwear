@@ -10,7 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
@@ -45,7 +44,7 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    console.error("[root error boundary]", error);
   }, [error]);
 
   return (
@@ -133,7 +132,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 const DOJO_HOST = "dojomanager.amtfightwear.com.br";
 
-const DOMAIN_ROUTING_SCRIPT = `(function(){try{var h=location.hostname,p=location.pathname,s=location.search||"",x=location.hash||"";if(h!=="localhost"&&h!=="127.0.0.1"&&!h.endsWith(".lovable.app")){var isDojoArea=p.indexOf("/dojo")===0||p.indexOf("/app")===0||p.indexOf("/api/public/app")===0;if(h!=="${DOJO_HOST}"&&p.indexOf("/dojo")===0){location.replace("https://${DOJO_HOST}"+p+s+x);return;}if(h==="${DOJO_HOST}"&&!isDojoArea){location.replace("https://${DOJO_HOST}/dojo"+(p==="/"?"":p)+s+x);return;}}}catch(e){}try{window.__amtInstallPrompt=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__amtInstallPrompt=e;window.dispatchEvent(new Event("amt:install-ready"));});window.addEventListener("appinstalled",function(){window.__amtInstallPrompt=null;window.__amtInstalled=true;window.dispatchEvent(new Event("amt:install-ready"));});}catch(e){}})();`;
+const DOMAIN_ROUTING_SCRIPT = `(function(){try{var h=location.hostname,p=location.pathname,s=location.search||"",x=location.hash||"";if(h!=="localhost"&&h!=="127.0.0.1"&&!h.endsWith(".workers.dev")){var isDojoArea=p.indexOf("/dojo")===0||p.indexOf("/app")===0||p.indexOf("/api/public/app")===0;if(h!=="${DOJO_HOST}"&&p.indexOf("/dojo")===0){location.replace("https://${DOJO_HOST}"+p+s+x);return;}if(h==="${DOJO_HOST}"&&!isDojoArea){location.replace("https://${DOJO_HOST}/dojo"+(p==="/"?"":p)+s+x);return;}}}catch(e){}try{window.__amtInstallPrompt=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__amtInstallPrompt=e;window.dispatchEvent(new Event("amt:install-ready"));});window.addEventListener("appinstalled",function(){window.__amtInstallPrompt=null;window.__amtInstalled=true;window.dispatchEvent(new Event("amt:install-ready"));});}catch(e){}})();`;
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
@@ -161,7 +160,7 @@ function useDojoDomainRouting() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const { hostname, pathname, search, hash } = window.location;
-    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".lovable.app")) return;
+    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".workers.dev")) return;
     const isDojoArea =
       pathname.startsWith("/dojo") ||
       pathname.startsWith("/app") ||

@@ -114,7 +114,8 @@ export function extractContactsFromText(text: string): ExtractedContacts {
 
 // ============= Google Places API (New) — PRIMARY SOURCE =============
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
+// Places API (New) direto no Google — chave em GOOGLE_MAPS_API_KEY (restrita à Places API).
+const PLACES_URL = "https://places.googleapis.com/v1/places:searchText";
 
 interface GPlace {
   id: string;
@@ -142,15 +143,13 @@ const PLACES_FIELD_MASK = [
 ].join(",");
 
 export async function googlePlacesSearchText(query: string, opts?: { region?: string; language?: string; maxResults?: number }): Promise<GPlace[]> {
-  const lovable = process.env.LOVABLE_API_KEY;
   const key = process.env.GOOGLE_MAPS_API_KEY;
-  if (!lovable || !key) return [];
+  if (!key) return [];
   try {
-    const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+    const res = await fetch(PLACES_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${lovable}`,
-        "X-Connection-Api-Key": key,
+        "X-Goog-Api-Key": key,
         "Content-Type": "application/json",
         "X-Goog-FieldMask": PLACES_FIELD_MASK,
       },

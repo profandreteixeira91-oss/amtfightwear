@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Loader2, Mail, Lock, User as UserIcon } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { authService } from "@/services/authService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -336,16 +336,13 @@ function DojoAuthPage() {
   const handleGoogle = async () => {
     setGoogleLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/dojo/auth`,
-      });
-      if (result.error) {
-        toast.error("Falha no Google", { description: result.error.message });
+      const { error } = await authService.signInWithGoogle(`${window.location.origin}/dojo/auth`);
+      if (error) {
+        toast.error("Falha no Google", { description: error.message });
         setGoogleLoading(false);
         return;
       }
-      if (result.redirected) return;
-      await goAfterAuth();
+      // Sucesso: o navegador segue para o Google; a sessão volta em /dojo/auth.
     } catch (e: any) {
       toast.error("Falha no Google", { description: e?.message ?? String(e) });
     } finally {

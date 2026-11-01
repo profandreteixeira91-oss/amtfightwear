@@ -199,7 +199,6 @@ import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-sh
 import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
-import { Route as LovableEmailEventsRouteImport } from './routes/lovable/email/events'
 import { Route as AuthenticatedAdminAdsIndexRouteImport } from './routes/_authenticated/admin.ads.index'
 import { Route as AuthenticatedAdminAdsAnunciosRouteImport } from './routes/_authenticated/admin.ads.anuncios'
 import { Route as AuthenticatedAdminAdsCampanhasRouteImport } from './routes/_authenticated/admin.ads.campanhas'
@@ -264,9 +263,11 @@ import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/publi
 import { Route as ApiPublicHooksAdminPushRouteImport } from './routes/api/public/hooks/admin-push'
 import { Route as ApiPublicHooksApplyScheduledGraduationsRouteImport } from './routes/api/public/hooks/apply-scheduled-graduations'
 import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
+import { Route as ApiPublicHooksAuthEmailRouteImport } from './routes/api/public/hooks/auth-email'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as ApiPublicHooksCompetitionsIngestRouteImport } from './routes/api/public/hooks/competitions-ingest'
 import { Route as ApiPublicHooksDojoWalletReconcileRouteImport } from './routes/api/public/hooks/dojo-wallet-reconcile'
+import { Route as ApiPublicHooksEmailEventsRouteImport } from './routes/api/public/hooks/email-events'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
@@ -336,9 +337,6 @@ import { Route as DojoStaffPortalSalesRouteImport } from './routes/dojo.staff._p
 import { Route as DojoStaffPortalScheduleRouteImport } from './routes/dojo.staff._portal.schedule'
 import { Route as DojoStaffPortalStoreRouteImport } from './routes/dojo.staff._portal.store'
 import { Route as DojoStaffPortalStudentsRouteImport } from './routes/dojo.staff._portal.students'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as AuthenticatedAdminAnunciosCampanhasIdRouteImport } from './routes/_authenticated/admin.anuncios.campanhas.$id'
 import { Route as ApiPublicAppSlugDownloadRouteImport } from './routes/api/public/app/$slug/download'
 import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
@@ -1363,11 +1361,6 @@ const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
   path: '/loja/produto/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LovableEmailEventsRoute = LovableEmailEventsRouteImport.update({
-  id: '/lovable/email/events',
-  path: '/lovable/email/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAdminAdsIndexRoute =
   AuthenticatedAdminAdsIndexRouteImport.update({
     id: '/',
@@ -1748,6 +1741,11 @@ const ApiPublicHooksAsaasRoute = ApiPublicHooksAsaasRouteImport.update({
   path: '/api/public/hooks/asaas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksAuthEmailRoute = ApiPublicHooksAuthEmailRouteImport.update({
+  id: '/api/public/hooks/auth-email',
+  path: '/api/public/hooks/auth-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksAutoInstagramPostRoute =
   ApiPublicHooksAutoInstagramPostRouteImport.update({
     id: '/api/public/hooks/auto-instagram-post',
@@ -1764,6 +1762,12 @@ const ApiPublicHooksDojoWalletReconcileRoute =
   ApiPublicHooksDojoWalletReconcileRouteImport.update({
     id: '/api/public/hooks/dojo-wallet-reconcile',
     path: '/api/public/hooks/dojo-wallet-reconcile',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksEmailEventsRoute =
+  ApiPublicHooksEmailEventsRouteImport.update({
+    id: '/api/public/hooks/email-events',
+    path: '/api/public/hooks/email-events',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksEnrichPendingLeadsRoute =
@@ -2143,22 +2147,6 @@ const DojoStaffPortalStudentsRoute = DojoStaffPortalStudentsRouteImport.update({
   path: '/students',
   getParentRoute: () => DojoStaffPortalRoute,
 } as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailTransactionalPreviewRoute =
-  LovableEmailTransactionalPreviewRouteImport.update({
-    id: '/lovable/email/transactional/preview',
-    path: '/lovable/email/transactional/preview',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const AuthenticatedAdminAnunciosCampanhasIdRoute =
   AuthenticatedAdminAnunciosCampanhasIdRouteImport.update({
     id: '/$id',
@@ -2425,7 +2413,6 @@ export interface FileRoutesByFullPath {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
-  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/market/': typeof AuthenticatedMarketIndexRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
@@ -2488,9 +2475,11 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
   '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
+  '/api/public/hooks/auth-email': typeof ApiPublicHooksAuthEmailRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
   '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
+  '/api/public/hooks/email-events': typeof ApiPublicHooksEmailEventsRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -2548,9 +2537,6 @@ export interface FileRoutesByFullPath {
   '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
   '/dojo/staff/store': typeof DojoStaffPortalStoreRoute
   '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
   '/admin/fiscal/': typeof AuthenticatedAdminFiscalIndexRoute
@@ -2749,7 +2735,6 @@ export interface FileRoutesByTo {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
-  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/market': typeof AuthenticatedMarketIndexRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
@@ -2812,9 +2797,11 @@ export interface FileRoutesByTo {
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
   '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
+  '/api/public/hooks/auth-email': typeof ApiPublicHooksAuthEmailRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
   '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
+  '/api/public/hooks/email-events': typeof ApiPublicHooksEmailEventsRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -2870,9 +2857,6 @@ export interface FileRoutesByTo {
   '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
   '/dojo/staff/store': typeof DojoStaffPortalStoreRoute
   '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/ads': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios': typeof AuthenticatedAdminAnunciosIndexRoute
   '/admin/fiscal': typeof AuthenticatedAdminFiscalIndexRoute
@@ -3094,7 +3078,6 @@ export interface FileRoutesById {
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
-  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/market/': typeof AuthenticatedMarketIndexRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
@@ -3157,9 +3140,11 @@ export interface FileRoutesById {
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
   '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
+  '/api/public/hooks/auth-email': typeof ApiPublicHooksAuthEmailRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
   '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
+  '/api/public/hooks/email-events': typeof ApiPublicHooksEmailEventsRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -3217,9 +3202,6 @@ export interface FileRoutesById {
   '/dojo/staff/_portal/schedule': typeof DojoStaffPortalScheduleRoute
   '/dojo/staff/_portal/store': typeof DojoStaffPortalStoreRoute
   '/dojo/staff/_portal/students': typeof DojoStaffPortalStudentsRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/_authenticated/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
   '/_authenticated/admin/fiscal/': typeof AuthenticatedAdminFiscalIndexRoute
@@ -3440,7 +3422,6 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
-    | '/lovable/email/events'
     | '/admin/'
     | '/market/'
     | '/prospect/'
@@ -3503,9 +3484,11 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-push'
     | '/api/public/hooks/apply-scheduled-graduations'
     | '/api/public/hooks/asaas'
+    | '/api/public/hooks/auth-email'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
     | '/api/public/hooks/dojo-wallet-reconcile'
+    | '/api/public/hooks/email-events'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -3563,9 +3546,6 @@ export interface FileRouteTypes {
     | '/dojo/staff/schedule'
     | '/dojo/staff/store'
     | '/dojo/staff/students'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
-    | '/lovable/email/transactional/preview'
     | '/admin/ads/'
     | '/admin/anuncios/'
     | '/admin/fiscal/'
@@ -3764,7 +3744,6 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
-    | '/lovable/email/events'
     | '/admin'
     | '/market'
     | '/prospect'
@@ -3827,9 +3806,11 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-push'
     | '/api/public/hooks/apply-scheduled-graduations'
     | '/api/public/hooks/asaas'
+    | '/api/public/hooks/auth-email'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
     | '/api/public/hooks/dojo-wallet-reconcile'
+    | '/api/public/hooks/email-events'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -3885,9 +3866,6 @@ export interface FileRouteTypes {
     | '/dojo/staff/schedule'
     | '/dojo/staff/store'
     | '/dojo/staff/students'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
-    | '/lovable/email/transactional/preview'
     | '/admin/ads'
     | '/admin/anuncios'
     | '/admin/fiscal'
@@ -4108,7 +4086,6 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
-    | '/lovable/email/events'
     | '/_authenticated/admin/'
     | '/_authenticated/market/'
     | '/_authenticated/prospect/'
@@ -4171,9 +4148,11 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-push'
     | '/api/public/hooks/apply-scheduled-graduations'
     | '/api/public/hooks/asaas'
+    | '/api/public/hooks/auth-email'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
     | '/api/public/hooks/dojo-wallet-reconcile'
+    | '/api/public/hooks/email-events'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -4231,9 +4210,6 @@ export interface FileRouteTypes {
     | '/dojo/staff/_portal/schedule'
     | '/dojo/staff/_portal/store'
     | '/dojo/staff/_portal/students'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
-    | '/lovable/email/transactional/preview'
     | '/_authenticated/admin/ads/'
     | '/_authenticated/admin/anuncios/'
     | '/_authenticated/admin/fiscal/'
@@ -4304,7 +4280,6 @@ export interface RootRouteChildren {
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
-  LovableEmailEventsRoute: typeof LovableEmailEventsRoute
   LojaContaIndexRoute: typeof LojaContaIndexRoute
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
@@ -4312,9 +4287,11 @@ export interface RootRouteChildren {
   ApiPublicHooksAdminPushRoute: typeof ApiPublicHooksAdminPushRoute
   ApiPublicHooksApplyScheduledGraduationsRoute: typeof ApiPublicHooksApplyScheduledGraduationsRoute
   ApiPublicHooksAsaasRoute: typeof ApiPublicHooksAsaasRoute
+  ApiPublicHooksAuthEmailRoute: typeof ApiPublicHooksAuthEmailRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksCompetitionsIngestRoute: typeof ApiPublicHooksCompetitionsIngestRoute
   ApiPublicHooksDojoWalletReconcileRoute: typeof ApiPublicHooksDojoWalletReconcileRoute
+  ApiPublicHooksEmailEventsRoute: typeof ApiPublicHooksEmailEventsRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksGenerateDojoInvoicesRoute: typeof ApiPublicHooksGenerateDojoInvoicesRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
@@ -4332,9 +4309,6 @@ export interface RootRouteChildren {
   ApiPublicMetaWebhookRoute: typeof ApiPublicMetaWebhookRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
   ApiPublicSalesMessagesRoute: typeof ApiPublicSalesMessagesRoute
-  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
-  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
-  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   ApiPublicAppSlugDownloadRoute: typeof ApiPublicAppSlugDownloadRoute
   ApiPublicDojoPartnerCheckinProviderRoute: typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
@@ -5671,13 +5645,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaProdutoSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/events': {
-      id: '/lovable/email/events'
-      path: '/lovable/email/events'
-      fullPath: '/lovable/email/events'
-      preLoaderRoute: typeof LovableEmailEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/admin/ads/': {
       id: '/_authenticated/admin/ads/'
       path: '/'
@@ -6126,6 +6093,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAsaasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auth-email': {
+      id: '/api/public/hooks/auth-email'
+      path: '/api/public/hooks/auth-email'
+      fullPath: '/api/public/hooks/auth-email'
+      preLoaderRoute: typeof ApiPublicHooksAuthEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-instagram-post': {
       id: '/api/public/hooks/auto-instagram-post'
       path: '/api/public/hooks/auto-instagram-post'
@@ -6145,6 +6119,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/dojo-wallet-reconcile'
       fullPath: '/api/public/hooks/dojo-wallet-reconcile'
       preLoaderRoute: typeof ApiPublicHooksDojoWalletReconcileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/email-events': {
+      id: '/api/public/hooks/email-events'
+      path: '/api/public/hooks/email-events'
+      fullPath: '/api/public/hooks/email-events'
+      preLoaderRoute: typeof ApiPublicHooksEmailEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/enrich-pending-leads': {
@@ -6629,27 +6610,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/staff/students'
       preLoaderRoute: typeof DojoStaffPortalStudentsRouteImport
       parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/transactional/preview': {
-      id: '/lovable/email/transactional/preview'
-      path: '/lovable/email/transactional/preview'
-      fullPath: '/lovable/email/transactional/preview'
-      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/anuncios/campanhas/$id': {
       id: '/_authenticated/admin/anuncios/campanhas/$id'
@@ -7743,7 +7703,6 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
-  LovableEmailEventsRoute: LovableEmailEventsRoute,
   LojaContaIndexRoute: LojaContaIndexRoute,
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicAppManifestDotwebmanifestRoute:
@@ -7753,10 +7712,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksApplyScheduledGraduationsRoute:
     ApiPublicHooksApplyScheduledGraduationsRoute,
   ApiPublicHooksAsaasRoute: ApiPublicHooksAsaasRoute,
+  ApiPublicHooksAuthEmailRoute: ApiPublicHooksAuthEmailRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksCompetitionsIngestRoute: ApiPublicHooksCompetitionsIngestRoute,
   ApiPublicHooksDojoWalletReconcileRoute:
     ApiPublicHooksDojoWalletReconcileRoute,
+  ApiPublicHooksEmailEventsRoute: ApiPublicHooksEmailEventsRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksGenerateDojoInvoicesRoute:
     ApiPublicHooksGenerateDojoInvoicesRoute,
@@ -7777,9 +7738,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMetaWebhookRoute: ApiPublicMetaWebhookRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
   ApiPublicSalesMessagesRoute: ApiPublicSalesMessagesRoute,
-  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
-  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
-  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   ApiPublicAppSlugDownloadRoute: ApiPublicAppSlugDownloadRoute,
   ApiPublicDojoPartnerCheckinProviderRoute:
     ApiPublicDojoPartnerCheckinProviderRoute,

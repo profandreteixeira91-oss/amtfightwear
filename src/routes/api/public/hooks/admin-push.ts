@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 // Endpoint interno acionado pelos triggers do banco via pg_net.
 // Não retorna PII: recebe apenas título/corpo/url pré-formatados pelo trigger.
@@ -7,11 +8,8 @@ export const Route = createFileRoute("/api/public/hooks/admin-push")({
     handlers: {
       POST: async ({ request }) => {
         try {
-          const providedKey = request.headers.get("apikey") ?? "";
-          const expected = process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
-          if (!providedKey || providedKey !== expected) {
-            return new Response("Unauthorized", { status: 401 });
-          }
+          const denied = checkInternalHookAuth(request);
+          if (denied) return denied;
           const body = (await request.json().catch(() => ({}))) as {
             event?: string;
             title?: string;

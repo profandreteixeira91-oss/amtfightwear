@@ -37,7 +37,7 @@ export const requireStudentAuth = createMiddleware({ type: "function" }).server(
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    throw new Error("Missing Supabase environment. Connect Supabase in Lovable Cloud.");
+    throw new Error("Missing Supabase environment. Configure SUPABASE_URL e SUPABASE_PUBLISHABLE_KEY.");
   }
 
   const request = getRequest();

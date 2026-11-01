@@ -515,7 +515,7 @@ function WholesalePage() {
     try {
       const { authService } = await import("@/services/authService");
       const result = await authService.signInWithGoogle();
-      if (result.error) toast.error("Falha ao entrar com Google", { description: String(result.error) });
+      if (result.error) toast.error("Falha ao entrar com Google", { description: result.error.message });
     } catch (e) {
       toast.error("Falha ao entrar com Google", { description: e instanceof Error ? e.message : String(e) });
     } finally {

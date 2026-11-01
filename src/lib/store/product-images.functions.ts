@@ -95,7 +95,7 @@ export const migrateProductImagesBatch = createServerFn({ method: "POST" })
       for (const u of attempts) {
         const r = await fetch(u, {
           headers: {
-            "User-Agent": "Mozilla/5.0 (compatible; LovableImageMigrator/1.0)",
+            "User-Agent": "Mozilla/5.0 (compatible; AMTImageMigrator/1.0)",
             "Accept": "image/webp,image/avif,image/*,*/*;q=0.8",
           },
         });

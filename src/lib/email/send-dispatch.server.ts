@@ -1,5 +1,4 @@
-// Server-only: envia um template registrado via infraestrutura de e-mail gerenciada
-// da Lovable e registra o resultado em email_send_log.
+// Server-only: envia um template registrado (Resend) e registra o resultado em email_send_log.
 import { sendTemplateEmail } from '@/lib/email-templates/send-email'
 
 export interface DispatchTemplateEmailArgs {

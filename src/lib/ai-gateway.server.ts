@@ -39,7 +39,7 @@ function mapModel(id: string): string {
  * Cria um provider AI SDK apontando para o OpenRouter.
  * Usa OPENROUTER_API_KEY (chave do OpenRouter configurada nos secrets).
  */
-export function createLovableAiGateway(_ignored?: string) {
+export function createAiGateway(_ignored?: string) {
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) throw new Error("OPENROUTER_API_KEY não configurada");
 
@@ -116,6 +116,6 @@ export async function openrouterChat(opts: {
   throw new Error(`OpenRouter ${lastStatus}: ${lastErr.slice(0, 300)}`);
 }
 
-export const LOVABLE_GATEWAY_URL = OPENROUTER_BASE_URL;
+export const AI_GATEWAY_URL = OPENROUTER_BASE_URL;
 export const DEFAULT_TEXT_MODEL_ID = DEFAULT_TEXT_MODEL;
 export const DEFAULT_IMAGE_MODEL_ID = DEFAULT_IMAGE_MODEL;

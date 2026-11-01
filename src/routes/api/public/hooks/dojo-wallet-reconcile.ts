@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 /**
  * Cron: conciliação diária da carteira AMT Pay.
@@ -6,17 +7,14 @@ import { createFileRoute } from "@tanstack/react-router";
  * - Libera recebimentos `pending` cujo `available_at <= now()`.
  * - Faz polling dos saques `processing` sem webhook recente e converge status.
  *
- * Autenticação: apikey do projeto (padrão Lovable Cloud cron).
+ * Autenticação: checkInternalHookAuth (CRON_SECRET ou apikey do projeto).
  */
 export const Route = createFileRoute("/api/public/hooks/dojo-wallet-reconcile")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = request.headers.get("apikey") ?? "";
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY ?? "";
-        if (!expected || apiKey !== expected) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { releasePendingReceipts, reconcileWithdrawals } = await import(

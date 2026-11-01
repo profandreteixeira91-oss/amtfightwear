@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 
 export const authService = {
   signInWithPassword: (email: string, password: string) =>
@@ -15,8 +14,9 @@ export const authService = {
       },
     }),
 
-  signInWithGoogle: () =>
-    lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin }),
+  // OAuth nativo do Supabase: redireciona para o Google e volta com a sessão na URL.
+  signInWithGoogle: (redirectTo: string = window.location.origin) =>
+    supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } }),
 
   signOut: () => supabase.auth.signOut(),
 

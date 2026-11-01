@@ -119,8 +119,8 @@ function PrivacyPage() {
           <h2 className="text-xl font-semibold">5. Compartilhamento</h2>
           <p>
             Não vendemos dados. Compartilhamos apenas com prestadores necessários à operação:
-            infraestrutura de nuvem (Lovable Cloud/Supabase), envio de e-mails, provedores de
-            IA (Google Gemini/Lovable AI Gateway) e a própria Meta (Graph API). Todos operam
+            infraestrutura de nuvem (Supabase e Cloudflare), envio de e-mails (Resend), provedores de
+            IA (OpenRouter e Google Gemini) e a própria Meta (Graph API). Todos operam
             sob obrigações de confidencialidade.
           </p>
 

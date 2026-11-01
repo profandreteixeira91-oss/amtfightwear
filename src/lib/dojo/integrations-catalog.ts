@@ -51,7 +51,7 @@ export type IntegrationDef = {
 /** URL do logotipo oficial do fornecedor via logo.dev (fallback público sem token). */
 export function getIntegrationLogoUrl(def: Pick<IntegrationDef, "logoDomain">): string | null {
   if (!def.logoDomain) return null;
-  const token = (import.meta as any)?.env?.VITE_LOVABLE_CONNECTOR_LOGO_DEV_API_KEY;
+  const token = (import.meta as any)?.env?.VITE_LOGO_DEV_API_KEY;
   const base = `https://img.logo.dev/${def.logoDomain}?size=128&format=png`;
   return token ? `${base}&token=${token}` : base;
 }

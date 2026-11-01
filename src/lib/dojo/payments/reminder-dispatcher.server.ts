@@ -1,9 +1,5 @@
-// Server-only: dispara um lembrete de fatura via e-mail gerenciado da Lovable.
+// Server-only: dispara um lembrete de fatura por e-mail (Resend).
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
-
-const FROM_DOMAIN = "amtfightwear.com.br";
-void FROM_DOMAIN;
-
 
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {

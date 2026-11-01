@@ -33,8 +33,7 @@ self.addEventListener("fetch", (event) => {
   // Não interceptar rotas de API/OAuth/webhooks.
   if (
     url.pathname.startsWith("/api/") ||
-    url.pathname.startsWith("/~oauth") ||
-    url.pathname.startsWith("/lovable/")
+    url.pathname.startsWith("/~oauth")
   )
     return;
 

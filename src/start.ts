@@ -10,12 +10,6 @@ const DOJO_HOST = "dojomanager.amtfightwear.com.br";
 const domainRoutingMiddleware = createMiddleware().server(async ({ next, request }) => {
   const url = new URL(request.url);
 
-  // Internal /lovable/* routes (auth emails, webhooks, cron) must never be
-  // redirected by domain or locale routing.
-  if (url.pathname.startsWith("/lovable/")) {
-    return next();
-  }
-
   // Proxies may disagree about the public host (x-forwarded-host vs host vs URL).
   // Treat the request as the Dojo host if ANY source says so; otherwise a
   // proxy-rewritten header makes /dojo/* redirect to itself forever.
@@ -38,8 +32,7 @@ const domainRoutingMiddleware = createMiddleware().server(async ({ next, request
     (h) =>
       h === "localhost" ||
       h === "127.0.0.1" ||
-      h.endsWith(".lovable.app") ||
-      h.endsWith(".lovableproject.com"),
+      h.endsWith(".workers.dev"),
   );
   if (isInternalHost && !isDojoHost) return next();
 
@@ -59,11 +52,7 @@ const domainRoutingMiddleware = createMiddleware().server(async ({ next, request
   return next();
 });
 
-const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
-  const url = new URL(request.url);
-  if (url.pathname.startsWith("/lovable/")) {
-    return next();
-  }
+const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
     return await next();
   } catch (error) {

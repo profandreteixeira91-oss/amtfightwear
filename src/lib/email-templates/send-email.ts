@@ -1,18 +1,10 @@
 import * as React from 'react'
 import { render } from '@react-email/render'
-import { EmailAPIError, sendLovableEmail } from '@lovable.dev/email-js'
+import { supabaseAdmin } from '@/integrations/supabase/client.server'
+import { sendEmail } from '@/lib/email/provider.server'
 import { TEMPLATES } from './registry'
 
-// Server-only: reads LOVABLE_API_KEY. Never import from client components.
-
-// Configuration baked in at scaffold time
-const SITE_NAME = "AMT Marketing"
-// SENDER_DOMAIN is the verified sender subdomain FQDN (e.g., "notify.example.com").
-// It MUST match the subdomain delegated to Lovable's nameservers. NEVER use the root domain.
-const SENDER_DOMAIN = "notify.amtfightwear.com.br"
-// FROM_DOMAIN is the domain shown in the From: header (e.g., "example.com").
-// Can be the root domain when display_from_root is enabled — this is cosmetic only.
-const FROM_DOMAIN = "amtfightwear.com.br"
+// Server-only: reads RESEND_API_KEY. Never import from client components.
 
 export type SendTemplateEmailResult =
   | { sent: true }
@@ -20,28 +12,32 @@ export type SendTemplateEmailResult =
 
 export interface SendTemplateEmailOptions {
   templateData?: Record<string, any>
-  /** Dedupes retries of the same logical send; defaults to a random UUID (no dedupe). */
+  /** Dedupes retries of the same logical send; omitted means no dedupe. */
   idempotencyKey?: string
   replyTo?: string
 }
 
+/** Destinatários que deram bounce/reclamação (gravados por /api/public/hooks/email-events). */
+async function isSuppressed(email: string): Promise<boolean> {
+  const { data, error } = await supabaseAdmin
+    .from('suppressed_emails')
+    .select('id')
+    .eq('email', email.toLowerCase())
+    .maybeSingle()
+  if (error) console.error('suppressed_emails lookup failed', { code: error.code })
+  return !!data
+}
+
 /**
- * Renders a registered template and sends it through Lovable's managed email
- * API. Suppression, retries, and rate limits are enforced by Lovable
- * server-side. A suppressed recipient is an expected outcome
- * ({ sent: false }); any other failure throws — EmailAPIError exposes
- * .code and .status for branching.
+ * Renders a registered template and sends it through Resend. A suppressed
+ * recipient is an expected outcome ({ sent: false }); any other failure
+ * throws — EmailSendError exposes .status and .retryable for branching.
  */
 export async function sendTemplateEmail(
   templateName: string,
   to: string,
   options: SendTemplateEmailOptions = {}
 ): Promise<SendTemplateEmailResult> {
-  const apiKey = process.env['LOVABLE_API_KEY']
-  if (!apiKey) {
-    throw new Error('LOVABLE_API_KEY is not configured')
-  }
-
   const template = TEMPLATES[templateName]
   if (!template) {
     throw new Error(
@@ -55,6 +51,7 @@ export async function sendTemplateEmail(
   if (!recipient) {
     throw new Error('Recipient is required (the template defines no fixed recipient)')
   }
+  if (await isSuppressed(recipient)) return { sent: false, reason: 'recipient_suppressed' }
 
   const templateData = options.templateData ?? {}
   const element = React.createElement(template.component, templateData)
@@ -65,28 +62,15 @@ export async function sendTemplateEmail(
       ? template.subject(templateData)
       : template.subject
 
-  try {
-    await sendLovableEmail(
-      {
-        to: recipient,
-        from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
-        sender_domain: SENDER_DOMAIN,
-        subject,
-        html,
-        text,
-        purpose: 'transactional',
-        label: templateName,
-        idempotency_key: options.idempotencyKey || crypto.randomUUID(),
-        reply_to: options.replyTo,
-      },
-      { apiKey, sendUrl: process.env['LOVABLE_SEND_URL'] }
-    )
-  } catch (error) {
-    if (error instanceof EmailAPIError && error.code === 'recipient_suppressed') {
-      return { sent: false, reason: 'recipient_suppressed' }
-    }
-    throw error
-  }
+  await sendEmail({
+    to: recipient,
+    subject,
+    html,
+    text,
+    replyTo: options.replyTo,
+    idempotencyKey: options.idempotencyKey,
+    tag: templateName,
+  })
 
   return { sent: true }
 }

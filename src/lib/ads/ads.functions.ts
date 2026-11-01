@@ -51,8 +51,8 @@ async function loadGateway() {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY não configurada");
   const { generateText } = await import("ai");
-  const { createLovableAiGateway } = await import("../ai-gateway.server");
-  return { gateway: createLovableAiGateway(apiKey), generateText };
+  const { createAiGateway } = await import("../ai-gateway.server");
+  return { gateway: createAiGateway(apiKey), generateText };
 }
 
 

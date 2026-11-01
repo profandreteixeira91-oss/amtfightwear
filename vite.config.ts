@@ -1,38 +1,53 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),
-//     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
-//     error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
+// Configuração explícita do Vite (substitui @lovable.dev/vite-tanstack-config).
+// Reproduz o que aquele preset fazia fora do sandbox da Lovable: Tailwind,
+// paths do tsconfig, TanStack Start, Nitro (Cloudflare Workers) só no build,
+// React, injeção das VITE_* e alias "@".
 import path from "path";
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
-import { loadEnv } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react";
+import { nitro } from "nitro/vite";
+import { defineConfig, loadEnv } from "vite";
+import tsConfigPaths from "vite-tsconfig-paths";
 
-const mode = process.env.NODE_ENV ?? "development";
+export default defineConfig(({ command, mode }) => {
+  // Existing VITE_* env injection for client code.
+  const env = loadEnv(mode, process.cwd(), "VITE_");
 
-// Existing VITE_* env injection for client code.
-const env = loadEnv(mode, process.cwd(), "VITE_");
+  // Load all env vars into process.env for server-side code (server routes,
+  // server functions). Required for SUPABASE_SERVICE_ROLE_KEY and other secrets.
+  const serverEnv = loadEnv(mode, process.cwd(), "");
+  Object.assign(process.env, serverEnv);
 
-// Load all env vars into process.env for server-side code (server routes,
-// server functions). Required for SUPABASE_SERVICE_ROLE_KEY and LOVABLE_API_KEY.
-const serverEnv = loadEnv(mode, process.cwd(), "");
-Object.assign(process.env, serverEnv);
-
-export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-  },
-  vite: {
+  return {
+    plugins: [
+      tailwindcss(),
+      tsConfigPaths({ projects: ["./tsconfig.json"] }),
+      tanstackStart({
+        // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+        // nitro/vite builds from this
+        server: { entry: "server" },
+        importProtection: {
+          behavior: "error",
+          client: {
+            files: ["**/server/**"],
+            specifiers: ["server-only"],
+          },
+        },
+      }),
+      ...(command === "build" ? [nitro({ defaultPreset: "cloudflare-module" })] : []),
+      viteReact(),
+    ],
     define: Object.fromEntries(
       Object.entries(env).map(([key, value]) => [
         `import.meta.env.${key}`,
         JSON.stringify(value),
       ]),
     ),
+    css: { transformer: "lightningcss" },
     resolve: {
       alias: {
+        "@": path.resolve(__dirname, "src"),
         // React Email's htmlparser2 needs entities v4.5.0; v7+ removed ./lib/decode.js.
         // Only the ./lib/*.js paths are forced to the hoisted v4.5.0 copy: a bare
         // "entities" alias would also catch "entities/decode" from htmlparser2 v10
@@ -40,7 +55,18 @@ export default defineConfig({
         "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
         "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
       },
+      dedupe: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "@tanstack/react-query",
+        "@tanstack/query-core",
+      ],
     },
-  },
+    optimizeDeps: {
+      include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"],
+    },
+    server: { host: "::", port: 8080 },
+  };
 });
-

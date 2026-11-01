@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createLovableAiGateway } from "@/lib/ai-gateway.server";
+import { createAiGateway } from "@/lib/ai-gateway.server";
 import { createClient } from "@supabase/supabase-js";
 import { streamText, tool, stepCountIs, type ModelMessage } from "ai";
 import { z } from "zod";
@@ -202,7 +202,7 @@ export const Route = createFileRoute("/api/public/sales/chat")({
           const cartTemplate = (settings?.cart_url_template as string) ?? "https://www.amtfightwear.com.br/carrinho/?add-to-cart={ids}&quantity={qtys}";
           const siteUrl = (settings?.site_url as string) ?? "https://www.amtfightwear.com.br";
 
-          const gateway = createLovableAiGateway(apiKey);
+          const gateway = createAiGateway(apiKey);
 
           const tools = {
             search_catalog: tool({

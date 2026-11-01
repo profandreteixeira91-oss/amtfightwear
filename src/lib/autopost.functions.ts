@@ -41,7 +41,7 @@ export const runAutoPostNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => z.object({ type: z.enum(["post", "carousel", "story", "reel"]).optional() }).parse(i ?? {}))
   .handler(async ({ data }) => {
-    const base = "https://project--673d932e-eb85-41a4-9454-a94c54c26ec9.lovable.app/api/public/hooks/auto-instagram-post";
+    const base = `${process.env.SITE_URL || "https://amtfightwear.com.br"}/api/public/hooks/auto-instagram-post`;
     const url = data.type ? `${base}?force=1&type=${data.type}` : `${base}?force=1`;
     const res = await fetch(url, { method: "POST", headers: { "x-force": "1" } });
     const text = await res.text();
