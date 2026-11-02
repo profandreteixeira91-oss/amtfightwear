@@ -36,3 +36,6 @@ dist-ssr
 *.zip
 /alunos/
 /postgreSQL.txt
+
+# Segredos da Evolution API (só o .env.example vai para o Git)
+infra/evolution/.env

@@ -1,15 +1,18 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Circle, Loader2, MessageCircle, Send } from "lucide-react";
+import { CheckCircle2, Circle, Loader2, MessageCircle, RefreshCw, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/common/SectionCard";
 import { adminGetOwnerWhatsAppStatus, adminSendOwnerWhatsAppTest } from "@/lib/store/whatsapp-admin.functions";
 
-const TEMPLATE_BODY =
-  "Novo pedido pago na loja AMT Fight Wear.\nPedido: {{1}}\nCliente: {{2}}\nTotal: {{3}}\nItens: {{4}}";
+const STATE_LABEL: Record<string, string> = {
+  open: "Conectado",
+  connecting: "Conectando…",
+  close: "Desconectado — leia o QR Code de novo",
+};
 
-/** Aviso de "pedido pago" no WhatsApp do dono, via WhatsApp Cloud API (Meta). */
+/** WhatsApp da loja via Evolution API: avisos ao dono (pedido pago) e aos clientes (status). */
 export function OwnerWhatsAppCard() {
   const getStatus = useServerFn(adminGetOwnerWhatsAppStatus);
   const sendTest = useServerFn(adminSendOwnerWhatsAppTest);
@@ -26,20 +29,23 @@ export function OwnerWhatsAppCard() {
   });
 
   const s = status.data;
-  const ready = !!s?.hasCredentials && (s?.recipients.length ?? 0) > 0;
+  const connected = s?.state === "open";
+  const ready = !!s?.configured && connected && (s?.recipients.length ?? 0) > 0;
   const steps = [
-    { done: !!s?.hasCredentials, text: "Credenciais da Cloud API (WHATSAPP_ACCESS_TOKEN e WHATSAPP_PHONE_NUMBER_ID)" },
+    { done: !!s?.configured, text: "Evolution API configurada (EVOLUTION_API_URL, EVOLUTION_API_KEY e EVOLUTION_INSTANCE)" },
     {
-      done: (s?.recipients.length ?? 0) > 0,
-      text: "Seu número em WHATSAPP_ADMIN_TO (mais de um? separe por vírgula)",
+      done: connected,
+      text: s?.configured
+        ? `Instância "${s.instance}": ${s.state ? STATE_LABEL[s.state] ?? s.state : "sem resposta"}`
+        : "Número da loja conectado à instância (QR Code no painel da Evolution)",
     },
-    { done: false, text: `Template "${s?.template ?? "novo_pedido_pago"}" aprovado na Meta (categoria Utilidade, ${s?.language ?? "pt_BR"})` },
+    { done: (s?.recipients.length ?? 0) > 0, text: "Seu número em WHATSAPP_ADMIN_TO (mais de um? separe por vírgula)" },
   ];
 
   return (
     <SectionCard
-      title="Aviso de pedido pago no WhatsApp"
-      description="Quando um pagamento é confirmado, você recebe no celular o número do pedido, o cliente, o total e os itens (com o nome a bordar, se houver)."
+      title="WhatsApp da loja"
+      description="Você recebe um aviso quando um pedido é pago (com itens e nome a bordar), e o cliente recebe as atualizações de pagamento, produção, envio e entrega."
       action={
         <span
           className={
@@ -48,7 +54,7 @@ export function OwnerWhatsAppCard() {
               : "rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-muted-foreground"
           }
         >
-          {status.isLoading ? "Verificando…" : ready ? "Configurado" : "Não configurado"}
+          {status.isLoading ? "Verificando…" : ready ? "Ativo" : "Pendente"}
         </span>
       }
     >
@@ -68,21 +74,18 @@ export function OwnerWhatsAppCard() {
 
         {s && s.recipients.length > 0 && (
           <div className="text-sm text-muted-foreground">
-            Enviando para: <span className="font-medium text-foreground">{s.recipients.join(", ")}</span>
+            Avisos de pedido pago para: <span className="font-medium text-foreground">{s.recipients.join(", ")}</span>
           </div>
         )}
-
-        <div>
-          <div className="mb-1.5 text-xs font-medium text-muted-foreground">Texto do template para cadastrar na Meta</div>
-          <pre className="whitespace-pre-wrap rounded-xl bg-neutral-50 p-3 text-xs leading-relaxed ring-1 ring-neutral-200">
-            {TEMPLATE_BODY}
-          </pre>
-        </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={() => test.mutate()} disabled={!ready || test.isPending} className="rounded-full">
             {test.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Enviar teste
+          </Button>
+          <Button variant="outline" onClick={() => status.refetch()} disabled={status.isFetching} className="rounded-full">
+            <RefreshCw className={status.isFetching ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+            Verificar conexão
           </Button>
           <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
             <MessageCircle className="h-3.5 w-3.5" /> O teste usa um pedido fictício.
