@@ -19,8 +19,8 @@ export function SectionCard({ title, description, action, children, className, d
       transition={{ duration: 0.3, delay }}
       className={`min-w-0 ${className ?? ""}`}
     >
-      <Card className="min-w-0 overflow-hidden border-border/60 bg-card/70 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
-        <CardHeader className="flex flex-col gap-2 space-y-0 border-b border-border/50 pb-3 sm:flex-row sm:items-center sm:justify-between">
+      <Card className="min-w-0 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-none">
+        <CardHeader className="flex flex-col gap-2 space-y-0 border-b border-neutral-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <CardTitle className="text-base font-semibold tracking-tight break-words">{title}</CardTitle>
             {description && <p className="mt-1 text-xs text-muted-foreground break-words">{description}</p>}

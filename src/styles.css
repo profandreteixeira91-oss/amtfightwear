@@ -382,39 +382,25 @@ body:has(.dojo-theme) [data-slot="sheet-content"][data-sidebar="sidebar"] {
   color: var(--dojo-fg);
 }
 
-/* Admin shell — force light sidebar tokens (scoped to /admin) */
-.admin-shell,
-.admin-shell [data-sidebar="sidebar"],
-[data-sidebar="sidebar"][data-admin="true"],
-[data-slot="sheet-content"][data-admin-sidebar="true"] {
-  --sidebar: #ffffff;
-  --sidebar-foreground: #000000;
-  --sidebar-primary: oklch(0.56 0.235 27);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: oklch(0.96 0 0);
-  --sidebar-accent-foreground: #000000;
-  --sidebar-border: oklch(0.92 0 0);
-  --sidebar-ring: oklch(0.56 0.235 27);
-  background-color: #ffffff !important;
-  color: #000000 !important;
+/* Central da loja — sidebar vermelha com texto branco.
+   A classe body.admin-red-sidebar só existe enquanto o admin está montado, e cobre
+   também a sidebar mobile, que abre num portal fora de .admin-shell. */
+body.admin-red-sidebar [data-sidebar="sidebar"] {
+  --sidebar: oklch(0.5 0.2 26);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: oklch(0.5 0.2 26);
+  --sidebar-accent: rgb(255 255 255 / 0.12);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 0.14);
+  --sidebar-ring: rgb(255 255 255 / 0.6);
+  background-color: var(--sidebar);
+  background-image: linear-gradient(180deg, oklch(0.55 0.215 27) 0%, oklch(0.43 0.18 25) 100%);
+  color: #ffffff;
 }
-
-.admin-shell [data-sidebar="sidebar"] * {
-  border-color: oklch(0.92 0 0) !important;
-}
-
-.admin-shell [data-sidebar="menu-button"] {
-  color: #000000 !important;
-}
-
-.admin-shell [data-sidebar="group-label"] {
-  color: oklch(0.45 0 0) !important;
-  font-weight: 600;
-}
-
-.admin-shell [data-sidebar="menu-button"][data-active="true"] {
-  background-color: oklch(0.96 0 0) !important;
-  color: oklch(0.56 0.235 27) !important;
+body.admin-red-sidebar [data-sidebar="sidebar"] [data-sidebar="content"] {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.25) transparent;
 }
 
 :where(.dojo-theme) h1,
@@ -758,10 +744,7 @@ a.btn:hover,
 }
 
 .admin-surface {
-  background-color: oklch(0.985 0.002 250);
-  background-image:
-    radial-gradient(1100px 520px at 0% -12%, color-mix(in oklab, var(--primary) 8%, transparent), transparent 62%),
-    radial-gradient(900px 480px at 100% -6%, rgba(16, 18, 27, 0.05), transparent 60%);
+  background-color: oklch(0.985 0 0);
 }
 
 /* Topbar translúcida */
@@ -798,7 +781,6 @@ a.btn:hover,
 /* Cria uma calha extra entre o conteúdo e a sidebar/topbar, sem alterar
    o padding interno de cada página. */
 .admin-shell .admin-main {
-  padding-inline: clamp(0.25rem, 1.2vw, 1.25rem);
   padding-bottom: 2.5rem;
   min-width: 0;
   overflow-x: clip;
@@ -847,16 +829,15 @@ a.btn:hover,
 
 
 
-/* Uplift consistente em todos os módulos existentes (sem alterar markup) */
+/* Cartões do admin: brancos, borda neutra e sem sombra (visual flat) */
 .admin-shell [data-slot="card"] {
   border-radius: var(--admin-radius);
-  border-color: var(--admin-border);
-  box-shadow: var(--admin-shadow-sm);
-  transition: box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
-              border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  border-color: oklch(0.92 0 0);
+  box-shadow: none;
+  transition: border-color 200ms ease;
 }
 .admin-shell [data-slot="card"]:hover {
-  box-shadow: var(--admin-shadow-md);
+  border-color: oklch(0.86 0 0);
 }
 .admin-shell [data-slot="table"] thead th {
   font-size: 11px;

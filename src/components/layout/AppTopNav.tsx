@@ -47,7 +47,6 @@ import {
   X,
   Megaphone,
   GraduationCap,
-  LifeBuoy,
   CalendarDays,
   Building2,
   BellRing,
@@ -179,8 +178,6 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
       { title: "Chat da loja", url: "/admin/atendimento", icon: MessageCircle },
       { title: "Clientes", url: "/admin/clientes", icon: UserSquare2 },
-      { title: "AMT Dojo Manager", url: "/admin/dojo", icon: GraduationCap },
-      { title: "Suporte Dojo", url: "/admin/saas/suporte", icon: LifeBuoy },
       { title: "Notificações", url: "/admin/notificacoes", icon: BellRing },
 
       { title: "Envio (Melhor Envio)", url: "/admin/envio", icon: Truck },

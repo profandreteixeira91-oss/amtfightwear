@@ -7,54 +7,26 @@ import {
   ShoppingCart,
   UserSquare2,
   MessageCircle,
-  BellRing,
   Truck,
-  Image as ImageIcon,
-  Users,
-  Building2,
-  Sparkles,
-  Rocket,
   TrendingUp,
   Instagram,
   Megaphone,
-  Target,
   Search,
-  Ruler,
-  Calculator,
-  UsersRound,
-  UserCog,
-  ShieldCheck,
+  Landmark,
   FileText,
   Settings,
   Boxes,
-  Box,
-  Landmark,
-  ScanSearch,
-  KanbanSquare,
-  Command as CommandIcon,
-  Star,
-  StarOff,
-  History,
-  LifeBuoy,
-  PanelsTopLeft,
+  Factory,
+  Target,
+  Sparkles,
   ChevronRight,
-  ChevronDown,
   LogOut,
   Bell,
-  Inbox,
-  Factory,
-  Zap,
-  Wand2,
-  AlertTriangle,
-  Gauge,
-  Globe,
-  MessagesSquare,
-  Plug,
-  ScrollText,
-  Images,
-  Upload,
-  Receipt,
-  SlidersHorizontal,
+  History,
+  ExternalLink,
+  Command as CommandIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -64,7 +36,6 @@ import { adminGetOpsInbox } from "@/lib/store/ops-inbox.functions";
 import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 import { useAuth } from "@/contexts/AuthContext";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -98,18 +69,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import amtLogo from "@/assets/amt-logo.jpg";
 
 /**
- * Casca única da Central Administrativa AMT.
+ * Casca da Central da loja AMT Fight Wear.
  *
- * Reúne todos os módulos administrativos do ecossistema
- * (AMT Fight Wear, AMT Dojo Manager e Growth) sob uma única sidebar,
- * topbar, breadcrumb, tema e guard de permissões.
- *
- * Camada 100% visual — nenhuma regra de negócio, rota ou permissão foi alterada.
- * A Central AMT é sempre clara: o tema escuro global não se aplica aqui.
+ * Sidebar vermelha (texto branco) com os módulos da loja; seções com várias
+ * telas (Catálogo, Fiscal, Marketing, Configurações) mostram as subpáginas
+ * como abas no topo do conteúdo, em vez de alongar o menu.
+ * O painel do Dojo Manager não faz parte desta central.
  */
 export function AdminShell({
   title,
@@ -124,6 +93,8 @@ export function AdminShell({
   deniedDescription?: string;
 }) {
   useForceLightTheme();
+  useRedSidebarTheme();
+  useRecordRecent();
 
   return (
     <OwnerOnly showLoading={!hideLayoutOnLoad} description={deniedDescription}>
@@ -131,15 +102,16 @@ export function AdminShell({
         <SidebarProvider defaultOpen>
           <div
             className={cn(
-              "admin-shell admin-surface flex min-h-dvh w-full overflow-hidden bg-background text-foreground transition-opacity duration-300",
+              "admin-shell flex min-h-dvh w-full overflow-hidden bg-neutral-50 text-foreground transition-opacity duration-300",
               loading && hideLayoutOnLoad ? "opacity-0" : "opacity-100",
             )}
           >
             <AdminSidebar />
             <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
               <AdminTopbar title={title} />
-              <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 transition-all duration-500 ease-in-out sm:p-6 lg:p-8">
-                <div className="w-full break-words animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <main className="admin-main relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+                <SectionTabs />
+                <div className="mx-auto w-full max-w-[1600px] break-words p-4 animate-in fade-in duration-300 sm:p-6 lg:p-8">
                   {children}
                 </div>
               </main>
@@ -153,155 +125,171 @@ export function AdminShell({
 
 /* ------------------------------ Navegação ------------------------------- */
 
+type Tab = { title: string; url: string };
 type NavItem = {
   title: string;
   url: string;
   icon: React.ComponentType<{ className?: string }>;
+  /** Subpáginas exibidas como abas no topo do conteúdo. */
+  tabs?: Tab[];
 };
-
 type NavGroup = { label: string; items: NavItem[] };
 
-/**
- * Mapa único de navegação da Central AMT.
- * As URLs permanecem apontando para as rotas atuais (compatibilidade total).
- * Cada URL aparece uma única vez e toda página administrativa (exceto telas de
- * detalhe e as subpáginas do Gerenciador de Anúncios, que tem menu próprio)
- * tem uma entrada aqui.
- */
 const NAV: NavGroup[] = [
   {
-    label: "Geral",
+    label: "Visão geral",
     items: [
       { title: "Início", url: "/admin", icon: LayoutDashboard },
-      { title: "Analytics Global", url: "/admin/dashboard", icon: TrendingUp },
+      { title: "Analytics", url: "/admin/dashboard", icon: TrendingUp },
+      { title: "Gestão da loja", url: "/admin/loja", icon: Store },
     ],
   },
   {
-    label: "Loja AMT Fight Wear",
+    label: "Vendas",
     items: [
-      { title: "Gestão da Loja", url: "/admin/loja", icon: Store },
       { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
       { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
-      { title: "Fila de produção", url: "/admin/producao", icon: Factory },
+      { title: "Produção", url: "/admin/producao", icon: Factory },
       { title: "Atendimento", url: "/admin/atendimento", icon: MessageCircle },
-      { title: "Clientes da Loja", url: "/admin/clientes", icon: UserSquare2 },
+      { title: "Clientes", url: "/admin/clientes", icon: UserSquare2 },
       { title: "Atacado", url: "/admin/atacado", icon: Boxes },
-      { title: "Logística / Envio", url: "/admin/envio", icon: Truck },
+      { title: "Envios", url: "/admin/envio", icon: Truck },
     ],
   },
   {
     label: "Catálogo",
     items: [
-      { title: "Produtos", url: "/admin/produtos", icon: Package },
-      { title: "Imagens de produtos", url: "/admin/produtos/imagens", icon: Images },
-      { title: "Importar catálogo", url: "/admin/produtos/importar", icon: Upload },
-      { title: "Tabela de tamanhos", url: "/admin/produtos/tamanhos", icon: Ruler },
-      { title: "Pacotes (dimensões)", url: "/admin/produtos/pacotes", icon: Box },
-      { title: "Calc. de Faixas", url: "/admin/produtos/faixa-calc", icon: Calculator },
-    ],
-  },
-  {
-    label: "Fiscal",
-    items: [
-      { title: "Fiscal & Certificado", url: "/admin/fiscal", icon: Landmark },
-      { title: "Central de Faturamento", url: "/admin/fiscal/pedidos", icon: Receipt },
-    ],
-  },
-  {
-    label: "Dojo Manager (SaaS)",
-    items: [
-      { title: "Assinaturas & Faturas", url: "/admin/dojo", icon: Building2 },
-      { title: "Donos de Dojo", url: "/admin/clientes-growth", icon: UsersRound },
-      { title: "Suporte Dojo Manager", url: "/admin/saas/suporte", icon: LifeBuoy },
-    ],
-  },
-  {
-    label: "Growth Engine",
-    items: [
-      { title: "Leads (Inbox)", url: "/admin/leads", icon: Target },
-      { title: "Pipeline", url: "/admin/leads/pipeline", icon: KanbanSquare },
-      { title: "Central de Prospecção", url: "/admin/prospect", icon: Globe },
-      { title: "Prospects (Radar)", url: "/admin/leads/busca", icon: ScanSearch },
-      { title: "Qualificados", url: "/admin/leads/qualificados", icon: Sparkles },
-      { title: "Macro / Segmentos", url: "/admin/leads/macro", icon: TrendingUp },
-      { title: "CRM Unificado", url: "/admin/crm", icon: Users },
-      { title: "Logs de automação", url: "/admin/leads/logs", icon: ScrollText },
       {
-        title: "Config. da prospecção",
-        url: "/admin/leads/configuracoes",
-        icon: SlidersHorizontal,
+        title: "Produtos",
+        url: "/admin/produtos",
+        icon: Package,
+        tabs: [
+          { title: "Produtos", url: "/admin/produtos" },
+          { title: "Imagens", url: "/admin/produtos/imagens" },
+          { title: "Importar", url: "/admin/produtos/importar" },
+          { title: "Tabela de tamanhos", url: "/admin/produtos/tamanhos" },
+          { title: "Pacotes", url: "/admin/produtos/pacotes" },
+          { title: "Calculadora de faixas", url: "/admin/produtos/faixa-calc" },
+        ],
       },
-    ],
-  },
-  {
-    label: "Anúncios",
-    items: [
-      { title: "Ads Dashboard", url: "/admin/anuncios", icon: Megaphone },
-      { title: "Nova campanha com IA", url: "/admin/anuncios/nova", icon: Wand2 },
-      { title: "Campanhas IA", url: "/admin/anuncios/campanhas", icon: Rocket },
-      { title: "Gerenciador de Anúncios", url: "/admin/ads", icon: Target },
-      { title: "Criativos", url: "/admin/anuncios/criativos", icon: ImageIcon },
-      { title: "Biblioteca de Copies", url: "/admin/anuncios/copies", icon: FileText },
-      { title: "Otimização contínua", url: "/admin/anuncios/otimizacao", icon: Gauge },
-      { title: "Escala", url: "/admin/anuncios/escala", icon: TrendingUp },
-      { title: "Alertas", url: "/admin/anuncios/alertas", icon: AlertTriangle },
-      { title: "Conexão Meta Ads", url: "/admin/anuncios/conexoes", icon: Plug },
+      {
+        title: "Fiscal",
+        url: "/admin/fiscal",
+        icon: Landmark,
+        tabs: [
+          { title: "Fiscal e certificado", url: "/admin/fiscal" },
+          { title: "Central de faturamento", url: "/admin/fiscal/pedidos" },
+        ],
+      },
     ],
   },
   {
     label: "Marketing",
     items: [
-      { title: "Painel de marketing", url: "/admin/marketing/painel", icon: LayoutDashboard },
-      { title: "Insights IA", url: "/admin/marketing", icon: Sparkles },
-      { title: "Inteligência comercial", url: "/admin/marketing/inteligencia", icon: CommandIcon },
-      { title: "KPIs de marketing", url: "/admin/marketing/kpis", icon: TrendingUp },
-      { title: "Mercado", url: "/admin/marketing/mercado", icon: Globe },
-      { title: "Pesquisa de preços", url: "/admin/marketing/precos", icon: Calculator },
-      { title: "Conteúdo com IA", url: "/admin/marketing/conteudo", icon: Wand2 },
-      { title: "CRM & E-mail", url: "/admin/marketing/crm-email", icon: Inbox },
-      { title: "Analytics do catálogo", url: "/admin/marketing/catalogo", icon: Package },
+      {
+        title: "Anúncios",
+        url: "/admin/anuncios",
+        icon: Megaphone,
+        tabs: [
+          { title: "Painel", url: "/admin/anuncios" },
+          { title: "Nova campanha com IA", url: "/admin/anuncios/nova" },
+          { title: "Campanhas IA", url: "/admin/anuncios/campanhas" },
+          { title: "Gerenciador Meta", url: "/admin/ads" },
+          { title: "Criativos", url: "/admin/anuncios/criativos" },
+          { title: "Copies", url: "/admin/anuncios/copies" },
+          { title: "Otimização", url: "/admin/anuncios/otimizacao" },
+          { title: "Escala", url: "/admin/anuncios/escala" },
+          { title: "Alertas", url: "/admin/anuncios/alertas" },
+          { title: "Conexão Meta", url: "/admin/anuncios/conexoes" },
+        ],
+      },
+      {
+        title: "Marketing",
+        url: "/admin/marketing/painel",
+        icon: Sparkles,
+        tabs: [
+          { title: "Painel", url: "/admin/marketing/painel" },
+          { title: "Insights IA", url: "/admin/marketing" },
+          { title: "Inteligência comercial", url: "/admin/marketing/inteligencia" },
+          { title: "KPIs", url: "/admin/marketing/kpis" },
+          { title: "Mercado", url: "/admin/marketing/mercado" },
+          { title: "Preços", url: "/admin/marketing/precos" },
+          { title: "Conteúdo IA", url: "/admin/marketing/conteudo" },
+          { title: "CRM e e-mail", url: "/admin/marketing/crm-email" },
+          { title: "Catálogo", url: "/admin/marketing/catalogo" },
+        ],
+      },
+      {
+        title: "Instagram",
+        url: "/admin/instagram",
+        icon: Instagram,
+        tabs: [
+          { title: "Visão geral", url: "/admin/instagram" },
+          { title: "Inbox", url: "/admin/instagram/inbox" },
+          { title: "CRM", url: "/admin/instagram/crm" },
+          { title: "Comentários", url: "/admin/instagram/comentarios" },
+          { title: "Automações", url: "/admin/instagram/automacoes" },
+          { title: "Conta", url: "/admin/instagram/conta" },
+          { title: "Webhook e logs", url: "/admin/instagram/admin" },
+        ],
+      },
+      {
+        title: "Prospecção",
+        url: "/admin/leads",
+        icon: Target,
+        tabs: [
+          { title: "Leads", url: "/admin/leads" },
+          { title: "Pipeline", url: "/admin/leads/pipeline" },
+          { title: "Central de prospecção", url: "/admin/prospect" },
+          { title: "Radar", url: "/admin/leads/busca" },
+          { title: "Qualificados", url: "/admin/leads/qualificados" },
+          { title: "Segmentos", url: "/admin/leads/macro" },
+          { title: "CRM", url: "/admin/crm" },
+          { title: "Logs", url: "/admin/leads/logs" },
+          { title: "Configurações", url: "/admin/leads/configuracoes" },
+        ],
+      },
     ],
   },
   {
-    label: "Instagram",
+    label: "Sistema",
     items: [
-      { title: "Visão geral", url: "/admin/instagram", icon: LayoutDashboard },
-      { title: "Inbox", url: "/admin/instagram/inbox", icon: Instagram },
-      { title: "CRM do Instagram", url: "/admin/instagram/crm", icon: Users },
-      { title: "Comentários e Menções", url: "/admin/instagram/comentarios", icon: MessagesSquare },
-      { title: "Automações", url: "/admin/instagram/automacoes", icon: Sparkles },
-      { title: "Conta do Instagram", url: "/admin/instagram/conta", icon: UserSquare2 },
-      { title: "Webhook e logs", url: "/admin/instagram/admin", icon: ScrollText },
-    ],
-  },
-  {
-    label: "Configurações",
-    items: [
-      { title: "Usuários / Equipe", url: "/admin/usuarios", icon: UserCog },
-      { title: "Conexões e APIs", url: "/admin/conexoes", icon: Plug },
-      { title: "Notificações e app", url: "/admin/notificacoes", icon: BellRing },
-      { title: "Logs & Segurança", url: "/admin/logs", icon: ShieldCheck },
-      { title: "Ajustes do Sistema", url: "/admin/configuracoes", icon: Settings },
-      { title: "Meu Perfil", url: "/admin/perfil", icon: UserSquare2 },
+      {
+        title: "Configurações",
+        url: "/admin/configuracoes",
+        icon: Settings,
+        tabs: [
+          { title: "Ajustes", url: "/admin/configuracoes" },
+          { title: "Equipe", url: "/admin/usuarios" },
+          { title: "Conexões e APIs", url: "/admin/conexoes" },
+          { title: "Notificações", url: "/admin/notificacoes" },
+          { title: "Logs e segurança", url: "/admin/logs" },
+          { title: "Meu perfil", url: "/admin/perfil" },
+        ],
+      },
     ],
   },
 ];
 
-const FLAT_NAV = NAV.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })));
+const ALL_ITEMS = NAV.flatMap((g) => g.items.map((item) => ({ ...item, group: g.label })));
 
-/** Atalhos para as telas mais usadas (levam à página do módulo). */
-const QUICK_ACTIONS: NavItem[] = [
-  { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
-  { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
-  { title: "Produtos", url: "/admin/produtos", icon: Package },
-  { title: "Leads", url: "/admin/leads", icon: Target },
-  { title: "Nova campanha com IA", url: "/admin/anuncios/nova", icon: Wand2 },
-];
+const matches = (pathname: string, url: string) =>
+  url === "/admin" ? pathname === "/admin" || pathname === "/admin/" : pathname === url || pathname.startsWith(`${url}/`);
 
-/**
- * Pendências por item de menu. Usa a mesma consulta (e cache) do card
- * "Precisa de ação" do Início, então as duas telas mostram o mesmo número.
- */
+/** Item (e aba) mais específicos que correspondem à URL atual. */
+function findActive(pathname: string) {
+  let best: { item: (typeof ALL_ITEMS)[number]; tab?: Tab; len: number } | null = null;
+  for (const item of ALL_ITEMS) {
+    for (const t of item.tabs ?? [{ title: item.title, url: item.url }]) {
+      if (matches(pathname, t.url) && (!best || t.url.length > best.len)) {
+        best = { item, tab: item.tabs ? t : undefined, len: t.url.length };
+      }
+    }
+  }
+  return best;
+}
+
+/** Pendências por item de menu (mesma consulta/cache do card "Precisa de ação" do Início). */
 function useNavBadges(): Record<string, number> {
   const getInbox = useServerFn(adminGetOpsInbox);
   const { data } = useQuery({
@@ -316,46 +304,188 @@ function useNavBadges(): Record<string, number> {
     "/admin/orcamentos": data.quotes.sent,
     "/admin/producao": data.production.late,
     "/admin/atendimento": data.chats.human,
-    "/admin/saas/suporte": data.support?.open ?? 0,
   };
 }
 
-/** Item de menu mais específico que corresponde à URL atual. */
-function findActive(pathname: string) {
-  return FLAT_NAV.filter((i) => pathname === i.url || pathname.startsWith(`${i.url}/`)).sort(
-    (a, b) => b.url.length - a.url.length,
-  )[0];
+/* --------------------- Tema da sidebar / recentes ------------------------ */
+
+/** A sidebar do Dojo usa o mesmo componente: o vermelho vale só enquanto o admin está aberto. */
+function useRedSidebarTheme() {
+  React.useEffect(() => {
+    document.body.classList.add("admin-red-sidebar");
+    return () => document.body.classList.remove("admin-red-sidebar");
+  }, []);
 }
 
-/* --------------------------- Favoritos / Recentes ------------------------ */
-
-const FAV_KEY = "amt-admin-favorites";
 const RECENT_KEY = "amt-admin-recents";
-const CLOSED_GROUPS_KEY = "amt-admin-closed-groups";
 
-function useLocalList(key: string, limit = 8) {
-  const [list, setList] = React.useState<string[]>([]);
+function readRecents(): string[] {
+  try {
+    return JSON.parse(window.localStorage.getItem(RECENT_KEY) ?? "[]") as string[];
+  } catch {
+    return [];
+  }
+}
+
+function useRecordRecent() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   React.useEffect(() => {
+    const active = findActive(pathname);
+    if (!active) return;
+    const url = active.tab?.url ?? active.item.url;
     try {
-      const raw = window.localStorage.getItem(key);
-      if (raw) setList(JSON.parse(raw) as string[]);
+      const next = [url, ...readRecents().filter((u) => u !== url)].slice(0, 6);
+      window.localStorage.setItem(RECENT_KEY, JSON.stringify(next));
     } catch {
       /* ignore */
     }
-  }, [key]);
-  const persist = React.useCallback(
-    (next: string[]) => {
-      const capped = next.slice(0, limit);
-      setList(capped);
-      try {
-        window.localStorage.setItem(key, JSON.stringify(capped));
-      } catch {
-        /* ignore */
-      }
-    },
-    [key, limit],
+  }, [pathname]);
+}
+
+/* --------------------------------- Sidebar -------------------------------- */
+
+function AdminSidebar() {
+  const { state, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const badges = useNavBadges();
+  const activeUrl = findActive(pathname)?.item.url;
+  const collapsed = state === "collapsed" && !isMobile;
+
+  return (
+    <Sidebar collapsible="icon" className="border-r-0">
+      <SidebarHeader className="px-3 pb-2 pt-4">
+        <Link
+          to="/admin"
+          onClick={() => isMobile && setOpenMobile(false)}
+          className="flex items-center gap-3 rounded-xl px-1.5 py-1 text-white"
+        >
+          <img src={amtLogo} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-white/25" />
+          {!collapsed && (
+            <div className="min-w-0 leading-tight">
+              <div className="truncate text-sm font-bold tracking-tight">AMT Fight Wear</div>
+              <div className="text-[11px] text-white/65">Central da loja</div>
+            </div>
+          )}
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent className="gap-1 px-2 pb-4">
+        {NAV.map((group) => (
+          <SidebarGroup key={group.label} className="px-0 py-1.5">
+            <SidebarGroupLabel className="h-7 px-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
+              {group.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {group.items.map((item) => {
+                  const active = activeUrl === item.url;
+                  const count = badges[item.url] ?? 0;
+                  return (
+                    <SidebarMenuItem key={item.url}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={active}
+                        tooltip={count ? `${item.title} · ${count} pendente(s)` : item.title}
+                        className={cn(
+                          "h-10 rounded-xl px-2.5 text-[13.5px] font-medium text-white/85 transition-colors",
+                          "hover:bg-white/10 hover:text-white",
+                          "data-[active=true]:bg-white data-[active=true]:font-semibold data-[active=true]:text-primary data-[active=true]:shadow-sm",
+                        )}
+                      >
+                        <Link to={item.url} onClick={() => isMobile && setOpenMobile(false)}>
+                          <span className="relative">
+                            <item.icon className="h-[18px] w-[18px]" />
+                            {count > 0 && collapsed && (
+                              <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-amber-300 ring-2 ring-[var(--sidebar)]" />
+                            )}
+                          </span>
+                          <span className="truncate">{item.title}</span>
+                          {count > 0 && !collapsed && (
+                            <span
+                              className={cn(
+                                "ml-auto rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                                active ? "bg-primary text-white" : "bg-white/20 text-white",
+                              )}
+                            >
+                              {count > 99 ? "99+" : count}
+                            </span>
+                          )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+
+      <SidebarFooter className="gap-1 border-t border-white/15 p-2">
+        <SidebarMenu className="gap-0.5">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip="Abrir a loja"
+              className="h-10 rounded-xl px-2.5 text-[13px] text-white/85 hover:bg-white/10 hover:text-white"
+            >
+              <a href="/" target="_blank" rel="noreferrer">
+                <ExternalLink className="h-[18px] w-[18px]" />
+                <span>Ver loja</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          {!isMobile && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={toggleSidebar}
+                tooltip={collapsed ? "Expandir menu" : "Recolher menu"}
+                className="h-10 rounded-xl px-2.5 text-[13px] text-white/70 hover:bg-white/10 hover:text-white"
+              >
+                {collapsed ? <PanelLeftOpen className="h-[18px] w-[18px]" /> : <PanelLeftClose className="h-[18px] w-[18px]" />}
+                <span>Recolher menu</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
-  return [list, persist] as const;
+}
+
+/* ------------------------------ Abas da seção ----------------------------- */
+
+function SectionTabs() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const active = findActive(pathname);
+  const tabs = active?.item.tabs;
+  if (!tabs || tabs.length < 2) return null;
+
+  return (
+    <div className="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 backdrop-blur">
+      <nav
+        aria-label={`Seções de ${active.item.title}`}
+        className="mx-auto flex max-w-[1600px] gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8 [scrollbar-width:none]"
+      >
+        {tabs.map((t) => {
+          const on = active.tab?.url === t.url;
+          return (
+            <Link
+              key={t.url}
+              to={t.url}
+              className={cn(
+                "relative shrink-0 whitespace-nowrap px-3 py-3 text-[13px] font-medium transition-colors",
+                "after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:transition-colors",
+                on ? "text-foreground after:bg-primary" : "text-muted-foreground after:bg-transparent hover:text-foreground",
+              )}
+            >
+              {t.title}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
+  );
 }
 
 /* --------------------------------- Topbar -------------------------------- */
@@ -363,7 +493,7 @@ function useLocalList(key: string, limit = 8) {
 function AdminTopbar({ title }: { title?: string }) {
   const [open, setOpen] = React.useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const badges = useNavBadges();
+  const active = findActive(pathname);
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -376,23 +506,24 @@ function AdminTopbar({ title }: { title?: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const crumbs = buildBreadcrumbs(pathname);
+  const crumbs: Array<{ label: string; href?: string }> = [{ label: "Central", href: "/admin" }];
+  if (active && active.item.url !== "/admin") {
+    crumbs.push({ label: active.item.group });
+    crumbs.push({ label: active.item.title, href: active.item.url });
+    if (active.tab && active.tab.url !== active.item.url) crumbs.push({ label: active.tab.title });
+  }
 
   return (
     <>
-      <header className="admin-topbar sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur-md sm:px-6">
-        <SidebarTrigger className="h-10 w-10 text-muted-foreground transition-colors hover:text-primary" />
-        <div className="mx-1 hidden h-6 w-px bg-border/60 md:block" />
+      <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-neutral-200 bg-white px-4 sm:px-6">
+        <SidebarTrigger className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground md:hidden" />
 
-        <nav
-          aria-label="Trilha de navegação"
-          className="hidden min-w-0 items-center gap-1.5 text-sm text-muted-foreground md:flex"
-        >
+        <nav aria-label="Trilha de navegação" className="hidden min-w-0 items-center gap-1.5 text-sm text-muted-foreground md:flex">
           {crumbs.map((c, i, arr) => (
             <React.Fragment key={`${c.label}-${i}`}>
-              {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-border" />}
+              {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-neutral-300" />}
               {i === arr.length - 1 ? (
-                <span className="truncate font-medium text-foreground">{c.label}</span>
+                <span className="truncate font-semibold text-foreground">{c.label}</span>
               ) : c.href ? (
                 <Link to={c.href} className="truncate transition-colors hover:text-foreground">
                   {c.label}
@@ -403,173 +534,66 @@ function AdminTopbar({ title }: { title?: string }) {
             </React.Fragment>
           ))}
         </nav>
-
-        {title ? (
-          <span className="truncate text-sm font-medium text-foreground md:hidden">{title}</span>
-        ) : null}
+        <span className="truncate text-sm font-semibold md:hidden">{title ?? active?.item.title ?? "Central"}</span>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            type="button"
             onClick={() => setOpen(true)}
-            className="hidden h-9 items-center gap-2 rounded-full pl-3 pr-2 text-xs font-normal text-muted-foreground shadow-sm transition-all hover:text-foreground lg:inline-flex"
+            className="hidden h-9 w-64 items-center gap-2 rounded-full bg-neutral-100 px-3.5 text-xs text-muted-foreground transition-colors hover:bg-neutral-200/70 lg:flex"
           >
             <Search className="h-3.5 w-3.5" />
-            <span>Ir para um módulo</span>
-            <kbd className="ml-4 inline-flex items-center gap-0.5 rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+            <span>Ir para…</span>
+            <kbd className="ml-auto inline-flex items-center gap-0.5 rounded-md bg-white px-1.5 py-0.5 font-mono text-[10px] shadow-sm ring-1 ring-neutral-200">
               <CommandIcon className="h-3 w-3" />K
             </kbd>
-          </Button>
-          <IconAction
-            icon={Search}
-            label="Buscar"
-            onClick={() => setOpen(true)}
-            className="lg:hidden"
-          />
-
-          <QuickCreateMenu />
-
-          <IconAction
-            icon={Inbox}
-            label={pendingLabel("Atendimento", badges["/admin/atendimento"])}
-            to="/admin/atendimento"
-            dot={(badges["/admin/atendimento"] ?? 0) > 0}
-          />
-          <IconAction icon={Bell} label="Notificações" to="/admin/notificacoes" />
-          <IconAction
-            icon={LifeBuoy}
-            label={pendingLabel("Suporte Dojo Manager", badges["/admin/saas/suporte"])}
-            to="/admin/saas/suporte"
-            dot={(badges["/admin/saas/suporte"] ?? 0) > 0}
-          />
-
-          <EnvironmentBadge />
+          </button>
+          <TopbarIcon label="Buscar" onClick={() => setOpen(true)} className="lg:hidden">
+            <Search className="h-[18px] w-[18px]" />
+          </TopbarIcon>
+          <TopbarIcon label="Notificações" to="/admin/notificacoes">
+            <Bell className="h-[18px] w-[18px]" />
+          </TopbarIcon>
           <ProfileMenu />
         </div>
       </header>
-      <AdminGlobalSearch open={open} onOpenChange={setOpen} />
+      <AdminCommand open={open} onOpenChange={setOpen} />
     </>
   );
 }
 
-/** Rótulo acessível/tooltip com a contagem de pendências, quando houver. */
-function pendingLabel(label: string, count: number | undefined) {
-  return count ? `${label} · ${count} pendente(s)` : label;
-}
-
-function IconAction({
-  icon: Icon,
+function TopbarIcon({
   label,
   to,
   onClick,
-  dot,
   className,
+  children,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
   label: string;
   to?: string;
   onClick?: () => void;
-  dot?: boolean;
   className?: string;
+  children: React.ReactNode;
 }) {
-  const { isMobile, setOpen } = useSidebar();
-
-  const handleClick = () => {
-    if (onClick) onClick();
-    if (isMobile && setOpen) setOpen(false);
-  };
-
-  const inner = (
-    <span className="relative grid h-10 w-10 place-items-center transition-transform hover:scale-105 active:scale-95">
-      <Icon className="h-[18px] w-[18px]" />
-      {dot ? (
-        <span className="absolute right-2 top-2 h-2 w-2 animate-pulse rounded-full bg-primary ring-2 ring-background" />
-      ) : null}
-    </span>
+  const cls = cn(
+    "grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-neutral-100 hover:text-foreground",
+    className,
   );
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         {to ? (
-          <Link
-            to={to}
-            aria-label={label}
-            onClick={handleClick}
-            className={cn(
-              "rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-              !className?.includes("lg:hidden") && "hidden sm:inline-flex",
-              className,
-            )}
-          >
-            {inner}
+          <Link to={to} aria-label={label} className={cls}>
+            {children}
           </Link>
         ) : (
-          <button
-            type="button"
-            aria-label={label}
-            onClick={handleClick}
-            className={cn(
-              "rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-              className,
-            )}
-          >
-            {inner}
+          <button type="button" aria-label={label} onClick={onClick} className={cls}>
+            {children}
           </button>
         )}
       </TooltipTrigger>
       <TooltipContent side="bottom">{label}</TooltipContent>
     </Tooltip>
-  );
-}
-
-function QuickCreateMenu() {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          size="sm"
-          className="h-9 gap-1.5 rounded-xl px-3 text-xs shadow-sm transition-transform active:scale-[0.97]"
-        >
-          <Zap className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Atalhos</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-          Ir para
-        </DropdownMenuLabel>
-        {QUICK_ACTIONS.map((a) => (
-          <DropdownMenuItem key={a.title} asChild>
-            <Link to={a.url} className="flex items-center gap-2">
-              <a.icon className="h-4 w-4 text-muted-foreground" />
-              {a.title}
-            </Link>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function EnvironmentBadge() {
-  const [env, setEnv] = React.useState<"preview" | "produção">("produção");
-  React.useEffect(() => {
-    const host = window.location.hostname;
-    setEnv(host.includes("localhost") || host.includes("preview") ? "preview" : "produção");
-  }, []);
-  return (
-    <span
-      className={cn(
-        "hidden items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ring-1 ring-inset xl:inline-flex",
-        env === "preview"
-          ? "bg-amber-500/10 text-amber-700 ring-amber-500/20"
-          : "bg-emerald-500/10 text-emerald-600 ring-emerald-500/20",
-      )}
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-current" />
-      {env}
-    </span>
   );
 }
 
@@ -603,17 +627,15 @@ function ProfileMenu() {
         <button
           type="button"
           aria-label="Perfil e conta"
-          className="ml-1 grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-xs font-semibold text-primary-foreground shadow-sm transition-transform hover:scale-[1.03]"
+          className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground transition-transform hover:scale-[1.04]"
         >
           {initials}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel>
-          <p className="truncate text-sm font-semibold">{fullName ?? "Central AMT"}</p>
-          <p className="truncate text-xs font-normal text-muted-foreground">
-            {email ?? "Administração do ecossistema"}
-          </p>
+          <p className="truncate text-sm font-semibold">{fullName ?? "Central da loja"}</p>
+          <p className="truncate text-xs font-normal text-muted-foreground">{email ?? "AMT Fight Wear"}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
@@ -623,13 +645,13 @@ function ProfileMenu() {
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/admin/configuracoes" className="flex items-center gap-2">
-            <Settings className="h-4 w-4 text-muted-foreground" /> Ajustes do sistema
+            <Settings className="h-4 w-4 text-muted-foreground" /> Configurações
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/dojo/app" className="flex items-center gap-2">
-            <PanelsTopLeft className="h-4 w-4 text-muted-foreground" /> Ir para o Dojo Manager
-          </Link>
+          <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-2">
+            <ExternalLink className="h-4 w-4 text-muted-foreground" /> Ver loja
+          </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={handleSignOut} className="flex items-center gap-2">
@@ -640,326 +662,67 @@ function ProfileMenu() {
   );
 }
 
-function buildBreadcrumbs(pathname: string): Array<{ label: string; href?: string }> {
-  const active = findActive(pathname);
-  const crumbs: Array<{ label: string; href?: string }> = [
-    { label: "Central AMT", href: "/admin" },
-  ];
-  if (active && active.url !== "/admin") {
-    // O grupo é só um rótulo: não existe página própria para ele.
-    crumbs.push({ label: active.group });
-    crumbs.push({ label: active.title, href: active.url });
-  }
-  return crumbs;
-}
+/* ----------------------------- Busca (Ctrl+K) ----------------------------- */
 
-/* ----------------------------- Busca global ------------------------------ */
-
-function AdminGlobalSearch({
-  open,
-  onOpenChange,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-}) {
+function AdminCommand({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const navigate = useNavigate();
-  const [recents] = useLocalList(RECENT_KEY);
-  const [favorites] = useLocalList(FAV_KEY);
+  const [recents, setRecents] = React.useState<string[]>([]);
+  React.useEffect(() => {
+    if (open) setRecents(readRecents());
+  }, [open]);
 
   const go = (url: string) => {
     onOpenChange(false);
     navigate({ to: url });
   };
 
-  const byUrl = (url: string) => FLAT_NAV.find((i) => i.url === url);
+  const titleOf = (url: string) => {
+    for (const item of ALL_ITEMS) {
+      if (item.url === url && !item.tabs) return item.title;
+      const t = item.tabs?.find((x) => x.url === url);
+      if (t) return t.url === item.url ? item.title : `${item.title} › ${t.title}`;
+    }
+    return null;
+  };
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="Buscar módulos e páginas da Central AMT…" />
+      <CommandInput placeholder="Ir para uma página da Central…" />
       <CommandList>
         <CommandEmpty>Nenhum resultado.</CommandEmpty>
-        {favorites.length ? (
-          <CommandGroup heading="Favoritos">
-            {favorites.map(byUrl).map((item) =>
-              item ? (
-                <CommandItem
-                  key={`fav-${item.url}`}
-                  value={`favorito ${item.title}`}
-                  onSelect={() => go(item.url)}
-                >
-                  <Star className="mr-2 h-4 w-4 text-amber-500" />
-                  {item.title}
-                </CommandItem>
-              ) : null,
-            )}
-          </CommandGroup>
-        ) : null}
-        {recents.length ? (
+        {recents.length > 0 && (
           <CommandGroup heading="Recentes">
-            {recents.map(byUrl).map((item) =>
-              item ? (
-                <CommandItem
-                  key={`rec-${item.url}`}
-                  value={`recente ${item.title}`}
-                  onSelect={() => go(item.url)}
-                >
+            {recents.map((url) => {
+              const label = titleOf(url);
+              return label ? (
+                <CommandItem key={`rec-${url}`} value={`recente ${label}`} onSelect={() => go(url)}>
                   <History className="mr-2 h-4 w-4 text-muted-foreground" />
-                  {item.title}
+                  {label}
                 </CommandItem>
-              ) : null,
-            )}
+              ) : null;
+            })}
           </CommandGroup>
-        ) : null}
-        {NAV.map((group, gi) => (
+        )}
+        {NAV.map((group) => (
           <React.Fragment key={group.label}>
-            {(gi > 0 || favorites.length || recents.length) && <CommandSeparator />}
+            <CommandSeparator />
             <CommandGroup heading={group.label}>
-              {group.items.map((item) => (
-                <CommandItem
-                  key={`${group.label}-${item.url}`}
-                  value={`${group.label} ${item.title} ${item.url}`}
-                  onSelect={() => go(item.url)}
-                >
-                  <item.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <span>{item.title}</span>
-                  <span className="ml-auto text-xs text-muted-foreground/70">{item.url}</span>
-                </CommandItem>
-              ))}
+              {group.items.flatMap((item) =>
+                (item.tabs ?? [{ title: item.title, url: item.url }]).map((t) => (
+                  <CommandItem
+                    key={`${item.url}-${t.url}`}
+                    value={`${group.label} ${item.title} ${t.title} ${t.url}`}
+                    onSelect={() => go(t.url)}
+                  >
+                    <item.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <span>{item.tabs && t.url !== item.url ? `${item.title} › ${t.title}` : item.title}</span>
+                  </CommandItem>
+                )),
+              )}
             </CommandGroup>
           </React.Fragment>
         ))}
       </CommandList>
     </CommandDialog>
-  );
-}
-
-/* --------------------------------- Sidebar -------------------------------- */
-
-function AdminSidebar() {
-  const { state, setOpen, isMobile } = useSidebar();
-  const collapsed = state === "collapsed";
-  const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const [favorites, setFavorites] = useLocalList(FAV_KEY, 6);
-  const [recents, setRecents] = useLocalList(RECENT_KEY, 5);
-  // Grupos recolhidos pelo usuário (os demais ficam abertos).
-  const [closedGroups, setClosedGroups] = useLocalList(CLOSED_GROUPS_KEY, NAV.length);
-  const activeItem = findActive(pathname);
-  const badges = useNavBadges();
-
-  // Destaca só o item mais específico (ex.: /admin/fiscal/pedidos não acende /admin/fiscal).
-  const isActive = (url: string) => activeItem?.url === url;
-
-  // Histórico de módulos visitados (apenas visual)
-  React.useEffect(() => {
-    if (!activeItem) return;
-    setRecents([activeItem.url, ...recents.filter((u) => u !== activeItem.url)]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
-
-  const toggleFavorite = (url: string) =>
-    setFavorites(
-      favorites.includes(url) ? favorites.filter((u) => u !== url) : [url, ...favorites],
-    );
-
-  const isGroupOpen = (label: string) =>
-    activeItem?.group === label || !closedGroups.includes(label);
-  const setGroupOpen = (label: string, open: boolean) =>
-    setClosedGroups(open ? closedGroups.filter((g) => g !== label) : [...closedGroups, label]);
-
-  const renderItem = (item: NavItem & { group?: string }, keyPrefix = "") => {
-    const active = isActive(item.url);
-    const fav = favorites.includes(item.url);
-    const pending = badges[item.url] ?? 0;
-    return (
-      <SidebarMenuItem key={keyPrefix + item.url} className="group/item relative">
-        <SidebarMenuButton
-          asChild
-          isActive={active}
-          tooltip={collapsed ? pendingLabel(item.title, pending) : undefined}
-          className={cn(
-            "h-9 w-full rounded-xl transition-all duration-200",
-            active
-              ? "bg-primary/10 font-bold text-primary shadow-sm hover:bg-primary/15"
-              : "text-foreground/80 hover:bg-muted hover:text-foreground",
-          )}
-        >
-          <Link
-            to={item.url}
-            preload="intent"
-            onClick={() => {
-              if (isMobile) setOpen(false);
-            }}
-            className="flex items-center gap-2.5"
-          >
-            <span className="relative shrink-0">
-              <item.icon
-                className={cn(
-                  "h-[18px] w-[18px] transition-transform group-hover:scale-110",
-                  active ? "text-primary" : "text-foreground/60 group-hover:text-foreground",
-                )}
-              />
-              {collapsed && pending > 0 ? (
-                <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
-              ) : null}
-            </span>
-            {!collapsed && <span className="truncate text-sm tracking-tight">{item.title}</span>}
-            {!collapsed && pending > 0 ? (
-              <span
-                className={cn(
-                  "ml-auto min-w-5 shrink-0 rounded-full bg-primary px-1.5 text-center text-[10px] font-bold leading-5 text-primary-foreground tabular-nums",
-                  // A estrela de favorito (no hover, ou fixa se favoritado) fica à direita do número.
-                  "group-hover/item:mr-6",
-                  fav && "mr-6",
-                )}
-                aria-label={`${pending} pendente(s)`}
-              >
-                {pending > 99 ? "99+" : pending}
-              </span>
-            ) : null}
-          </Link>
-        </SidebarMenuButton>
-        {!collapsed ? (
-          <button
-            type="button"
-            aria-label={fav ? `Remover ${item.title} dos favoritos` : `Favoritar ${item.title}`}
-            onClick={() => toggleFavorite(item.url)}
-            className={cn(
-              "absolute right-1.5 top-1/2 hidden h-6 w-6 -translate-y-1/2 place-items-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-amber-500 group-hover/item:grid",
-              fav && "grid text-amber-500",
-            )}
-          >
-            {fav ? (
-              <Star className="h-3.5 w-3.5 fill-current" />
-            ) : (
-              <StarOff className="h-3.5 w-3.5" />
-            )}
-          </button>
-        ) : null}
-      </SidebarMenuItem>
-    );
-  };
-
-  return (
-    <Sidebar collapsible="icon" className="admin-sidebar border-r" data-admin="true">
-      <SidebarHeader className="border-b bg-background/50 p-3 backdrop-blur-sm">
-        <Link
-          to="/admin"
-          className="flex items-center gap-2.5 rounded-xl px-1 py-1 transition-opacity hover:opacity-80"
-        >
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          {!collapsed && (
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-black uppercase tracking-tight text-foreground">
-                Central AMT
-              </span>
-              <span className="block truncate text-[10px] font-semibold text-muted-foreground/80">
-                Administração Global
-              </span>
-            </span>
-          )}
-        </Link>
-      </SidebarHeader>
-
-      <SidebarContent className="gap-0 bg-background px-2 py-2">
-        {favorites.length && !collapsed ? (
-          <SidebarGroup className="px-0">
-            <SidebarGroupLabel className="px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
-              Favoritos
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {favorites
-                  .map((u) => FLAT_NAV.find((i) => i.url === u))
-                  .filter(Boolean)
-                  .map((i) => renderItem(i as NavItem, "fav-"))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ) : null}
-
-        {recents.length > 1 && !collapsed ? (
-          <SidebarGroup className="px-0">
-            <SidebarGroupLabel className="px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
-              Recentes
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {recents
-                  .slice(0, 3)
-                  .map((u) => FLAT_NAV.find((i) => i.url === u))
-                  .filter(Boolean)
-                  .map((i) => renderItem(i as NavItem, "rec-"))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ) : null}
-
-        {NAV.map((group, gi) => {
-          // Recolhida, a sidebar mostra só ícones: todos os grupos ficam visíveis.
-          if (collapsed) {
-            return (
-              <SidebarGroup key={group.label} className="px-0">
-                {gi > 0 ? <div className="mx-2 my-1.5 h-px bg-border/40" /> : null}
-                <SidebarGroupContent>
-                  <SidebarMenu>{group.items.map((item) => renderItem(item))}</SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            );
-          }
-          const open = isGroupOpen(group.label);
-          return (
-            <Collapsible
-              key={group.label}
-              open={open}
-              onOpenChange={(v) => setGroupOpen(group.label, v)}
-            >
-              <SidebarGroup className="px-0 py-1">
-                <SidebarGroupLabel asChild>
-                  <CollapsibleTrigger className="flex w-full items-center gap-1 rounded-lg px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 hover:bg-muted hover:text-foreground">
-                    <span className="truncate">{group.label}</span>
-                    <span className="ml-auto text-[10px] font-semibold tracking-normal text-muted-foreground/50">
-                      {group.items.length}
-                    </span>
-                    <ChevronDown
-                      className={cn(
-                        "h-3.5 w-3.5 shrink-0 transition-transform",
-                        !open && "-rotate-90",
-                      )}
-                    />
-                  </CollapsibleTrigger>
-                </SidebarGroupLabel>
-                <CollapsibleContent>
-                  <SidebarGroupContent>
-                    <SidebarMenu>{group.items.map((item) => renderItem(item))}</SidebarMenu>
-                  </SidebarGroupContent>
-                </CollapsibleContent>
-              </SidebarGroup>
-            </Collapsible>
-          );
-        })}
-      </SidebarContent>
-
-      <SidebarFooter className="border-t bg-background/50 p-2 backdrop-blur-sm">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              tooltip={collapsed ? "Ir para o Dojo Manager" : undefined}
-              className="h-9 rounded-xl"
-            >
-              <Link
-                to="/dojo/app"
-                className="flex items-center gap-2.5 text-[13px] font-medium text-muted-foreground hover:text-foreground"
-              >
-                <PanelsTopLeft className="h-4 w-4 shrink-0" />
-                {!collapsed && <span className="truncate">Ir para o Dojo Manager</span>}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
   );
 }

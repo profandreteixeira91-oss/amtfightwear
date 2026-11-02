@@ -2,15 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AdminPushCard } from "@/components/store/AdminPushCard";
 import { PageShell } from "@/components/common/PageShell";
 import { AdminNotificationPrefsCard } from "@/components/store/AdminNotificationPrefsCard";
-
+import { OwnerWhatsAppCard } from "@/components/store/OwnerWhatsAppCard";
 
 export const Route = createFileRoute("/_authenticated/admin/notificacoes")({
   head: () => ({
     meta: [
-      { title: "Notificações — Admin AMT Fight Wear" },
+      { title: "Notificações — Central da loja AMT" },
       {
         name: "description",
-        content: "Ative e teste as notificações push do painel administrativo AMT Fight Wear.",
+        content: "Avisos de novos pedidos no celular: push do app e WhatsApp.",
       },
       { name: "robots", content: "noindex, nofollow" },
     ],
@@ -22,15 +22,10 @@ function StoreNotificationsPage() {
   return (
     <PageShell
       narrow
-      eyebrow="Notificações"
-      title="Instalação & Notificações"
-      description={
-        <>
-          Instale o app <strong>Admin AMT Fight Wear</strong> na tela inicial e ative alertas em tempo real de
-          novos pedidos, mensagens e movimentações do Dojo Manager.
-        </>
-      }
+      title="Notificações"
+      description="Receba no celular os avisos de novos pedidos, pagamentos e mensagens de clientes."
     >
+      <OwnerWhatsAppCard />
       <AdminPushCard />
       <AdminNotificationPrefsCard />
     </PageShell>

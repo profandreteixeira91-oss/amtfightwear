@@ -1,18 +1,15 @@
-/** Catálogo de notificações do painel administrativo AMT (client-safe). */
+/** Catálogo de notificações da Central da loja (client-safe). O Dojo Manager tem painel próprio. */
 export type AdminNotificationEvent =
   | "store_order.new"
   | "store_order.paid"
   | "sales_message.new"
-  | "dojo_support.new"
-  | "profile.new"
-  | "dojo_sub.new"
-  | "dojo_sub.change";
+  | "profile.new";
 
 export type AdminNotificationDef = {
   event: AdminNotificationEvent;
   label: string;
   description: string;
-  group: "Loja" | "Atendimento" | "Dojo Manager";
+  group: "Loja" | "Atendimento";
 };
 
 export const ADMIN_NOTIFICATION_CATALOG: AdminNotificationDef[] = [
@@ -39,24 +36,6 @@ export const ADMIN_NOTIFICATION_CATALOG: AdminNotificationDef[] = [
     label: "Mensagens do chat",
     description: "Novas mensagens recebidas de clientes no chat (Web, WhatsApp, Instagram).",
     group: "Atendimento",
-  },
-  {
-    event: "dojo_support.new",
-    label: "Suporte do Dojo Manager",
-    description: "Novos tickets ou mensagens de suporte enviados por donos de dojo.",
-    group: "Atendimento",
-  },
-  {
-    event: "dojo_sub.new",
-    label: "Novas academias",
-    description: "Quando uma academia inicia o trial de 14 dias no Dojo Manager.",
-    group: "Dojo Manager",
-  },
-  {
-    event: "dojo_sub.change",
-    label: "Mudanças de assinatura",
-    description: "Ativações, pausas, cancelamentos e inadimplência das assinaturas.",
-    group: "Dojo Manager",
   },
 ];
 

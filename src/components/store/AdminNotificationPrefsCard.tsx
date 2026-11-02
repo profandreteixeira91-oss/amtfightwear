@@ -57,11 +57,11 @@ export function AdminNotificationPrefsCard() {
   });
 
   return (
-    <Card className="border-red-500/20 bg-neutral-950/60">
+    <Card className="rounded-2xl border-neutral-200 bg-white shadow-none">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
-          <div className="rounded-xl bg-red-500/15 p-2.5">
-            <BellRing className="h-5 w-5 text-red-400" />
+          <div className="rounded-full bg-red-50 p-2.5">
+            <BellRing className="h-5 w-5 text-primary" />
           </div>
           <div>
             <CardTitle className="text-base">Quais notificações receber</CardTitle>

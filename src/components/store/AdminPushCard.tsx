@@ -154,12 +154,12 @@ export function AdminPushCard() {
   const supported = isPushSupported();
 
   return (
-    <Card className="border-red-500/20 bg-gradient-to-br from-red-950/40 via-neutral-950 to-neutral-950">
+    <Card className="rounded-2xl border-neutral-200 bg-white shadow-none">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-red-500/15 p-2.5">
-              <Bell className="h-5 w-5 text-red-400" />
+            <div className="rounded-full bg-red-50 p-2.5">
+              <Bell className="h-5 w-5 text-primary" />
             </div>
             <div>
               <CardTitle className="text-base">Aplicativo & Notificações Push</CardTitle>

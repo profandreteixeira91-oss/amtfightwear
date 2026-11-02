@@ -59,6 +59,8 @@ export async function sendPushToAmtAdmins(
   payload: AdminPushPayload,
   event?: string,
 ): Promise<{ sent: number; failed: number }> {
+  // Eventos do Dojo Manager não vão para a Central da loja (o Dojo terá painel próprio).
+  if (event?.startsWith("dojo_")) return { sent: 0, failed: 0 };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: admins } = await supabaseAdmin
     .from("user_roles")

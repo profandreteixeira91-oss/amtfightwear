@@ -60,12 +60,10 @@ import { Route as AuthenticatedAdminAnunciosRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminAtacadoRouteImport } from './routes/_authenticated/admin.atacado'
 import { Route as AuthenticatedAdminAtendimentoRouteImport } from './routes/_authenticated/admin.atendimento'
 import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
-import { Route as AuthenticatedAdminClientesGrowthRouteImport } from './routes/_authenticated/admin.clientes-growth'
 import { Route as AuthenticatedAdminConexoesRouteImport } from './routes/_authenticated/admin.conexoes'
 import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin.crm'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
-import { Route as AuthenticatedAdminDojoRouteImport } from './routes/_authenticated/admin.dojo'
 import { Route as AuthenticatedAdminEnvioRouteImport } from './routes/_authenticated/admin.envio'
 import { Route as AuthenticatedAdminInstagramRouteImport } from './routes/_authenticated/admin.instagram'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
@@ -118,8 +116,6 @@ import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_aut
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedStoreChatRouteImport } from './routes/_authenticated/store.chat'
 import { Route as AuthenticatedStoreCustomersRouteImport } from './routes/_authenticated/store.customers'
-import { Route as AuthenticatedStoreDojoManagerRouteImport } from './routes/_authenticated/store.dojo-manager'
-import { Route as AuthenticatedStoreDojoSupportRouteImport } from './routes/_authenticated/store.dojo-support'
 import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
 import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
 import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
@@ -252,8 +248,6 @@ import { Route as AuthenticatedAdminProdutosImagensRouteImport } from './routes/
 import { Route as AuthenticatedAdminProdutosImportarRouteImport } from './routes/_authenticated/admin.produtos.importar'
 import { Route as AuthenticatedAdminProdutosPacotesRouteImport } from './routes/_authenticated/admin.produtos.pacotes'
 import { Route as AuthenticatedAdminProdutosTamanhosRouteImport } from './routes/_authenticated/admin.produtos.tamanhos'
-import { Route as AuthenticatedAdminSaasIndexRouteImport } from './routes/_authenticated/admin.saas.index'
-import { Route as AuthenticatedAdminSaasSuporteRouteImport } from './routes/_authenticated/admin.saas.suporte'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as ApiDesktopProductsIdRouteImport } from './routes/api/desktop/products.$id'
 import { Route as ApiDesktopQuotesIdRouteImport } from './routes/api/desktop/quotes.$id'
@@ -609,12 +603,6 @@ const AuthenticatedAdminClientesRoute =
     path: '/clientes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminClientesGrowthRoute =
-  AuthenticatedAdminClientesGrowthRouteImport.update({
-    id: '/clientes-growth',
-    path: '/clientes-growth',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminConexoesRoute =
   AuthenticatedAdminConexoesRouteImport.update({
     id: '/conexoes',
@@ -638,11 +626,6 @@ const AuthenticatedAdminDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminDojoRoute = AuthenticatedAdminDojoRouteImport.update({
-  id: '/dojo',
-  path: '/dojo',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
 const AuthenticatedAdminEnvioRoute = AuthenticatedAdminEnvioRouteImport.update({
   id: '/envio',
   path: '/envio',
@@ -940,18 +923,6 @@ const AuthenticatedStoreCustomersRoute =
   AuthenticatedStoreCustomersRouteImport.update({
     id: '/customers',
     path: '/customers',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreDojoManagerRoute =
-  AuthenticatedStoreDojoManagerRouteImport.update({
-    id: '/dojo-manager',
-    path: '/dojo-manager',
-    getParentRoute: () => AuthenticatedStoreRoute,
-  } as any)
-const AuthenticatedStoreDojoSupportRoute =
-  AuthenticatedStoreDojoSupportRouteImport.update({
-    id: '/dojo-support',
-    path: '/dojo-support',
     getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreFaixaCalcRoute =
@@ -1679,18 +1650,6 @@ const AuthenticatedAdminProdutosTamanhosRoute =
     path: '/produtos/tamanhos',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminSaasIndexRoute =
-  AuthenticatedAdminSaasIndexRouteImport.update({
-    id: '/saas/',
-    path: '/saas/',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSaasSuporteRoute =
-  AuthenticatedAdminSaasSuporteRouteImport.update({
-    id: '/saas/suporte',
-    path: '/saas/suporte',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdsCampaignsIdRoute =
   AuthenticatedAdsCampaignsIdRouteImport.update({
     id: '/$id',
@@ -2274,12 +2233,10 @@ export interface FileRoutesByFullPath {
   '/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
-  '/admin/clientes-growth': typeof AuthenticatedAdminClientesGrowthRoute
   '/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
@@ -2329,8 +2286,6 @@ export interface FileRoutesByFullPath {
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/store/chat': typeof AuthenticatedStoreChatRoute
   '/store/customers': typeof AuthenticatedStoreCustomersRoute
-  '/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
-  '/store/dojo-support': typeof AuthenticatedStoreDojoSupportRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
@@ -2459,7 +2414,6 @@ export interface FileRoutesByFullPath {
   '/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
   '/admin/produtos/pacotes': typeof AuthenticatedAdminProdutosPacotesRoute
   '/admin/produtos/tamanhos': typeof AuthenticatedAdminProdutosTamanhosRoute
-  '/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
   '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
@@ -2538,7 +2492,6 @@ export interface FileRoutesByFullPath {
   '/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
-  '/admin/saas/': typeof AuthenticatedAdminSaasIndexRoute
   '/app/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
@@ -2606,12 +2559,10 @@ export interface FileRoutesByTo {
   '/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
-  '/admin/clientes-growth': typeof AuthenticatedAdminClientesGrowthRoute
   '/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
@@ -2659,8 +2610,6 @@ export interface FileRoutesByTo {
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/store/chat': typeof AuthenticatedStoreChatRoute
   '/store/customers': typeof AuthenticatedStoreCustomersRoute
-  '/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
-  '/store/dojo-support': typeof AuthenticatedStoreDojoSupportRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
@@ -2780,7 +2729,6 @@ export interface FileRoutesByTo {
   '/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
   '/admin/produtos/pacotes': typeof AuthenticatedAdminProdutosPacotesRoute
   '/admin/produtos/tamanhos': typeof AuthenticatedAdminProdutosTamanhosRoute
-  '/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
   '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
@@ -2857,7 +2805,6 @@ export interface FileRoutesByTo {
   '/admin/marketing': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
-  '/admin/saas': typeof AuthenticatedAdminSaasIndexRoute
   '/app/documents': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates': typeof DojoAppContractTemplatesIndexRoute
@@ -2937,12 +2884,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/_authenticated/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
-  '/_authenticated/admin/clientes-growth': typeof AuthenticatedAdminClientesGrowthRoute
   '/_authenticated/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/_authenticated/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/_authenticated/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/_authenticated/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/_authenticated/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
@@ -2992,8 +2937,6 @@ export interface FileRoutesById {
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/_authenticated/store/chat': typeof AuthenticatedStoreChatRoute
   '/_authenticated/store/customers': typeof AuthenticatedStoreCustomersRoute
-  '/_authenticated/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
-  '/_authenticated/store/dojo-support': typeof AuthenticatedStoreDojoSupportRoute
   '/_authenticated/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/_authenticated/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/_authenticated/store/import': typeof AuthenticatedStoreImportRoute
@@ -3122,7 +3065,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
   '/_authenticated/admin/produtos/pacotes': typeof AuthenticatedAdminProdutosPacotesRoute
   '/_authenticated/admin/produtos/tamanhos': typeof AuthenticatedAdminProdutosTamanhosRoute
-  '/_authenticated/admin/saas/suporte': typeof AuthenticatedAdminSaasSuporteRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
   '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
@@ -3201,7 +3143,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/_authenticated/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
-  '/_authenticated/admin/saas/': typeof AuthenticatedAdminSaasIndexRoute
   '/app/_student/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
@@ -3280,12 +3221,10 @@ export interface FileRouteTypes {
     | '/admin/atacado'
     | '/admin/atendimento'
     | '/admin/clientes'
-    | '/admin/clientes-growth'
     | '/admin/conexoes'
     | '/admin/configuracoes'
     | '/admin/crm'
     | '/admin/dashboard'
-    | '/admin/dojo'
     | '/admin/envio'
     | '/admin/instagram'
     | '/admin/logs'
@@ -3335,8 +3274,6 @@ export interface FileRouteTypes {
     | '/prospect/settings'
     | '/store/chat'
     | '/store/customers'
-    | '/store/dojo-manager'
-    | '/store/dojo-support'
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
@@ -3465,7 +3402,6 @@ export interface FileRouteTypes {
     | '/admin/produtos/importar'
     | '/admin/produtos/pacotes'
     | '/admin/produtos/tamanhos'
-    | '/admin/saas/suporte'
     | '/ads/campaigns/$id'
     | '/api/desktop/products/$id'
     | '/api/desktop/quotes/$id'
@@ -3544,7 +3480,6 @@ export interface FileRouteTypes {
     | '/admin/marketing/'
     | '/admin/pedidos/'
     | '/admin/produtos/'
-    | '/admin/saas/'
     | '/app/documents/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
@@ -3612,12 +3547,10 @@ export interface FileRouteTypes {
     | '/admin/atacado'
     | '/admin/atendimento'
     | '/admin/clientes'
-    | '/admin/clientes-growth'
     | '/admin/conexoes'
     | '/admin/configuracoes'
     | '/admin/crm'
     | '/admin/dashboard'
-    | '/admin/dojo'
     | '/admin/envio'
     | '/admin/logs'
     | '/admin/loja'
@@ -3665,8 +3598,6 @@ export interface FileRouteTypes {
     | '/prospect/settings'
     | '/store/chat'
     | '/store/customers'
-    | '/store/dojo-manager'
-    | '/store/dojo-support'
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
@@ -3786,7 +3717,6 @@ export interface FileRouteTypes {
     | '/admin/produtos/importar'
     | '/admin/produtos/pacotes'
     | '/admin/produtos/tamanhos'
-    | '/admin/saas/suporte'
     | '/ads/campaigns/$id'
     | '/api/desktop/products/$id'
     | '/api/desktop/quotes/$id'
@@ -3863,7 +3793,6 @@ export interface FileRouteTypes {
     | '/admin/marketing'
     | '/admin/pedidos'
     | '/admin/produtos'
-    | '/admin/saas'
     | '/app/documents'
     | '/dojo/app/competitions'
     | '/dojo/app/contract-templates'
@@ -3942,12 +3871,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/atacado'
     | '/_authenticated/admin/atendimento'
     | '/_authenticated/admin/clientes'
-    | '/_authenticated/admin/clientes-growth'
     | '/_authenticated/admin/conexoes'
     | '/_authenticated/admin/configuracoes'
     | '/_authenticated/admin/crm'
     | '/_authenticated/admin/dashboard'
-    | '/_authenticated/admin/dojo'
     | '/_authenticated/admin/envio'
     | '/_authenticated/admin/instagram'
     | '/_authenticated/admin/logs'
@@ -3997,8 +3924,6 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/settings'
     | '/_authenticated/store/chat'
     | '/_authenticated/store/customers'
-    | '/_authenticated/store/dojo-manager'
-    | '/_authenticated/store/dojo-support'
     | '/_authenticated/store/faixa-calc'
     | '/_authenticated/store/imagens'
     | '/_authenticated/store/import'
@@ -4127,7 +4052,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/produtos/importar'
     | '/_authenticated/admin/produtos/pacotes'
     | '/_authenticated/admin/produtos/tamanhos'
-    | '/_authenticated/admin/saas/suporte'
     | '/_authenticated/ads/campaigns/$id'
     | '/api/desktop/products/$id'
     | '/api/desktop/quotes/$id'
@@ -4206,7 +4130,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/marketing/'
     | '/_authenticated/admin/pedidos/'
     | '/_authenticated/admin/produtos/'
-    | '/_authenticated/admin/saas/'
     | '/app/_student/documents/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
@@ -4659,13 +4582,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/clientes-growth': {
-      id: '/_authenticated/admin/clientes-growth'
-      path: '/clientes-growth'
-      fullPath: '/admin/clientes-growth'
-      preLoaderRoute: typeof AuthenticatedAdminClientesGrowthRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/conexoes': {
       id: '/_authenticated/admin/conexoes'
       path: '/conexoes'
@@ -4692,13 +4608,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/dojo': {
-      id: '/_authenticated/admin/dojo'
-      path: '/dojo'
-      fullPath: '/admin/dojo'
-      preLoaderRoute: typeof AuthenticatedAdminDojoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/envio': {
@@ -5063,20 +4972,6 @@ declare module '@tanstack/react-router' {
       path: '/customers'
       fullPath: '/store/customers'
       preLoaderRoute: typeof AuthenticatedStoreCustomersRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/dojo-manager': {
-      id: '/_authenticated/store/dojo-manager'
-      path: '/dojo-manager'
-      fullPath: '/store/dojo-manager'
-      preLoaderRoute: typeof AuthenticatedStoreDojoManagerRouteImport
-      parentRoute: typeof AuthenticatedStoreRoute
-    }
-    '/_authenticated/store/dojo-support': {
-      id: '/_authenticated/store/dojo-support'
-      path: '/dojo-support'
-      fullPath: '/store/dojo-support'
-      preLoaderRoute: typeof AuthenticatedStoreDojoSupportRouteImport
       parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/faixa-calc': {
@@ -6003,20 +5898,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProdutosTamanhosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/saas/': {
-      id: '/_authenticated/admin/saas/'
-      path: '/saas'
-      fullPath: '/admin/saas/'
-      preLoaderRoute: typeof AuthenticatedAdminSaasIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/saas/suporte': {
-      id: '/_authenticated/admin/saas/suporte'
-      path: '/saas/suporte'
-      fullPath: '/admin/saas/suporte'
-      preLoaderRoute: typeof AuthenticatedAdminSaasSuporteRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/ads/campaigns/$id': {
       id: '/_authenticated/ads/campaigns/$id'
       path: '/$id'
@@ -6853,12 +6734,10 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAtacadoRoute: typeof AuthenticatedAdminAtacadoRoute
   AuthenticatedAdminAtendimentoRoute: typeof AuthenticatedAdminAtendimentoRoute
   AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
-  AuthenticatedAdminClientesGrowthRoute: typeof AuthenticatedAdminClientesGrowthRoute
   AuthenticatedAdminConexoesRoute: typeof AuthenticatedAdminConexoesRoute
   AuthenticatedAdminConfiguracoesRoute: typeof AuthenticatedAdminConfiguracoesRoute
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
-  AuthenticatedAdminDojoRoute: typeof AuthenticatedAdminDojoRoute
   AuthenticatedAdminEnvioRoute: typeof AuthenticatedAdminEnvioRoute
   AuthenticatedAdminInstagramRoute: typeof AuthenticatedAdminInstagramRouteWithChildren
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
@@ -6885,12 +6764,10 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminProdutosImportarRoute: typeof AuthenticatedAdminProdutosImportarRoute
   AuthenticatedAdminProdutosPacotesRoute: typeof AuthenticatedAdminProdutosPacotesRoute
   AuthenticatedAdminProdutosTamanhosRoute: typeof AuthenticatedAdminProdutosTamanhosRoute
-  AuthenticatedAdminSaasSuporteRoute: typeof AuthenticatedAdminSaasSuporteRoute
   AuthenticatedAdminFiscalIndexRoute: typeof AuthenticatedAdminFiscalIndexRoute
   AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
   AuthenticatedAdminPedidosIndexRoute: typeof AuthenticatedAdminPedidosIndexRoute
   AuthenticatedAdminProdutosIndexRoute: typeof AuthenticatedAdminProdutosIndexRoute
-  AuthenticatedAdminSaasIndexRoute: typeof AuthenticatedAdminSaasIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -6899,12 +6776,10 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAtacadoRoute: AuthenticatedAdminAtacadoRoute,
   AuthenticatedAdminAtendimentoRoute: AuthenticatedAdminAtendimentoRoute,
   AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
-  AuthenticatedAdminClientesGrowthRoute: AuthenticatedAdminClientesGrowthRoute,
   AuthenticatedAdminConexoesRoute: AuthenticatedAdminConexoesRoute,
   AuthenticatedAdminConfiguracoesRoute: AuthenticatedAdminConfiguracoesRoute,
   AuthenticatedAdminCrmRoute: AuthenticatedAdminCrmRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
-  AuthenticatedAdminDojoRoute: AuthenticatedAdminDojoRoute,
   AuthenticatedAdminEnvioRoute: AuthenticatedAdminEnvioRoute,
   AuthenticatedAdminInstagramRoute:
     AuthenticatedAdminInstagramRouteWithChildren,
@@ -6940,12 +6815,10 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminProdutosPacotesRoute,
   AuthenticatedAdminProdutosTamanhosRoute:
     AuthenticatedAdminProdutosTamanhosRoute,
-  AuthenticatedAdminSaasSuporteRoute: AuthenticatedAdminSaasSuporteRoute,
   AuthenticatedAdminFiscalIndexRoute: AuthenticatedAdminFiscalIndexRoute,
   AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,
   AuthenticatedAdminPedidosIndexRoute: AuthenticatedAdminPedidosIndexRoute,
   AuthenticatedAdminProdutosIndexRoute: AuthenticatedAdminProdutosIndexRoute,
-  AuthenticatedAdminSaasIndexRoute: AuthenticatedAdminSaasIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
@@ -7095,8 +6968,6 @@ const AuthenticatedProspectRouteWithChildren =
 interface AuthenticatedStoreRouteChildren {
   AuthenticatedStoreChatRoute: typeof AuthenticatedStoreChatRoute
   AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
-  AuthenticatedStoreDojoManagerRoute: typeof AuthenticatedStoreDojoManagerRoute
-  AuthenticatedStoreDojoSupportRoute: typeof AuthenticatedStoreDojoSupportRoute
   AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
   AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
   AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
@@ -7112,8 +6983,6 @@ interface AuthenticatedStoreRouteChildren {
 const AuthenticatedStoreRouteChildren: AuthenticatedStoreRouteChildren = {
   AuthenticatedStoreChatRoute: AuthenticatedStoreChatRoute,
   AuthenticatedStoreCustomersRoute: AuthenticatedStoreCustomersRoute,
-  AuthenticatedStoreDojoManagerRoute: AuthenticatedStoreDojoManagerRoute,
-  AuthenticatedStoreDojoSupportRoute: AuthenticatedStoreDojoSupportRoute,
   AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
   AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
   AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,

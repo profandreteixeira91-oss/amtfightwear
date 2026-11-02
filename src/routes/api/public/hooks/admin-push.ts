@@ -17,6 +17,8 @@ export const Route = createFileRoute("/api/public/hooks/admin-push")({
             url?: string;
           };
           if (!body?.title) return Response.json({ ok: false, reason: "missing title" }, { status: 400 });
+          // O admin da loja não recebe mais eventos do Dojo Manager (ele terá painel próprio).
+          if (body.event?.startsWith("dojo_")) return Response.json({ ok: true, skipped: "dojo event" });
           const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
           const result = await sendPushToAmtAdmins(
             {

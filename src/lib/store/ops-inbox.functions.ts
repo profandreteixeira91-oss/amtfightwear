@@ -17,7 +17,6 @@ export type OpsInbox = {
   quotes: { sent: number; approved: number };
   production: { open: number; late: number; dueToday: number };
   chats: { human: number };
-  support: { open: number } | null;
 };
 
 /** Pedidos aguardando pagamento só contam se recentes — os antigos são abandono, não pendência. */
@@ -50,11 +49,6 @@ export const adminGetOpsInbox = createServerFn({ method: "GET" })
         .neq("stage", "finalizado");
     const quotes = () => supabase.from("store_quotes").select("id", { count: "exact", head: true });
 
-    const { data: isAdmin } = await supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "amt_admin" as never,
-    });
-
     const [
       pendingPayment,
       toShip,
@@ -65,7 +59,6 @@ export const adminGetOpsInbox = createServerFn({ method: "GET" })
       prodLate,
       prodToday,
       chatsHuman,
-      supportOpen,
     ] = await Promise.all([
       count(orders().eq("status", "pending_payment").gte("created_at", pendingSince)),
       count(orders().in("status", ["paid", "preparing"])),
@@ -81,14 +74,6 @@ export const adminGetOpsInbox = createServerFn({ method: "GET" })
           .select("id", { count: "exact", head: true })
           .eq("status", "human"),
       ),
-      isAdmin
-        ? count(
-            supabaseAdmin
-              .from("dojo_support_tickets")
-              .select("id", { count: "exact", head: true })
-              .eq("status", "aberto"),
-          )
-        : Promise.resolve(null),
     ]);
 
     return {
@@ -96,6 +81,5 @@ export const adminGetOpsInbox = createServerFn({ method: "GET" })
       quotes: { sent: quotesSent, approved: quotesApproved },
       production: { open: prodOpen, late: prodLate, dueToday: prodToday },
       chats: { human: chatsHuman },
-      support: supportOpen === null ? null : { open: supportOpen },
     };
   });

@@ -1,215 +1,106 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  Store,
-  Building2,
-  Wallet,
-  ShoppingCart,
-  Users,
+  AlertTriangle,
   ArrowRight,
-  Sparkles,
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  Target,
-  Instagram,
-  Megaphone,
-  Package,
-  Truck,
-  MessageCircle,
-  ShoppingBag,
-  UserCog,
-  ShieldCheck,
-  Settings,
-  FileText,
-  Factory,
   Clock,
-  LifeBuoy,
-  CheckCircle2,
-  BarChart3,
-  type LucideIcon,
+  CreditCard,
+  Factory,
+  FileText,
+  MessageCircle,
+  Package,
+  Receipt,
+  ShoppingBag,
+  TrendingUp,
+  Truck,
+  Users,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useAuth } from "@/contexts/AuthContext";
 import { adminGetDashboard } from "@/lib/store/dashboard.functions";
-import { adminListDojoAccounts } from "@/lib/store/dojo-admin.functions";
 import { adminGetOpsInbox } from "@/lib/store/ops-inbox.functions";
+import { orderStatusBadgeClass, orderStatusLabel } from "@/lib/store/order-status";
+import { formatProductName } from "@/lib/store/product-name";
 import { PageShell } from "@/components/common/PageShell";
 import { StatCard } from "@/components/common/StatCard";
 import { SectionCard } from "@/components/common/SectionCard";
-import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
-import { Button } from "@/components/ui/button";
+import { ProductImage } from "@/components/store/ProductImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
-/** Pendências mudam rápido; o panorama de 30 dias é mais pesado e muda devagar. */
-const INBOX_REFRESH_MS = ADMIN_REFRESH.live;
-const DASHBOARD_REFRESH_MS = ADMIN_REFRESH.dashboard;
-
 export const Route = createFileRoute("/_authenticated/admin/")({
-  head: () => ({
-    meta: [
-      { title: "Central AMT — Ecossistema" },
-      {
-        name: "description",
-        content:
-          "Central administrativa unificada do ecossistema AMT: pendências do dia, Fight Wear, Dojo Manager e Growth em um único painel.",
-      },
-    ],
-  }),
-  component: AdminOverview,
+  head: () => ({ meta: [{ title: "Início — Central da loja AMT" }, { name: "robots", content: "noindex,nofollow" }] }),
+  component: AdminHome,
 });
 
-const brl = (n: number) =>
-  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
-const num = (n: number) => new Intl.NumberFormat("pt-BR").format(n || 0);
-
-/* ------------------------- Atalhos ------------------------- */
-
-type Shortcut = { title: string; href: string; icon: LucideIcon };
-
-/** Acesso rápido por ecossistema — sempre para as rotas da Central (sem redirects legados). */
-const SHORTCUT_GROUPS: Array<{ label: string; items: Shortcut[] }> = [
-  {
-    label: "AMT Fight Wear",
-    items: [
-      { title: "Gestão da Loja", href: "/admin/loja", icon: Store },
-      { title: "Produtos", href: "/admin/produtos", icon: Package },
-      { title: "Clientes", href: "/admin/clientes", icon: Users },
-      { title: "Atacado", href: "/admin/atacado", icon: ShoppingBag },
-      { title: "Logística / Envio", href: "/admin/envio", icon: Truck },
-    ],
-  },
-  {
-    label: "Dojo Manager",
-    items: [
-      { title: "Assinaturas & Faturas", href: "/admin/dojo", icon: Building2 },
-      { title: "Donos de Dojo", href: "/admin/clientes-growth", icon: Users },
-      { title: "Suporte", href: "/admin/saas/suporte", icon: LifeBuoy },
-    ],
-  },
-  {
-    label: "Growth",
-    items: [
-      { title: "Leads", href: "/admin/leads", icon: Target },
-      { title: "CRM Unificado", href: "/admin/crm", icon: Users },
-      { title: "Instagram", href: "/admin/instagram", icon: Instagram },
-      { title: "Anúncios", href: "/admin/anuncios", icon: Megaphone },
-      { title: "Inteligência", href: "/admin/marketing/inteligencia", icon: Sparkles },
-    ],
-  },
-  {
-    label: "Sistema",
-    items: [
-      { title: "Usuários / Equipe", href: "/admin/usuarios", icon: UserCog },
-      { title: "Logs & Segurança", href: "/admin/logs", icon: ShieldCheck },
-      { title: "Ajustes do Sistema", href: "/admin/configuracoes", icon: Settings },
-    ],
-  },
+type Range = "7d" | "30d" | "90d";
+const RANGES: { value: Range; label: string }[] = [
+  { value: "7d", label: "7 dias" },
+  { value: "30d", label: "30 dias" },
+  { value: "90d", label: "90 dias" },
 ];
+
+const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const brlShort = (v: number) =>
+  v >= 1000 ? `R$ ${(v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil` : brl(v);
+const num = (v: number) => v.toLocaleString("pt-BR");
 
 function greeting() {
   const h = new Date().getHours();
   return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
 }
 
-/* ------------------------- Component ------------------------- */
+type ActionItem = {
+  label: string;
+  count: number;
+  hint: string;
+  href: string;
+  search?: Record<string, string>;
+  icon: React.ComponentType<{ className?: string }>;
+  tone: "red" | "amber" | "neutral";
+};
 
-function AdminOverview() {
+function AdminHome() {
   const getDashboard = useServerFn(adminGetDashboard);
-  const listDojos = useServerFn(adminListDojoAccounts);
   const getInbox = useServerFn(adminGetOpsInbox);
   const { user } = useAuth();
-  const qc = useQueryClient();
+  const [range, setRange] = useState<Range>("30d");
 
   const inbox = useQuery({
     queryKey: ["admin", "central", "ops-inbox"],
     queryFn: () => getInbox(),
-    refetchInterval: INBOX_REFRESH_MS,
+    refetchInterval: ADMIN_REFRESH.live,
   });
-
   const dashboard = useQuery({
-    queryKey: ["admin", "central", "dashboard", "30d"],
-    queryFn: () => getDashboard({ data: { range: "30d" } }),
-    refetchInterval: DASHBOARD_REFRESH_MS,
+    queryKey: ["admin", "central", "dashboard", range],
+    queryFn: () => getDashboard({ data: { range } }),
+    refetchInterval: ADMIN_REFRESH.dashboard,
   });
 
-  const dojos = useQuery({
-    queryKey: ["admin", "central", "dojos"],
-    queryFn: () => listDojos(),
-    refetchInterval: DASHBOARD_REFRESH_MS,
-  });
+  const d = dashboard.data;
+  const loading = dashboard.isLoading;
+  const firstName = ((user?.user_metadata?.full_name as string | undefined) ?? "").trim().split(/\s+/)[0] || null;
+  const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
-  // Atualização instantânea: novos cadastros/assinaturas de dojo recarregam os cards.
-  useEffect(() => {
-    const refreshDojos = () => qc.invalidateQueries({ queryKey: ["admin", "central", "dojos"] });
-    const ch = supabase
-      .channel("admin-central-live")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "dojo_subscriptions" },
-        refreshDojos,
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "dojo_academy_profile" },
-        refreshDojos,
-      )
-      .on("postgres_changes", { event: "*", schema: "public", table: "dojo_users" }, refreshDojos)
-      .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
-  }, [qc]);
-
-  const loading = dashboard.isLoading || dojos.isLoading;
-  const err = dashboard.error || dojos.error;
-
-  // Fight Wear
-  const netRevenue = dashboard.data?.finance.net_revenue ?? 0;
-  const paidOrders = dashboard.data?.finance.paid_orders ?? 0;
-  const ordersAll = dashboard.data?.orders_all;
-  const allOrdersCount = ordersAll?.count ?? 0;
-  const allOrdersValue = ordersAll?.value ?? 0;
-  const pendingCount = ordersAll?.pending_count ?? 0;
-  const pendingValue = ordersAll?.pending_value ?? 0;
-  const sectors = ordersAll?.by_sector ?? [];
-  const customersTotal = dashboard.data?.customers.total ?? 0;
-  const newCustomers = dashboard.data?.customers.new ?? 0;
-  const liveActive = dashboard.data?.live.active ?? 0;
-  const todayGrowth = dashboard.data?.today.growth ?? 0;
-  const todayRevenue = dashboard.data?.today.revenue ?? 0;
-
-  // Dojo Manager
-  const dojoRows = dojos.data ?? [];
-  const dojosTotal = dojoRows.length;
-  const isActiveSub = (s: string | null) => s === "authorized" || s === "active";
-  const dojosActive = dojoRows.filter((d) => isActiveSub(d.sub_status)).length;
-  const dojosTrial = dojoRows.filter((d) => d.sub_status === "trial").length;
-  const mrr = dojoRows
-    .filter((d) => isActiveSub(d.sub_status))
-    .reduce((a, b) => a + Number(b.sub_plan_amount || 0), 0);
-  const totalStudents = dojoRows.reduce((a, b) => a + (b.students_count || 0), 0);
-  const onboardingDone = dojoRows.filter((d) => d.onboarding_completed).length;
-
-  const firstName =
-    ((user?.user_metadata?.full_name as string | undefined) ?? "").trim().split(/\s+/)[0] || null;
+  const netRevenue = d?.finance.net_revenue ?? 0;
+  const paidOrders = d?.finance.paid_orders ?? 0;
+  const avgTicket = paidOrders > 0 ? netRevenue / paidOrders : 0;
 
   const i = inbox.data;
   const actions: ActionItem[] = i
     ? [
         {
-          label: "Pedidos a preparar/enviar",
+          label: "Para preparar e enviar",
           count: i.orders.toShip,
-          hint: "pagos, aguardando separação ou etiqueta",
+          hint: "Pagos, aguardando separação ou etiqueta",
           href: "/admin/pedidos",
           search: { tab: "enviar" },
           icon: Truck,
-          tone: "primary",
+          tone: "red",
         },
         {
           label: "Produção atrasada",
@@ -217,16 +108,16 @@ function AdminOverview() {
           hint: `${num(i.production.dueToday)} vencem hoje · ${num(i.production.open)} na fila`,
           href: "/admin/producao",
           icon: Factory,
-          tone: "danger",
+          tone: "red",
         },
         {
           label: "Aguardando pagamento",
           count: i.orders.pendingPayment,
-          hint: "pedidos dos últimos 7 dias",
+          hint: "Pedidos dos últimos 7 dias",
           href: "/admin/pedidos",
           search: { tab: "pagamento" },
           icon: Clock,
-          tone: "warning",
+          tone: "amber",
         },
         {
           label: "Orçamentos sem resposta",
@@ -235,406 +126,323 @@ function AdminOverview() {
           href: "/admin/orcamentos",
           search: { status: "sent" },
           icon: FileText,
-          tone: "warning",
+          tone: "amber",
         },
         {
-          label: "Atendimento humano",
+          label: "Conversas aguardando",
           count: i.chats.human,
-          hint: "conversas aguardando resposta da equipe",
+          hint: "Clientes pedindo atendimento humano",
           href: "/admin/atendimento",
           icon: MessageCircle,
-          tone: "primary",
+          tone: "neutral",
         },
-        ...(i.support
-          ? [
-              {
-                label: "Suporte Dojo Manager",
-                count: i.support.open,
-                hint: "chamados abertos",
-                href: "/admin/saas/suporte",
-                search: { status: "aberto" },
-                icon: LifeBuoy,
-                tone: "primary",
-              } satisfies ActionItem,
-            ]
-          : []),
       ]
     : [];
-  const pendingTotal = actions.reduce((a, x) => a + x.count, 0);
 
   return (
     <PageShell
-      eyebrow="Central AMT"
-      title={firstName ? `${greeting()}, ${firstName}` : greeting()}
-      description={
-        inbox.isLoading
-          ? "Verificando o que precisa da sua atenção…"
-          : pendingTotal > 0
-            ? `${num(pendingTotal)} pendência(s) aguardando ação agora.`
-            : "Nenhuma pendência no momento. Tudo em dia."
-      }
+      title={`${greeting()}${firstName ? `, ${firstName}` : ""}`}
+      description={<span className="first-letter:uppercase">{today}</span>}
       actions={
-        <Button variant="outline" asChild className="gap-2">
-          <Link to="/admin/dashboard">
-            <BarChart3 className="h-4 w-4" />
-            Analytics Global
-          </Link>
-        </Button>
-      }
-    >
-      {/* Pendências */}
-      <section aria-labelledby="ops-inbox" className="space-y-3">
-        <SectionTitle id="ops-inbox" title="Precisa de ação" hint="Atualiza a cada 30 segundos" />
-        {inbox.error ? (
-          <ErrorState
-            title="Não foi possível carregar as pendências"
-            message={(inbox.error as Error).message}
-            onRetry={() => inbox.refetch()}
-          />
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {inbox.isLoading
-              ? Array.from({ length: 6 }).map((_, k) => (
-                  <Skeleton key={k} className="h-[104px] rounded-xl" />
-                ))
-              : actions.map((a) => <ActionCard key={a.label} item={a} />)}
-          </div>
-        )}
-      </section>
-
-      {/* Panorama */}
-      <section aria-labelledby="panorama" className="space-y-3">
-        <SectionTitle
-          id="panorama"
-          title="Panorama"
-          hint="Últimos 30 dias · atualiza a cada minuto"
-        />
-        {err ? (
-          <ErrorState
-            title="Não foi possível carregar as métricas"
-            message={(err as Error).message}
-            onRetry={() => {
-              dashboard.refetch();
-              dojos.refetch();
-            }}
-          />
-        ) : null}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            index={0}
-            icon={ShoppingCart}
-            label="Pedidos da loja"
-            loading={loading}
-            value={brl(allOrdersValue)}
-            hint={`${num(allOrdersCount)} pedidos · ${num(pendingCount)} com pagamento pendente`}
-          />
-          <StatCard
-            index={1}
-            icon={todayGrowth >= 0 ? TrendingUp : TrendingDown}
-            label="Vendas hoje"
-            loading={loading}
-            value={brl(todayRevenue)}
-            delta={todayGrowth === 0 ? null : todayGrowth}
-            hint={todayGrowth === 0 ? "sem base de comparação com ontem" : "vs ontem"}
-          />
-          <StatCard
-            index={2}
-            icon={Wallet}
-            label="MRR Dojo Manager"
-            loading={loading}
-            value={brl(mrr)}
-            hint={`${dojosActive} assinaturas · ${dojosTrial} em trial`}
-          />
-          <StatCard
-            index={3}
-            icon={Activity}
-            label="Ao vivo na loja"
-            loading={loading}
-            value={num(liveActive)}
-            hint="visitantes agora"
-          />
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          <MiniStat
-            loading={loading}
-            label="Receita paga (Loja)"
-            value={brl(netRevenue)}
-            hint={`${num(paidOrders)} pedidos pagos`}
-          />
-          <MiniStat
-            loading={loading}
-            label="Clientes (Loja)"
-            value={num(customersTotal)}
-            hint={`+${num(newCustomers)} novos`}
-          />
-          <MiniStat
-            loading={loading}
-            label="Dojos"
-            value={num(dojosTotal)}
-            hint={`${dojosActive} ativos`}
-          />
-          <MiniStat
-            loading={loading}
-            label="Alunos no ecossistema"
-            value={num(totalStudents)}
-            hint="somando todos os dojos"
-          />
-          <MiniStat
-            loading={loading}
-            label="Onboarding"
-            value={`${onboardingDone}/${dojosTotal || 0}`}
-            hint="dojos configurados"
-          />
-        </div>
-      </section>
-
-      <SectionCard
-        title="Pedidos por setor"
-        description={loading ? undefined : `${num(pendingCount)} pendentes · ${brl(pendingValue)}`}
-      >
-        {loading ? (
-          <Skeleton className="h-16 w-full" />
-        ) : sectors.length === 0 ? (
-          <EmptyState icon={ShoppingCart} title="Nenhum pedido no período" className="py-8" />
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {sectors.map((s) => (
-              <div key={s.sector} className="rounded-lg border bg-muted/30 p-3">
-                <div className="text-sm font-semibold">{s.sector}</div>
-                <div className="mt-1 text-lg font-bold tabular-nums">{brl(s.value)}</div>
-                <div className="text-xs text-muted-foreground">
-                  {num(s.count)} pedidos
-                  {s.pending > 0 ? (
-                    <span className="ml-1 text-amber-700 dark:text-amber-400">
-                      · {num(s.pending)} pendentes ({brl(s.pending_value)})
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </SectionCard>
-
-      <div className="grid gap-5 lg:grid-cols-5">
-        <SectionCard
-          title="Insights do período"
-          description="Sinais automáticos dos últimos 30 dias"
-          className="lg:col-span-3"
-        >
-          {loading ? (
-            <div className="space-y-2">
-              {Array.from({ length: 3 }).map((_, k) => (
-                <Skeleton key={k} className="h-10 w-full" />
-              ))}
-            </div>
-          ) : dashboard.data?.insights?.length ? (
-            <ul className="space-y-2 text-sm">
-              {dashboard.data.insights.map((text, idx) => (
-                <li key={idx} className="flex gap-3 rounded-lg border bg-muted/30 p-3">
-                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <span className="leading-relaxed">{text}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyState
-              icon={Sparkles}
-              title="Sem sinais relevantes nos últimos 30 dias"
-              className="py-8"
-            />
-          )}
-        </SectionCard>
-
-        <SectionCard
-          title="Últimos dojos"
-          className="lg:col-span-2"
-          action={
-            <Button variant="ghost" size="sm" asChild className="h-8 gap-1 text-xs">
-              <Link to="/admin/dojo">
-                Ver todos <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          }
-        >
-          {loading ? (
-            <div className="space-y-2">
-              {Array.from({ length: 4 }).map((_, k) => (
-                <Skeleton key={k} className="h-10 w-full" />
-              ))}
-            </div>
-          ) : dojoRows.length === 0 ? (
-            <EmptyState icon={Building2} title="Nenhum dojo cadastrado ainda" className="py-8" />
-          ) : (
-            <ul className="divide-y">
-              {dojoRows.slice(0, 5).map((d) => (
-                <li key={d.owner_id} className="flex items-center justify-between gap-3 py-2.5">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium">
-                      {d.trade_name || d.legal_name || d.full_name || d.email || "—"}
-                    </div>
-                    <div className="truncate text-xs text-muted-foreground">
-                      {d.city && d.state ? `${d.city}/${d.state} · ` : ""}
-                      {d.students_count} alunos
-                    </div>
-                  </div>
-                  <StatusPill status={d.sub_status} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </SectionCard>
-      </div>
-
-      <SectionCard title="Acesso rápido" description="Ctrl+K busca qualquer módulo da Central">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {SHORTCUT_GROUPS.map((g) => (
-            <div key={g.label} className="min-w-0">
-              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                {g.label}
-              </div>
-              <ul className="space-y-0.5">
-                {g.items.map((it) => (
-                  <li key={it.href}>
-                    <Link
-                      to={it.href}
-                      preload="intent"
-                      className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
-                    >
-                      <it.icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      <span className="truncate">{it.title}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+        <div className="inline-flex rounded-full bg-neutral-100 p-1">
+          {RANGES.map((r) => (
+            <button
+              key={r.value}
+              type="button"
+              onClick={() => setRange(r.value)}
+              className={cn(
+                "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                range === r.value ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {r.label}
+            </button>
           ))}
         </div>
-      </SectionCard>
-    </PageShell>
-  );
-}
-
-/* ------------------------- Sub-components ------------------------- */
-
-type ActionItem = {
-  label: string;
-  count: number;
-  hint: string;
-  href: string;
-  search?: Record<string, string>;
-  icon: LucideIcon;
-  /** Cor quando há pendência; zerado, o card fica neutro com "em dia". */
-  tone: "primary" | "warning" | "danger";
-};
-
-const TONE: Record<ActionItem["tone"], { icon: string; ring: string }> = {
-  primary: { icon: "bg-primary/10 text-primary", ring: "hover:border-primary/40" },
-  warning: {
-    icon: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    ring: "border-amber-500/30 hover:border-amber-500/60",
-  },
-  danger: {
-    icon: "bg-destructive/10 text-destructive",
-    ring: "border-destructive/30 hover:border-destructive/60",
-  },
-};
-
-function ActionCard({ item }: { item: ActionItem }) {
-  const Icon = item.icon;
-  const idle = item.count === 0;
-  const tone = TONE[item.tone];
-  return (
-    <Link
-      to={item.href}
-      search={item.search as never}
-      preload="intent"
-      className={cn(
-        "group flex min-w-0 items-center gap-4 rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
-        idle ? "hover:border-border" : tone.ring,
-      )}
+      }
     >
-      <div
-        className={cn(
-          "grid h-11 w-11 shrink-0 place-items-center rounded-lg",
-          idle ? "bg-muted text-muted-foreground" : tone.icon,
-        )}
-      >
-        {idle ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-2">
-          <span className={cn("text-2xl font-bold tabular-nums", idle && "text-muted-foreground")}>
-            {num(item.count)}
-          </span>
-          <span className="truncate text-sm font-medium">{item.label}</span>
+      {/* Precisa de ação */}
+      <section aria-label="Precisa de ação">
+        <h2 className="mb-3 text-sm font-semibold text-foreground">Precisa de ação</h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          {inbox.isLoading
+            ? Array.from({ length: 5 }).map((_, k) => <Skeleton key={k} className="h-[104px] rounded-2xl" />)
+            : actions.map((a) => {
+                const zero = a.count === 0;
+                return (
+                  <Link
+                    key={a.label}
+                    to={a.href}
+                    search={a.search as never}
+                    className={cn(
+                      "group flex flex-col justify-between rounded-2xl border bg-white p-4 transition-colors",
+                      zero ? "border-neutral-200 hover:border-neutral-300" : "border-neutral-200 hover:border-primary/40",
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={cn(
+                          "grid h-8 w-8 place-items-center rounded-full",
+                          zero
+                            ? "bg-neutral-100 text-neutral-400"
+                            : a.tone === "red"
+                              ? "bg-red-50 text-primary"
+                              : a.tone === "amber"
+                                ? "bg-amber-50 text-amber-600"
+                                : "bg-neutral-100 text-foreground",
+                        )}
+                      >
+                        <a.icon className="h-4 w-4" />
+                      </span>
+                      <span className={cn("text-2xl font-semibold tabular-nums", zero && "text-neutral-300")}>
+                        {num(a.count)}
+                      </span>
+                    </div>
+                    <div className="mt-3">
+                      <div className="flex items-center gap-1 text-sm font-medium">
+                        {a.label}
+                        <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-60" />
+                      </div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">{a.hint}</div>
+                    </div>
+                  </Link>
+                );
+              })}
         </div>
-        <div className="truncate text-xs text-muted-foreground">{idle ? "Em dia" : item.hint}</div>
-      </div>
-      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
-    </Link>
-  );
-}
+      </section>
 
-function SectionTitle({ id, title, hint }: { id: string; title: string; hint: string }) {
-  return (
-    <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
-      <h2 id={id} className="text-lg font-semibold tracking-tight">
-        {title}
-      </h2>
-      <span className="text-[11px] font-medium text-muted-foreground">{hint}</span>
-    </div>
-  );
-}
-
-function MiniStat({
-  label,
-  value,
-  hint,
-  loading,
-}: {
-  label: string;
-  value: string;
-  hint: string;
-  loading?: boolean;
-}) {
-  return (
-    <div className="flex h-full min-w-0 flex-col rounded-lg border bg-card p-4">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-        {label}
-      </div>
-      {loading ? (
-        <Skeleton className="mt-2 h-6 w-20" />
+      {dashboard.error ? (
+        <ErrorState
+          title="Não foi possível carregar os números da loja"
+          message={dashboard.error instanceof Error ? dashboard.error.message : undefined}
+          onRetry={() => dashboard.refetch()}
+        />
       ) : (
         <>
-          <div className="mt-1.5 text-xl font-bold tracking-tight tabular-nums">{value}</div>
-          <div className="mt-0.5 text-xs text-muted-foreground">{hint}</div>
+          {/* Números do período */}
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Indicadores do período">
+            <StatCard label="Faturamento líquido" value={brl(netRevenue)} icon={TrendingUp} loading={loading} />
+            <StatCard label="Pedidos pagos" value={num(paidOrders)} icon={ShoppingBag} loading={loading} />
+            <StatCard label="Ticket médio" value={brl(avgTicket)} icon={Receipt} loading={loading} />
+            <StatCard
+              label="Novos clientes"
+              value={num(d?.customers.new ?? 0)}
+              hint={d ? `${num(d.customers.total)} no total` : undefined}
+              icon={Users}
+              loading={loading}
+            />
+          </section>
+
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            {/* Faturamento por dia */}
+            <SectionCard
+              title="Faturamento por dia"
+              description={
+                d
+                  ? `Hoje: ${brl(d.today.revenue)} · ${num(d.today.orders)} pedido(s)` +
+                    (d.today.revenue_yesterday > 0 ? ` · ${d.today.growth >= 0 ? "+" : ""}${d.today.growth.toFixed(0)}% vs. ontem` : "")
+                  : undefined
+              }
+            >
+              {loading ? (
+                <Skeleton className="h-64 w-full rounded-xl" />
+              ) : (d?.daily_series.length ?? 0) === 0 ? (
+                <p className="py-16 text-center text-sm text-muted-foreground">Sem vendas pagas no período.</p>
+              ) : (
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={d!.daily_series} margin={{ top: 8, right: 4, left: 0, bottom: 0 }} barCategoryGap="22%">
+                      <CartesianGrid vertical={false} stroke="oklch(0.93 0 0)" />
+                      <XAxis
+                        dataKey="date"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 11, fill: "oklch(0.55 0 0)" }}
+                        tickFormatter={(v: string) => `${v.slice(8, 10)}/${v.slice(5, 7)}`}
+                        minTickGap={18}
+                      />
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        width={64}
+                        tick={{ fontSize: 11, fill: "oklch(0.55 0 0)" }}
+                        tickFormatter={(v: number) => brlShort(v)}
+                      />
+                      <Tooltip
+                        cursor={{ fill: "oklch(0.96 0 0)" }}
+                        contentStyle={{ borderRadius: 12, border: "1px solid oklch(0.9 0 0)", fontSize: 12 }}
+                        labelFormatter={(v: string) => new Date(`${v}T12:00:00`).toLocaleDateString("pt-BR")}
+                        formatter={(value: number, _n, item) => [
+                          `${brl(value)} · ${num((item?.payload as { orders?: number })?.orders ?? 0)} pedido(s)`,
+                          "Faturamento",
+                        ]}
+                      />
+                      <Bar dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </SectionCard>
+
+            {/* Mais vendidos */}
+            <SectionCard
+              title="Mais vendidos"
+              action={
+                <Link to="/admin/dashboard" className="text-xs font-medium text-muted-foreground hover:text-foreground">
+                  Ver analytics
+                </Link>
+              }
+            >
+              {loading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 5 }).map((_, k) => (
+                    <Skeleton key={k} className="h-12 rounded-xl" />
+                  ))}
+                </div>
+              ) : (d?.top_products.length ?? 0) === 0 ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">Nenhuma venda no período.</p>
+              ) : (
+                <ol className="space-y-2.5">
+                  {d!.top_products.slice(0, 6).map((p, idx) => (
+                    <li key={p.product_id} className="flex items-center gap-3">
+                      <span className="w-4 text-xs font-semibold text-muted-foreground tabular-nums">{idx + 1}</span>
+                      <ProductImage
+                        src={p.image_url}
+                        alt=""
+                        sizes="40px"
+                        className="h-10 w-10 shrink-0 rounded-lg bg-neutral-100"
+                        imgClassName="p-1 mix-blend-multiply"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{formatProductName(p.name)}</div>
+                        <div className="text-xs text-muted-foreground">{num(p.qty)} un.</div>
+                      </div>
+                      <span className="text-sm font-semibold tabular-nums">{brl(p.revenue)}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </SectionCard>
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            {/* Últimos pedidos */}
+            <SectionCard
+              title="Últimos pedidos"
+              action={
+                <Link to="/admin/pedidos" className="text-xs font-medium text-muted-foreground hover:text-foreground">
+                  Ver todos
+                </Link>
+              }
+            >
+              {loading ? (
+                <Skeleton className="h-56 w-full rounded-xl" />
+              ) : (d?.recent_orders.length ?? 0) === 0 ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">Nenhum pedido no período.</p>
+              ) : (
+                <div className="-mx-2 overflow-x-auto">
+                  <table className="w-full min-w-[520px] text-sm">
+                    <thead>
+                      <tr className="text-left text-xs text-muted-foreground">
+                        <th className="px-2 pb-2 font-medium">Pedido</th>
+                        <th className="px-2 pb-2 font-medium">Cliente</th>
+                        <th className="px-2 pb-2 font-medium">Status</th>
+                        <th className="px-2 pb-2 text-right font-medium">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100">
+                      {d!.recent_orders.slice(0, 8).map((o) => (
+                        <tr key={o.id} className="hover:bg-neutral-50">
+                          <td className="px-2 py-2.5">
+                            <Link
+                              to="/admin/pedidos/$orderId"
+                              params={{ orderId: o.id }}
+                              className="font-medium hover:text-primary"
+                            >
+                              #{o.order_number}
+                            </Link>
+                            <div className="text-[11px] text-muted-foreground">
+                              {new Date(o.created_at).toLocaleDateString("pt-BR")}
+                            </div>
+                          </td>
+                          <td className="max-w-[200px] px-2 py-2.5">
+                            <div className="truncate">{o.customer}</div>
+                            <div className="truncate text-[11px] text-muted-foreground">{o.city}</div>
+                          </td>
+                          <td className="px-2 py-2.5">
+                            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", orderStatusBadgeClass(o.status))}>
+                              {orderStatusLabel[o.status ?? ""] ?? o.status}
+                            </span>
+                          </td>
+                          <td className="px-2 py-2.5 text-right font-semibold tabular-nums">{brl(o.total)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </SectionCard>
+
+            {/* Estoque baixo */}
+            <SectionCard
+              title="Estoque baixo"
+              description="Produtos ativos com 5 unidades ou menos"
+              action={
+                <Link to="/admin/produtos" className="text-xs font-medium text-muted-foreground hover:text-foreground">
+                  Produtos
+                </Link>
+              }
+            >
+              {loading ? (
+                <Skeleton className="h-40 w-full rounded-xl" />
+              ) : (d?.low_stock.length ?? 0) === 0 ? (
+                <div className="flex flex-col items-center gap-2 py-10 text-center text-sm text-muted-foreground">
+                  <Package className="h-5 w-5" />
+                  Estoque em dia.
+                </div>
+              ) : (
+                <ul className="space-y-2.5">
+                  {d!.low_stock.slice(0, 6).map((p) => (
+                    <li key={p.id} className="flex items-center gap-3">
+                      <AlertTriangle className={cn("h-4 w-4 shrink-0", p.stock <= 0 ? "text-primary" : "text-amber-500")} />
+                      <div className="min-w-0 flex-1 truncate text-sm">{formatProductName(p.name)}</div>
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums",
+                          p.stock <= 0 ? "bg-red-50 text-primary" : "bg-amber-50 text-amber-700",
+                        )}
+                      >
+                        {p.stock <= 0 ? "Esgotado" : `${p.stock} un.`}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </SectionCard>
+          </div>
+
+          {/* Atalhos operacionais */}
+          <section aria-label="Atalhos" className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {[
+              { title: "Novo produto", href: "/admin/produtos", icon: Package },
+              { title: "Fila de produção", href: "/admin/producao", icon: Factory },
+              { title: "Faturamento (NF-e)", href: "/admin/fiscal/pedidos", icon: CreditCard },
+              { title: "Envios", href: "/admin/envio", icon: Truck },
+            ].map((s) => (
+              <Link
+                key={s.title}
+                to={s.href}
+                className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4 text-sm font-medium transition-colors hover:border-neutral-300"
+              >
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-neutral-100">
+                  <s.icon className="h-4 w-4" />
+                </span>
+                {s.title}
+              </Link>
+            ))}
+          </section>
         </>
       )}
-    </div>
-  );
-}
-
-function StatusPill({ status }: { status: string | null }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    authorized: { label: "Ativo", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" },
-    active: { label: "Ativo", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" },
-    trial: { label: "Trial", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-400" },
-    pending: { label: "Pendente", cls: "bg-muted text-muted-foreground" },
-    paused: { label: "Pausado", cls: "bg-muted text-muted-foreground" },
-    cancelled: { label: "Cancelado", cls: "bg-destructive/10 text-destructive" },
-    none: { label: "Sem plano", cls: "bg-muted text-muted-foreground" },
-  };
-  const s = map[status ?? "none"] ?? map.none;
-  return (
-    <span
-      className={cn(
-        "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
-        s.cls,
-      )}
-    >
-      {s.label}
-    </span>
+    </PageShell>
   );
 }

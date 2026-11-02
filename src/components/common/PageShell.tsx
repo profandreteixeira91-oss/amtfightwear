@@ -14,8 +14,8 @@ type PageShellProps = {
 /**
  * Container padrão para páginas do painel administrativo.
  *
- * - Largura máxima consistente (`max-w-7xl`, `max-w-4xl` quando `narrow`).
- * - Padding e gap padronizados (24-28px entre seções).
+ * - Margens e largura máxima vêm do AdminShell; `narrow` limita formulários a `max-w-4xl`.
+ * - Gap padronizado (24px entre seções).
  * - Cabeçalho unificado via `PageHeader`.
  *
  * Uso:
@@ -32,13 +32,7 @@ export function PageShell({
   narrow,
 }: PageShellProps) {
   return (
-    <div
-      className={
-        narrow
-          ? "mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 md:gap-7 md:px-6 md:py-8"
-          : "mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:gap-7 md:px-6 md:py-8"
-      }
-    >
+    <div className={narrow ? "mx-auto flex w-full max-w-4xl flex-col gap-6" : "flex w-full flex-col gap-6"}>
       <PageHeader
         title={title}
         description={description}

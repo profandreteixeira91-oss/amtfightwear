@@ -72,6 +72,8 @@ async function fetchOrder(orderId: string) {
  * `whatsapp_notified.<event> = timestamp` em store_orders para não repetir.
  */
 export async function sendWhatsAppOrderStatus(orderId: string, event: StatusEvent): Promise<void> {
+  // Pedido pago também avisa o dono (independe de o cliente ter telefone válido).
+  if (event === "paid") await notifyOwnerOrderPaid(orderId);
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
   if (!token || !phoneId) {
@@ -131,4 +133,127 @@ export function eventFromStatusTransition(newStatus: string, newPaymentStatus?: 
   if (newStatus === "shipped") return "shipped";
   if (newStatus === "delivered") return "delivered";
   return null;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Aviso ao dono da loja: pedido pago                                         */
+/* ------------------------------------------------------------------------- */
+/*
+ * Mensagens iniciadas pela empresa só chegam fora da janela de 24h se usarem um
+ * TEMPLATE aprovado na Meta (categoria "Utilidade"). Por isso o aviso ao dono usa
+ * template, com 4 variáveis no corpo:
+ *   {{1}} número do pedido · {{2}} cliente · {{3}} total · {{4}} itens
+ *
+ * Variáveis de ambiente:
+ *  - WHATSAPP_ACCESS_TOKEN / WHATSAPP_PHONE_NUMBER_ID  (as mesmas do envio ao cliente)
+ *  - WHATSAPP_ADMIN_TO        números que recebem o aviso, separados por vírgula
+ *  - WHATSAPP_ADMIN_TEMPLATE  nome do template (padrão: novo_pedido_pago)
+ *  - WHATSAPP_TEMPLATE_LANG   idioma do template (padrão: pt_BR)
+ */
+
+export type OwnerWhatsAppConfig = {
+  hasCredentials: boolean;
+  recipients: string[];
+  template: string;
+  language: string;
+};
+
+export function ownerWhatsAppConfig(): OwnerWhatsAppConfig {
+  const recipients = (process.env.WHATSAPP_ADMIN_TO ?? "")
+    .split(",")
+    .map((n) => normalizeToE164BR(n))
+    .filter((n): n is string => !!n);
+  return {
+    hasCredentials: !!(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID),
+    recipients,
+    template: process.env.WHATSAPP_ADMIN_TEMPLATE || "novo_pedido_pago",
+    language: process.env.WHATSAPP_TEMPLATE_LANG || "pt_BR",
+  };
+}
+
+/** Parâmetro de template: a Meta recusa quebras de linha, tabs e mais de 4 espaços seguidos. */
+function templateParam(value: string, max = 200): string {
+  const clean = value.replace(/[\n\r\t]+/g, " ").replace(/ {2,}/g, " ").trim();
+  return (clean.length > max ? `${clean.slice(0, max - 1)}…` : clean) || "-";
+}
+
+/** Envia um template para cada destinatário. Retorna quantos foram aceitos e os erros. */
+export async function sendOwnerTemplate(params: string[]): Promise<{ sent: number; errors: string[] }> {
+  const cfg = ownerWhatsAppConfig();
+  const token = process.env.WHATSAPP_ACCESS_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  if (!cfg.hasCredentials || !token || !phoneId) return { sent: 0, errors: ["Credenciais do WhatsApp ausentes"] };
+  if (cfg.recipients.length === 0) return { sent: 0, errors: ["Nenhum número em WHATSAPP_ADMIN_TO"] };
+
+  let sent = 0;
+  const errors: string[] = [];
+  for (const to of cfg.recipients) {
+    const res = await fetch(`https://graph.facebook.com/${GRAPH_VERSION}/${phoneId}/messages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to,
+        type: "template",
+        template: {
+          name: cfg.template,
+          language: { code: cfg.language },
+          components: [{ type: "body", parameters: params.map((text) => ({ type: "text", text: templateParam(text) })) }],
+        },
+      }),
+    });
+    if (res.ok) sent++;
+    else errors.push(`${to.slice(0, 4)}…${to.slice(-2)}: HTTP ${res.status} ${(await res.text()).slice(0, 300)}`);
+  }
+  return { sent, errors };
+}
+
+const brl = (v: number) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+/**
+ * Avisa o(s) número(s) do dono que um pedido foi pago. Idempotente por pedido
+ * (whatsapp_notified.owner_paid) e nunca lança erro: falhar aqui não pode
+ * atrapalhar a confirmação do pagamento.
+ */
+export async function notifyOwnerOrderPaid(orderId: string): Promise<void> {
+  const cfg = ownerWhatsAppConfig();
+  if (!cfg.hasCredentials || cfg.recipients.length === 0) return;
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const order = await fetchOrder(orderId);
+    if (!order || order.whatsapp_notified?.owner_paid) return;
+
+    const { data: items } = await supabaseAdmin
+      .from("store_order_items")
+      .select("product_name, quantity, variant_label, custom_config")
+      .eq("order_id", orderId);
+    const summary = ((items ?? []) as Array<{
+      product_name: string | null;
+      quantity: number;
+      variant_label: string | null;
+      custom_config: { embroidery_name?: string } | null;
+    }>)
+      .map((it) => {
+        const parts = [`${it.quantity}x ${it.product_name ?? "Item"}`];
+        if (it.variant_label) parts.push(`(${it.variant_label})`);
+        if (it.custom_config?.embroidery_name) parts.push(`bordar "${it.custom_config.embroidery_name}"`);
+        return parts.join(" ");
+      })
+      .join("; ");
+
+    const { sent, errors } = await sendOwnerTemplate([
+      order.order_number,
+      order.customer_name ?? "Cliente",
+      brl(order.total),
+      summary || "ver pedido no painel",
+    ]);
+    if (errors.length) console.error("[whatsapp] aviso ao dono com falha", { orderId, errors });
+    if (sent === 0) return;
+
+    const fresh = await fetchOrder(orderId);
+    const merged = { ...(fresh?.whatsapp_notified ?? {}), owner_paid: new Date().toISOString() };
+    await supabaseAdmin.from("store_orders").update({ whatsapp_notified: merged } as never).eq("id", orderId);
+  } catch (err) {
+    console.error("[whatsapp] erro no aviso ao dono", err);
+  }
 }
