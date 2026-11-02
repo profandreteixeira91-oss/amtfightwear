@@ -64,7 +64,12 @@ export const Route = createFileRoute("/api/public/hooks/melhor-envio")({
               .from("store_orders")
               .update(patch, { count: "exact" })
               .or(`melhor_envio_order_id.eq.${meId},melhor_envio_cart_id.eq.${meId}`);
-            if (!error && count) updated += count;
+            if (!error && count) {
+              updated += count;
+              // Enviado/entregue: avisa o cliente no WhatsApp (com o código de rastreio).
+              const { notifyShipmentUpdate } = await import("@/lib/store/whatsapp.server");
+              await notifyShipmentUpdate(order.id);
+            }
           }
 
           console.log("[melhor-envio-webhook] processed", { updated, events: events.length });

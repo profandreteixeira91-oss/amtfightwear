@@ -16,7 +16,10 @@ import {
   adminMelhorEnvioCheckout,
   adminMelhorEnvioGenerate,
   adminMelhorEnvioSyncTracking,
+  adminMelhorEnvioPurchaseInfo,
 } from "@/lib/store/shipping.functions";
+import { adminSendTrackingWhatsApp } from "@/lib/store/whatsapp-admin.functions";
+import { MelhorEnvioBalanceDialog } from "@/components/store/MelhorEnvioBalanceDialog";
 import { PageShell } from "@/components/common/PageShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,6 +56,8 @@ import {
   History,
   StickyNote,
   Factory,
+  Wallet,
+  MessageCircle,
 } from "lucide-react";
 import { ADMIN_REFRESH } from "@/lib/admin-refresh";
 
@@ -91,6 +96,8 @@ function AdminOrderDetailPage() {
   const statusFn = useServerFn(adminUpdateOrderStatus);
   const noteFn = useServerFn(adminAddOrderNote);
   const fieldsFn = useServerFn(adminUpdateOrderFields);
+  const trackingFn = useServerFn(adminSendTrackingWhatsApp);
+  const [confirmTracking, confirmTrackingDialog] = useConfirm();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["admin", "store", "order", orderId],
@@ -192,6 +199,27 @@ function AdminOrderDetailPage() {
     run("fields", async () => {
       await fieldsFn({ data: { id: orderId, ...patch } });
       toast.success("Pedido atualizado");
+      await refetch();
+    });
+
+  const savedTracking = String(order.shipping_tracking ?? "").trim();
+  const trackingSentAt = (() => {
+    const notified = (order.whatsapp_notified ?? {}) as Record<string, unknown>;
+    const v = savedTracking ? notified[`tracking:${savedTracking}`] : null;
+    return typeof v === "string" ? v : null;
+  })();
+  const sendTracking = () =>
+    run("tracking-wa", async () => {
+      const ok = await confirmTracking({
+        title: trackingSentAt ? "Reenviar o rastreio no WhatsApp?" : "Enviar o rastreio no WhatsApp?",
+        description: `O cliente recebe o código ${savedTracking} e o link para acompanhar a entrega.`,
+        confirmLabel: "Enviar",
+      });
+      if (!ok) return;
+      const { results } = await trackingFn({ data: { order_ids: [orderId], force: true } });
+      const r = results[0];
+      if (!r?.ok) throw new Error(r?.error ?? "Não foi possível enviar.");
+      toast.success("Rastreio enviado ao cliente no WhatsApp");
       await refetch();
     });
 
@@ -352,7 +380,23 @@ function AdminOrderDetailPage() {
                 >
                   Salvar rastreio
                 </Button>
+                <Button
+                  variant="outline"
+                  disabled={!savedTracking || tracking.trim() !== savedTracking || busy !== null}
+                  onClick={sendTracking}
+                >
+                  <MessageCircle className="mr-1 h-4 w-4" />
+                  {busy === "tracking-wa" ? "Enviando…" : trackingSentAt ? "Reenviar no WhatsApp" : "Enviar no WhatsApp"}
+                </Button>
               </div>
+              {confirmTrackingDialog}
+              <p className="mt-2 text-xs text-muted-foreground">
+                {!savedTracking
+                  ? "Ao salvar o código num pedido Enviado, o cliente recebe o rastreio no WhatsApp automaticamente."
+                  : trackingSentAt
+                    ? `Rastreio enviado ao cliente em ${dt(trackingSentAt)}.`
+                    : "Este código ainda não foi enviado ao cliente."}
+              </p>
             </CardContent>
           </Card>
 
@@ -594,6 +638,17 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
   const chosenName = str(order.shipping_method) !== "—" ? String(order.shipping_method) : str(order.melhor_envio_service_name);
   const chosenServiceId = Number(order.melhor_envio_service_id ?? 0) || null;
   const chosenPrice = Number(order.shipping_cost ?? 0);
+  const awaitingPurchase = Boolean(order.melhor_envio_cart_id) && !PAID_SHIPPING_STATUSES.includes(meStatus);
+  const purchaseFn = useServerFn(adminMelhorEnvioPurchaseInfo);
+  const purchase = useQuery({
+    queryKey: ["admin", "store", "order", id, "me-purchase"],
+    queryFn: () => purchaseFn({ data: { order_id: id } }),
+    enabled: awaitingPurchase,
+    staleTime: 15_000,
+  });
+  const [topUp, setTopUp] = useState(false);
+  const shortfall =
+    purchase.data?.price != null ? Math.max(0, Math.round((purchase.data.price - purchase.data.balance) * 100) / 100) : 0;
 
   const run = async (key: string, fn: () => Promise<void>) => {
     try {
@@ -698,31 +753,61 @@ function ShippingSection({ order, onChange }: { order: AnyRec; onChange: () => v
         </div>
       )}
 
-      {Boolean(order.melhor_envio_cart_id) && !PAID_SHIPPING_STATUSES.includes(meStatus) && (
-        <div className="flex items-center justify-between rounded-md border p-3">
-          <div>
-            <div className="font-semibold">2. Comprar etiqueta</div>
-            <div className="text-xs text-muted-foreground">Pagamento pela carteira Melhor Envio.</div>
+      {awaitingPurchase && (
+        <div className="space-y-3 rounded-md border p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="font-semibold">2. Comprar etiqueta</div>
+              <div className="text-xs text-muted-foreground">
+                {purchase.isPending
+                  ? "Consultando saldo…"
+                  : purchase.data
+                    ? `Etiqueta ${purchase.data.price != null ? formatBRL(purchase.data.price) : "—"} · saldo ${formatBRL(purchase.data.balance)}`
+                    : "Pagamento pela carteira Melhor Envio."}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" disabled={busy !== null} onClick={() => setTopUp(true)}>
+                <Wallet className="mr-1 h-3 w-3" /> Adicionar saldo
+              </Button>
+              <Button
+                size="sm"
+                disabled={busy !== null || shortfall > 0}
+                onClick={() =>
+                  run("checkout", async () => {
+                    const ok = await confirm({
+                      title: "Comprar a etiqueta com o saldo Melhor Envio?",
+                      description: `${purchase.data?.price != null ? formatBRL(purchase.data.price) : "O valor do frete"} será debitado da carteira Melhor Envio e a etiqueta será gerada.`,
+                      confirmLabel: "Comprar etiqueta",
+                    });
+                    if (!ok) return;
+                    await checkout({ data: { order_ids: [id] } });
+                    toast.success("Etiqueta comprada");
+                    try {
+                      await generate({ data: { order_ids: [id] } });
+                      toast.success("Etiqueta pronta. Use Abrir PDF para imprimir.");
+                    } catch (e) {
+                      toast.info(e instanceof Error ? e.message : "Prepare a impressão em instantes.");
+                    }
+                    onChange();
+                  })
+                }
+              >
+                {busy === "checkout" ? "Comprando…" : "Comprar etiqueta"}
+              </Button>
+            </div>
           </div>
-          <Button
-            size="sm"
-            disabled={busy !== null}
-            onClick={() =>
-              run("checkout", async () => {
-                const ok = await confirm({
-                  title: "Pagar frete com o saldo Melhor Envio?",
-                  description: "O valor do frete será debitado da carteira Melhor Envio.",
-                  confirmLabel: "Confirmar pagamento",
-                });
-                if (!ok) return;
-                await checkout({ data: { order_ids: [id] } });
-                toast.success("Compra realizada");
-                onChange();
-              })
-            }
-          >
-            {busy === "checkout" ? "Comprando…" : "Comprar"}
-          </Button>
+          {shortfall > 0 ? (
+            <div role="alert" className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+              Saldo insuficiente: faltam {formatBRL(shortfall)}. Adicione saldo para comprar a etiqueta.
+            </div>
+          ) : null}
+          <MelhorEnvioBalanceDialog
+            open={topUp}
+            onOpenChange={setTopUp}
+            suggested={shortfall > 0 ? shortfall : undefined}
+            onPaid={() => purchase.refetch()}
+          />
         </div>
       )}
 

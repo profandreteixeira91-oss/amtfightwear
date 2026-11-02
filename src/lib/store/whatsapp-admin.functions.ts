@@ -80,3 +80,90 @@ export const adminSendOwnerWhatsAppTest = createServerFn({ method: "POST" })
     const { sendToOwners, ownerTestMessage } = await import("@/lib/store/whatsapp.server");
     return sendToOwners(ownerTestMessage());
   });
+
+/* ------------------------- Rastreio para os clientes ------------------------- */
+
+export type TrackingNotifyRow = {
+  id: string;
+  order_number: string;
+  customer_name: string | null;
+  tracking: string | null;
+  phone_ok: boolean;
+  sent_at: string | null;
+};
+
+/**
+ * Pedidos enviados e o aviso de rastreio de cada um. Antes de listar, busca no
+ * Melhor Envio o código dos pedidos enviados que ainda estão sem rastreio.
+ */
+export const adminListTrackingNotifications = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<TrackingNotifyRow[]> => {
+    await assertSaasOwner(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { normalizeWhatsAppNumber } = await import("@/lib/whatsapp/evolution.server");
+    const { trackingNotifiedAt } = await import("@/lib/store/whatsapp.server");
+    const load = async () => {
+      const { data, error } = await supabaseAdmin
+        .from("store_orders")
+        .select("id, order_number, customer_name, customer_phone, shipping_tracking, whatsapp_notified, melhor_envio_order_id, melhor_envio_env")
+        .eq("status", "shipped")
+        .order("updated_at", { ascending: false })
+        .limit(300);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    };
+    let orders = await load();
+
+    const missing = orders.filter((o) => !o.shipping_tracking?.trim() && o.melhor_envio_order_id);
+    if (missing.length) {
+      try {
+        const { meRequest, loadShippingSettings } = await import("@/lib/store/shipping-admin.server");
+        const settings = await loadShippingSettings();
+        const byEnv = new Map<string, typeof missing>();
+        for (const o of missing) {
+          const env = o.melhor_envio_env || settings.env;
+          byEnv.set(env, [...(byEnv.get(env) ?? []), o]);
+        }
+        for (const [env, list] of byEnv) {
+          const res = z
+            .record(z.string(), z.object({ tracking: z.string().nullish(), melhorenvio_tracking: z.string().nullish() }))
+            .parse(await meRequest("/me/shipment/tracking", env, { orders: list.map((o) => o.melhor_envio_order_id) }));
+          for (const o of list) {
+            const row = res[o.melhor_envio_order_id!];
+            const code = row?.tracking || row?.melhorenvio_tracking;
+            if (code) await supabaseAdmin.from("store_orders").update({ shipping_tracking: code }).eq("id", o.id);
+          }
+        }
+        orders = await load();
+      } catch (err) {
+        console.error("[whatsapp] rastreio: falha ao buscar códigos no Melhor Envio", err);
+      }
+    }
+
+    return orders.map((o) => ({
+      id: o.id,
+      order_number: o.order_number,
+      customer_name: o.customer_name,
+      tracking: o.shipping_tracking?.trim() || null,
+      phone_ok: !!normalizeWhatsAppNumber(o.customer_phone),
+      sent_at: trackingNotifiedAt(o.whatsapp_notified, o.shipping_tracking),
+    }));
+  });
+
+/** Envia o código de rastreio no WhatsApp (até 10 pedidos por chamada; o painel envia em lotes). */
+export const adminSendTrackingWhatsApp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((i: unknown) =>
+    z.object({ order_ids: z.array(z.string().uuid()).min(1).max(10), force: z.boolean().optional() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
+    const { sendWhatsAppTracking } = await import("@/lib/store/whatsapp.server");
+    const results: Array<{ id: string; ok: boolean; skipped?: boolean; error?: string }> = [];
+    for (const id of data.order_ids) {
+      const r = await sendWhatsAppTracking(id, { force: data.force });
+      results.push(r.ok ? { id, ok: true } : { id, ok: false, skipped: r.skipped, error: r.error });
+    }
+    return { results };
+  });

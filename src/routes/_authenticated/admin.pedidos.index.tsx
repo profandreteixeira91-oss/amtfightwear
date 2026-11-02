@@ -73,6 +73,8 @@ import {
   ShoppingCart,
   X,
 } from "lucide-react";
+import { MelhorEnvioBalanceDialog } from "@/components/store/MelhorEnvioBalanceDialog";
+import { TrackingWhatsAppDialog } from "@/components/store/TrackingWhatsAppDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -244,6 +246,8 @@ function AdminOrdersPage() {
   // Regera os QR Codes Pix pendentes com as credenciais atuais da loja.
   const regenFn = useServerFn(adminRegenerateStorePixQrCodes);
   const [regenBusy, setRegenBusy] = useState(false);
+  const [topUp, setTopUp] = useState(false);
+  const [trackingOpen, setTrackingOpen] = useState(false);
   const regenPix = async () => {
     setRegenBusy(true);
     try {
@@ -285,7 +289,20 @@ function AdminOrdersPage() {
                 ) : null}
               </div>
             </div>
+            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setTopUp(true)}>
+              Adicionar saldo
+            </Button>
           </div>
+          <MelhorEnvioBalanceDialog
+            open={topUp}
+            onOpenChange={setTopUp}
+            onPaid={() => qc.invalidateQueries({ queryKey: ["admin", "store", "me-balance"] })}
+          />
+          <Button variant="outline" onClick={() => setTrackingOpen(true)} className="gap-2">
+            <MessageCircle className="h-4 w-4" />
+            Rastreio no WhatsApp
+          </Button>
+          <TrackingWhatsAppDialog open={trackingOpen} onOpenChange={setTrackingOpen} />
           <Button variant="outline" onClick={regenPix} disabled={regenBusy} className="gap-2">
             <QrCode className="h-4 w-4" />
             {regenBusy ? "Atualizando QR Codes…" : "Atualizar QR Codes Pix"}

@@ -413,9 +413,72 @@ export const adminMelhorEnvioSyncTracking = createServerFn({ method: "POST" })
       const code = row?.tracking || row?.melhorenvio_tracking;
       await saveShippingOrder(order.id, { melhor_envio_status: current.status, melhor_envio_order_id: current.id, melhor_envio_synced_at: new Date().toISOString(), ...(code ? { shipping_tracking: code } : {}), ...(current.status === "posted" ? { status: "shipped" } : {}), ...(current.status === "delivered" ? { status: "delivered" } : {}) });
       if (order.melhor_envio_operation_id && ["paid", "released", "generated", "posted", "delivered"].includes(current.status)) await releaseShipping(order.id, order.melhor_envio_operation_id);
+      const { notifyShipmentUpdate } = await import("./whatsapp.server");
+      await notifyShipmentUpdate(order.id);
       updated += 1;
     }
     return { updated };
+  });
+
+/** Saldo da carteira e valor da etiqueta no carrinho, para decidir se dá para comprar. */
+export const adminMelhorEnvioPurchaseInfo = createServerFn({ method: "POST" })
+  .middleware([requireStoreOwner])
+  .validator((i: z.infer<typeof OrderIdInput>) => OrderIdInput.parse(i))
+  .handler(async ({ data }) => {
+    const { loadShippingOrders, loadShippingSettings, shipmentStatus, meRequest } = await import("./shipping-admin.server");
+    const [order] = await loadShippingOrders([data.order_id]);
+    if (!order) throw new Error("Pedido não encontrado.");
+    const settings = await loadShippingSettings();
+    const env = order.melhor_envio_env || settings.env;
+    const balance = z.object({ balance: z.coerce.number() }).parse(await meRequest("/me/balance", env));
+    const current = order.melhor_envio_cart_id || order.melhor_envio_order_id ? await shipmentStatus(order, env) : null;
+    return { balance: balance.balance, price: current?.price ?? null, status: current?.status ?? null };
+  });
+
+const AddBalanceInput = z.object({ value: z.number().min(1).max(10000) });
+
+/** Procura no retorno do Melhor Envio o Pix copia-e-cola, a imagem do QR e o link de pagamento. */
+function readBalancePayment(raw: unknown) {
+  let pix: string | null = null;
+  let image: string | null = null;
+  let link: string | null = null;
+  const walk = (v: unknown, key = "", depth = 0) => {
+    if (depth > 5 || v == null) return;
+    if (typeof v === "string") {
+      const s = v.trim();
+      if (!pix && s.startsWith("000201")) pix = s;
+      else if (!image && (s.startsWith("data:image/") || (/qr/i.test(key) && /^[A-Za-z0-9+/=]{200,}$/.test(s)))) image = s.startsWith("data:") ? s : `data:image/png;base64,${s}`;
+      else if (!link && /^https:\/\//.test(s)) link = s;
+      return;
+    }
+    if (Array.isArray(v)) v.forEach((x) => walk(x, key, depth + 1));
+    else if (typeof v === "object") for (const [k, x] of Object.entries(v as Record<string, unknown>)) walk(x, k, depth + 1);
+  };
+  walk(raw);
+  const message = z.object({ message: z.string() }).safeParse(raw);
+  return { pix_code: pix as string | null, qr_image: image as string | null, link: link as string | null, message: message.success ? message.data.message : null };
+}
+
+/** Gera um Pix para adicionar saldo à carteira do Melhor Envio (paga as etiquetas). */
+export const adminMelhorEnvioAddBalance = createServerFn({ method: "POST" })
+  .middleware([requireStoreOwner])
+  .validator((i: z.infer<typeof AddBalanceInput>) => AddBalanceInput.parse(i))
+  .handler(async ({ data }) => {
+    const { loadShippingSettings, meRequest } = await import("./shipping-admin.server");
+    const settings = await loadShippingSettings();
+    const site = (process.env.SITE_URL || "https://amtfightwear.com.br").replace(/\/+$/, "");
+    const raw = await meRequest("/me/balance", settings.env, {
+      gateway: "yapay-transparente",
+      slug: "pix",
+      value: data.value.toFixed(2),
+      redirect_url: `${site}/admin/pedidos`,
+    });
+    const payment = readBalancePayment(raw);
+    if (!payment.pix_code && !payment.qr_image && !payment.link) {
+      console.warn("[melhor-envio] saldo: retorno sem Pix", JSON.stringify(raw).slice(0, 800));
+      throw new Error(payment.message || "O Melhor Envio não retornou o Pix. Adicione o saldo pelo painel do Melhor Envio.");
+    }
+    return payment;
   });
 
 export const adminMelhorEnvioSenderOptions = createServerFn({ method: "GET" })

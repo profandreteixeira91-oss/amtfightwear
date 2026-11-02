@@ -138,5 +138,11 @@ export const adminUpdateOrderFields = createServerFn({ method: "POST" })
       actor_user_id: context.userId,
       actor_email: (context.claims?.email as string | undefined) ?? null,
     });
+
+    // Código de rastreio novo num pedido já enviado: avisa o cliente no WhatsApp.
+    if (clean.shipping_tracking) {
+      const { notifyShipmentUpdate } = await import("@/lib/store/whatsapp.server");
+      await notifyShipmentUpdate(id);
+    }
     return { ok: true };
   });

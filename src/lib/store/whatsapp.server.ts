@@ -1,11 +1,12 @@
 /**
  * Avisos de pedido no WhatsApp, enviados pela Evolution API (ver
  * src/lib/whatsapp/evolution.server.ts):
- *  - para o CLIENTE: pagamento confirmado, produção, envio e entrega;
+ *  - para o CLIENTE: pagamento confirmado, produção, envio, código de rastreio e entrega;
  *  - para o DONO (WHATSAPP_ADMIN_TO): pedido pago, com itens e nome a bordar.
  *
  * Idempotente: cada aviso grava `whatsapp_notified.<chave>` em store_orders e
- * não se repete. Nunca lança erro — falha de WhatsApp não pode travar o pedido.
+ * não se repete (o rastreio usa `tracking:<código>`, então um código novo gera
+ * um aviso novo). Nunca lança erro — falha de WhatsApp não pode travar o pedido.
  */
 import { evolutionConfig, normalizeWhatsAppNumber, sendWhatsAppText } from "@/lib/whatsapp/evolution.server";
 
@@ -14,6 +15,7 @@ type StatusEvent = "paid" | "processing" | "shipped" | "delivered";
 type OrderRow = {
   id: string;
   order_number: string;
+  status: string;
   customer_name: string | null;
   customer_phone: string | null;
   shipping_tracking: string | null;
@@ -24,9 +26,22 @@ type OrderRow = {
 
 const brl = (v: number) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const siteUrl = () => (process.env.SITE_URL || "https://amtfightwear.com.br").replace(/\/+$/, "");
+const firstName = (order: OrderRow) => (order.customer_name ?? "").trim().split(/\s+/)[0] || "cliente";
+
+/** Melhor Rastreio acompanha todas as transportadoras do Melhor Envio (Correios, Jadlog, LATAM, Azul…). */
+export const trackingUrl = (code: string) => `https://www.melhorrastreio.com.br/app/${encodeURIComponent(code)}`;
+const trackingKey = (code: string) => `tracking:${code}`;
+
+function trackingLines(code: string): string {
+  return `\nCódigo de rastreio: *${code}*\nAcompanhe em ${trackingUrl(code)}`;
+}
+
+function buildTrackingMessage(order: OrderRow, code: string): string {
+  return `Olá, ${firstName(order)}! 📦\n\nSeu pedido *${order.order_number}* está a caminho.${trackingLines(code)}\n\nAMT Fight Wear`;
+}
 
 function buildCustomerMessage(event: StatusEvent, order: OrderRow): string {
-  const first = (order.customer_name ?? "").trim().split(/\s+/)[0] || "cliente";
+  const first = firstName(order);
   const num = order.order_number;
   switch (event) {
     case "paid":
@@ -35,9 +50,7 @@ function buildCustomerMessage(event: StatusEvent, order: OrderRow): string {
       return `Olá, ${first}! 🧵\n\nSeu pedido *${num}* entrou em *produção*.\nAssim que for despachado, você recebe o código de rastreio por aqui.\n\nAMT Fight Wear`;
     case "shipped": {
       const track = order.shipping_tracking?.trim();
-      const trackLine = track
-        ? `\nCódigo de rastreio: *${track}*\nAcompanhe em https://rastreamento.correios.com.br/app/index.php`
-        : "";
+      const trackLine = track ? trackingLines(track) : "";
       return `Olá, ${first}! 🚚\n\nSeu pedido *${num}* foi *enviado*!${trackLine}\n\nAMT Fight Wear`;
     }
     case "delivered":
@@ -49,17 +62,18 @@ async function fetchOrder(orderId: string): Promise<OrderRow | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("store_orders")
-    .select("id, order_number, customer_name, customer_phone, shipping_tracking, total, payment_method, whatsapp_notified")
+    .select("id, order_number, status, customer_name, customer_phone, shipping_tracking, total, payment_method, whatsapp_notified")
     .eq("id", orderId)
     .maybeSingle();
   return (data as OrderRow | null) ?? null;
 }
 
-/** Marca o aviso como enviado, relendo o pedido para não sobrescrever outra chave. */
-async function markNotified(orderId: string, key: string) {
+/** Marca os avisos como enviados, relendo o pedido para não sobrescrever outra chave. */
+async function markNotified(orderId: string, ...keys: string[]) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const fresh = await fetchOrder(orderId);
-  const merged = { ...(fresh?.whatsapp_notified ?? {}), [key]: new Date().toISOString() };
+  const now = new Date().toISOString();
+  const merged = { ...(fresh?.whatsapp_notified ?? {}), ...Object.fromEntries(keys.map((k) => [k, now])) };
   await supabaseAdmin.from("store_orders").update({ whatsapp_notified: merged } as never).eq("id", orderId);
 }
 
@@ -69,7 +83,13 @@ export async function sendWhatsAppOrderStatus(orderId: string, event: StatusEven
   if (!evolutionConfig()) return;
   try {
     const order = await fetchOrder(orderId);
-    if (!order || order.whatsapp_notified?.[event]) return;
+    if (!order) return;
+    // Já avisado do envio: só falta o código de rastreio, se ele chegou depois.
+    if (event === "shipped" && order.whatsapp_notified?.shipped) {
+      await sendWhatsAppTracking(orderId);
+      return;
+    }
+    if (order.whatsapp_notified?.[event]) return;
     if (!normalizeWhatsAppNumber(order.customer_phone)) {
       console.warn("[whatsapp] pedido sem telefone válido", { orderId, event });
       return;
@@ -79,10 +99,57 @@ export async function sendWhatsAppOrderStatus(orderId: string, event: StatusEven
       console.error("[whatsapp] falha no aviso ao cliente", { orderId, event, error: result.error });
       return;
     }
-    await markNotified(orderId, event);
+    const track = order.shipping_tracking?.trim();
+    await markNotified(orderId, event, ...(event === "shipped" && track ? [trackingKey(track)] : []));
   } catch (err) {
     console.error("[whatsapp] erro inesperado", err);
   }
+}
+
+export type TrackingSendResult = { ok: true } | { ok: false; skipped?: boolean; error: string };
+
+/**
+ * Envia o código de rastreio ao cliente (uma vez por código).
+ * `force` reenvia mesmo que esse código já tenha sido avisado.
+ */
+export async function sendWhatsAppTracking(orderId: string, opts: { force?: boolean } = {}): Promise<TrackingSendResult> {
+  if (!evolutionConfig()) return { ok: false, error: "WhatsApp da loja não configurado." };
+  try {
+    const order = await fetchOrder(orderId);
+    if (!order) return { ok: false, error: "Pedido não encontrado." };
+    const code = order.shipping_tracking?.trim();
+    if (!code) return { ok: false, skipped: true, error: "Pedido sem código de rastreio." };
+    if (!opts.force && order.whatsapp_notified?.[trackingKey(code)]) {
+      return { ok: false, skipped: true, error: "Este código já foi enviado ao cliente." };
+    }
+    if (!normalizeWhatsAppNumber(order.customer_phone)) {
+      return { ok: false, skipped: true, error: "Cliente sem telefone válido." };
+    }
+    const result = await sendWhatsAppText(order.customer_phone!, buildTrackingMessage(order, code));
+    if (!result.ok) {
+      console.error("[whatsapp] falha no aviso de rastreio", { orderId, error: result.error });
+      return { ok: false, error: result.error ?? "Falha no envio." };
+    }
+    await markNotified(orderId, trackingKey(code), ...(order.status === "shipped" ? ["shipped"] : []));
+    return { ok: true };
+  } catch (err) {
+    console.error("[whatsapp] erro inesperado no rastreio", err);
+    return { ok: false, error: "Erro inesperado no envio." };
+  }
+}
+
+/** Depois de sincronizar o envio: avisa o cliente conforme o status atual do pedido. */
+export async function notifyShipmentUpdate(orderId: string): Promise<void> {
+  const order = await fetchOrder(orderId);
+  if (order?.status === "shipped") await sendWhatsAppOrderStatus(orderId, "shipped");
+  if (order?.status === "delivered") await sendWhatsAppOrderStatus(orderId, "delivered");
+}
+
+/** Já foi avisado deste código de rastreio? (para o painel) */
+export function trackingNotifiedAt(notified: unknown, code: string | null | undefined): string | null {
+  if (!code || !notified || typeof notified !== "object") return null;
+  const v = (notified as Record<string, unknown>)[trackingKey(code.trim())];
+  return typeof v === "string" ? v : null;
 }
 
 /** Deriva o evento correspondente ao status novo do pedido, se houver. */

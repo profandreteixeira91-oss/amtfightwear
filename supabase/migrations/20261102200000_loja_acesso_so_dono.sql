@@ -9,160 +9,125 @@
 -- Continuam valendo as policies de cliente ("Own orders read", notificações próprias) e
 -- as leituras públicas da vitrine (produtos, categorias, variantes e imagens ATIVOS).
 -- O servidor (service_role) não passa por RLS e segue funcionando.
+--
+-- Tabela que não existe no banco é pulada (nem toda migration antiga foi aplicada).
+-- Pode rodar de novo sem problema.
 
--- 1) Remove as policies abertas
-DROP POLICY IF EXISTS "Authenticated can insert settings" ON public.app_settings;
-DROP POLICY IF EXISTS "Authenticated can read settings" ON public.app_settings;
-DROP POLICY IF EXISTS "Authenticated can update settings" ON public.app_settings;
-DROP POLICY IF EXISTS "Auth delete customers" ON public.customers;
-DROP POLICY IF EXISTS "Auth read customers" ON public.customers;
-DROP POLICY IF EXISTS "Auth update customers" ON public.customers;
-DROP POLICY IF EXISTS "Auth write customers" ON public.customers;
-DROP POLICY IF EXISTS "Authenticated manage sequence_runs" ON public.email_sequence_runs;
-DROP POLICY IF EXISTS "Authenticated manage email_sequences" ON public.email_sequences;
-DROP POLICY IF EXISTS "authed read webhook logs" ON public.ig_webhook_log;
-DROP POLICY IF EXISTS "authenticated all lead_enrichments" ON public.lead_enrichments;
-DROP POLICY IF EXISTS "authenticated all lead_exports" ON public.lead_exports;
-DROP POLICY IF EXISTS "authenticated all lead_history" ON public.lead_history;
-DROP POLICY IF EXISTS "Authenticated can delete leads" ON public.leads;
-DROP POLICY IF EXISTS "Authenticated can insert leads" ON public.leads;
-DROP POLICY IF EXISTS "Authenticated can read leads" ON public.leads;
-DROP POLICY IF EXISTS "Authenticated can update leads" ON public.leads;
-DROP POLICY IF EXISTS "Auth delete price_research" ON public.price_research;
-DROP POLICY IF EXISTS "Auth read price_research" ON public.price_research;
-DROP POLICY IF EXISTS "Auth update price_research" ON public.price_research;
-DROP POLICY IF EXISTS "Auth write price_research" ON public.price_research;
-DROP POLICY IF EXISTS "Auth delete price_suggestions" ON public.price_suggestions;
-DROP POLICY IF EXISTS "Auth read price_suggestions" ON public.price_suggestions;
-DROP POLICY IF EXISTS "Auth update price_suggestions" ON public.price_suggestions;
-DROP POLICY IF EXISTS "Auth write price_suggestions" ON public.price_suggestions;
-DROP POLICY IF EXISTS "Auth delete products" ON public.products;
-DROP POLICY IF EXISTS "Auth read products" ON public.products;
-DROP POLICY IF EXISTS "Auth update products" ON public.products;
-DROP POLICY IF EXISTS "Auth write products" ON public.products;
-DROP POLICY IF EXISTS "Authenticated manage sales_agent_settings" ON public.sales_agent_settings;
-DROP POLICY IF EXISTS "Authenticated read sales_cart_items" ON public.sales_cart_items;
-DROP POLICY IF EXISTS "Authenticated read sales_carts" ON public.sales_carts;
-DROP POLICY IF EXISTS "Authenticated read sales_conversations" ON public.sales_conversations;
-DROP POLICY IF EXISTS "Authenticated manage kb" ON public.sales_kb_articles;
-DROP POLICY IF EXISTS "Authenticated read sales_messages" ON public.sales_messages;
-DROP POLICY IF EXISTS "Auth full access categories" ON public.store_categories;
-DROP POLICY IF EXISTS "Team can manage store finance entries" ON public.store_finance_entries;
-DROP POLICY IF EXISTS "Auth access import jobs" ON public.store_import_jobs;
-DROP POLICY IF EXISTS "Auth manage order items" ON public.store_order_items;
-DROP POLICY IF EXISTS "Auth manage orders" ON public.store_orders;
-DROP POLICY IF EXISTS "Auth full access product images" ON public.store_product_images;
-DROP POLICY IF EXISTS "Auth full access variants" ON public.store_product_variants;
-DROP POLICY IF EXISTS "Team can manage production comments" ON public.store_production_comments;
-DROP POLICY IF EXISTS "Team can manage production queue" ON public.store_production_jobs;
-DROP POLICY IF EXISTS "Team can manage production stage events" ON public.store_production_stage_events;
-DROP POLICY IF EXISTS "Authenticated can manage shipping settings" ON public.store_shipping_settings;
-DROP POLICY IF EXISTS "Authenticated can read shipping settings" ON public.store_shipping_settings;
+DO $$
+DECLARE
+  p record;
+  t text;
+  dono constant text := 'public.has_role(auth.uid(), ''amt_admin''::public.app_role)';
+BEGIN
+  -- 1) Remove as policies abertas
+  FOR p IN SELECT * FROM (VALUES
+      ('app_settings', 'Authenticated can insert settings'),
+      ('app_settings', 'Authenticated can read settings'),
+      ('app_settings', 'Authenticated can update settings'),
+      ('customers', 'Auth delete customers'),
+      ('customers', 'Auth read customers'),
+      ('customers', 'Auth update customers'),
+      ('customers', 'Auth write customers'),
+      ('email_sequence_runs', 'Authenticated manage sequence_runs'),
+      ('email_sequences', 'Authenticated manage email_sequences'),
+      ('ig_webhook_log', 'authed read webhook logs'),
+      ('lead_enrichments', 'authenticated all lead_enrichments'),
+      ('lead_exports', 'authenticated all lead_exports'),
+      ('lead_history', 'authenticated all lead_history'),
+      ('leads', 'Authenticated can delete leads'),
+      ('leads', 'Authenticated can insert leads'),
+      ('leads', 'Authenticated can read leads'),
+      ('leads', 'Authenticated can update leads'),
+      ('price_research', 'Auth delete price_research'),
+      ('price_research', 'Auth read price_research'),
+      ('price_research', 'Auth update price_research'),
+      ('price_research', 'Auth write price_research'),
+      ('price_suggestions', 'Auth delete price_suggestions'),
+      ('price_suggestions', 'Auth read price_suggestions'),
+      ('price_suggestions', 'Auth update price_suggestions'),
+      ('price_suggestions', 'Auth write price_suggestions'),
+      ('products', 'Auth delete products'),
+      ('products', 'Auth read products'),
+      ('products', 'Auth update products'),
+      ('products', 'Auth write products'),
+      ('sales_agent_settings', 'Authenticated manage sales_agent_settings'),
+      ('sales_cart_items', 'Authenticated read sales_cart_items'),
+      ('sales_carts', 'Authenticated read sales_carts'),
+      ('sales_conversations', 'Authenticated read sales_conversations'),
+      ('sales_kb_articles', 'Authenticated manage kb'),
+      ('sales_messages', 'Authenticated read sales_messages'),
+      ('store_categories', 'Auth full access categories'),
+      ('store_finance_entries', 'Team can manage store finance entries'),
+      ('store_import_jobs', 'Auth access import jobs'),
+      ('store_order_items', 'Auth manage order items'),
+      ('store_orders', 'Auth manage orders'),
+      ('store_product_images', 'Auth full access product images'),
+      ('store_product_variants', 'Auth full access variants'),
+      ('store_production_comments', 'Team can manage production comments'),
+      ('store_production_jobs', 'Team can manage production queue'),
+      ('store_production_stage_events', 'Team can manage production stage events'),
+      ('store_shipping_settings', 'Authenticated can manage shipping settings'),
+      ('store_shipping_settings', 'Authenticated can read shipping settings')
+    ) AS v(tbl, pol)
+  LOOP
+    IF to_regclass('public.' || p.tbl) IS NOT NULL THEN
+      EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', p.pol, p.tbl);
+    END IF;
+  END LOOP;
 
--- 2) Dono da loja gerencia tudo nessas tabelas
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.app_settings;
-CREATE POLICY "Dono da loja gerencia" ON public.app_settings FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.customers;
-CREATE POLICY "Dono da loja gerencia" ON public.customers FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.email_sequence_runs;
-CREATE POLICY "Dono da loja gerencia" ON public.email_sequence_runs FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.email_sequences;
-CREATE POLICY "Dono da loja gerencia" ON public.email_sequences FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.ig_webhook_log;
-CREATE POLICY "Dono da loja gerencia" ON public.ig_webhook_log FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.lead_enrichments;
-CREATE POLICY "Dono da loja gerencia" ON public.lead_enrichments FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.lead_exports;
-CREATE POLICY "Dono da loja gerencia" ON public.lead_exports FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.lead_history;
-CREATE POLICY "Dono da loja gerencia" ON public.lead_history FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.leads;
-CREATE POLICY "Dono da loja gerencia" ON public.leads FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.price_research;
-CREATE POLICY "Dono da loja gerencia" ON public.price_research FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.price_suggestions;
-CREATE POLICY "Dono da loja gerencia" ON public.price_suggestions FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.products;
-CREATE POLICY "Dono da loja gerencia" ON public.products FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.sales_agent_settings;
-CREATE POLICY "Dono da loja gerencia" ON public.sales_agent_settings FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.sales_cart_items;
-CREATE POLICY "Dono da loja gerencia" ON public.sales_cart_items FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.sales_carts;
-CREATE POLICY "Dono da loja gerencia" ON public.sales_carts FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.sales_conversations;
-CREATE POLICY "Dono da loja gerencia" ON public.sales_conversations FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.sales_kb_articles;
-CREATE POLICY "Dono da loja gerencia" ON public.sales_kb_articles FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.sales_messages;
-CREATE POLICY "Dono da loja gerencia" ON public.sales_messages FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_categories;
-CREATE POLICY "Dono da loja gerencia" ON public.store_categories FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_finance_entries;
-CREATE POLICY "Dono da loja gerencia" ON public.store_finance_entries FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_import_jobs;
-CREATE POLICY "Dono da loja gerencia" ON public.store_import_jobs FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_order_items;
-CREATE POLICY "Dono da loja gerencia" ON public.store_order_items FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_orders;
-CREATE POLICY "Dono da loja gerencia" ON public.store_orders FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_product_images;
-CREATE POLICY "Dono da loja gerencia" ON public.store_product_images FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_product_variants;
-CREATE POLICY "Dono da loja gerencia" ON public.store_product_variants FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_production_comments;
-CREATE POLICY "Dono da loja gerencia" ON public.store_production_comments FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_production_jobs;
-CREATE POLICY "Dono da loja gerencia" ON public.store_production_jobs FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_production_stage_events;
-CREATE POLICY "Dono da loja gerencia" ON public.store_production_stage_events FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
-DROP POLICY IF EXISTS "Dono da loja gerencia" ON public.store_shipping_settings;
-CREATE POLICY "Dono da loja gerencia" ON public.store_shipping_settings FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'amt_admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'amt_admin'::public.app_role));
+  -- 2) Dono da loja gerencia tudo nessas tabelas
+  FOREACH t IN ARRAY ARRAY['app_settings', 'customers', 'email_sequence_runs', 'email_sequences', 'ig_webhook_log', 'lead_enrichments', 'lead_exports', 'lead_history', 'leads', 'price_research', 'price_suggestions', 'products', 'sales_agent_settings', 'sales_cart_items', 'sales_carts', 'sales_conversations', 'sales_kb_articles', 'sales_messages', 'store_categories', 'store_finance_entries', 'store_import_jobs', 'store_order_items', 'store_orders', 'store_product_images', 'store_product_variants', 'store_production_comments', 'store_production_jobs', 'store_production_stage_events', 'store_shipping_settings']
+  LOOP
+    IF to_regclass('public.' || t) IS NOT NULL THEN
+      EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', 'Dono da loja gerencia', t);
+      EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (%s) WITH CHECK (%s)',
+        'Dono da loja gerencia', t, dono, dono);
+    ELSE
+      RAISE NOTICE 'Tabela public.% não existe, pulada', t;
+    END IF;
+  END LOOP;
 
--- 3) Vitrine: cliente logado (e aluno/academia na loja do Dojo) lê o que o visitante já lê
-DROP POLICY IF EXISTS "Logados leem produtos ativos" ON public.products;
-CREATE POLICY "Logados leem produtos ativos" ON public.products FOR SELECT TO authenticated
-  USING (status = 'active');
-DROP POLICY IF EXISTS "Logados leem categorias ativas" ON public.store_categories;
-CREATE POLICY "Logados leem categorias ativas" ON public.store_categories FOR SELECT TO authenticated
-  USING (active = true);
-DROP POLICY IF EXISTS "Logados leem variantes ativas" ON public.store_product_variants;
-CREATE POLICY "Logados leem variantes ativas" ON public.store_product_variants FOR SELECT TO authenticated
-  USING (active = true AND EXISTS (SELECT 1 FROM public.products p WHERE p.id = product_id AND p.status = 'active'));
-DROP POLICY IF EXISTS "Logados leem imagens de produtos ativos" ON public.store_product_images;
-CREATE POLICY "Logados leem imagens de produtos ativos" ON public.store_product_images FOR SELECT TO authenticated
-  USING (EXISTS (SELECT 1 FROM public.products p WHERE p.id = product_id AND p.status = 'active'));
+  -- 3) Vitrine: cliente logado (e aluno/academia na loja do Dojo) lê o que o visitante já lê
+  IF to_regclass('public.products') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Logados leem produtos ativos" ON public.products;
+    CREATE POLICY "Logados leem produtos ativos" ON public.products FOR SELECT TO authenticated
+      USING (status = 'active');
+  END IF;
+  IF to_regclass('public.store_categories') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Logados leem categorias ativas" ON public.store_categories;
+    CREATE POLICY "Logados leem categorias ativas" ON public.store_categories FOR SELECT TO authenticated
+      USING (active = true);
+  END IF;
+  IF to_regclass('public.store_product_variants') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Logados leem variantes ativas" ON public.store_product_variants;
+    CREATE POLICY "Logados leem variantes ativas" ON public.store_product_variants FOR SELECT TO authenticated
+      USING (active = true AND EXISTS (SELECT 1 FROM public.products pr WHERE pr.id = product_id AND pr.status = 'active'));
+  END IF;
+  IF to_regclass('public.store_product_images') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Logados leem imagens de produtos ativos" ON public.store_product_images;
+    CREATE POLICY "Logados leem imagens de produtos ativos" ON public.store_product_images FOR SELECT TO authenticated
+      USING (EXISTS (SELECT 1 FROM public.products pr WHERE pr.id = product_id AND pr.status = 'active'));
+  END IF;
 
--- 4) Regras de atacado são exibidas ao cliente: leitura pública só dessa chave
-DROP POLICY IF EXISTS "Leitura pública das regras de atacado" ON public.app_settings;
-CREATE POLICY "Leitura pública das regras de atacado" ON public.app_settings FOR SELECT TO anon, authenticated
-  USING (key = 'wholesale_settings');
+  -- 4) Regras de atacado são exibidas ao cliente: leitura pública só dessa chave
+  IF to_regclass('public.app_settings') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Leitura pública das regras de atacado" ON public.app_settings;
+    CREATE POLICY "Leitura pública das regras de atacado" ON public.app_settings FOR SELECT TO anon, authenticated
+      USING (key = 'wholesale_settings');
+  END IF;
+END $$;
+
+-- 5) Conferência: policies ainda abertas a qualquer logado/anônimo nas tabelas da loja.
+--    O esperado é nenhuma linha (fora as duas públicas de propósito: tamanhos e visitas).
+SELECT tablename, policyname, cmd, roles, qual, with_check
+FROM pg_policies
+WHERE schemaname = 'public'
+  AND tablename ~ '^(store_|products|product_|app_settings|sales_|customer|profiles|price_|prospect|leads?|ig_|instagram|ads_|meta_|marketing|fiscal|nfe|invoices?$|email_|suppressed|scheduled_posts|user_roles)'
+  AND NOT (tablename = 'store_size_presets' AND policyname = 'Anyone can read size presets')
+  AND NOT (tablename = 'store_visits' AND policyname = 'Anyone can log a visit')
+  AND (
+    coalesce(qual, '') IN ('true', '(true)') OR coalesce(with_check, '') IN ('true', '(true)')
+    OR coalesce(qual, '') ILIKE '%auth.uid() IS NOT NULL%' OR coalesce(with_check, '') ILIKE '%auth.uid() IS NOT NULL%'
+    OR coalesce(qual, '') ILIKE '%auth.role()%authenticated%' OR coalesce(with_check, '') ILIKE '%auth.role()%authenticated%'
+  )
+ORDER BY tablename, policyname;
