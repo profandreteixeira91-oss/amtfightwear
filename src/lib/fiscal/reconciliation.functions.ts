@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export const reconcileFakeInvoices = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const s = context.supabase;
     

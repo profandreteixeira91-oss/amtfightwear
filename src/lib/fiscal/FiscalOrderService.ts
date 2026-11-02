@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export type BillingOrigin = "store_order" | "quote";
 
 export interface BillingOrder {
@@ -24,7 +24,7 @@ export interface BillingOrder {
 }
 
 export const listBillingOrders = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const sb = context.supabase;
 

@@ -32,6 +32,9 @@ import { brDate } from "@/lib/dates";
 import { KimonoGuideCallout, isKimonoContext } from "@/components/store/KimonoGuideLink";
 
 export const Route = createFileRoute("/loja/pedido/$id")({
+  // Pedido é dado pessoal: só o cliente dono (logado) ou o dono da loja veem.
+  // O token de login vive no navegador, então a página carrega só no cliente.
+  ssr: false,
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(queryOptions({ queryKey: ["store", "categories"], queryFn: () => listStoreCategories() })),

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 const GRAPH = "https://graph.facebook.com/v21.0";
 
 // ============= HELPERS =============
@@ -48,7 +48,7 @@ async function graphPost<T>(path: string, token: string, body: Record<string, un
 // ============= ACCOUNT =============
 
 export const getIgAccount = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data: account } = await context.supabase
       .from("ig_accounts")
@@ -61,7 +61,7 @@ export const getIgAccount = createServerFn({ method: "GET" })
   });
 
 export const subscribeIgWebhook = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const conn = await getActiveConnection(context.supabase as any);
     if (!conn) throw new Error("Nenhuma conexão ativa do Instagram. Conecte primeiro.");
@@ -124,7 +124,7 @@ export const subscribeIgWebhook = createServerFn({ method: "POST" })
   });
 
 export const syncIgProfile = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const t0 = Date.now();
     const conn = await getActiveConnection(context.supabase as any);
@@ -191,7 +191,7 @@ export const syncIgProfile = createServerFn({ method: "POST" })
   });
 
 export const syncIgMedia = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const t0 = Date.now();
     const conn = await getActiveConnection(context.supabase as any);
@@ -266,7 +266,7 @@ type IgMessageRaw = {
 type IgPaged<T> = { data?: T[]; paging?: { cursors?: { after?: string }; next?: string } };
 
 export const syncIgInbox = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       maxConversations: z.number().min(1).max(2000).optional(),
@@ -454,7 +454,7 @@ export const syncIgInbox = createServerFn({ method: "POST" })
 // ============= CONVERSATIONS =============
 
 export const listConversations = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       status: z.string().optional(),
@@ -480,7 +480,7 @@ export const listConversations = createServerFn({ method: "GET" })
   });
 
 export const getConversation = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: conv, error } = await context.supabase
@@ -509,7 +509,7 @@ export const getConversation = createServerFn({ method: "GET" })
   });
 
 export const sendMessage = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({ conversationId: z.string().uuid(), text: z.string().min(1).max(1000) }).parse(i),
   )
@@ -576,7 +576,7 @@ export const sendMessage = createServerFn({ method: "POST" })
   });
 
 export const updateConversation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
@@ -606,7 +606,7 @@ export const updateConversation = createServerFn({ method: "POST" })
   });
 
 export const promoteConversationToLead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ conversationId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: conv } = await context.supabase
@@ -642,7 +642,7 @@ export const promoteConversationToLead = createServerFn({ method: "POST" })
 // ============= DASHBOARD =============
 
 export const getDashboardKpis = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const [accs, convs, msgs, leads] = await Promise.all([
       (context.supabase as any).from("ig_accounts").select("id, status, followers_count").eq("user_id", context.userId),
@@ -673,7 +673,7 @@ export const getDashboardKpis = createServerFn({ method: "GET" })
 // ============= COMMENTS =============
 
 export const listComments = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("ig_comments").select("*").eq("user_id", context.userId)
@@ -693,7 +693,7 @@ const AutomationInput = z.object({
 });
 
 export const listAutomations = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("ig_automations").select("*").eq("user_id", context.userId).order("created_at", { ascending: false });
@@ -701,7 +701,7 @@ export const listAutomations = createServerFn({ method: "GET" })
   });
 
 export const upsertAutomation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => AutomationInput.parse(i))
   .handler(async ({ data, context }) => {
     if (data.id) {
@@ -720,7 +720,7 @@ export const upsertAutomation = createServerFn({ method: "POST" })
   });
 
 export const deleteAutomation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await (context.supabase as any).from("ig_automations").delete().eq("id", data.id).eq("user_id", context.userId);
@@ -731,7 +731,7 @@ export const deleteAutomation = createServerFn({ method: "POST" })
 // ============= ADMIN =============
 
 export const getIgAdminInfo = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const [syncLogs, webhookLogs, connections] = await Promise.all([
       (context.supabase as any).from("ig_sync_log").select("*").order("created_at", { ascending: false }).limit(50),
@@ -754,7 +754,7 @@ const AiInput = z.object({
 });
 
 export const aiConversationTools = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => AiInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: conv } = await context.supabase
@@ -812,7 +812,7 @@ function normalizeHandleLc(v: string): string {
  * dentro da janela de 7 dias — o front usa para mostrar "Inbox conectado".
  */
 export const listInboxConnectedHandles = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("ig_conversations")
@@ -837,7 +837,7 @@ export const listInboxConnectedHandles = createServerFn({ method: "GET" })
  * - Registra evento no timeline do lead quando `leadId` é passado.
  */
 export const sendLeadOutreachDm = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       igHandle: z.string().min(1).max(120),

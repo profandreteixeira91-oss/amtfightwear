@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { openrouterChat } from "./ai-gateway.server";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export const CONTENT_TYPES = [
   "product",       // divulgação de produto
   "category",      // divulgação de categoria/coleção
@@ -69,7 +69,7 @@ async function geminiGenerateText(prompt: string): Promise<string> {
 
 
 export const generateMarketingContent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((input: unknown) => GenerateInput.parse(input))
   .handler(async ({ data }) => {
     const { audience, typeBrief } = buildBrief(data);
@@ -145,7 +145,7 @@ const SuggestInput = z.object({
 });
 
 export const suggestViralTopics = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((input: unknown) => SuggestInput.parse(input))
   .handler(async ({ data, context }) => {
     const { data: viral } = await context.supabase
@@ -237,7 +237,7 @@ const AutoBriefInput = z.object({
 });
 
 export const autoBriefFromViral = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((input: unknown) => AutoBriefInput.parse(input ?? {}))
   .handler(async ({ data, context }) => {
     // 1. Posts virais recentes (por engajamento)

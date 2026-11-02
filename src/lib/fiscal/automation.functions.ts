@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export const getFiscalCategorySettings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from('fiscal_category_settings' as any)
@@ -13,7 +13,7 @@ export const getFiscalCategorySettings = createServerFn({ method: "GET" })
   });
 
 export const saveFiscalCategorySetting = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: any) => z.object({
     category_id: z.string(),
     ncm: z.string(),
@@ -48,7 +48,7 @@ export const saveFiscalCategorySetting = createServerFn({ method: "POST" })
   });
 
 export const getFiscalSuggestion = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: any) => z.object({ category_id: z.string() }).parse(data))
   .handler(async ({ data, context }) => {
     const { data: settings } = await context.supabase

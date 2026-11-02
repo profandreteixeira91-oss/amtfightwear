@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export type PackageProduct = {
   id: string;
   name: string;
@@ -16,7 +16,7 @@ export type PackageProduct = {
 };
 
 export const adminListPackageProducts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }): Promise<PackageProduct[]> => {
     const { data, error } = await context.supabase
       .from("products")
@@ -41,7 +41,7 @@ const dimsSchema = z.object({
 });
 
 export const adminSavePackageDimensions = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -64,7 +64,7 @@ export const adminSavePackageDimensions = createServerFn({ method: "POST" })
   });
 
 export const adminBulkApplyPackageDimensions = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 const MP_BASE = "https://api.mercadopago.com";
 
 function onlyDigits(s: string | null | undefined): string {
@@ -385,7 +386,7 @@ export const adminRegenerateStorePixQrCodes = createServerFn({ method: "POST" })
   });
 
 export const syncMercadopagoPayment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ order_id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

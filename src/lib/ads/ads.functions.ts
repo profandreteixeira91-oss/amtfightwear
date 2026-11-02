@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 // ---------- Schemas ----------
@@ -66,7 +65,7 @@ function extractJson(text: string): JsonValue {
 // ---------- Briefings ----------
 
 export const createBriefing = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => BriefingInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -97,7 +96,7 @@ export const createBriefing = createServerFn({ method: "POST" })
   });
 
 export const getBriefing = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -112,7 +111,7 @@ export const getBriefing = createServerFn({ method: "GET" })
 // ---------- IA Estratégica ----------
 
 export const generateAdsStrategy = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: b, error } = await context.supabase
@@ -172,7 +171,7 @@ Devolva SOMENTE JSON no formato:
 // ---------- IA de Público ----------
 
 export const suggestAudiences = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: b, error } = await context.supabase
@@ -211,7 +210,7 @@ Devolva SOMENTE JSON:
 // ---------- IA de Orçamento ----------
 
 export const estimateBudget = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ briefingId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: b, error } = await context.supabase
@@ -260,7 +259,7 @@ const CopyInput = z.object({
 });
 
 export const generateAdCopy = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => CopyInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: b, error } = await context.supabase
@@ -331,7 +330,7 @@ Notas de qualidade sinceras (0-10).`;
 // ---------- Campaigns ----------
 
 export const listCampaigns = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("ads_campaigns")
@@ -342,7 +341,7 @@ export const listCampaigns = createServerFn({ method: "GET" })
   });
 
 export const createCampaign = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -381,7 +380,7 @@ export const createCampaign = createServerFn({ method: "POST" })
 // ---------- Library ----------
 
 export const listCopies = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("ads_copies")
@@ -393,7 +392,7 @@ export const listCopies = createServerFn({ method: "GET" })
   });
 
 export const toggleCopyFavorite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), value: z.boolean() }).parse(i),
   )
@@ -407,7 +406,7 @@ export const toggleCopyFavorite = createServerFn({ method: "POST" })
   });
 
 export const deleteCopy = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ads_copies").delete().eq("id", data.id);
@@ -416,7 +415,7 @@ export const deleteCopy = createServerFn({ method: "POST" })
   });
 
 export const listCreatives = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("ads_creatives")
@@ -428,7 +427,7 @@ export const listCreatives = createServerFn({ method: "GET" })
   });
 
 export const saveCreative = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -460,7 +459,7 @@ export const saveCreative = createServerFn({ method: "POST" })
   });
 
 export const deleteCreative = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -474,7 +473,7 @@ export const deleteCreative = createServerFn({ method: "POST" })
 // ---------- Dashboard ----------
 
 export const getAdsDashboard = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const token = process.env["META_ADS_ACCESS_TOKEN"];
     const accountId = process.env["META_AD_ACCOUNT_ID"];
@@ -679,7 +678,7 @@ type MetaAdAccount = {
 };
 
 export const syncMetaAdAccounts = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data: conn, error } = await context.supabase
       .from("meta_connections")
@@ -720,7 +719,7 @@ export const syncMetaAdAccounts = createServerFn({ method: "POST" })
   });
 
 export const listAdsAccounts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("ads_accounts")
@@ -783,7 +782,7 @@ const PublishInput = z.object({
 });
 
 export const publishCampaignToMeta = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => PublishInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: campaign, error: cErr } = await context.supabase
@@ -956,7 +955,7 @@ async function setMetaStatus(
 }
 
 export const pauseCampaign = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await setMetaStatus(
@@ -969,7 +968,7 @@ export const pauseCampaign = createServerFn({ method: "POST" })
   });
 
 export const resumeCampaign = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await setMetaStatus(
@@ -1055,7 +1054,7 @@ export async function syncCampaignInsightsInternal(
 }
 
 export const syncCampaignInsights = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: campaign } = await context.supabase
@@ -1076,7 +1075,7 @@ export const syncCampaignInsights = createServerFn({ method: "POST" })
   });
 
 export const getCampaign = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: campaign, error } = await context.supabase
@@ -1098,7 +1097,7 @@ export const getCampaign = createServerFn({ method: "GET" })
   });
 
 export const deleteCampaign = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ads_campaigns").delete().eq("id", data.id);
@@ -1113,7 +1112,7 @@ import { runOptimizationForCampaigns } from "./ads-optimization";
 // ---------- Alerts ----------
 
 export const listAlerts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("ads_alerts")
@@ -1125,7 +1124,7 @@ export const listAlerts = createServerFn({ method: "GET" })
   });
 
 export const markAlertRead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -1137,7 +1136,7 @@ export const markAlertRead = createServerFn({ method: "POST" })
   });
 
 export const markAllAlertsRead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { error } = await context.supabase
       .from("ads_alerts")
@@ -1148,7 +1147,7 @@ export const markAllAlertsRead = createServerFn({ method: "POST" })
   });
 
 export const dismissAlert = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ads_alerts").delete().eq("id", data.id);
@@ -1159,7 +1158,7 @@ export const dismissAlert = createServerFn({ method: "POST" })
 // ---------- Optimizations ----------
 
 export const listOptimizations = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("ads_optimizations")
@@ -1171,7 +1170,7 @@ export const listOptimizations = createServerFn({ method: "GET" })
   });
 
 export const runOptimizationNow = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data: campaigns } = await context.supabase
       .from("ads_campaigns")
@@ -1185,7 +1184,7 @@ export const runOptimizationNow = createServerFn({ method: "POST" })
   });
 
 export const applyOptimization = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: opt, error } = await context.supabase
@@ -1243,7 +1242,7 @@ export const applyOptimization = createServerFn({ method: "POST" })
   });
 
 export const dismissOptimization = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -1275,7 +1274,7 @@ const ABTestInput = z.object({
 });
 
 export const createABTest = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => ABTestInput.parse(i))
   .handler(async ({ data, context }) => {
     const { data: test, error } = await context.supabase
@@ -1306,7 +1305,7 @@ export const createABTest = createServerFn({ method: "POST" })
   });
 
 export const listABTests = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({ campaignId: z.string().uuid().optional() }).parse(i ?? {}),
   )
@@ -1322,7 +1321,7 @@ export const listABTests = createServerFn({ method: "GET" })
   });
 
 export const endABTest = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), winnerVariantId: z.string().uuid().nullable().optional() }).parse(i),
   )
@@ -1340,7 +1339,7 @@ export const endABTest = createServerFn({ method: "POST" })
   });
 
 export const deleteABTest = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ads_ab_tests").delete().eq("id", data.id);
@@ -1354,8 +1353,9 @@ export const deleteABTest = createServerFn({ method: "POST" })
 import { decideScale, embedText, type ScaleCampaign } from "./ads-scale";
 import { todayISO } from "@/lib/dates";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export const listScaleHistory = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({ campaignId: z.string().uuid().optional() }).parse(i ?? {}),
   )
@@ -1373,7 +1373,7 @@ export const listScaleHistory = createServerFn({ method: "GET" })
   });
 
 export const listWinners = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const [creatives, copies, embeddings] = await Promise.all([
       context.supabase
@@ -1405,7 +1405,7 @@ export const listWinners = createServerFn({ method: "GET" })
   });
 
 export const runScaleNow = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data: campaigns, error } = await context.supabase
       .from("ads_campaigns")
@@ -1439,7 +1439,7 @@ export const runScaleNow = createServerFn({ method: "POST" })
   });
 
 export const suggestFromWinners = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -1523,7 +1523,7 @@ Retorne APENAS JSON: {"headline":"...","primary_text":"...","description":"...",
   });
 
 export const backfillWinnerEmbeddings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     // Find campaigns with ROAS >= 2 that don't have an embedding yet
     const { data: campaigns } = await context.supabase

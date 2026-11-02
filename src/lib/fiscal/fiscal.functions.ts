@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 /**
  * Interface para os dados fiscais de um produto
  */
@@ -31,7 +31,7 @@ export interface CertificateInfo {
 }
 
 export const getFiscalStatus = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const s = context.supabase;
     
@@ -76,7 +76,7 @@ export const getFiscalStatus = createServerFn({ method: "GET" })
   });
 
 export const getFiscalInvoices = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const s = context.supabase;
     const { data } = await s
@@ -89,7 +89,7 @@ export const getFiscalInvoices = createServerFn({ method: "GET" })
   });
 
 export const uploadCertificate = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     file_base64: z.string(),
     password: z.string(),
@@ -122,7 +122,7 @@ export const uploadCertificate = createServerFn({ method: "POST" })
   });
 
 export const saveFiscalConfig = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     razao_social: z.string(),
     cnpj: z.string(),

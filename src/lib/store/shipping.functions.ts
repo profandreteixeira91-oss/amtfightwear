@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 const ME_PROD = "https://www.melhorenvio.com.br/api/v2";
 const ME_SANDBOX = "https://sandbox.melhorenvio.com.br/api/v2";
 
@@ -16,7 +17,7 @@ function onlyDigits(s: string) {
 /* --------------------- Settings --------------------- */
 
 export const getShippingSettings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("store_shipping_settings")

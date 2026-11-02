@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export const getPricingConfig = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await (context.supabase as any)
       .from("app_pricing_configs")
@@ -30,7 +30,7 @@ export const getPricingConfig = createServerFn({ method: "GET" })
   });
 
 export const updatePricingConfig = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     min_net_margin: z.number().optional(),
     min_contribution_margin: z.number().optional(),
@@ -57,7 +57,7 @@ export const updatePricingConfig = createServerFn({ method: "POST" })
   });
 
 export const getFixedExpenses = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await (context.supabase as any)
       .from("fixed_expenses")
@@ -70,7 +70,7 @@ export const getFixedExpenses = createServerFn({ method: "GET" })
   });
 
 export const saveFixedExpense = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     id: z.string().uuid().optional(),
     name: z.string(),
@@ -93,7 +93,7 @@ export const saveFixedExpense = createServerFn({ method: "POST" })
   });
 
 export const deleteFixedExpense = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data: input, context }) => {
     const { error } = await (context.supabase as any)
@@ -107,7 +107,7 @@ export const deleteFixedExpense = createServerFn({ method: "POST" })
   });
 
 export const getMarketingInvestments = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await (context.supabase as any)
       .from("marketing_investments")
@@ -120,7 +120,7 @@ export const getMarketingInvestments = createServerFn({ method: "GET" })
   });
 
 export const saveMarketingInvestment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     id: z.string().uuid().optional(),
     channel: z.string(),
@@ -143,7 +143,7 @@ export const saveMarketingInvestment = createServerFn({ method: "POST" })
   });
 
 export const deleteMarketingInvestment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data: input, context }) => {
     const { error } = await (context.supabase as any)
@@ -157,7 +157,7 @@ export const deleteMarketingInvestment = createServerFn({ method: "POST" })
   });
 
 export const getCostCompositions = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({ productId: z.string().uuid() }).parse(data))
   .handler(async ({ data: input, context }) => {
     const { data, error } = await (context.supabase as any)
@@ -172,7 +172,7 @@ export const getCostCompositions = createServerFn({ method: "GET" })
   });
 
 export const saveCostComposition = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     id: z.string().uuid().optional(),
     product_id: z.string().uuid(),
@@ -217,7 +217,7 @@ export const saveCostComposition = createServerFn({ method: "POST" })
   });
 
 export const deleteCostComposition = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data: input, context }) => {
     const { error } = await (context.supabase as any)
@@ -231,7 +231,7 @@ export const deleteCostComposition = createServerFn({ method: "POST" })
   });
 
 export const listAllProductPricing = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await (context.supabase as any)
       .from("products")
@@ -252,7 +252,7 @@ export const listAllProductPricing = createServerFn({ method: "GET" })
   });
 
 export const updateCategoryBOM = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     category: z.string().optional(),
     sub_category_id: z.string().uuid().optional(),
@@ -347,7 +347,7 @@ export const updateCategoryBOM = createServerFn({ method: "POST" })
   });
 
 export const getStoreCategories = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await (context.supabase as any)
       .from("store_categories")

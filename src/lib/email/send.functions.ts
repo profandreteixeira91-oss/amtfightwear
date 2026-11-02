@@ -1,8 +1,9 @@
-import { createServerFn } from '@tanstack/react-start'
+
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";import { createServerFn } from '@tanstack/react-start'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 
 export const sendTransactionalEmailFn = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator(
     (data: {
       templateName: string

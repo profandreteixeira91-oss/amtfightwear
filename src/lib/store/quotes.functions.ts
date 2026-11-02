@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { QUOTE_STATUSES } from "./quote-status";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 const itemSchema = z.object({
   product_id: z.string().nullable().optional(),
   name: z.string().trim().min(1).max(200),
@@ -50,7 +50,7 @@ const quoteSchema = z.object({
 export type QuoteInput = z.infer<typeof quoteSchema>;
 
 export const adminListQuotes = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("store_quotes")
@@ -62,7 +62,7 @@ export const adminListQuotes = createServerFn({ method: "GET" })
   });
 
 export const adminGetQuote = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -75,7 +75,7 @@ export const adminGetQuote = createServerFn({ method: "GET" })
   });
 
 export const adminSaveQuote = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => quoteSchema.parse(i))
   .handler(async ({ data, context }) => {
     const subtotal = data.items.reduce((acc, it) => acc + it.quantity * it.unit_price, 0);
@@ -139,7 +139,7 @@ export const adminSaveQuote = createServerFn({ method: "POST" })
   });
 
 export const adminDeleteQuote = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await (await import("./quote-sync.server")).syncQuoteEverywhere(context.supabase, { id: data.id, status: "rejected", total: 0 });
@@ -153,7 +153,7 @@ export const adminDeleteQuote = createServerFn({ method: "POST" })
   });
 
 export const adminUpdateQuoteStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
@@ -175,7 +175,7 @@ export const adminUpdateQuoteStatus = createServerFn({ method: "POST" })
 
 /** Dados do emissor (AMT Fight Wear) usados no cabeçalho do PDF. */
 export const adminGetQuoteSettings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("app_settings")
@@ -186,7 +186,7 @@ export const adminGetQuoteSettings = createServerFn({ method: "GET" })
   });
 
 export const adminSaveQuoteSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       company_name: z.string().trim().max(160).default("AMT Fight Wear"),

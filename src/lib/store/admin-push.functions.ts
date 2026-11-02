@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 async function ensureAmtAdmin(context: any) {
   const { isSaasOwner } = await import("@/lib/auth/is-saas-owner");
   if (!(await isSaasOwner(context))) throw new Error("Somente admins AMT podem gerenciar notificações do painel.");
@@ -15,7 +15,7 @@ export const getAdminPushPublicKey = createServerFn({ method: "GET" }).handler(a
 
 /** Salva/atualiza a inscrição do navegador do admin. */
 export const saveAdminPushSubscription = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator(
     (data: { endpoint: string; p256dh: string; auth: string; userAgent?: string | null }) => data,
   )
@@ -39,7 +39,7 @@ export const saveAdminPushSubscription = createServerFn({ method: "POST" })
 
 /** Remove a inscrição por endpoint (chamado ao desativar as notificações). */
 export const removeAdminPushSubscription = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: { endpoint: string }) => data)
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -54,7 +54,7 @@ export const removeAdminPushSubscription = createServerFn({ method: "POST" })
 
 /** Verifica se o navegador atual está inscrito (útil para o toggle). */
 export const listMyAdminPushSubscriptions = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("store_admin_push_subscriptions")
@@ -66,7 +66,7 @@ export const listMyAdminPushSubscriptions = createServerFn({ method: "GET" })
 
 /** Dispara uma notificação de teste para o próprio usuário. */
 export const sendAdminPushTest = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     await ensureAmtAdmin(context);
     const { sendPushToUser } = await import("@/lib/push/admin-push.server");
@@ -81,7 +81,7 @@ export const sendAdminPushTest = createServerFn({ method: "POST" })
 
 /** Lista as preferências de notificação por evento do admin logado. */
 export const getAdminNotificationPrefs = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     await ensureAmtAdmin(context);
     const { data, error } = await context.supabase
@@ -96,7 +96,7 @@ export const getAdminNotificationPrefs = createServerFn({ method: "GET" })
 
 /** Ativa/desativa um tipo de notificação para o admin logado. */
 export const setAdminNotificationPref = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: { event: string; enabled: boolean }) => data)
   .handler(async ({ data, context }) => {
     await ensureAmtAdmin(context);
@@ -117,7 +117,7 @@ export const setAdminNotificationPref = createServerFn({ method: "POST" })
 
 /** Envia uma notificação de teste de um evento específico para o admin logado. */
 export const sendAdminPushEventTest = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: { event: string }) => data)
   .handler(async ({ data, context }) => {
     await ensureAmtAdmin(context);

@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export const getAutoPostSettings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("auto_post_settings")
@@ -22,7 +22,7 @@ const UpdateInput = z.object({
 });
 
 export const updateAutoPostSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => UpdateInput.parse(i))
   .handler(async ({ data, context }) => {
     const patch = { ...data, updated_by: context.userId };
@@ -38,7 +38,7 @@ export const updateAutoPostSettings = createServerFn({ method: "POST" })
   });
 
 export const runAutoPostNow = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ type: z.enum(["post", "carousel", "story", "reel"]).optional() }).parse(i ?? {}))
   .handler(async ({ data }) => {
     const base = `${process.env.SITE_URL || "https://amtfightwear.com.br"}/api/public/hooks/auto-instagram-post`;

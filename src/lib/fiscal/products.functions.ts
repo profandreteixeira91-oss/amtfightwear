@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export const getProductsWithFiscal = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     // Sem embed de store_categories: não existe FK entre products.category_id
     // e store_categories, então o PostgREST rejeita o join e a aba ficava vazia.
@@ -39,7 +39,7 @@ export const getProductsWithFiscal = createServerFn({ method: "GET" })
 
 
 export const updateProductFiscal = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     id: z.string().uuid(),
     ncm: z.string().optional().nullable(),

@@ -3,6 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 const GRAPH = "https://graph.facebook.com/v21.0";
 
 type ConnRow = {
@@ -70,7 +71,7 @@ const CreateInput = z.object({
 });
 
 export const createInstagramPost = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => CreateInput.parse(i))
   .handler(async ({ data, context }) => {
     const status = data.publishNow ? "publishing" : data.scheduledFor ? "scheduled" : "draft";
@@ -107,7 +108,7 @@ export const createInstagramPost = createServerFn({ method: "POST" })
   });
 
 export const listInstagramPosts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("scheduled_posts")
@@ -119,7 +120,7 @@ export const listInstagramPosts = createServerFn({ method: "GET" })
   });
 
 export const cancelInstagramPost = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -132,7 +133,7 @@ export const cancelInstagramPost = createServerFn({ method: "POST" })
   });
 
 export const rescheduleInstagramPost = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
@@ -166,7 +167,7 @@ export const rescheduleInstagramPost = createServerFn({ method: "POST" })
   });
 
 export const deleteInstagramPost = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase

@@ -9,6 +9,7 @@ import { z } from "zod";
 import { normalizeName, computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
 import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 // Tipo JSON-serializável aceito pelo TanStack Start.
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
 type JsonRow = { [k: string]: Json };
@@ -45,7 +46,7 @@ async function auditLog(
 // ============= DASHBOARD =============
 
 export const getDashboardStats = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const supa = context.supabase as unknown as {
       from: (t: string) => {
@@ -153,7 +154,7 @@ const listInput = z.object({
 });
 
 export const listLeads = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => listInput.parse(i))
   .handler(async ({ data, context }) => {
     const supa = context.supabase as any;
@@ -204,7 +205,7 @@ export const listLeads = createServerFn({ method: "POST" })
   });
 
 export const getLead = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const supa = context.supabase as unknown as {
@@ -228,7 +229,7 @@ export const getLead = createServerFn({ method: "GET" })
   });
 
 export const updateLead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({
     id: z.string().uuid(),
     patch: z.object({
@@ -257,7 +258,7 @@ export const updateLead = createServerFn({ method: "POST" })
   });
 
 export const deleteLead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await (context.supabase as unknown as {
@@ -280,7 +281,7 @@ const runSearchInput = z.object({
 });
 
 export const runSearch = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => runSearchInput.parse(i))
   .handler(async ({ data, context }) => {
     const { discoverCompanies, computeQualityTier } = await import("./prospect-engine.server");
@@ -380,7 +381,7 @@ const sweepInput = z.object({
  * com cada localidade selecionada, rodando queries multi-ângulo.
  */
 export const runMartialArtsSweep = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => sweepInput.parse(i))
   .handler(async ({ data, context }) => {
     const { discoverCompanies, buildMartialArtsQueries, computeQualityTier } = await import("./prospect-engine.server");
@@ -503,7 +504,7 @@ const dailyMaInput = z.object({
 });
 
 export const getDailyMaSettings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const supa = context.supabase as unknown as {
       from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => Promise<{ data: JsonRow | null }> } } };
@@ -522,7 +523,7 @@ export const getDailyMaSettings = createServerFn({ method: "GET" })
   });
 
 export const saveDailyMaSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => dailyMaInput.parse(i))
   .handler(async ({ data, context }) => {
     const supa = context.supabase as unknown as {
@@ -541,7 +542,7 @@ export const saveDailyMaSettings = createServerFn({ method: "POST" })
 
 /** Enriquece 1 lead sob demanda. */
 export const enrichLead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ companyId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { enrichCompanyCore } = await import("./prospect-engine.server");
@@ -550,7 +551,7 @@ export const enrichLead = createServerFn({ method: "POST" })
 
 /** Enriquece em lote — todos pendentes do usuário OU a lista de IDs informada. */
 export const enrichPendingLeads = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({
     ids: z.array(z.string().uuid()).max(200).optional(),
     limit: z.number().int().min(1).max(50).default(20),
@@ -598,7 +599,7 @@ export const enrichPendingLeads = createServerFn({ method: "POST" })
 // ============= BULK ACTIONS =============
 
 export const bulkDeleteLeads = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await (context.supabase as unknown as {
@@ -611,7 +612,7 @@ export const bulkDeleteLeads = createServerFn({ method: "POST" })
   });
 
 export const bulkUpdateLeads = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({
     ids: z.array(z.string().uuid()).min(1).max(500),
     patch: z.object({
@@ -635,7 +636,7 @@ export const bulkUpdateLeads = createServerFn({ method: "POST" })
 // ============= CONTACT ACTIONS (log de e-mail/whatsapp/instagram) =============
 
 export const logContactAction = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({
     companyId: z.string().uuid(),
     channel: z.enum(["email","whatsapp","instagram","phone"]),
@@ -660,7 +661,7 @@ export const logContactAction = createServerFn({ method: "POST" })
 // ============= AI helpers =============
 
 export const generateAiPitch = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ companyId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { aiExtract } = await import("./prospect-engine.server");
@@ -688,7 +689,7 @@ export const generateAiPitch = createServerFn({ method: "POST" })
 // ============= SETTINGS =============
 
 export const getSettings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data } = await (context.supabase as unknown as {
       from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => Promise<{ data: unknown }> } } };
@@ -697,7 +698,7 @@ export const getSettings = createServerFn({ method: "GET" })
   });
 
 export const upsertSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({
     required_fields: z.array(z.string()).optional(),
     score_weights: z.record(z.string(), z.number()).optional(),
@@ -724,7 +725,7 @@ export const upsertSettings = createServerFn({ method: "POST" })
 // ============= LOGS / SEARCHES / EXPORTS listing =============
 
 export const listSearches = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data } = await (context.supabase as unknown as {
       from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => Promise<{ data: JsonRow[] | null }> } } };
@@ -733,7 +734,7 @@ export const listSearches = createServerFn({ method: "GET" })
   });
 
 export const listLogs = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data } = await (context.supabase as unknown as {
       from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => { limit: (n: number) => Promise<{ data: JsonRow[] | null }> } } } };
@@ -742,7 +743,7 @@ export const listLogs = createServerFn({ method: "GET" })
   });
 
 export const listEnrichmentQueue = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data } = await (context.supabase as unknown as {
       from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => { limit: (n: number) => Promise<{ data: JsonRow[] | null }> } } } };
@@ -792,7 +793,7 @@ export const uploadOutreachImage = createServerFn({ method: "POST" })
  * mas fazemos a limpeza explícita para cobrir também registros órfãos.
  */
 export const purgeAllProspectData = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const supa = context.supabase as unknown as {
       from: (t: string) => { delete: () => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } };

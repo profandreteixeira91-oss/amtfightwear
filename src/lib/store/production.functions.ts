@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   STAGES,
   URGENCIES,
@@ -10,6 +9,7 @@ import {
 } from "@/lib/store/production-stages";
 import type { OrderType, Stage, Urgency } from "@/lib/store/production-stages";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 export type ProductionJob = {
   id: string;
   source: "order" | "quote" | "manual";
@@ -79,7 +79,7 @@ export type ProductionAnalytics = {
 
 /** Lista a fila completa, já ordenada por prioridade inteligente no cliente. */
 export const adminListProductionJobs = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }): Promise<ProductionJob[]> => {
     const { data, error } = await context.supabase
       .from("store_production_jobs")
@@ -104,7 +104,7 @@ export const adminListProductionJobs = createServerFn({ method: "GET" })
 
 /** Importa itens de pedidos da loja e de orçamentos aprovados que ainda não estão na fila. */
 export const adminSyncProductionQueue = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { supabase } = context;
 
@@ -272,7 +272,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
 
 /** Cria uma ordem de produção manual (pedido interno). */
 export const adminCreateProductionJob = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -303,7 +303,7 @@ export const adminCreateProductionJob = createServerFn({ method: "POST" })
 
 /** Atualiza um item da fila (etapa, prazo, responsável, urgência, observações). */
 export const adminUpdateProductionJob = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -372,7 +372,7 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
 
 /** Move um item para outra etapa (drag & drop, scanner e ações rápidas). */
 export const adminMoveProductionStage = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -405,7 +405,7 @@ export const adminMoveProductionStage = createServerFn({ method: "POST" })
 
 /** Ações em massa: etapa, responsável, urgência, prazo, pausa e finalização. */
 export const adminBulkUpdateProductionJobs = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -439,7 +439,7 @@ export const adminBulkUpdateProductionJobs = createServerFn({ method: "POST" })
 
 /** Remove itens da fila (não afeta o pedido/orçamento de origem). */
 export const adminDeleteProductionJob = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({ ids: z.array(z.string().uuid()).min(1).max(2000) }).parse(i),
   )
@@ -454,7 +454,7 @@ export const adminDeleteProductionJob = createServerFn({ method: "POST" })
 
 /** Linha do tempo + observações internas de um item. */
 export const adminProductionJobDetail = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(
     async ({
@@ -486,7 +486,7 @@ export const adminProductionJobDetail = createServerFn({ method: "GET" })
 
 /** Comentário interno (nunca exibido ao cliente). */
 export const adminAddProductionComment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
       .object({
@@ -508,7 +508,7 @@ export const adminAddProductionComment = createServerFn({ method: "POST" })
 
 /** Indicadores de desempenho da produção (tempos médios, gargalos, eficiência). */
 export const adminProductionAnalytics = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }): Promise<ProductionAnalytics> => {
     const since = new Date(Date.now() - 60 * 86400000).toISOString();
 

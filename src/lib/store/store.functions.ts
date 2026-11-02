@@ -5,6 +5,8 @@ import { normalizeEmbroideryName, requiresEmbroideryName } from "@/lib/store/per
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
+import { isSaasOwner } from "@/lib/auth/is-saas-owner";
 function publicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
   const url = process.env.SUPABASE_URL!;
@@ -61,7 +63,7 @@ export const getWholesaleSettings = createServerFn({ method: "GET" }).handler(as
 });
 
 export const adminSaveWholesaleSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       enabled: z.boolean(),
@@ -79,7 +81,7 @@ export const adminSaveWholesaleSettings = createServerFn({ method: "POST" })
   });
 
 export const adminBulkSetWholesaleEnabled = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ enabled: z.boolean() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error, count } = await context.supabase
@@ -636,22 +638,35 @@ export const createStoreOrder = createServerFn({ method: "POST" })
   });
 
 
+/** Só o cliente dono do pedido ou o dono da loja podem ver/cancelar um pedido. */
+async function canAccessOrder(order: { user_id: string | null }, context: Parameters<typeof isSaasOwner>[0]) {
+  return (!!order.user_id && order.user_id === context.userId) || (await isSaasOwner(context));
+}
+
 export const getStoreOrder = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .validator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: order } = await supabaseAdmin.from("store_orders").select("*").eq("id", data.id).maybeSingle();
-    if (!order) return null;
+    if (!order || !(await canAccessOrder(order as { user_id: string | null }, context))) return null;
     const { data: items } = await supabaseAdmin.from("store_order_items").select("*").eq("order_id", order.id);
     return { order, items: items ?? [] };
   });
 
 export const cancelStoreOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: order } = await supabaseAdmin.from("store_orders").select("id, status, payment_status").eq("id", data.id).maybeSingle();
-    if (!order) throw new Error("Pedido não encontrado.");
+    const { data: order } = await supabaseAdmin
+      .from("store_orders")
+      .select("id, status, payment_status, user_id")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!order || !(await canAccessOrder(order as { user_id: string | null }, context))) {
+      throw new Error("Pedido não encontrado.");
+    }
     const allowed = ["pending_payment", "pending", "failed"];
     if (!allowed.includes(String(order.status ?? "").toLowerCase())) {
       throw new Error("Este pedido não pode mais ser cancelado.");
@@ -695,7 +710,7 @@ function orderSearchFilter(q: string | undefined): string | null {
 }
 
 export const adminListOrders = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
   .handler(async ({ context, data: filter }) => {
     // Só as colunas da listagem: payment_raw, melhor_envio_data e o QR Pix em base64
@@ -716,7 +731,7 @@ export const adminListOrders = createServerFn({ method: "GET" })
 
 /** Quantidade de pedidos por status (abas da fila), respeitando a mesma busca da listagem. */
 export const adminCountOrdersByStatus = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
   .handler(async ({ context, data: filter }) => {
     let query = context.supabase.from("store_orders").select("status").limit(20000);
@@ -730,7 +745,7 @@ export const adminCountOrdersByStatus = createServerFn({ method: "GET" })
   });
 
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid(), status: z.string(), payment_status: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const patch: { status: string; payment_status?: string } = { status: data.status };
@@ -790,7 +805,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   });
 
 export const adminDeleteStoreOrder = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("store_orders").delete().eq("id", data.id);
@@ -801,7 +816,7 @@ export const adminDeleteStoreOrder = createServerFn({ method: "POST" })
 
 
 export const adminListStoreProducts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("products")
@@ -818,7 +833,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
   });
 
 export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       id: z.string().uuid().optional(),
@@ -851,7 +866,7 @@ export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
  * em todos os produtos vinculados a ela. Sobrescreve o valor em cada produto.
  */
 export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       category_id: z.string().uuid(),
@@ -891,7 +906,7 @@ export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST
   });
 
 export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
@@ -946,7 +961,7 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
   });
 
 export const adminGetStoreProduct = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     // Ambas as consultas são independentes: rodam em paralelo para reduzir
@@ -970,7 +985,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
 // Consulta dedicada às variações: permite que a aba "Variações" carregue em
 // paralelo, sem bloquear os campos do produto nem o botão Salvar.
 export const adminGetStoreProductVariants = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -998,7 +1013,7 @@ const VariantSchema = z.object({
 });
 
 export const adminSaveVariants = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       product_id: z.string().uuid(),
@@ -1033,7 +1048,7 @@ export const adminSaveVariants = createServerFn({ method: "POST" })
   });
 
 export const adminListStoreCategories = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("store_categories")
@@ -1044,7 +1059,7 @@ export const adminListStoreCategories = createServerFn({ method: "GET" })
   });
 
 export const adminDeleteStoreCategory = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("store_categories").delete().eq("id", data.id);
@@ -1053,7 +1068,7 @@ export const adminDeleteStoreCategory = createServerFn({ method: "POST" })
   });
 
 export const adminCreateStoreProduct = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z.object({
       name: z.string().min(1),
@@ -1087,7 +1102,7 @@ export const adminCreateStoreProduct = createServerFn({ method: "POST" })
   });
 
 export const adminDeleteStoreProduct = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("products").delete().eq("id", data.id);

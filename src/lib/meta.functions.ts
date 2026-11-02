@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 const REDIRECT_URI = "https://amtfightwear.com.br/api/public/meta/callback";
 const SCOPES = [
   "pages_show_list",
@@ -17,7 +17,7 @@ const SCOPES = [
 ].join(",");
 
 export const getMetaAuthUrl = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const appId = process.env.META_APP_ID;
     if (!appId) throw new Error("META_APP_ID não configurado");
@@ -39,7 +39,7 @@ export const getMetaAuthUrl = createServerFn({ method: "POST" })
   });
 
 export const getMetaConnection = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("meta_connections")
@@ -53,7 +53,7 @@ export const getMetaConnection = createServerFn({ method: "GET" })
   });
 
 export const disconnectMeta = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -79,7 +79,7 @@ type IGMedia = {
 };
 
 export const getMetaOverview = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .handler(async ({ context }) => {
     const { data: conn, error } = await context.supabase
       .from("meta_connections")

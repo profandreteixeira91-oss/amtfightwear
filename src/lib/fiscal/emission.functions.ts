@@ -1,15 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { resolveItemsFiscal } from "./fiscal-resolve.server";
 
 
 
+import { requireStoreOwner } from "@/lib/auth/owner-middleware";
 /**
  * Service to handle the full NF-e emission flow
  */
 export const emitNFe = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStoreOwner])
   .validator((data: unknown) => z.object({
     orderId: z.string().uuid(),
     type: z.enum(['order', 'quote']).default('order'),
