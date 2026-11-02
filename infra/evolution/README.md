@@ -5,50 +5,34 @@ A loja envia pelo WhatsApp:
 - **para o dono** (números em `WHATSAPP_ADMIN_TO`): aviso de **pedido pago**, com itens, nome a bordar e link do pedido;
 - **para o cliente**: pagamento confirmado, entrada em produção, envio (com rastreio) e entrega.
 
-O envio é feito pela [Evolution API](https://github.com/EvolutionAPI/evolution-api) v2, hospedada numa VPS
-própria (ela não roda no Cloudflare Worker da loja).
+## Servidor
 
-## 1. Subir a Evolution na VPS
+A loja usa a **mesma Evolution API do Dojo Manager** (`https://whatsapp.amtdojomanager.com.br`, v2.3.7),
+com uma **instância própria** (`amt-loja`), ligada ao número da loja. As academias do Dojo têm cada uma a
+sua instância no mesmo servidor; uma não interfere na outra.
 
-Requisitos: VPS Linux com Docker (1 vCPU / 1 GB de RAM bastam) e um subdomínio apontando para o IP dela
-(ex.: `whatsapp.amtfightwear.com.br`, registro A, sem proxy da Cloudflare na primeira emissão do certificado).
+O `docker-compose.yml`, o `Caddyfile` e o `.env.example` desta pasta ficam como referência, caso um dia a
+loja precise de um servidor separado.
 
-```bash
-mkdir -p ~/evolution && cd ~/evolution
-# copie docker-compose.yml, Caddyfile e .env.example desta pasta
-cp .env.example .env && nano .env   # troque todos os "TROCAR"
-docker compose up -d
-```
-
-O painel fica em `https://whatsapp.amtfightwear.com.br/manager` (login com a `AUTHENTICATION_API_KEY`).
-
-## 2. Conectar o número da loja
-
-No painel: **Create instance** → nome `amt-loja`, integração **Baileys** → **Connect** → leia o QR Code no
-WhatsApp do celular da loja (*Aparelhos conectados → Conectar aparelho*). O estado deve ficar **open**.
-
-> Use um número **só da loja**. A Evolution usa o WhatsApp Web (não é a API oficial da Meta): disparos em
-> massa, mensagens para quem nunca falou com a loja ou textos idênticos em sequência aumentam o risco de
-> bloqueio do número. Os avisos daqui são transacionais (um por evento de pedido), o caso de menor risco.
-
-## 3. Ligar na loja
-
-Nos segredos do servidor da loja (ou `.env.local` para testar localmente):
+## Variáveis no worker da loja (Cloudflare)
 
 ```
-EVOLUTION_API_URL=https://whatsapp.amtfightwear.com.br
-EVOLUTION_API_KEY=<AUTHENTICATION_API_KEY ou o token da instância>
-EVOLUTION_INSTANCE=amt-loja
-WHATSAPP_ADMIN_TO=5582999998888          # seu número; vários separados por vírgula
-SITE_URL=https://amtfightwear.com.br     # usado no link "Abrir" do aviso
+EVOLUTION_API_URL=https://whatsapp.amtdojomanager.com.br
+EVOLUTION_API_KEY=<a mesma chave global usada pelo Dojo Manager>   # Secret
+EVOLUTION_INSTANCE=amt-loja                                        # opcional, este é o padrão
+WHATSAPP_ADMIN_TO=5582999998888                                    # seu número; vários separados por vírgula
+SITE_URL=https://amtfightwear.com.br                               # link "Abrir" do aviso
 ```
 
-Depois, em **Central › Configurações › Notificações**, o card *WhatsApp da loja* deve mostrar
-**Ativo**; use **Enviar teste** para receber um aviso fictício.
+## Conectar o número da loja
 
-## Manutenção
+Na **Central › Configurações › Notificações**, card *WhatsApp da loja*:
 
-- Atualizar: troque a tag da imagem no `docker-compose.yml` e rode `docker compose pull && docker compose up -d`.
-- Se o celular da loja ficar muito tempo offline, a sessão pode cair: o card mostra *Desconectado* —
-  basta ler o QR Code de novo no painel.
-- Backup: os volumes `evolution_instances` e `postgres_data` guardam a sessão e o histórico.
+1. **Conectar WhatsApp da loja** → leia o QR Code com o celular da loja
+   (*WhatsApp › Aparelhos conectados › Conectar aparelho*), ou use **Código de pareamento** com o número.
+2. O card muda para **Conectado** sozinho e mostra o número e o perfil.
+3. **Enviar teste** manda um aviso de pedido pago fictício para os números de `WHATSAPP_ADMIN_TO`.
+
+> Use um número **só da loja**. A Evolution usa o WhatsApp Web (não é a API oficial da Meta). Os avisos daqui são
+> transacionais (um por evento de pedido), o uso de menor risco de bloqueio. Se o celular ficar muito tempo
+> offline, a sessão pode cair: o card mostra *Desconectado* e basta conectar de novo.
