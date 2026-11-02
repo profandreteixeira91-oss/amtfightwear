@@ -807,7 +807,7 @@ function MacroPage() {
                       <div className="font-semibold mb-1 flex items-center gap-1">
                         <Bot className="h-3 w-3" /> Automação 100% disponível
                       </div>
-                      Instale a extensão <strong>AMT Macro DM</strong> para o Dojo Manager clicar,
+                      Instale a extensão <strong>AMT Macro DM</strong> para o navegador clicar,
                       colar e enviar o DM sozinho no seu navegador.
                       <Button
                         size="sm"

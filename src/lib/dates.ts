@@ -1,6 +1,5 @@
 /**
- * Fonte ÚNICA de verdade para datas do sistema (Dojo Manager, Portal do Aluno,
- * cobranças, agenda, check-ins, relatórios e crons).
+ * Fonte ÚNICA de verdade para datas do sistema (pedidos, produção, relatórios e crons).
  *
  * Por que este arquivo existe:
  * - `new Date().toISOString().slice(0, 10)` devolve o dia em UTC. No servidor

@@ -275,8 +275,7 @@ function CalculatorV2() {
 
   return (
     <PageShell
-      eyebrow="Calc. de Faixas"
-      title="Dojo Manager Finance 2.0"
+      title="Calculadora de faixas"
       description="Gestão de custos, margens e estratégia de precificação. Cada seção salva ao confirmar."
       actions={
         // Recarrega só os dados da calculadora (antes recarregava a página inteira).

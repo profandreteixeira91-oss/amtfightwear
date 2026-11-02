@@ -455,11 +455,6 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
             <ul className="mt-4 space-y-2.5 text-sm text-white/75">
               <li><Link to="/privacy" className="transition-colors hover:text-white">Privacidade</Link></li>
               <li><Link to="/terms" className="transition-colors hover:text-white">Termos de uso</Link></li>
-              <li>
-                <a href="https://dojomanager.amtfightwear.com.br" target="_blank" rel="noreferrer" className="transition-colors hover:text-white">
-                  AMT Dojo Manager
-                </a>
-              </li>
             </ul>
           </div>
         </div>

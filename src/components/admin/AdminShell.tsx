@@ -78,7 +78,6 @@ import amtLogo from "@/assets/amt-logo.jpg";
  * Sidebar vermelha (texto branco) com os módulos da loja; seções com várias
  * telas (Catálogo, Fiscal, Marketing, Configurações) mostram as subpáginas
  * como abas no topo do conteúdo, em vez de alongar o menu.
- * O painel do Dojo Manager não faz parte desta central.
  */
 export function AdminShell({
   title,
@@ -309,7 +308,7 @@ function useNavBadges(): Record<string, number> {
 
 /* --------------------- Tema da sidebar / recentes ------------------------ */
 
-/** A sidebar do Dojo usa o mesmo componente: o vermelho vale só enquanto o admin está aberto. */
+/** O vermelho da sidebar vale só enquanto o admin está aberto (cobre também a versão mobile, num portal). */
 function useRedSidebarTheme() {
   React.useEffect(() => {
     document.body.classList.add("admin-red-sidebar");

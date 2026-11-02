@@ -1,72 +1,28 @@
 {
-  "id": "/app/",
-  "name": "Portal do Aluno - AMT Dojo Manager",
-  "short_name": "Portal Aluno",
-  "description": "Portal do Aluno AMT Dojo Manager — agenda, check-in, graduações, vídeos, financeiro e certificados no seu bolso.",
-  "start_url": "/app/",
-  "scope": "/app/",
+  "id": "/",
+  "name": "AMT Fight Wear",
+  "short_name": "AMT Fight Wear",
+  "description": "Loja oficial AMT Fight Wear — kimonos, faixas, rashguards e patches direto da fábrica.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
-  "background_color": "#000000",
+  "background_color": "#ffffff",
   "theme_color": "#dc2626",
   "lang": "pt-BR",
   "dir": "ltr",
-  "categories": ["sports", "education", "lifestyle"],
+  "categories": ["shopping", "sports", "lifestyle"],
   "prefer_related_applications": false,
   "icons": [
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-maskable-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
-    }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
   ],
   "shortcuts": [
-    {
-      "name": "Agenda",
-      "short_name": "Agenda",
-      "description": "Ver aulas e horários",
-      "url": "/app/agenda",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
-    },
-    {
-      "name": "Check-in",
-      "short_name": "Check-in",
-      "description": "Registrar presença",
-      "url": "/app/checkin",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
-    },
-    {
-      "name": "Financeiro",
-      "short_name": "Financeiro",
-      "description": "Faturas e pagamentos",
-      "url": "/app/finance",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
-    }
+    { "name": "Faixas", "short_name": "Faixas", "url": "/loja/categoria/faixas-de-jiu-jitsu", "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Meus pedidos", "short_name": "Pedidos", "url": "/loja/conta/pedidos", "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
   ]
 }

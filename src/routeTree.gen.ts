@@ -11,12 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AppRouteImport } from './routes/app'
 import { Route as AtacadoLpRouteImport } from './routes/atacado-lp'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DataDeletionRouteImport } from './routes/data-deletion'
-import { Route as DojoRouteImport } from './routes/dojo'
-import { Route as PayDemoRouteImport } from './routes/pay-demo'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -34,26 +31,12 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedStoreRouteImport } from './routes/_authenticated/store'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
-import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AppStudentRouteImport } from './routes/app._student'
-import { Route as AppInstallRouteImport } from './routes/app.install'
-import { Route as AppLoginRouteImport } from './routes/app.login'
-import { Route as AppResetPasswordRouteImport } from './routes/app.reset-password'
-import { Route as CertificateHashRouteImport } from './routes/certificate.$hash'
-import { Route as DojoIndexRouteImport } from './routes/dojo.index'
-import { Route as DojoAppRouteImport } from './routes/dojo.app'
-import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
-import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
-import { Route as DojoOnboardingRouteImport } from './routes/dojo.onboarding'
-import { Route as FerramentasCalculadoraTicketMedioRouteImport } from './routes/ferramentas.calculadora-ticket-medio'
 import { Route as LojaIndexRouteImport } from './routes/loja.index'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaEntrarRouteImport } from './routes/loja.entrar'
 import { Route as LojaGuiaKimonoRouteImport } from './routes/loja.guia-kimono'
-import { Route as MatriculaSlugRouteImport } from './routes/matricula.$slug'
-import { Route as PayInvoiceIdRouteImport } from './routes/pay.$invoiceId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 import { Route as AuthenticatedAdminAnunciosRouteImport } from './routes/_authenticated/admin.anuncios'
@@ -127,67 +110,6 @@ import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
 import { Route as ApiDesktopProductsRouteImport } from './routes/api/desktop/products'
 import { Route as ApiDesktopQuotesRouteImport } from './routes/api/desktop/quotes'
-import { Route as ApiDojoApkUploadRouteImport } from './routes/api/dojo/apk-upload'
-import { Route as ApiPublicDojoManifestDotwebmanifestRouteImport } from './routes/api/public/dojo-manifest[.]webmanifest'
-import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
-import { Route as AppStudentAnnouncementsRouteImport } from './routes/app._student.announcements'
-import { Route as AppStudentCardRouteImport } from './routes/app._student.card'
-import { Route as AppStudentCertificatesRouteImport } from './routes/app._student.certificates'
-import { Route as AppStudentCheckinRouteImport } from './routes/app._student.checkin'
-import { Route as AppStudentCompetitionsRouteImport } from './routes/app._student.competitions'
-import { Route as AppStudentDocumentsRouteImport } from './routes/app._student.documents'
-import { Route as AppStudentEvaluationsRouteImport } from './routes/app._student.evaluations'
-import { Route as AppStudentFinanceRouteImport } from './routes/app._student.finance'
-import { Route as AppStudentGraduationsRouteImport } from './routes/app._student.graduations'
-import { Route as AppStudentHomeRouteImport } from './routes/app._student.home'
-import { Route as AppStudentNewsRouteImport } from './routes/app._student.news'
-import { Route as AppStudentNotificationsRouteImport } from './routes/app._student.notifications'
-import { Route as AppStudentOnboardingRouteImport } from './routes/app._student.onboarding'
-import { Route as AppStudentPerformanceRouteImport } from './routes/app._student.performance'
-import { Route as AppStudentProfileRouteImport } from './routes/app._student.profile'
-import { Route as AppStudentRankingRouteImport } from './routes/app._student.ranking'
-import { Route as AppStudentScheduleRouteImport } from './routes/app._student.schedule'
-import { Route as AppStudentSettingsRouteImport } from './routes/app._student.settings'
-import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
-import { Route as AppInstallSlugRouteImport } from './routes/app.install.$slug'
-import { Route as DojoAppIndexRouteImport } from './routes/dojo.app.index'
-import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
-import { Route as DojoAppAnnouncementsRouteImport } from './routes/dojo.app.announcements'
-import { Route as DojoAppApkVersionsRouteImport } from './routes/dojo.app.apk-versions'
-import { Route as DojoAppBeltStudioRouteImport } from './routes/dojo.app.belt-studio'
-import { Route as DojoAppBeltsRouteImport } from './routes/dojo.app.belts'
-import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
-import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
-import { Route as DojoAppClassesRouteImport } from './routes/dojo.app.classes'
-import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
-import { Route as DojoAppContractsRouteImport } from './routes/dojo.app.contracts'
-import { Route as DojoAppCorporateBenefitsRouteImport } from './routes/dojo.app.corporate-benefits'
-import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evaluations'
-import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
-import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.graduations'
-import { Route as DojoAppInstallRouteImport } from './routes/dojo.app.install'
-import { Route as DojoAppIntegrationsRouteImport } from './routes/dojo.app.integrations'
-import { Route as DojoAppLessonPlansRouteImport } from './routes/dojo.app.lesson-plans'
-import { Route as DojoAppNotificationsRouteImport } from './routes/dojo.app.notifications'
-import { Route as DojoAppPlansRouteImport } from './routes/dojo.app.plans'
-import { Route as DojoAppRankingRouteImport } from './routes/dojo.app.ranking'
-import { Route as DojoAppSalesRouteImport } from './routes/dojo.app.sales'
-import { Route as DojoAppScheduleRouteImport } from './routes/dojo.app.schedule'
-import { Route as DojoAppStoreRouteImport } from './routes/dojo.app.store'
-import { Route as DojoAppStudentAppQrRouteImport } from './routes/dojo.app.student-app-qr'
-import { Route as DojoAppStudentNotificationsConfigRouteImport } from './routes/dojo.app.student-notifications-config'
-import { Route as DojoAppStudentsRouteImport } from './routes/dojo.app.students'
-import { Route as DojoAppSubscriptionRouteImport } from './routes/dojo.app.subscription'
-import { Route as DojoAppSupportRouteImport } from './routes/dojo.app.support'
-import { Route as DojoAppSystemUsersRouteImport } from './routes/dojo.app.system-users'
-import { Route as DojoAppTutorialRouteImport } from './routes/dojo.app.tutorial'
-import { Route as DojoAppTutorialEditorRouteImport } from './routes/dojo.app.tutorial-editor'
-import { Route as DojoAppVideosRouteImport } from './routes/dojo.app.videos'
-import { Route as DojoCertificateEditorIdRouteImport } from './routes/dojo.certificate-editor.$id'
-import { Route as DojoMatriculaSlugRouteImport } from './routes/dojo.matricula.$slug'
-import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoiceId'
-import { Route as DojoStaffPortalRouteImport } from './routes/dojo.staff._portal'
-import { Route as DojoStaffAuthRouteImport } from './routes/dojo.staff.auth'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
 import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
@@ -251,18 +173,11 @@ import { Route as AuthenticatedAdminProdutosTamanhosRouteImport } from './routes
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as ApiDesktopProductsIdRouteImport } from './routes/api/desktop/products.$id'
 import { Route as ApiDesktopQuotesIdRouteImport } from './routes/api/desktop/quotes.$id'
-import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
-import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
 import { Route as ApiPublicHooksAdminPushRouteImport } from './routes/api/public/hooks/admin-push'
-import { Route as ApiPublicHooksApplyScheduledGraduationsRouteImport } from './routes/api/public/hooks/apply-scheduled-graduations'
-import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
 import { Route as ApiPublicHooksAuthEmailRouteImport } from './routes/api/public/hooks/auth-email'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
-import { Route as ApiPublicHooksCompetitionsIngestRouteImport } from './routes/api/public/hooks/competitions-ingest'
-import { Route as ApiPublicHooksDojoWalletReconcileRouteImport } from './routes/api/public/hooks/dojo-wallet-reconcile'
 import { Route as ApiPublicHooksEmailEventsRouteImport } from './routes/api/public/hooks/email-events'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
-import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
 import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
@@ -271,79 +186,12 @@ import { Route as ApiPublicHooksMercadopagoRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
 import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
 import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
-import { Route as ApiPublicHooksSendClassRemindersRouteImport } from './routes/api/public/hooks/send-class-reminders'
-import { Route as ApiPublicHooksSendDojoRemindersRouteImport } from './routes/api/public/hooks/send-dojo-reminders'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
-import { Route as AppStudentCompetitionsIdRouteImport } from './routes/app._student.competitions.$id'
-import { Route as AppStudentDocumentsIndexRouteImport } from './routes/app._student.documents.index'
-import { Route as AppStudentDocumentsIdRouteImport } from './routes/app._student.documents.$id'
-import { Route as AppStudentInvoiceIdRouteImport } from './routes/app._student.invoice.$id'
-import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
-import { Route as DojoAppCompetitionsIdRouteImport } from './routes/dojo.app.competitions.$id'
-import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo.app.contract-templates.index'
-import { Route as DojoAppContractTemplatesIdRouteImport } from './routes/dojo.app.contract-templates.$id'
-import { Route as DojoAppContractsIndexRouteImport } from './routes/dojo.app.contracts.index'
-import { Route as DojoAppContractsIssuedRouteImport } from './routes/dojo.app.contracts.issued'
-import { Route as DojoAppContractsTemplatesRouteImport } from './routes/dojo.app.contracts.templates'
-import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.evaluations.index'
-import { Route as DojoAppEvaluationsCategoriesRouteImport } from './routes/dojo.app.evaluations.categories'
-import { Route as DojoAppEvaluationsHistoryRouteImport } from './routes/dojo.app.evaluations.history'
-import { Route as DojoAppEvaluationsLibraryRouteImport } from './routes/dojo.app.evaluations.library'
-import { Route as DojoAppEvaluationsSessionsRouteImport } from './routes/dojo.app.evaluations.sessions'
-import { Route as DojoAppEvaluationsSettingsRouteImport } from './routes/dojo.app.evaluations.settings'
-import { Route as DojoAppEvaluationsTechniquesRouteImport } from './routes/dojo.app.evaluations.techniques'
-import { Route as DojoAppEvaluationsTemplatesRouteImport } from './routes/dojo.app.evaluations.templates'
-import { Route as DojoAppLessonPlansIndexRouteImport } from './routes/dojo.app.lesson-plans.index'
-import { Route as DojoAppLessonPlansIdRouteImport } from './routes/dojo.app.lesson-plans.$id'
-import { Route as DojoAppLessonPlansHistoryRouteImport } from './routes/dojo.app.lesson-plans.history'
-import { Route as DojoAppLessonPlansLibraryRouteImport } from './routes/dojo.app.lesson-plans.library'
-import { Route as DojoAppLessonPlansTechniquesRouteImport } from './routes/dojo.app.lesson-plans.techniques'
-import { Route as DojoAppStoreIndexRouteImport } from './routes/dojo.app.store.index'
-import { Route as DojoAppStoreCarrinhoRouteImport } from './routes/dojo.app.store.carrinho'
-import { Route as DojoAppStorePedidosRouteImport } from './routes/dojo.app.store.pedidos'
-import { Route as DojoAppStudentsIndexRouteImport } from './routes/dojo.app.students.index'
-import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
-import { Route as DojoAppTeamIndexRouteImport } from './routes/dojo.app.team.index'
-import { Route as DojoAppTeamIdRouteImport } from './routes/dojo.app.team.$id'
-import { Route as DojoAppTeamPayrollRouteImport } from './routes/dojo.app.team.payroll'
-import { Route as DojoAppTeamSchedulesRouteImport } from './routes/dojo.app.team.schedules'
-import { Route as DojoAppUnitsIndexRouteImport } from './routes/dojo.app.units.index'
-import { Route as DojoAppVideosIndexRouteImport } from './routes/dojo.app.videos.index'
-import { Route as DojoAppVideosIdRouteImport } from './routes/dojo.app.videos.$id'
-import { Route as DojoAppVideosCategoriasRouteImport } from './routes/dojo.app.videos.categorias'
-import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.videos.favoritos'
-import { Route as DojoAppVideosNovoRouteImport } from './routes/dojo.app.videos.novo'
-import { Route as DojoStaffPortalIndexRouteImport } from './routes/dojo.staff._portal.index'
-import { Route as DojoStaffPortalAnnouncementsRouteImport } from './routes/dojo.staff._portal.announcements'
-import { Route as DojoStaffPortalBeltsRouteImport } from './routes/dojo.staff._portal.belts'
-import { Route as DojoStaffPortalCertificatesRouteImport } from './routes/dojo.staff._portal.certificates'
-import { Route as DojoStaffPortalCheckinRouteImport } from './routes/dojo.staff._portal.checkin'
-import { Route as DojoStaffPortalCompetitionsRouteImport } from './routes/dojo.staff._portal.competitions'
-import { Route as DojoStaffPortalEvaluationsRouteImport } from './routes/dojo.staff._portal.evaluations'
-import { Route as DojoStaffPortalGraduationsRouteImport } from './routes/dojo.staff._portal.graduations'
-import { Route as DojoStaffPortalProfileRouteImport } from './routes/dojo.staff._portal.profile'
-import { Route as DojoStaffPortalSalesRouteImport } from './routes/dojo.staff._portal.sales'
-import { Route as DojoStaffPortalScheduleRouteImport } from './routes/dojo.staff._portal.schedule'
-import { Route as DojoStaffPortalStoreRouteImport } from './routes/dojo.staff._portal.store'
-import { Route as DojoStaffPortalStudentsRouteImport } from './routes/dojo.staff._portal.students'
 import { Route as AuthenticatedAdminAnunciosCampanhasIdRouteImport } from './routes/_authenticated/admin.anuncios.campanhas.$id'
-import { Route as ApiPublicAppSlugDownloadRouteImport } from './routes/api/public/app/$slug/download'
-import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
-import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
-import { Route as DojoAppEvaluationsSessionsIdRouteImport } from './routes/dojo.app.evaluations.sessions.$id'
-import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
-import { Route as DojoAppEvaluationsTemplatesIdRouteImport } from './routes/dojo.app.evaluations.templates.$id'
-import { Route as DojoAppStorePedidosIdRouteImport } from './routes/dojo.app.store.pedidos.$id'
-import { Route as DojoAppStoreProdutosSlugRouteImport } from './routes/dojo.app.store.produtos.$slug'
-import { Route as DojoAppStudentsIdAnalysisRouteImport } from './routes/dojo.app.students.$id.analysis'
-import { Route as DojoAppUnitsAffiliatesIdRouteImport } from './routes/dojo.app.units.affiliates.$id'
-import { Route as DojoAppContractsIssuedKindIdRouteImport } from './routes/dojo.app.contracts.issued.$kind.$id'
-import { Route as DojoAppStoreCCategoriaIndexRouteImport } from './routes/dojo.app.store.c.$categoria.index'
-import { Route as DojoAppStoreCCategoriaSubcategoriaRouteImport } from './routes/dojo.app.store.c.$categoria.$subcategoria'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -352,11 +200,6 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AtacadoLpRoute = AtacadoLpRouteImport.update({
@@ -372,16 +215,6 @@ const AuthRoute = AuthRouteImport.update({
 const DataDeletionRoute = DataDeletionRouteImport.update({
   id: '/data-deletion',
   path: '/data-deletion',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DojoRoute = DojoRouteImport.update({
-  id: '/dojo',
-  path: '/dojo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PayDemoRoute = PayDemoRouteImport.update({
-  id: '/pay-demo',
-  path: '/pay-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -469,66 +302,6 @@ const ApiGenerateAdImageRoute = ApiGenerateAdImageRouteImport.update({
   path: '/api/generate-ad-image',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppStudentRoute = AppStudentRouteImport.update({
-  id: '/_student',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppInstallRoute = AppInstallRouteImport.update({
-  id: '/install',
-  path: '/install',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLoginRoute = AppLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppResetPasswordRoute = AppResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => AppRoute,
-} as any)
-const CertificateHashRoute = CertificateHashRouteImport.update({
-  id: '/certificate/$hash',
-  path: '/certificate/$hash',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DojoIndexRoute = DojoIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoAppRoute = DojoAppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoAuthRoute = DojoAuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoCheckoutRoute = DojoCheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoOnboardingRoute = DojoOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => DojoRoute,
-} as any)
-const FerramentasCalculadoraTicketMedioRoute =
-  FerramentasCalculadoraTicketMedioRouteImport.update({
-    id: '/ferramentas/calculadora-ticket-medio',
-    path: '/ferramentas/calculadora-ticket-medio',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const LojaIndexRoute = LojaIndexRouteImport.update({
   id: '/loja/',
   path: '/loja/',
@@ -557,16 +330,6 @@ const LojaEntrarRoute = LojaEntrarRouteImport.update({
 const LojaGuiaKimonoRoute = LojaGuiaKimonoRouteImport.update({
   id: '/loja/guia-kimono',
   path: '/loja/guia-kimono',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MatriculaSlugRoute = MatriculaSlugRouteImport.update({
-  id: '/matricula/$slug',
-  path: '/matricula/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PayInvoiceIdRoute = PayInvoiceIdRouteImport.update({
-  id: '/pay/$invoiceId',
-  path: '/pay/$invoiceId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -988,314 +751,6 @@ const ApiDesktopQuotesRoute = ApiDesktopQuotesRouteImport.update({
   path: '/api/desktop/quotes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDojoApkUploadRoute = ApiDojoApkUploadRouteImport.update({
-  id: '/api/dojo/apk-upload',
-  path: '/api/dojo/apk-upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicDojoManifestDotwebmanifestRoute =
-  ApiPublicDojoManifestDotwebmanifestRouteImport.update({
-    id: '/api/public/dojo-manifest.webmanifest',
-    path: '/api/public/dojo-manifest.webmanifest',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AppStudentAgendaRoute = AppStudentAgendaRouteImport.update({
-  id: '/agenda',
-  path: '/agenda',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentAnnouncementsRoute = AppStudentAnnouncementsRouteImport.update({
-  id: '/announcements',
-  path: '/announcements',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentCardRoute = AppStudentCardRouteImport.update({
-  id: '/card',
-  path: '/card',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentCertificatesRoute = AppStudentCertificatesRouteImport.update({
-  id: '/certificates',
-  path: '/certificates',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentCheckinRoute = AppStudentCheckinRouteImport.update({
-  id: '/checkin',
-  path: '/checkin',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentCompetitionsRoute = AppStudentCompetitionsRouteImport.update({
-  id: '/competitions',
-  path: '/competitions',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentDocumentsRoute = AppStudentDocumentsRouteImport.update({
-  id: '/documents',
-  path: '/documents',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentEvaluationsRoute = AppStudentEvaluationsRouteImport.update({
-  id: '/evaluations',
-  path: '/evaluations',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentFinanceRoute = AppStudentFinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentGraduationsRoute = AppStudentGraduationsRouteImport.update({
-  id: '/graduations',
-  path: '/graduations',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentHomeRoute = AppStudentHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentNewsRoute = AppStudentNewsRouteImport.update({
-  id: '/news',
-  path: '/news',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentNotificationsRoute = AppStudentNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentOnboardingRoute = AppStudentOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentPerformanceRoute = AppStudentPerformanceRouteImport.update({
-  id: '/performance',
-  path: '/performance',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentProfileRoute = AppStudentProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentRankingRoute = AppStudentRankingRouteImport.update({
-  id: '/ranking',
-  path: '/ranking',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentScheduleRoute = AppStudentScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentSettingsRoute = AppStudentSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppStudentVideosRoute = AppStudentVideosRouteImport.update({
-  id: '/videos',
-  path: '/videos',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const AppInstallSlugRoute = AppInstallSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => AppInstallRoute,
-} as any)
-const DojoAppIndexRoute = DojoAppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppAccountRoute = DojoAppAccountRouteImport.update({
-  id: '/account',
-  path: '/account',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppAnnouncementsRoute = DojoAppAnnouncementsRouteImport.update({
-  id: '/announcements',
-  path: '/announcements',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppApkVersionsRoute = DojoAppApkVersionsRouteImport.update({
-  id: '/apk-versions',
-  path: '/apk-versions',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppBeltStudioRoute = DojoAppBeltStudioRouteImport.update({
-  id: '/belt-studio',
-  path: '/belt-studio',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppBeltsRoute = DojoAppBeltsRouteImport.update({
-  id: '/belts',
-  path: '/belts',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppCertificatesRoute = DojoAppCertificatesRouteImport.update({
-  id: '/certificates',
-  path: '/certificates',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppCheckinRoute = DojoAppCheckinRouteImport.update({
-  id: '/checkin',
-  path: '/checkin',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppClassesRoute = DojoAppClassesRouteImport.update({
-  id: '/classes',
-  path: '/classes',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppCompetitionsRoute = DojoAppCompetitionsRouteImport.update({
-  id: '/competitions',
-  path: '/competitions',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppContractsRoute = DojoAppContractsRouteImport.update({
-  id: '/contracts',
-  path: '/contracts',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppCorporateBenefitsRoute =
-  DojoAppCorporateBenefitsRouteImport.update({
-    id: '/corporate-benefits',
-    path: '/corporate-benefits',
-    getParentRoute: () => DojoAppRoute,
-  } as any)
-const DojoAppEvaluationsRoute = DojoAppEvaluationsRouteImport.update({
-  id: '/evaluations',
-  path: '/evaluations',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppFinanceRoute = DojoAppFinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppGraduationsRoute = DojoAppGraduationsRouteImport.update({
-  id: '/graduations',
-  path: '/graduations',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppInstallRoute = DojoAppInstallRouteImport.update({
-  id: '/install',
-  path: '/install',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppIntegrationsRoute = DojoAppIntegrationsRouteImport.update({
-  id: '/integrations',
-  path: '/integrations',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppLessonPlansRoute = DojoAppLessonPlansRouteImport.update({
-  id: '/lesson-plans',
-  path: '/lesson-plans',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppNotificationsRoute = DojoAppNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppPlansRoute = DojoAppPlansRouteImport.update({
-  id: '/plans',
-  path: '/plans',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppRankingRoute = DojoAppRankingRouteImport.update({
-  id: '/ranking',
-  path: '/ranking',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppSalesRoute = DojoAppSalesRouteImport.update({
-  id: '/sales',
-  path: '/sales',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppScheduleRoute = DojoAppScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppStoreRoute = DojoAppStoreRouteImport.update({
-  id: '/store',
-  path: '/store',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppStudentAppQrRoute = DojoAppStudentAppQrRouteImport.update({
-  id: '/student-app-qr',
-  path: '/student-app-qr',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppStudentNotificationsConfigRoute =
-  DojoAppStudentNotificationsConfigRouteImport.update({
-    id: '/student-notifications-config',
-    path: '/student-notifications-config',
-    getParentRoute: () => DojoAppRoute,
-  } as any)
-const DojoAppStudentsRoute = DojoAppStudentsRouteImport.update({
-  id: '/students',
-  path: '/students',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppSubscriptionRoute = DojoAppSubscriptionRouteImport.update({
-  id: '/subscription',
-  path: '/subscription',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppSupportRoute = DojoAppSupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppSystemUsersRoute = DojoAppSystemUsersRouteImport.update({
-  id: '/system-users',
-  path: '/system-users',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTutorialRoute = DojoAppTutorialRouteImport.update({
-  id: '/tutorial',
-  path: '/tutorial',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTutorialEditorRoute = DojoAppTutorialEditorRouteImport.update({
-  id: '/tutorial-editor',
-  path: '/tutorial-editor',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppVideosRoute = DojoAppVideosRouteImport.update({
-  id: '/videos',
-  path: '/videos',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoCertificateEditorIdRoute = DojoCertificateEditorIdRouteImport.update({
-  id: '/certificate-editor/$id',
-  path: '/certificate-editor/$id',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoMatriculaSlugRoute = DojoMatriculaSlugRouteImport.update({
-  id: '/matricula/$slug',
-  path: '/matricula/$slug',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoPayInvoiceIdRoute = DojoPayInvoiceIdRouteImport.update({
-  id: '/pay/$invoiceId',
-  path: '/pay/$invoiceId',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoStaffPortalRoute = DojoStaffPortalRouteImport.update({
-  id: '/staff/_portal',
-  path: '/staff',
-  getParentRoute: () => DojoRoute,
-} as any)
-const DojoStaffAuthRoute = DojoStaffAuthRouteImport.update({
-  id: '/staff/auth',
-  path: '/staff/auth',
-  getParentRoute: () => DojoRoute,
-} as any)
 const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
   id: '/loja/categoria/$slug',
   path: '/loja/categoria/$slug',
@@ -1666,32 +1121,9 @@ const ApiDesktopQuotesIdRoute = ApiDesktopQuotesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiDesktopQuotesRoute,
 } as any)
-const ApiPublicAppManifestDotwebmanifestRoute =
-  ApiPublicAppManifestDotwebmanifestRouteImport.update({
-    id: '/api/public/app/manifest.webmanifest',
-    path: '/api/public/app/manifest.webmanifest',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicCertificateHashRoute =
-  ApiPublicCertificateHashRouteImport.update({
-    id: '/api/public/certificate/$hash',
-    path: '/api/public/certificate/$hash',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksAdminPushRoute = ApiPublicHooksAdminPushRouteImport.update({
   id: '/api/public/hooks/admin-push',
   path: '/api/public/hooks/admin-push',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicHooksApplyScheduledGraduationsRoute =
-  ApiPublicHooksApplyScheduledGraduationsRouteImport.update({
-    id: '/api/public/hooks/apply-scheduled-graduations',
-    path: '/api/public/hooks/apply-scheduled-graduations',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksAsaasRoute = ApiPublicHooksAsaasRouteImport.update({
-  id: '/api/public/hooks/asaas',
-  path: '/api/public/hooks/asaas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHooksAuthEmailRoute = ApiPublicHooksAuthEmailRouteImport.update({
@@ -1705,18 +1137,6 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksCompetitionsIngestRoute =
-  ApiPublicHooksCompetitionsIngestRouteImport.update({
-    id: '/api/public/hooks/competitions-ingest',
-    path: '/api/public/hooks/competitions-ingest',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksDojoWalletReconcileRoute =
-  ApiPublicHooksDojoWalletReconcileRouteImport.update({
-    id: '/api/public/hooks/dojo-wallet-reconcile',
-    path: '/api/public/hooks/dojo-wallet-reconcile',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksEmailEventsRoute =
   ApiPublicHooksEmailEventsRouteImport.update({
     id: '/api/public/hooks/email-events',
@@ -1727,12 +1147,6 @@ const ApiPublicHooksEnrichPendingLeadsRoute =
   ApiPublicHooksEnrichPendingLeadsRouteImport.update({
     id: '/api/public/hooks/enrich-pending-leads',
     path: '/api/public/hooks/enrich-pending-leads',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksGenerateDojoInvoicesRoute =
-  ApiPublicHooksGenerateDojoInvoicesRouteImport.update({
-    id: '/api/public/hooks/generate-dojo-invoices',
-    path: '/api/public/hooks/generate-dojo-invoices',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksIgSyncRoute = ApiPublicHooksIgSyncRouteImport.update({
@@ -1781,18 +1195,6 @@ const ApiPublicHooksScaleWinnersRoute =
     path: '/api/public/hooks/scale-winners',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksSendClassRemindersRoute =
-  ApiPublicHooksSendClassRemindersRouteImport.update({
-    id: '/api/public/hooks/send-class-reminders',
-    path: '/api/public/hooks/send-class-reminders',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksSendDojoRemindersRoute =
-  ApiPublicHooksSendDojoRemindersRouteImport.update({
-    id: '/api/public/hooks/send-dojo-reminders',
-    path: '/api/public/hooks/send-dojo-reminders',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksSyncAdsInsightsRoute =
   ApiPublicHooksSyncAdsInsightsRouteImport.update({
     id: '/api/public/hooks/sync-ads-insights',
@@ -1819,379 +1221,18 @@ const ApiPublicSalesMessagesRoute = ApiPublicSalesMessagesRouteImport.update({
   path: '/api/public/sales/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppStudentCompetitionsIdRoute =
-  AppStudentCompetitionsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AppStudentCompetitionsRoute,
-  } as any)
-const AppStudentDocumentsIndexRoute =
-  AppStudentDocumentsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AppStudentDocumentsRoute,
-  } as any)
-const AppStudentDocumentsIdRoute = AppStudentDocumentsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppStudentDocumentsRoute,
-} as any)
-const AppStudentInvoiceIdRoute = AppStudentInvoiceIdRouteImport.update({
-  id: '/invoice/$id',
-  path: '/invoice/$id',
-  getParentRoute: () => AppStudentRoute,
-} as any)
-const DojoAppCompetitionsIndexRoute =
-  DojoAppCompetitionsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => DojoAppCompetitionsRoute,
-  } as any)
-const DojoAppCompetitionsIdRoute = DojoAppCompetitionsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppCompetitionsRoute,
-} as any)
-const DojoAppContractTemplatesIndexRoute =
-  DojoAppContractTemplatesIndexRouteImport.update({
-    id: '/contract-templates/',
-    path: '/contract-templates/',
-    getParentRoute: () => DojoAppRoute,
-  } as any)
-const DojoAppContractTemplatesIdRoute =
-  DojoAppContractTemplatesIdRouteImport.update({
-    id: '/contract-templates/$id',
-    path: '/contract-templates/$id',
-    getParentRoute: () => DojoAppRoute,
-  } as any)
-const DojoAppContractsIndexRoute = DojoAppContractsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppContractsRoute,
-} as any)
-const DojoAppContractsIssuedRoute = DojoAppContractsIssuedRouteImport.update({
-  id: '/issued',
-  path: '/issued',
-  getParentRoute: () => DojoAppContractsRoute,
-} as any)
-const DojoAppContractsTemplatesRoute =
-  DojoAppContractsTemplatesRouteImport.update({
-    id: '/templates',
-    path: '/templates',
-    getParentRoute: () => DojoAppContractsRoute,
-  } as any)
-const DojoAppEvaluationsIndexRoute = DojoAppEvaluationsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppEvaluationsRoute,
-} as any)
-const DojoAppEvaluationsCategoriesRoute =
-  DojoAppEvaluationsCategoriesRouteImport.update({
-    id: '/categories',
-    path: '/categories',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsHistoryRoute =
-  DojoAppEvaluationsHistoryRouteImport.update({
-    id: '/history',
-    path: '/history',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsLibraryRoute =
-  DojoAppEvaluationsLibraryRouteImport.update({
-    id: '/library',
-    path: '/library',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsSessionsRoute =
-  DojoAppEvaluationsSessionsRouteImport.update({
-    id: '/sessions',
-    path: '/sessions',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsSettingsRoute =
-  DojoAppEvaluationsSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsTechniquesRoute =
-  DojoAppEvaluationsTechniquesRouteImport.update({
-    id: '/techniques',
-    path: '/techniques',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppEvaluationsTemplatesRoute =
-  DojoAppEvaluationsTemplatesRouteImport.update({
-    id: '/templates',
-    path: '/templates',
-    getParentRoute: () => DojoAppEvaluationsRoute,
-  } as any)
-const DojoAppLessonPlansIndexRoute = DojoAppLessonPlansIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppLessonPlansRoute,
-} as any)
-const DojoAppLessonPlansIdRoute = DojoAppLessonPlansIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppLessonPlansRoute,
-} as any)
-const DojoAppLessonPlansHistoryRoute =
-  DojoAppLessonPlansHistoryRouteImport.update({
-    id: '/history',
-    path: '/history',
-    getParentRoute: () => DojoAppLessonPlansRoute,
-  } as any)
-const DojoAppLessonPlansLibraryRoute =
-  DojoAppLessonPlansLibraryRouteImport.update({
-    id: '/library',
-    path: '/library',
-    getParentRoute: () => DojoAppLessonPlansRoute,
-  } as any)
-const DojoAppLessonPlansTechniquesRoute =
-  DojoAppLessonPlansTechniquesRouteImport.update({
-    id: '/techniques',
-    path: '/techniques',
-    getParentRoute: () => DojoAppLessonPlansRoute,
-  } as any)
-const DojoAppStoreIndexRoute = DojoAppStoreIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppStoreRoute,
-} as any)
-const DojoAppStoreCarrinhoRoute = DojoAppStoreCarrinhoRouteImport.update({
-  id: '/carrinho',
-  path: '/carrinho',
-  getParentRoute: () => DojoAppStoreRoute,
-} as any)
-const DojoAppStorePedidosRoute = DojoAppStorePedidosRouteImport.update({
-  id: '/pedidos',
-  path: '/pedidos',
-  getParentRoute: () => DojoAppStoreRoute,
-} as any)
-const DojoAppStudentsIndexRoute = DojoAppStudentsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppStudentsRoute,
-} as any)
-const DojoAppStudentsIdRoute = DojoAppStudentsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppStudentsRoute,
-} as any)
-const DojoAppTeamIndexRoute = DojoAppTeamIndexRouteImport.update({
-  id: '/team/',
-  path: '/team/',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTeamIdRoute = DojoAppTeamIdRouteImport.update({
-  id: '/team/$id',
-  path: '/team/$id',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTeamPayrollRoute = DojoAppTeamPayrollRouteImport.update({
-  id: '/team/payroll',
-  path: '/team/payroll',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppTeamSchedulesRoute = DojoAppTeamSchedulesRouteImport.update({
-  id: '/team/schedules',
-  path: '/team/schedules',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppUnitsIndexRoute = DojoAppUnitsIndexRouteImport.update({
-  id: '/units/',
-  path: '/units/',
-  getParentRoute: () => DojoAppRoute,
-} as any)
-const DojoAppVideosIndexRoute = DojoAppVideosIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppVideosIdRoute = DojoAppVideosIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppVideosCategoriasRoute = DojoAppVideosCategoriasRouteImport.update({
-  id: '/categorias',
-  path: '/categorias',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppVideosFavoritosRoute = DojoAppVideosFavoritosRouteImport.update({
-  id: '/favoritos',
-  path: '/favoritos',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoAppVideosNovoRoute = DojoAppVideosNovoRouteImport.update({
-  id: '/novo',
-  path: '/novo',
-  getParentRoute: () => DojoAppVideosRoute,
-} as any)
-const DojoStaffPortalIndexRoute = DojoStaffPortalIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalAnnouncementsRoute =
-  DojoStaffPortalAnnouncementsRouteImport.update({
-    id: '/announcements',
-    path: '/announcements',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalBeltsRoute = DojoStaffPortalBeltsRouteImport.update({
-  id: '/belts',
-  path: '/belts',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalCertificatesRoute =
-  DojoStaffPortalCertificatesRouteImport.update({
-    id: '/certificates',
-    path: '/certificates',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalCheckinRoute = DojoStaffPortalCheckinRouteImport.update({
-  id: '/checkin',
-  path: '/checkin',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalCompetitionsRoute =
-  DojoStaffPortalCompetitionsRouteImport.update({
-    id: '/competitions',
-    path: '/competitions',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalEvaluationsRoute =
-  DojoStaffPortalEvaluationsRouteImport.update({
-    id: '/evaluations',
-    path: '/evaluations',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalGraduationsRoute =
-  DojoStaffPortalGraduationsRouteImport.update({
-    id: '/graduations',
-    path: '/graduations',
-    getParentRoute: () => DojoStaffPortalRoute,
-  } as any)
-const DojoStaffPortalProfileRoute = DojoStaffPortalProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalSalesRoute = DojoStaffPortalSalesRouteImport.update({
-  id: '/sales',
-  path: '/sales',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalScheduleRoute = DojoStaffPortalScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalStoreRoute = DojoStaffPortalStoreRouteImport.update({
-  id: '/store',
-  path: '/store',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
-const DojoStaffPortalStudentsRoute = DojoStaffPortalStudentsRouteImport.update({
-  id: '/students',
-  path: '/students',
-  getParentRoute: () => DojoStaffPortalRoute,
-} as any)
 const AuthenticatedAdminAnunciosCampanhasIdRoute =
   AuthenticatedAdminAnunciosCampanhasIdRouteImport.update({
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminAnunciosCampanhasRoute,
   } as any)
-const ApiPublicAppSlugDownloadRoute =
-  ApiPublicAppSlugDownloadRouteImport.update({
-    id: '/api/public/app/$slug/download',
-    path: '/api/public/app/$slug/download',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicDojoPartnerCheckinProviderRoute =
-  ApiPublicDojoPartnerCheckinProviderRouteImport.update({
-    id: '/api/public/dojo/partner-checkin/$provider',
-    path: '/api/public/dojo/partner-checkin/$provider',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const DojoAppEvaluationsSessionsIndexRoute =
-  DojoAppEvaluationsSessionsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => DojoAppEvaluationsSessionsRoute,
-  } as any)
-const DojoAppEvaluationsSessionsIdRoute =
-  DojoAppEvaluationsSessionsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => DojoAppEvaluationsSessionsRoute,
-  } as any)
-const DojoAppEvaluationsTemplatesIndexRoute =
-  DojoAppEvaluationsTemplatesIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => DojoAppEvaluationsTemplatesRoute,
-  } as any)
-const DojoAppEvaluationsTemplatesIdRoute =
-  DojoAppEvaluationsTemplatesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => DojoAppEvaluationsTemplatesRoute,
-  } as any)
-const DojoAppStorePedidosIdRoute = DojoAppStorePedidosIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DojoAppStorePedidosRoute,
-} as any)
-const DojoAppStoreProdutosSlugRoute =
-  DojoAppStoreProdutosSlugRouteImport.update({
-    id: '/produtos/$slug',
-    path: '/produtos/$slug',
-    getParentRoute: () => DojoAppStoreRoute,
-  } as any)
-const DojoAppStudentsIdAnalysisRoute =
-  DojoAppStudentsIdAnalysisRouteImport.update({
-    id: '/analysis',
-    path: '/analysis',
-    getParentRoute: () => DojoAppStudentsIdRoute,
-  } as any)
-const DojoAppUnitsAffiliatesIdRoute =
-  DojoAppUnitsAffiliatesIdRouteImport.update({
-    id: '/units/affiliates/$id',
-    path: '/units/affiliates/$id',
-    getParentRoute: () => DojoAppRoute,
-  } as any)
-const DojoAppContractsIssuedKindIdRoute =
-  DojoAppContractsIssuedKindIdRouteImport.update({
-    id: '/$kind/$id',
-    path: '/$kind/$id',
-    getParentRoute: () => DojoAppContractsIssuedRoute,
-  } as any)
-const DojoAppStoreCCategoriaIndexRoute =
-  DojoAppStoreCCategoriaIndexRouteImport.update({
-    id: '/c/$categoria/',
-    path: '/c/$categoria/',
-    getParentRoute: () => DojoAppStoreRoute,
-  } as any)
-const DojoAppStoreCCategoriaSubcategoriaRoute =
-  DojoAppStoreCCategoriaSubcategoriaRouteImport.update({
-    id: '/c/$categoria/$subcategoria',
-    path: '/c/$categoria/$subcategoria',
-    getParentRoute: () => DojoAppStoreRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteWithChildren
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
-  '/dojo': typeof DojoRouteWithChildren
-  '/pay-demo': typeof PayDemoRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -2209,24 +1250,11 @@ export interface FileRoutesByFullPath {
   '/store': typeof AuthenticatedStoreRouteWithChildren
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
-  '/app/install': typeof AppInstallRouteWithChildren
-  '/app/login': typeof AppLoginRoute
-  '/app/reset-password': typeof AppResetPasswordRoute
-  '/certificate/$hash': typeof CertificateHashRoute
-  '/dojo/app': typeof DojoAppRouteWithChildren
-  '/dojo/auth': typeof DojoAuthRoute
-  '/dojo/checkout': typeof DojoCheckoutRoute
-  '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/ferramentas/calculadora-ticket-medio': typeof FerramentasCalculadoraTicketMedioRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
   '/loja/entrar': typeof LojaEntrarRoute
   '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
-  '/matricula/$slug': typeof MatriculaSlugRoute
-  '/pay/$invoiceId': typeof PayInvoiceIdRoute
-  '/app/': typeof AppIndexRoute
-  '/dojo/': typeof DojoIndexRoute
   '/loja/': typeof LojaIndexRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRouteWithChildren
   '/admin/anuncios': typeof AuthenticatedAdminAnunciosRouteWithChildren
@@ -2297,66 +1325,6 @@ export interface FileRoutesByFullPath {
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/desktop/products': typeof ApiDesktopProductsRouteWithChildren
   '/api/desktop/quotes': typeof ApiDesktopQuotesRouteWithChildren
-  '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
-  '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
-  '/app/agenda': typeof AppStudentAgendaRoute
-  '/app/announcements': typeof AppStudentAnnouncementsRoute
-  '/app/card': typeof AppStudentCardRoute
-  '/app/certificates': typeof AppStudentCertificatesRoute
-  '/app/checkin': typeof AppStudentCheckinRoute
-  '/app/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/documents': typeof AppStudentDocumentsRouteWithChildren
-  '/app/evaluations': typeof AppStudentEvaluationsRoute
-  '/app/finance': typeof AppStudentFinanceRoute
-  '/app/graduations': typeof AppStudentGraduationsRoute
-  '/app/home': typeof AppStudentHomeRoute
-  '/app/news': typeof AppStudentNewsRoute
-  '/app/notifications': typeof AppStudentNotificationsRoute
-  '/app/onboarding': typeof AppStudentOnboardingRoute
-  '/app/performance': typeof AppStudentPerformanceRoute
-  '/app/profile': typeof AppStudentProfileRoute
-  '/app/ranking': typeof AppStudentRankingRoute
-  '/app/schedule': typeof AppStudentScheduleRoute
-  '/app/settings': typeof AppStudentSettingsRoute
-  '/app/videos': typeof AppStudentVideosRoute
-  '/app/install/$slug': typeof AppInstallSlugRoute
-  '/dojo/app/account': typeof DojoAppAccountRoute
-  '/dojo/app/announcements': typeof DojoAppAnnouncementsRoute
-  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
-  '/dojo/app/belt-studio': typeof DojoAppBeltStudioRoute
-  '/dojo/app/belts': typeof DojoAppBeltsRoute
-  '/dojo/app/certificates': typeof DojoAppCertificatesRoute
-  '/dojo/app/checkin': typeof DojoAppCheckinRoute
-  '/dojo/app/classes': typeof DojoAppClassesRoute
-  '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
-  '/dojo/app/contracts': typeof DojoAppContractsRouteWithChildren
-  '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
-  '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
-  '/dojo/app/finance': typeof DojoAppFinanceRoute
-  '/dojo/app/graduations': typeof DojoAppGraduationsRoute
-  '/dojo/app/install': typeof DojoAppInstallRoute
-  '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
-  '/dojo/app/lesson-plans': typeof DojoAppLessonPlansRouteWithChildren
-  '/dojo/app/notifications': typeof DojoAppNotificationsRoute
-  '/dojo/app/plans': typeof DojoAppPlansRoute
-  '/dojo/app/ranking': typeof DojoAppRankingRoute
-  '/dojo/app/sales': typeof DojoAppSalesRoute
-  '/dojo/app/schedule': typeof DojoAppScheduleRoute
-  '/dojo/app/store': typeof DojoAppStoreRouteWithChildren
-  '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
-  '/dojo/app/student-notifications-config': typeof DojoAppStudentNotificationsConfigRoute
-  '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
-  '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
-  '/dojo/app/support': typeof DojoAppSupportRoute
-  '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
-  '/dojo/app/tutorial': typeof DojoAppTutorialRoute
-  '/dojo/app/tutorial-editor': typeof DojoAppTutorialEditorRoute
-  '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
-  '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
-  '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
-  '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
-  '/dojo/staff': typeof DojoStaffPortalRouteWithChildren
-  '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$': typeof LojaCustomShopSplatRoute
@@ -2366,7 +1334,6 @@ export interface FileRoutesByFullPath {
   '/market/': typeof AuthenticatedMarketIndexRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
-  '/dojo/app/': typeof DojoAppIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
   '/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
   '/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
@@ -2417,18 +1384,11 @@ export interface FileRoutesByFullPath {
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
   '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
-  '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
-  '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
-  '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
-  '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auth-email': typeof ApiPublicHooksAuthEmailRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
-  '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
-  '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
   '/api/public/hooks/email-events': typeof ApiPublicHooksEmailEventsRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
-  '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -2437,53 +1397,11 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
-  '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
-  '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
-  '/app/competitions/$id': typeof AppStudentCompetitionsIdRoute
-  '/app/documents/$id': typeof AppStudentDocumentsIdRoute
-  '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
-  '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
-  '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
-  '/dojo/app/contracts/issued': typeof DojoAppContractsIssuedRouteWithChildren
-  '/dojo/app/contracts/templates': typeof DojoAppContractsTemplatesRoute
-  '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
-  '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
-  '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
-  '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsRouteWithChildren
-  '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
-  '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
-  '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
-  '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
-  '/dojo/app/lesson-plans/history': typeof DojoAppLessonPlansHistoryRoute
-  '/dojo/app/lesson-plans/library': typeof DojoAppLessonPlansLibraryRoute
-  '/dojo/app/lesson-plans/techniques': typeof DojoAppLessonPlansTechniquesRoute
-  '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
-  '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
-  '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
-  '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
-  '/dojo/app/team/payroll': typeof DojoAppTeamPayrollRoute
-  '/dojo/app/team/schedules': typeof DojoAppTeamSchedulesRoute
-  '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
-  '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
-  '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
-  '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
-  '/dojo/staff/announcements': typeof DojoStaffPortalAnnouncementsRoute
-  '/dojo/staff/belts': typeof DojoStaffPortalBeltsRoute
-  '/dojo/staff/certificates': typeof DojoStaffPortalCertificatesRoute
-  '/dojo/staff/checkin': typeof DojoStaffPortalCheckinRoute
-  '/dojo/staff/competitions': typeof DojoStaffPortalCompetitionsRoute
-  '/dojo/staff/evaluations': typeof DojoStaffPortalEvaluationsRoute
-  '/dojo/staff/graduations': typeof DojoStaffPortalGraduationsRoute
-  '/dojo/staff/profile': typeof DojoStaffPortalProfileRoute
-  '/dojo/staff/sales': typeof DojoStaffPortalSalesRoute
-  '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
-  '/dojo/staff/store': typeof DojoStaffPortalStoreRoute
-  '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
   '/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
   '/admin/fiscal/': typeof AuthenticatedAdminFiscalIndexRoute
@@ -2492,39 +1410,13 @@ export interface FileRoutesByFullPath {
   '/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
-  '/app/documents/': typeof AppStudentDocumentsIndexRoute
-  '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
-  '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
-  '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
-  '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
-  '/dojo/app/lesson-plans/': typeof DojoAppLessonPlansIndexRoute
-  '/dojo/app/store/': typeof DojoAppStoreIndexRoute
-  '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
-  '/dojo/app/team/': typeof DojoAppTeamIndexRoute
-  '/dojo/app/units/': typeof DojoAppUnitsIndexRoute
-  '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
-  '/dojo/staff/': typeof DojoStaffPortalIndexRoute
   '/admin/anuncios/campanhas/$id': typeof AuthenticatedAdminAnunciosCampanhasIdRoute
-  '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
-  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
-  '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
-  '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
-  '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
-  '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
-  '/dojo/app/students/$id/analysis': typeof DojoAppStudentsIdAnalysisRoute
-  '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
-  '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
-  '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
-  '/dojo/app/contracts/issued/$kind/$id': typeof DojoAppContractsIssuedKindIdRoute
-  '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
-  '/dojo/app/store/c/$categoria/': typeof DojoAppStoreCCategoriaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
-  '/pay-demo': typeof PayDemoRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -2538,23 +1430,11 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
-  '/app': typeof AppIndexRoute
-  '/app/install': typeof AppInstallRouteWithChildren
-  '/app/login': typeof AppLoginRoute
-  '/app/reset-password': typeof AppResetPasswordRoute
-  '/certificate/$hash': typeof CertificateHashRoute
-  '/dojo/auth': typeof DojoAuthRoute
-  '/dojo/checkout': typeof DojoCheckoutRoute
-  '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/ferramentas/calculadora-ticket-medio': typeof FerramentasCalculadoraTicketMedioRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
   '/loja/entrar': typeof LojaEntrarRoute
   '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
-  '/matricula/$slug': typeof MatriculaSlugRoute
-  '/pay/$invoiceId': typeof PayInvoiceIdRoute
-  '/dojo': typeof DojoIndexRoute
   '/loja': typeof LojaIndexRoute
   '/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
@@ -2621,57 +1501,6 @@ export interface FileRoutesByTo {
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/desktop/products': typeof ApiDesktopProductsRouteWithChildren
   '/api/desktop/quotes': typeof ApiDesktopQuotesRouteWithChildren
-  '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
-  '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
-  '/app/agenda': typeof AppStudentAgendaRoute
-  '/app/announcements': typeof AppStudentAnnouncementsRoute
-  '/app/card': typeof AppStudentCardRoute
-  '/app/certificates': typeof AppStudentCertificatesRoute
-  '/app/checkin': typeof AppStudentCheckinRoute
-  '/app/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/evaluations': typeof AppStudentEvaluationsRoute
-  '/app/finance': typeof AppStudentFinanceRoute
-  '/app/graduations': typeof AppStudentGraduationsRoute
-  '/app/home': typeof AppStudentHomeRoute
-  '/app/news': typeof AppStudentNewsRoute
-  '/app/notifications': typeof AppStudentNotificationsRoute
-  '/app/onboarding': typeof AppStudentOnboardingRoute
-  '/app/performance': typeof AppStudentPerformanceRoute
-  '/app/profile': typeof AppStudentProfileRoute
-  '/app/ranking': typeof AppStudentRankingRoute
-  '/app/schedule': typeof AppStudentScheduleRoute
-  '/app/settings': typeof AppStudentSettingsRoute
-  '/app/videos': typeof AppStudentVideosRoute
-  '/app/install/$slug': typeof AppInstallSlugRoute
-  '/dojo/app/account': typeof DojoAppAccountRoute
-  '/dojo/app/announcements': typeof DojoAppAnnouncementsRoute
-  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
-  '/dojo/app/belt-studio': typeof DojoAppBeltStudioRoute
-  '/dojo/app/belts': typeof DojoAppBeltsRoute
-  '/dojo/app/certificates': typeof DojoAppCertificatesRoute
-  '/dojo/app/checkin': typeof DojoAppCheckinRoute
-  '/dojo/app/classes': typeof DojoAppClassesRoute
-  '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
-  '/dojo/app/finance': typeof DojoAppFinanceRoute
-  '/dojo/app/graduations': typeof DojoAppGraduationsRoute
-  '/dojo/app/install': typeof DojoAppInstallRoute
-  '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
-  '/dojo/app/notifications': typeof DojoAppNotificationsRoute
-  '/dojo/app/plans': typeof DojoAppPlansRoute
-  '/dojo/app/ranking': typeof DojoAppRankingRoute
-  '/dojo/app/sales': typeof DojoAppSalesRoute
-  '/dojo/app/schedule': typeof DojoAppScheduleRoute
-  '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
-  '/dojo/app/student-notifications-config': typeof DojoAppStudentNotificationsConfigRoute
-  '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
-  '/dojo/app/support': typeof DojoAppSupportRoute
-  '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
-  '/dojo/app/tutorial': typeof DojoAppTutorialRoute
-  '/dojo/app/tutorial-editor': typeof DojoAppTutorialEditorRoute
-  '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
-  '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
-  '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
-  '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$': typeof LojaCustomShopSplatRoute
@@ -2681,7 +1510,6 @@ export interface FileRoutesByTo {
   '/market': typeof AuthenticatedMarketIndexRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
-  '/dojo/app': typeof DojoAppIndexRoute
   '/loja/conta': typeof LojaContaIndexRoute
   '/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
   '/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
@@ -2732,18 +1560,11 @@ export interface FileRoutesByTo {
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
   '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
-  '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
-  '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
-  '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
-  '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auth-email': typeof ApiPublicHooksAuthEmailRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
-  '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
-  '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
   '/api/public/hooks/email-events': typeof ApiPublicHooksEmailEventsRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
-  '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -2752,51 +1573,11 @@ export interface FileRoutesByTo {
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
-  '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
-  '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
-  '/app/competitions/$id': typeof AppStudentCompetitionsIdRoute
-  '/app/documents/$id': typeof AppStudentDocumentsIdRoute
-  '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
-  '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
-  '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
-  '/dojo/app/contracts/issued': typeof DojoAppContractsIssuedRouteWithChildren
-  '/dojo/app/contracts/templates': typeof DojoAppContractsTemplatesRoute
-  '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
-  '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
-  '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
-  '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
-  '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
-  '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
-  '/dojo/app/lesson-plans/history': typeof DojoAppLessonPlansHistoryRoute
-  '/dojo/app/lesson-plans/library': typeof DojoAppLessonPlansLibraryRoute
-  '/dojo/app/lesson-plans/techniques': typeof DojoAppLessonPlansTechniquesRoute
-  '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
-  '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
-  '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
-  '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
-  '/dojo/app/team/payroll': typeof DojoAppTeamPayrollRoute
-  '/dojo/app/team/schedules': typeof DojoAppTeamSchedulesRoute
-  '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
-  '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
-  '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
-  '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
-  '/dojo/staff/announcements': typeof DojoStaffPortalAnnouncementsRoute
-  '/dojo/staff/belts': typeof DojoStaffPortalBeltsRoute
-  '/dojo/staff/certificates': typeof DojoStaffPortalCertificatesRoute
-  '/dojo/staff/checkin': typeof DojoStaffPortalCheckinRoute
-  '/dojo/staff/competitions': typeof DojoStaffPortalCompetitionsRoute
-  '/dojo/staff/evaluations': typeof DojoStaffPortalEvaluationsRoute
-  '/dojo/staff/graduations': typeof DojoStaffPortalGraduationsRoute
-  '/dojo/staff/profile': typeof DojoStaffPortalProfileRoute
-  '/dojo/staff/sales': typeof DojoStaffPortalSalesRoute
-  '/dojo/staff/schedule': typeof DojoStaffPortalScheduleRoute
-  '/dojo/staff/store': typeof DojoStaffPortalStoreRoute
-  '/dojo/staff/students': typeof DojoStaffPortalStudentsRoute
   '/admin/ads': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios': typeof AuthenticatedAdminAnunciosIndexRoute
   '/admin/fiscal': typeof AuthenticatedAdminFiscalIndexRoute
@@ -2805,43 +1586,15 @@ export interface FileRoutesByTo {
   '/admin/marketing': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
-  '/app/documents': typeof AppStudentDocumentsIndexRoute
-  '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
-  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesIndexRoute
-  '/dojo/app/contracts': typeof DojoAppContractsIndexRoute
-  '/dojo/app/evaluations': typeof DojoAppEvaluationsIndexRoute
-  '/dojo/app/lesson-plans': typeof DojoAppLessonPlansIndexRoute
-  '/dojo/app/store': typeof DojoAppStoreIndexRoute
-  '/dojo/app/students': typeof DojoAppStudentsIndexRoute
-  '/dojo/app/team': typeof DojoAppTeamIndexRoute
-  '/dojo/app/units': typeof DojoAppUnitsIndexRoute
-  '/dojo/app/videos': typeof DojoAppVideosIndexRoute
-  '/dojo/staff': typeof DojoStaffPortalIndexRoute
   '/admin/anuncios/campanhas/$id': typeof AuthenticatedAdminAnunciosCampanhasIdRoute
-  '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
-  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
-  '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
-  '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
-  '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
-  '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
-  '/dojo/app/students/$id/analysis': typeof DojoAppStudentsIdAnalysisRoute
-  '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
-  '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsIndexRoute
-  '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesIndexRoute
-  '/dojo/app/contracts/issued/$kind/$id': typeof DojoAppContractsIssuedKindIdRoute
-  '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
-  '/dojo/app/store/c/$categoria': typeof DojoAppStoreCCategoriaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/app': typeof AppRouteWithChildren
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
-  '/dojo': typeof DojoRouteWithChildren
-  '/pay-demo': typeof PayDemoRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -2859,25 +1612,11 @@ export interface FileRoutesById {
   '/_authenticated/store': typeof AuthenticatedStoreRouteWithChildren
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
-  '/app/_student': typeof AppStudentRouteWithChildren
-  '/app/install': typeof AppInstallRouteWithChildren
-  '/app/login': typeof AppLoginRoute
-  '/app/reset-password': typeof AppResetPasswordRoute
-  '/certificate/$hash': typeof CertificateHashRoute
-  '/dojo/app': typeof DojoAppRouteWithChildren
-  '/dojo/auth': typeof DojoAuthRoute
-  '/dojo/checkout': typeof DojoCheckoutRoute
-  '/dojo/onboarding': typeof DojoOnboardingRoute
-  '/ferramentas/calculadora-ticket-medio': typeof FerramentasCalculadoraTicketMedioRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
   '/loja/entrar': typeof LojaEntrarRoute
   '/loja/guia-kimono': typeof LojaGuiaKimonoRoute
-  '/matricula/$slug': typeof MatriculaSlugRoute
-  '/pay/$invoiceId': typeof PayInvoiceIdRoute
-  '/app/': typeof AppIndexRoute
-  '/dojo/': typeof DojoIndexRoute
   '/loja/': typeof LojaIndexRoute
   '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRouteWithChildren
   '/_authenticated/admin/anuncios': typeof AuthenticatedAdminAnunciosRouteWithChildren
@@ -2948,66 +1687,6 @@ export interface FileRoutesById {
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/desktop/products': typeof ApiDesktopProductsRouteWithChildren
   '/api/desktop/quotes': typeof ApiDesktopQuotesRouteWithChildren
-  '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
-  '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
-  '/app/_student/agenda': typeof AppStudentAgendaRoute
-  '/app/_student/announcements': typeof AppStudentAnnouncementsRoute
-  '/app/_student/card': typeof AppStudentCardRoute
-  '/app/_student/certificates': typeof AppStudentCertificatesRoute
-  '/app/_student/checkin': typeof AppStudentCheckinRoute
-  '/app/_student/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/_student/documents': typeof AppStudentDocumentsRouteWithChildren
-  '/app/_student/evaluations': typeof AppStudentEvaluationsRoute
-  '/app/_student/finance': typeof AppStudentFinanceRoute
-  '/app/_student/graduations': typeof AppStudentGraduationsRoute
-  '/app/_student/home': typeof AppStudentHomeRoute
-  '/app/_student/news': typeof AppStudentNewsRoute
-  '/app/_student/notifications': typeof AppStudentNotificationsRoute
-  '/app/_student/onboarding': typeof AppStudentOnboardingRoute
-  '/app/_student/performance': typeof AppStudentPerformanceRoute
-  '/app/_student/profile': typeof AppStudentProfileRoute
-  '/app/_student/ranking': typeof AppStudentRankingRoute
-  '/app/_student/schedule': typeof AppStudentScheduleRoute
-  '/app/_student/settings': typeof AppStudentSettingsRoute
-  '/app/_student/videos': typeof AppStudentVideosRoute
-  '/app/install/$slug': typeof AppInstallSlugRoute
-  '/dojo/app/account': typeof DojoAppAccountRoute
-  '/dojo/app/announcements': typeof DojoAppAnnouncementsRoute
-  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
-  '/dojo/app/belt-studio': typeof DojoAppBeltStudioRoute
-  '/dojo/app/belts': typeof DojoAppBeltsRoute
-  '/dojo/app/certificates': typeof DojoAppCertificatesRoute
-  '/dojo/app/checkin': typeof DojoAppCheckinRoute
-  '/dojo/app/classes': typeof DojoAppClassesRoute
-  '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
-  '/dojo/app/contracts': typeof DojoAppContractsRouteWithChildren
-  '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
-  '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
-  '/dojo/app/finance': typeof DojoAppFinanceRoute
-  '/dojo/app/graduations': typeof DojoAppGraduationsRoute
-  '/dojo/app/install': typeof DojoAppInstallRoute
-  '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
-  '/dojo/app/lesson-plans': typeof DojoAppLessonPlansRouteWithChildren
-  '/dojo/app/notifications': typeof DojoAppNotificationsRoute
-  '/dojo/app/plans': typeof DojoAppPlansRoute
-  '/dojo/app/ranking': typeof DojoAppRankingRoute
-  '/dojo/app/sales': typeof DojoAppSalesRoute
-  '/dojo/app/schedule': typeof DojoAppScheduleRoute
-  '/dojo/app/store': typeof DojoAppStoreRouteWithChildren
-  '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
-  '/dojo/app/student-notifications-config': typeof DojoAppStudentNotificationsConfigRoute
-  '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
-  '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
-  '/dojo/app/support': typeof DojoAppSupportRoute
-  '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
-  '/dojo/app/tutorial': typeof DojoAppTutorialRoute
-  '/dojo/app/tutorial-editor': typeof DojoAppTutorialEditorRoute
-  '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
-  '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
-  '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
-  '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
-  '/dojo/staff/_portal': typeof DojoStaffPortalRouteWithChildren
-  '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$': typeof LojaCustomShopSplatRoute
@@ -3017,7 +1696,6 @@ export interface FileRoutesById {
   '/_authenticated/market/': typeof AuthenticatedMarketIndexRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
-  '/dojo/app/': typeof DojoAppIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
   '/_authenticated/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
   '/_authenticated/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
@@ -3068,18 +1746,11 @@ export interface FileRoutesById {
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/desktop/products/$id': typeof ApiDesktopProductsIdRoute
   '/api/desktop/quotes/$id': typeof ApiDesktopQuotesIdRoute
-  '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
-  '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
-  '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
-  '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auth-email': typeof ApiPublicHooksAuthEmailRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
-  '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
-  '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
   '/api/public/hooks/email-events': typeof ApiPublicHooksEmailEventsRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
-  '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -3088,53 +1759,11 @@ export interface FileRoutesById {
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
-  '/api/public/hooks/send-class-reminders': typeof ApiPublicHooksSendClassRemindersRoute
-  '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
-  '/app/_student/competitions/$id': typeof AppStudentCompetitionsIdRoute
-  '/app/_student/documents/$id': typeof AppStudentDocumentsIdRoute
-  '/app/_student/invoice/$id': typeof AppStudentInvoiceIdRoute
-  '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
-  '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
-  '/dojo/app/contracts/issued': typeof DojoAppContractsIssuedRouteWithChildren
-  '/dojo/app/contracts/templates': typeof DojoAppContractsTemplatesRoute
-  '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
-  '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
-  '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
-  '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsRouteWithChildren
-  '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
-  '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
-  '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
-  '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
-  '/dojo/app/lesson-plans/history': typeof DojoAppLessonPlansHistoryRoute
-  '/dojo/app/lesson-plans/library': typeof DojoAppLessonPlansLibraryRoute
-  '/dojo/app/lesson-plans/techniques': typeof DojoAppLessonPlansTechniquesRoute
-  '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
-  '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
-  '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
-  '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
-  '/dojo/app/team/payroll': typeof DojoAppTeamPayrollRoute
-  '/dojo/app/team/schedules': typeof DojoAppTeamSchedulesRoute
-  '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
-  '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
-  '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
-  '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
-  '/dojo/staff/_portal/announcements': typeof DojoStaffPortalAnnouncementsRoute
-  '/dojo/staff/_portal/belts': typeof DojoStaffPortalBeltsRoute
-  '/dojo/staff/_portal/certificates': typeof DojoStaffPortalCertificatesRoute
-  '/dojo/staff/_portal/checkin': typeof DojoStaffPortalCheckinRoute
-  '/dojo/staff/_portal/competitions': typeof DojoStaffPortalCompetitionsRoute
-  '/dojo/staff/_portal/evaluations': typeof DojoStaffPortalEvaluationsRoute
-  '/dojo/staff/_portal/graduations': typeof DojoStaffPortalGraduationsRoute
-  '/dojo/staff/_portal/profile': typeof DojoStaffPortalProfileRoute
-  '/dojo/staff/_portal/sales': typeof DojoStaffPortalSalesRoute
-  '/dojo/staff/_portal/schedule': typeof DojoStaffPortalScheduleRoute
-  '/dojo/staff/_portal/store': typeof DojoStaffPortalStoreRoute
-  '/dojo/staff/_portal/students': typeof DojoStaffPortalStudentsRoute
   '/_authenticated/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/_authenticated/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
   '/_authenticated/admin/fiscal/': typeof AuthenticatedAdminFiscalIndexRoute
@@ -3143,43 +1772,15 @@ export interface FileRoutesById {
   '/_authenticated/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/_authenticated/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
-  '/app/_student/documents/': typeof AppStudentDocumentsIndexRoute
-  '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
-  '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
-  '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
-  '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
-  '/dojo/app/lesson-plans/': typeof DojoAppLessonPlansIndexRoute
-  '/dojo/app/store/': typeof DojoAppStoreIndexRoute
-  '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
-  '/dojo/app/team/': typeof DojoAppTeamIndexRoute
-  '/dojo/app/units/': typeof DojoAppUnitsIndexRoute
-  '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
-  '/dojo/staff/_portal/': typeof DojoStaffPortalIndexRoute
   '/_authenticated/admin/anuncios/campanhas/$id': typeof AuthenticatedAdminAnunciosCampanhasIdRoute
-  '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
-  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
-  '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
-  '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
-  '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
-  '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
-  '/dojo/app/students/$id/analysis': typeof DojoAppStudentsIdAnalysisRoute
-  '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
-  '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
-  '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
-  '/dojo/app/contracts/issued/$kind/$id': typeof DojoAppContractsIssuedKindIdRoute
-  '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
-  '/dojo/app/store/c/$categoria/': typeof DojoAppStoreCCategoriaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/app'
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
-    | '/dojo'
-    | '/pay-demo'
     | '/privacy'
     | '/reset-password'
     | '/sitemap.xml'
@@ -3197,24 +1798,11 @@ export interface FileRouteTypes {
     | '/store'
     | '/users'
     | '/api/generate-ad-image'
-    | '/app/install'
-    | '/app/login'
-    | '/app/reset-password'
-    | '/certificate/$hash'
-    | '/dojo/app'
-    | '/dojo/auth'
-    | '/dojo/checkout'
-    | '/dojo/onboarding'
-    | '/ferramentas/calculadora-ticket-medio'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
     | '/loja/entrar'
     | '/loja/guia-kimono'
-    | '/matricula/$slug'
-    | '/pay/$invoiceId'
-    | '/app/'
-    | '/dojo/'
     | '/loja/'
     | '/admin/ads'
     | '/admin/anuncios'
@@ -3285,66 +1873,6 @@ export interface FileRouteTypes {
     | '/store/wholesale'
     | '/api/desktop/products'
     | '/api/desktop/quotes'
-    | '/api/dojo/apk-upload'
-    | '/api/public/dojo-manifest.webmanifest'
-    | '/app/agenda'
-    | '/app/announcements'
-    | '/app/card'
-    | '/app/certificates'
-    | '/app/checkin'
-    | '/app/competitions'
-    | '/app/documents'
-    | '/app/evaluations'
-    | '/app/finance'
-    | '/app/graduations'
-    | '/app/home'
-    | '/app/news'
-    | '/app/notifications'
-    | '/app/onboarding'
-    | '/app/performance'
-    | '/app/profile'
-    | '/app/ranking'
-    | '/app/schedule'
-    | '/app/settings'
-    | '/app/videos'
-    | '/app/install/$slug'
-    | '/dojo/app/account'
-    | '/dojo/app/announcements'
-    | '/dojo/app/apk-versions'
-    | '/dojo/app/belt-studio'
-    | '/dojo/app/belts'
-    | '/dojo/app/certificates'
-    | '/dojo/app/checkin'
-    | '/dojo/app/classes'
-    | '/dojo/app/competitions'
-    | '/dojo/app/contracts'
-    | '/dojo/app/corporate-benefits'
-    | '/dojo/app/evaluations'
-    | '/dojo/app/finance'
-    | '/dojo/app/graduations'
-    | '/dojo/app/install'
-    | '/dojo/app/integrations'
-    | '/dojo/app/lesson-plans'
-    | '/dojo/app/notifications'
-    | '/dojo/app/plans'
-    | '/dojo/app/ranking'
-    | '/dojo/app/sales'
-    | '/dojo/app/schedule'
-    | '/dojo/app/store'
-    | '/dojo/app/student-app-qr'
-    | '/dojo/app/student-notifications-config'
-    | '/dojo/app/students'
-    | '/dojo/app/subscription'
-    | '/dojo/app/support'
-    | '/dojo/app/system-users'
-    | '/dojo/app/tutorial'
-    | '/dojo/app/tutorial-editor'
-    | '/dojo/app/videos'
-    | '/dojo/certificate-editor/$id'
-    | '/dojo/matricula/$slug'
-    | '/dojo/pay/$invoiceId'
-    | '/dojo/staff'
-    | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$'
@@ -3354,7 +1882,6 @@ export interface FileRouteTypes {
     | '/market/'
     | '/prospect/'
     | '/store/'
-    | '/dojo/app/'
     | '/loja/conta/'
     | '/admin/ads/anuncios'
     | '/admin/ads/campanhas'
@@ -3405,18 +1932,11 @@ export interface FileRouteTypes {
     | '/ads/campaigns/$id'
     | '/api/desktop/products/$id'
     | '/api/desktop/quotes/$id'
-    | '/api/public/app/manifest.webmanifest'
-    | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
-    | '/api/public/hooks/apply-scheduled-graduations'
-    | '/api/public/hooks/asaas'
     | '/api/public/hooks/auth-email'
     | '/api/public/hooks/auto-instagram-post'
-    | '/api/public/hooks/competitions-ingest'
-    | '/api/public/hooks/dojo-wallet-reconcile'
     | '/api/public/hooks/email-events'
     | '/api/public/hooks/enrich-pending-leads'
-    | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -3425,53 +1945,11 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
-    | '/api/public/hooks/send-class-reminders'
-    | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
-    | '/app/competitions/$id'
-    | '/app/documents/$id'
-    | '/app/invoice/$id'
-    | '/dojo/app/competitions/$id'
-    | '/dojo/app/contract-templates/$id'
-    | '/dojo/app/contracts/issued'
-    | '/dojo/app/contracts/templates'
-    | '/dojo/app/evaluations/categories'
-    | '/dojo/app/evaluations/history'
-    | '/dojo/app/evaluations/library'
-    | '/dojo/app/evaluations/sessions'
-    | '/dojo/app/evaluations/settings'
-    | '/dojo/app/evaluations/techniques'
-    | '/dojo/app/evaluations/templates'
-    | '/dojo/app/lesson-plans/$id'
-    | '/dojo/app/lesson-plans/history'
-    | '/dojo/app/lesson-plans/library'
-    | '/dojo/app/lesson-plans/techniques'
-    | '/dojo/app/store/carrinho'
-    | '/dojo/app/store/pedidos'
-    | '/dojo/app/students/$id'
-    | '/dojo/app/team/$id'
-    | '/dojo/app/team/payroll'
-    | '/dojo/app/team/schedules'
-    | '/dojo/app/videos/$id'
-    | '/dojo/app/videos/categorias'
-    | '/dojo/app/videos/favoritos'
-    | '/dojo/app/videos/novo'
-    | '/dojo/staff/announcements'
-    | '/dojo/staff/belts'
-    | '/dojo/staff/certificates'
-    | '/dojo/staff/checkin'
-    | '/dojo/staff/competitions'
-    | '/dojo/staff/evaluations'
-    | '/dojo/staff/graduations'
-    | '/dojo/staff/profile'
-    | '/dojo/staff/sales'
-    | '/dojo/staff/schedule'
-    | '/dojo/staff/store'
-    | '/dojo/staff/students'
     | '/admin/ads/'
     | '/admin/anuncios/'
     | '/admin/fiscal/'
@@ -3480,39 +1958,13 @@ export interface FileRouteTypes {
     | '/admin/marketing/'
     | '/admin/pedidos/'
     | '/admin/produtos/'
-    | '/app/documents/'
-    | '/dojo/app/competitions/'
-    | '/dojo/app/contract-templates/'
-    | '/dojo/app/contracts/'
-    | '/dojo/app/evaluations/'
-    | '/dojo/app/lesson-plans/'
-    | '/dojo/app/store/'
-    | '/dojo/app/students/'
-    | '/dojo/app/team/'
-    | '/dojo/app/units/'
-    | '/dojo/app/videos/'
-    | '/dojo/staff/'
     | '/admin/anuncios/campanhas/$id'
-    | '/api/public/app/$slug/download'
-    | '/api/public/dojo/partner-checkin/$provider'
-    | '/dojo/app/evaluations/sessions/$id'
-    | '/dojo/app/evaluations/templates/$id'
-    | '/dojo/app/store/pedidos/$id'
-    | '/dojo/app/store/produtos/$slug'
-    | '/dojo/app/students/$id/analysis'
-    | '/dojo/app/units/affiliates/$id'
-    | '/dojo/app/evaluations/sessions/'
-    | '/dojo/app/evaluations/templates/'
-    | '/dojo/app/contracts/issued/$kind/$id'
-    | '/dojo/app/store/c/$categoria/$subcategoria'
-    | '/dojo/app/store/c/$categoria/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
-    | '/pay-demo'
     | '/privacy'
     | '/reset-password'
     | '/sitemap.xml'
@@ -3526,23 +1978,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/users'
     | '/api/generate-ad-image'
-    | '/app'
-    | '/app/install'
-    | '/app/login'
-    | '/app/reset-password'
-    | '/certificate/$hash'
-    | '/dojo/auth'
-    | '/dojo/checkout'
-    | '/dojo/onboarding'
-    | '/ferramentas/calculadora-ticket-medio'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
     | '/loja/entrar'
     | '/loja/guia-kimono'
-    | '/matricula/$slug'
-    | '/pay/$invoiceId'
-    | '/dojo'
     | '/loja'
     | '/admin/atacado'
     | '/admin/atendimento'
@@ -3609,57 +2049,6 @@ export interface FileRouteTypes {
     | '/store/wholesale'
     | '/api/desktop/products'
     | '/api/desktop/quotes'
-    | '/api/dojo/apk-upload'
-    | '/api/public/dojo-manifest.webmanifest'
-    | '/app/agenda'
-    | '/app/announcements'
-    | '/app/card'
-    | '/app/certificates'
-    | '/app/checkin'
-    | '/app/competitions'
-    | '/app/evaluations'
-    | '/app/finance'
-    | '/app/graduations'
-    | '/app/home'
-    | '/app/news'
-    | '/app/notifications'
-    | '/app/onboarding'
-    | '/app/performance'
-    | '/app/profile'
-    | '/app/ranking'
-    | '/app/schedule'
-    | '/app/settings'
-    | '/app/videos'
-    | '/app/install/$slug'
-    | '/dojo/app/account'
-    | '/dojo/app/announcements'
-    | '/dojo/app/apk-versions'
-    | '/dojo/app/belt-studio'
-    | '/dojo/app/belts'
-    | '/dojo/app/certificates'
-    | '/dojo/app/checkin'
-    | '/dojo/app/classes'
-    | '/dojo/app/corporate-benefits'
-    | '/dojo/app/finance'
-    | '/dojo/app/graduations'
-    | '/dojo/app/install'
-    | '/dojo/app/integrations'
-    | '/dojo/app/notifications'
-    | '/dojo/app/plans'
-    | '/dojo/app/ranking'
-    | '/dojo/app/sales'
-    | '/dojo/app/schedule'
-    | '/dojo/app/student-app-qr'
-    | '/dojo/app/student-notifications-config'
-    | '/dojo/app/subscription'
-    | '/dojo/app/support'
-    | '/dojo/app/system-users'
-    | '/dojo/app/tutorial'
-    | '/dojo/app/tutorial-editor'
-    | '/dojo/certificate-editor/$id'
-    | '/dojo/matricula/$slug'
-    | '/dojo/pay/$invoiceId'
-    | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$'
@@ -3669,7 +2058,6 @@ export interface FileRouteTypes {
     | '/market'
     | '/prospect'
     | '/store'
-    | '/dojo/app'
     | '/loja/conta'
     | '/admin/ads/anuncios'
     | '/admin/ads/campanhas'
@@ -3720,18 +2108,11 @@ export interface FileRouteTypes {
     | '/ads/campaigns/$id'
     | '/api/desktop/products/$id'
     | '/api/desktop/quotes/$id'
-    | '/api/public/app/manifest.webmanifest'
-    | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
-    | '/api/public/hooks/apply-scheduled-graduations'
-    | '/api/public/hooks/asaas'
     | '/api/public/hooks/auth-email'
     | '/api/public/hooks/auto-instagram-post'
-    | '/api/public/hooks/competitions-ingest'
-    | '/api/public/hooks/dojo-wallet-reconcile'
     | '/api/public/hooks/email-events'
     | '/api/public/hooks/enrich-pending-leads'
-    | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -3740,51 +2121,11 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
-    | '/api/public/hooks/send-class-reminders'
-    | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
-    | '/app/competitions/$id'
-    | '/app/documents/$id'
-    | '/app/invoice/$id'
-    | '/dojo/app/competitions/$id'
-    | '/dojo/app/contract-templates/$id'
-    | '/dojo/app/contracts/issued'
-    | '/dojo/app/contracts/templates'
-    | '/dojo/app/evaluations/categories'
-    | '/dojo/app/evaluations/history'
-    | '/dojo/app/evaluations/library'
-    | '/dojo/app/evaluations/settings'
-    | '/dojo/app/evaluations/techniques'
-    | '/dojo/app/lesson-plans/$id'
-    | '/dojo/app/lesson-plans/history'
-    | '/dojo/app/lesson-plans/library'
-    | '/dojo/app/lesson-plans/techniques'
-    | '/dojo/app/store/carrinho'
-    | '/dojo/app/store/pedidos'
-    | '/dojo/app/students/$id'
-    | '/dojo/app/team/$id'
-    | '/dojo/app/team/payroll'
-    | '/dojo/app/team/schedules'
-    | '/dojo/app/videos/$id'
-    | '/dojo/app/videos/categorias'
-    | '/dojo/app/videos/favoritos'
-    | '/dojo/app/videos/novo'
-    | '/dojo/staff/announcements'
-    | '/dojo/staff/belts'
-    | '/dojo/staff/certificates'
-    | '/dojo/staff/checkin'
-    | '/dojo/staff/competitions'
-    | '/dojo/staff/evaluations'
-    | '/dojo/staff/graduations'
-    | '/dojo/staff/profile'
-    | '/dojo/staff/sales'
-    | '/dojo/staff/schedule'
-    | '/dojo/staff/store'
-    | '/dojo/staff/students'
     | '/admin/ads'
     | '/admin/anuncios'
     | '/admin/fiscal'
@@ -3793,42 +2134,14 @@ export interface FileRouteTypes {
     | '/admin/marketing'
     | '/admin/pedidos'
     | '/admin/produtos'
-    | '/app/documents'
-    | '/dojo/app/competitions'
-    | '/dojo/app/contract-templates'
-    | '/dojo/app/contracts'
-    | '/dojo/app/evaluations'
-    | '/dojo/app/lesson-plans'
-    | '/dojo/app/store'
-    | '/dojo/app/students'
-    | '/dojo/app/team'
-    | '/dojo/app/units'
-    | '/dojo/app/videos'
-    | '/dojo/staff'
     | '/admin/anuncios/campanhas/$id'
-    | '/api/public/app/$slug/download'
-    | '/api/public/dojo/partner-checkin/$provider'
-    | '/dojo/app/evaluations/sessions/$id'
-    | '/dojo/app/evaluations/templates/$id'
-    | '/dojo/app/store/pedidos/$id'
-    | '/dojo/app/store/produtos/$slug'
-    | '/dojo/app/students/$id/analysis'
-    | '/dojo/app/units/affiliates/$id'
-    | '/dojo/app/evaluations/sessions'
-    | '/dojo/app/evaluations/templates'
-    | '/dojo/app/contracts/issued/$kind/$id'
-    | '/dojo/app/store/c/$categoria/$subcategoria'
-    | '/dojo/app/store/c/$categoria'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/app'
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
-    | '/dojo'
-    | '/pay-demo'
     | '/privacy'
     | '/reset-password'
     | '/sitemap.xml'
@@ -3846,25 +2159,11 @@ export interface FileRouteTypes {
     | '/_authenticated/store'
     | '/_authenticated/users'
     | '/api/generate-ad-image'
-    | '/app/_student'
-    | '/app/install'
-    | '/app/login'
-    | '/app/reset-password'
-    | '/certificate/$hash'
-    | '/dojo/app'
-    | '/dojo/auth'
-    | '/dojo/checkout'
-    | '/dojo/onboarding'
-    | '/ferramentas/calculadora-ticket-medio'
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
     | '/loja/entrar'
     | '/loja/guia-kimono'
-    | '/matricula/$slug'
-    | '/pay/$invoiceId'
-    | '/app/'
-    | '/dojo/'
     | '/loja/'
     | '/_authenticated/admin/ads'
     | '/_authenticated/admin/anuncios'
@@ -3935,66 +2234,6 @@ export interface FileRouteTypes {
     | '/_authenticated/store/wholesale'
     | '/api/desktop/products'
     | '/api/desktop/quotes'
-    | '/api/dojo/apk-upload'
-    | '/api/public/dojo-manifest.webmanifest'
-    | '/app/_student/agenda'
-    | '/app/_student/announcements'
-    | '/app/_student/card'
-    | '/app/_student/certificates'
-    | '/app/_student/checkin'
-    | '/app/_student/competitions'
-    | '/app/_student/documents'
-    | '/app/_student/evaluations'
-    | '/app/_student/finance'
-    | '/app/_student/graduations'
-    | '/app/_student/home'
-    | '/app/_student/news'
-    | '/app/_student/notifications'
-    | '/app/_student/onboarding'
-    | '/app/_student/performance'
-    | '/app/_student/profile'
-    | '/app/_student/ranking'
-    | '/app/_student/schedule'
-    | '/app/_student/settings'
-    | '/app/_student/videos'
-    | '/app/install/$slug'
-    | '/dojo/app/account'
-    | '/dojo/app/announcements'
-    | '/dojo/app/apk-versions'
-    | '/dojo/app/belt-studio'
-    | '/dojo/app/belts'
-    | '/dojo/app/certificates'
-    | '/dojo/app/checkin'
-    | '/dojo/app/classes'
-    | '/dojo/app/competitions'
-    | '/dojo/app/contracts'
-    | '/dojo/app/corporate-benefits'
-    | '/dojo/app/evaluations'
-    | '/dojo/app/finance'
-    | '/dojo/app/graduations'
-    | '/dojo/app/install'
-    | '/dojo/app/integrations'
-    | '/dojo/app/lesson-plans'
-    | '/dojo/app/notifications'
-    | '/dojo/app/plans'
-    | '/dojo/app/ranking'
-    | '/dojo/app/sales'
-    | '/dojo/app/schedule'
-    | '/dojo/app/store'
-    | '/dojo/app/student-app-qr'
-    | '/dojo/app/student-notifications-config'
-    | '/dojo/app/students'
-    | '/dojo/app/subscription'
-    | '/dojo/app/support'
-    | '/dojo/app/system-users'
-    | '/dojo/app/tutorial'
-    | '/dojo/app/tutorial-editor'
-    | '/dojo/app/videos'
-    | '/dojo/certificate-editor/$id'
-    | '/dojo/matricula/$slug'
-    | '/dojo/pay/$invoiceId'
-    | '/dojo/staff/_portal'
-    | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$'
@@ -4004,7 +2243,6 @@ export interface FileRouteTypes {
     | '/_authenticated/market/'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
-    | '/dojo/app/'
     | '/loja/conta/'
     | '/_authenticated/admin/ads/anuncios'
     | '/_authenticated/admin/ads/campanhas'
@@ -4055,18 +2293,11 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/campaigns/$id'
     | '/api/desktop/products/$id'
     | '/api/desktop/quotes/$id'
-    | '/api/public/app/manifest.webmanifest'
-    | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
-    | '/api/public/hooks/apply-scheduled-graduations'
-    | '/api/public/hooks/asaas'
     | '/api/public/hooks/auth-email'
     | '/api/public/hooks/auto-instagram-post'
-    | '/api/public/hooks/competitions-ingest'
-    | '/api/public/hooks/dojo-wallet-reconcile'
     | '/api/public/hooks/email-events'
     | '/api/public/hooks/enrich-pending-leads'
-    | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -4075,53 +2306,11 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
-    | '/api/public/hooks/send-class-reminders'
-    | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
-    | '/app/_student/competitions/$id'
-    | '/app/_student/documents/$id'
-    | '/app/_student/invoice/$id'
-    | '/dojo/app/competitions/$id'
-    | '/dojo/app/contract-templates/$id'
-    | '/dojo/app/contracts/issued'
-    | '/dojo/app/contracts/templates'
-    | '/dojo/app/evaluations/categories'
-    | '/dojo/app/evaluations/history'
-    | '/dojo/app/evaluations/library'
-    | '/dojo/app/evaluations/sessions'
-    | '/dojo/app/evaluations/settings'
-    | '/dojo/app/evaluations/techniques'
-    | '/dojo/app/evaluations/templates'
-    | '/dojo/app/lesson-plans/$id'
-    | '/dojo/app/lesson-plans/history'
-    | '/dojo/app/lesson-plans/library'
-    | '/dojo/app/lesson-plans/techniques'
-    | '/dojo/app/store/carrinho'
-    | '/dojo/app/store/pedidos'
-    | '/dojo/app/students/$id'
-    | '/dojo/app/team/$id'
-    | '/dojo/app/team/payroll'
-    | '/dojo/app/team/schedules'
-    | '/dojo/app/videos/$id'
-    | '/dojo/app/videos/categorias'
-    | '/dojo/app/videos/favoritos'
-    | '/dojo/app/videos/novo'
-    | '/dojo/staff/_portal/announcements'
-    | '/dojo/staff/_portal/belts'
-    | '/dojo/staff/_portal/certificates'
-    | '/dojo/staff/_portal/checkin'
-    | '/dojo/staff/_portal/competitions'
-    | '/dojo/staff/_portal/evaluations'
-    | '/dojo/staff/_portal/graduations'
-    | '/dojo/staff/_portal/profile'
-    | '/dojo/staff/_portal/sales'
-    | '/dojo/staff/_portal/schedule'
-    | '/dojo/staff/_portal/store'
-    | '/dojo/staff/_portal/students'
     | '/_authenticated/admin/ads/'
     | '/_authenticated/admin/anuncios/'
     | '/_authenticated/admin/fiscal/'
@@ -4130,80 +2319,39 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/marketing/'
     | '/_authenticated/admin/pedidos/'
     | '/_authenticated/admin/produtos/'
-    | '/app/_student/documents/'
-    | '/dojo/app/competitions/'
-    | '/dojo/app/contract-templates/'
-    | '/dojo/app/contracts/'
-    | '/dojo/app/evaluations/'
-    | '/dojo/app/lesson-plans/'
-    | '/dojo/app/store/'
-    | '/dojo/app/students/'
-    | '/dojo/app/team/'
-    | '/dojo/app/units/'
-    | '/dojo/app/videos/'
-    | '/dojo/staff/_portal/'
     | '/_authenticated/admin/anuncios/campanhas/$id'
-    | '/api/public/app/$slug/download'
-    | '/api/public/dojo/partner-checkin/$provider'
-    | '/dojo/app/evaluations/sessions/$id'
-    | '/dojo/app/evaluations/templates/$id'
-    | '/dojo/app/store/pedidos/$id'
-    | '/dojo/app/store/produtos/$slug'
-    | '/dojo/app/students/$id/analysis'
-    | '/dojo/app/units/affiliates/$id'
-    | '/dojo/app/evaluations/sessions/'
-    | '/dojo/app/evaluations/templates/'
-    | '/dojo/app/contracts/issued/$kind/$id'
-    | '/dojo/app/store/c/$categoria/$subcategoria'
-    | '/dojo/app/store/c/$categoria/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AppRoute: typeof AppRouteWithChildren
   AtacadoLpRoute: typeof AtacadoLpRoute
   AuthRoute: typeof AuthRoute
   DataDeletionRoute: typeof DataDeletionRoute
-  DojoRoute: typeof DojoRouteWithChildren
-  PayDemoRoute: typeof PayDemoRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
-  CertificateHashRoute: typeof CertificateHashRoute
-  FerramentasCalculadoraTicketMedioRoute: typeof FerramentasCalculadoraTicketMedioRoute
   LojaAtacadoRoute: typeof LojaAtacadoRoute
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
   LojaEntrarRoute: typeof LojaEntrarRoute
   LojaGuiaKimonoRoute: typeof LojaGuiaKimonoRoute
-  MatriculaSlugRoute: typeof MatriculaSlugRoute
-  PayInvoiceIdRoute: typeof PayInvoiceIdRoute
   LojaIndexRoute: typeof LojaIndexRoute
   ApiDesktopProductsRoute: typeof ApiDesktopProductsRouteWithChildren
   ApiDesktopQuotesRoute: typeof ApiDesktopQuotesRouteWithChildren
-  ApiDojoApkUploadRoute: typeof ApiDojoApkUploadRoute
-  ApiPublicDojoManifestDotwebmanifestRoute: typeof ApiPublicDojoManifestDotwebmanifestRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
   LojaContaPedidosRoute: typeof LojaContaPedidosRoute
   LojaCustomShopSplatRoute: typeof LojaCustomShopSplatRoute
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LojaContaIndexRoute: typeof LojaContaIndexRoute
-  ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
-  ApiPublicCertificateHashRoute: typeof ApiPublicCertificateHashRoute
   ApiPublicHooksAdminPushRoute: typeof ApiPublicHooksAdminPushRoute
-  ApiPublicHooksApplyScheduledGraduationsRoute: typeof ApiPublicHooksApplyScheduledGraduationsRoute
-  ApiPublicHooksAsaasRoute: typeof ApiPublicHooksAsaasRoute
   ApiPublicHooksAuthEmailRoute: typeof ApiPublicHooksAuthEmailRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
-  ApiPublicHooksCompetitionsIngestRoute: typeof ApiPublicHooksCompetitionsIngestRoute
-  ApiPublicHooksDojoWalletReconcileRoute: typeof ApiPublicHooksDojoWalletReconcileRoute
   ApiPublicHooksEmailEventsRoute: typeof ApiPublicHooksEmailEventsRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
-  ApiPublicHooksGenerateDojoInvoicesRoute: typeof ApiPublicHooksGenerateDojoInvoicesRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
   ApiPublicHooksIgWebhookRoute: typeof ApiPublicHooksIgWebhookRoute
   ApiPublicHooksMartialArtsDailySweepRoute: typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -4212,15 +2360,11 @@ export interface RootRouteChildren {
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicHooksRunAdsOptimizationRoute: typeof ApiPublicHooksRunAdsOptimizationRoute
   ApiPublicHooksScaleWinnersRoute: typeof ApiPublicHooksScaleWinnersRoute
-  ApiPublicHooksSendClassRemindersRoute: typeof ApiPublicHooksSendClassRemindersRoute
-  ApiPublicHooksSendDojoRemindersRoute: typeof ApiPublicHooksSendDojoRemindersRoute
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicMetaWebhookRoute: typeof ApiPublicMetaWebhookRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
   ApiPublicSalesMessagesRoute: typeof ApiPublicSalesMessagesRoute
-  ApiPublicAppSlugDownloadRoute: typeof ApiPublicAppSlugDownloadRoute
-  ApiPublicDojoPartnerCheckinProviderRoute: typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -4237,13 +2381,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/atacado-lp': {
@@ -4265,20 +2402,6 @@ declare module '@tanstack/react-router' {
       path: '/data-deletion'
       fullPath: '/data-deletion'
       preLoaderRoute: typeof DataDeletionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dojo': {
-      id: '/dojo'
-      path: '/dojo'
-      fullPath: '/dojo'
-      preLoaderRoute: typeof DojoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pay-demo': {
-      id: '/pay-demo'
-      path: '/pay-demo'
-      fullPath: '/pay-demo'
-      preLoaderRoute: typeof PayDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -4400,90 +2523,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGenerateAdImageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/_student': {
-      id: '/app/_student'
-      path: ''
-      fullPath: '/app'
-      preLoaderRoute: typeof AppStudentRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/install': {
-      id: '/app/install'
-      path: '/install'
-      fullPath: '/app/install'
-      preLoaderRoute: typeof AppInstallRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/login': {
-      id: '/app/login'
-      path: '/login'
-      fullPath: '/app/login'
-      preLoaderRoute: typeof AppLoginRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/reset-password': {
-      id: '/app/reset-password'
-      path: '/reset-password'
-      fullPath: '/app/reset-password'
-      preLoaderRoute: typeof AppResetPasswordRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/certificate/$hash': {
-      id: '/certificate/$hash'
-      path: '/certificate/$hash'
-      fullPath: '/certificate/$hash'
-      preLoaderRoute: typeof CertificateHashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dojo/': {
-      id: '/dojo/'
-      path: '/'
-      fullPath: '/dojo/'
-      preLoaderRoute: typeof DojoIndexRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/app': {
-      id: '/dojo/app'
-      path: '/app'
-      fullPath: '/dojo/app'
-      preLoaderRoute: typeof DojoAppRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/auth': {
-      id: '/dojo/auth'
-      path: '/auth'
-      fullPath: '/dojo/auth'
-      preLoaderRoute: typeof DojoAuthRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/checkout': {
-      id: '/dojo/checkout'
-      path: '/checkout'
-      fullPath: '/dojo/checkout'
-      preLoaderRoute: typeof DojoCheckoutRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/onboarding': {
-      id: '/dojo/onboarding'
-      path: '/onboarding'
-      fullPath: '/dojo/onboarding'
-      preLoaderRoute: typeof DojoOnboardingRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/ferramentas/calculadora-ticket-medio': {
-      id: '/ferramentas/calculadora-ticket-medio'
-      path: '/ferramentas/calculadora-ticket-medio'
-      fullPath: '/ferramentas/calculadora-ticket-medio'
-      preLoaderRoute: typeof FerramentasCalculadoraTicketMedioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/loja/': {
       id: '/loja/'
       path: '/loja'
@@ -4524,20 +2563,6 @@ declare module '@tanstack/react-router' {
       path: '/loja/guia-kimono'
       fullPath: '/loja/guia-kimono'
       preLoaderRoute: typeof LojaGuiaKimonoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/matricula/$slug': {
-      id: '/matricula/$slug'
-      path: '/matricula/$slug'
-      fullPath: '/matricula/$slug'
-      preLoaderRoute: typeof MatriculaSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pay/$invoiceId': {
-      id: '/pay/$invoiceId'
-      path: '/pay/$invoiceId'
-      fullPath: '/pay/$invoiceId'
-      preLoaderRoute: typeof PayInvoiceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -5051,433 +3076,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDesktopQuotesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dojo/apk-upload': {
-      id: '/api/dojo/apk-upload'
-      path: '/api/dojo/apk-upload'
-      fullPath: '/api/dojo/apk-upload'
-      preLoaderRoute: typeof ApiDojoApkUploadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/dojo-manifest.webmanifest': {
-      id: '/api/public/dojo-manifest.webmanifest'
-      path: '/api/public/dojo-manifest.webmanifest'
-      fullPath: '/api/public/dojo-manifest.webmanifest'
-      preLoaderRoute: typeof ApiPublicDojoManifestDotwebmanifestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app/_student/agenda': {
-      id: '/app/_student/agenda'
-      path: '/agenda'
-      fullPath: '/app/agenda'
-      preLoaderRoute: typeof AppStudentAgendaRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/announcements': {
-      id: '/app/_student/announcements'
-      path: '/announcements'
-      fullPath: '/app/announcements'
-      preLoaderRoute: typeof AppStudentAnnouncementsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/card': {
-      id: '/app/_student/card'
-      path: '/card'
-      fullPath: '/app/card'
-      preLoaderRoute: typeof AppStudentCardRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/certificates': {
-      id: '/app/_student/certificates'
-      path: '/certificates'
-      fullPath: '/app/certificates'
-      preLoaderRoute: typeof AppStudentCertificatesRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/checkin': {
-      id: '/app/_student/checkin'
-      path: '/checkin'
-      fullPath: '/app/checkin'
-      preLoaderRoute: typeof AppStudentCheckinRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/competitions': {
-      id: '/app/_student/competitions'
-      path: '/competitions'
-      fullPath: '/app/competitions'
-      preLoaderRoute: typeof AppStudentCompetitionsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/documents': {
-      id: '/app/_student/documents'
-      path: '/documents'
-      fullPath: '/app/documents'
-      preLoaderRoute: typeof AppStudentDocumentsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/evaluations': {
-      id: '/app/_student/evaluations'
-      path: '/evaluations'
-      fullPath: '/app/evaluations'
-      preLoaderRoute: typeof AppStudentEvaluationsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/finance': {
-      id: '/app/_student/finance'
-      path: '/finance'
-      fullPath: '/app/finance'
-      preLoaderRoute: typeof AppStudentFinanceRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/graduations': {
-      id: '/app/_student/graduations'
-      path: '/graduations'
-      fullPath: '/app/graduations'
-      preLoaderRoute: typeof AppStudentGraduationsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/home': {
-      id: '/app/_student/home'
-      path: '/home'
-      fullPath: '/app/home'
-      preLoaderRoute: typeof AppStudentHomeRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/news': {
-      id: '/app/_student/news'
-      path: '/news'
-      fullPath: '/app/news'
-      preLoaderRoute: typeof AppStudentNewsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/notifications': {
-      id: '/app/_student/notifications'
-      path: '/notifications'
-      fullPath: '/app/notifications'
-      preLoaderRoute: typeof AppStudentNotificationsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/onboarding': {
-      id: '/app/_student/onboarding'
-      path: '/onboarding'
-      fullPath: '/app/onboarding'
-      preLoaderRoute: typeof AppStudentOnboardingRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/performance': {
-      id: '/app/_student/performance'
-      path: '/performance'
-      fullPath: '/app/performance'
-      preLoaderRoute: typeof AppStudentPerformanceRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/profile': {
-      id: '/app/_student/profile'
-      path: '/profile'
-      fullPath: '/app/profile'
-      preLoaderRoute: typeof AppStudentProfileRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/ranking': {
-      id: '/app/_student/ranking'
-      path: '/ranking'
-      fullPath: '/app/ranking'
-      preLoaderRoute: typeof AppStudentRankingRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/schedule': {
-      id: '/app/_student/schedule'
-      path: '/schedule'
-      fullPath: '/app/schedule'
-      preLoaderRoute: typeof AppStudentScheduleRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/settings': {
-      id: '/app/_student/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppStudentSettingsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/_student/videos': {
-      id: '/app/_student/videos'
-      path: '/videos'
-      fullPath: '/app/videos'
-      preLoaderRoute: typeof AppStudentVideosRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/app/install/$slug': {
-      id: '/app/install/$slug'
-      path: '/$slug'
-      fullPath: '/app/install/$slug'
-      preLoaderRoute: typeof AppInstallSlugRouteImport
-      parentRoute: typeof AppInstallRoute
-    }
-    '/dojo/app/': {
-      id: '/dojo/app/'
-      path: '/'
-      fullPath: '/dojo/app/'
-      preLoaderRoute: typeof DojoAppIndexRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/account': {
-      id: '/dojo/app/account'
-      path: '/account'
-      fullPath: '/dojo/app/account'
-      preLoaderRoute: typeof DojoAppAccountRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/announcements': {
-      id: '/dojo/app/announcements'
-      path: '/announcements'
-      fullPath: '/dojo/app/announcements'
-      preLoaderRoute: typeof DojoAppAnnouncementsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/apk-versions': {
-      id: '/dojo/app/apk-versions'
-      path: '/apk-versions'
-      fullPath: '/dojo/app/apk-versions'
-      preLoaderRoute: typeof DojoAppApkVersionsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/belt-studio': {
-      id: '/dojo/app/belt-studio'
-      path: '/belt-studio'
-      fullPath: '/dojo/app/belt-studio'
-      preLoaderRoute: typeof DojoAppBeltStudioRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/belts': {
-      id: '/dojo/app/belts'
-      path: '/belts'
-      fullPath: '/dojo/app/belts'
-      preLoaderRoute: typeof DojoAppBeltsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/certificates': {
-      id: '/dojo/app/certificates'
-      path: '/certificates'
-      fullPath: '/dojo/app/certificates'
-      preLoaderRoute: typeof DojoAppCertificatesRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/checkin': {
-      id: '/dojo/app/checkin'
-      path: '/checkin'
-      fullPath: '/dojo/app/checkin'
-      preLoaderRoute: typeof DojoAppCheckinRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/classes': {
-      id: '/dojo/app/classes'
-      path: '/classes'
-      fullPath: '/dojo/app/classes'
-      preLoaderRoute: typeof DojoAppClassesRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/competitions': {
-      id: '/dojo/app/competitions'
-      path: '/competitions'
-      fullPath: '/dojo/app/competitions'
-      preLoaderRoute: typeof DojoAppCompetitionsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/contracts': {
-      id: '/dojo/app/contracts'
-      path: '/contracts'
-      fullPath: '/dojo/app/contracts'
-      preLoaderRoute: typeof DojoAppContractsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/corporate-benefits': {
-      id: '/dojo/app/corporate-benefits'
-      path: '/corporate-benefits'
-      fullPath: '/dojo/app/corporate-benefits'
-      preLoaderRoute: typeof DojoAppCorporateBenefitsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/evaluations': {
-      id: '/dojo/app/evaluations'
-      path: '/evaluations'
-      fullPath: '/dojo/app/evaluations'
-      preLoaderRoute: typeof DojoAppEvaluationsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/finance': {
-      id: '/dojo/app/finance'
-      path: '/finance'
-      fullPath: '/dojo/app/finance'
-      preLoaderRoute: typeof DojoAppFinanceRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/graduations': {
-      id: '/dojo/app/graduations'
-      path: '/graduations'
-      fullPath: '/dojo/app/graduations'
-      preLoaderRoute: typeof DojoAppGraduationsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/install': {
-      id: '/dojo/app/install'
-      path: '/install'
-      fullPath: '/dojo/app/install'
-      preLoaderRoute: typeof DojoAppInstallRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/integrations': {
-      id: '/dojo/app/integrations'
-      path: '/integrations'
-      fullPath: '/dojo/app/integrations'
-      preLoaderRoute: typeof DojoAppIntegrationsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/lesson-plans': {
-      id: '/dojo/app/lesson-plans'
-      path: '/lesson-plans'
-      fullPath: '/dojo/app/lesson-plans'
-      preLoaderRoute: typeof DojoAppLessonPlansRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/notifications': {
-      id: '/dojo/app/notifications'
-      path: '/notifications'
-      fullPath: '/dojo/app/notifications'
-      preLoaderRoute: typeof DojoAppNotificationsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/plans': {
-      id: '/dojo/app/plans'
-      path: '/plans'
-      fullPath: '/dojo/app/plans'
-      preLoaderRoute: typeof DojoAppPlansRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/ranking': {
-      id: '/dojo/app/ranking'
-      path: '/ranking'
-      fullPath: '/dojo/app/ranking'
-      preLoaderRoute: typeof DojoAppRankingRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/sales': {
-      id: '/dojo/app/sales'
-      path: '/sales'
-      fullPath: '/dojo/app/sales'
-      preLoaderRoute: typeof DojoAppSalesRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/schedule': {
-      id: '/dojo/app/schedule'
-      path: '/schedule'
-      fullPath: '/dojo/app/schedule'
-      preLoaderRoute: typeof DojoAppScheduleRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/store': {
-      id: '/dojo/app/store'
-      path: '/store'
-      fullPath: '/dojo/app/store'
-      preLoaderRoute: typeof DojoAppStoreRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/student-app-qr': {
-      id: '/dojo/app/student-app-qr'
-      path: '/student-app-qr'
-      fullPath: '/dojo/app/student-app-qr'
-      preLoaderRoute: typeof DojoAppStudentAppQrRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/student-notifications-config': {
-      id: '/dojo/app/student-notifications-config'
-      path: '/student-notifications-config'
-      fullPath: '/dojo/app/student-notifications-config'
-      preLoaderRoute: typeof DojoAppStudentNotificationsConfigRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/students': {
-      id: '/dojo/app/students'
-      path: '/students'
-      fullPath: '/dojo/app/students'
-      preLoaderRoute: typeof DojoAppStudentsRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/subscription': {
-      id: '/dojo/app/subscription'
-      path: '/subscription'
-      fullPath: '/dojo/app/subscription'
-      preLoaderRoute: typeof DojoAppSubscriptionRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/support': {
-      id: '/dojo/app/support'
-      path: '/support'
-      fullPath: '/dojo/app/support'
-      preLoaderRoute: typeof DojoAppSupportRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/system-users': {
-      id: '/dojo/app/system-users'
-      path: '/system-users'
-      fullPath: '/dojo/app/system-users'
-      preLoaderRoute: typeof DojoAppSystemUsersRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/tutorial': {
-      id: '/dojo/app/tutorial'
-      path: '/tutorial'
-      fullPath: '/dojo/app/tutorial'
-      preLoaderRoute: typeof DojoAppTutorialRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/tutorial-editor': {
-      id: '/dojo/app/tutorial-editor'
-      path: '/tutorial-editor'
-      fullPath: '/dojo/app/tutorial-editor'
-      preLoaderRoute: typeof DojoAppTutorialEditorRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/videos': {
-      id: '/dojo/app/videos'
-      path: '/videos'
-      fullPath: '/dojo/app/videos'
-      preLoaderRoute: typeof DojoAppVideosRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/certificate-editor/$id': {
-      id: '/dojo/certificate-editor/$id'
-      path: '/certificate-editor/$id'
-      fullPath: '/dojo/certificate-editor/$id'
-      preLoaderRoute: typeof DojoCertificateEditorIdRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/matricula/$slug': {
-      id: '/dojo/matricula/$slug'
-      path: '/matricula/$slug'
-      fullPath: '/dojo/matricula/$slug'
-      preLoaderRoute: typeof DojoMatriculaSlugRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/pay/$invoiceId': {
-      id: '/dojo/pay/$invoiceId'
-      path: '/pay/$invoiceId'
-      fullPath: '/dojo/pay/$invoiceId'
-      preLoaderRoute: typeof DojoPayInvoiceIdRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/staff/_portal': {
-      id: '/dojo/staff/_portal'
-      path: '/staff'
-      fullPath: '/dojo/staff'
-      preLoaderRoute: typeof DojoStaffPortalRouteImport
-      parentRoute: typeof DojoRoute
-    }
-    '/dojo/staff/auth': {
-      id: '/dojo/staff/auth'
-      path: '/staff/auth'
-      fullPath: '/dojo/staff/auth'
-      preLoaderRoute: typeof DojoStaffAuthRouteImport
-      parentRoute: typeof DojoRoute
-    }
     '/loja/categoria/$slug': {
       id: '/loja/categoria/$slug'
       path: '/loja/categoria/$slug'
@@ -5919,39 +3517,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDesktopQuotesIdRouteImport
       parentRoute: typeof ApiDesktopQuotesRoute
     }
-    '/api/public/app/manifest.webmanifest': {
-      id: '/api/public/app/manifest.webmanifest'
-      path: '/api/public/app/manifest.webmanifest'
-      fullPath: '/api/public/app/manifest.webmanifest'
-      preLoaderRoute: typeof ApiPublicAppManifestDotwebmanifestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/certificate/$hash': {
-      id: '/api/public/certificate/$hash'
-      path: '/api/public/certificate/$hash'
-      fullPath: '/api/public/certificate/$hash'
-      preLoaderRoute: typeof ApiPublicCertificateHashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/admin-push': {
       id: '/api/public/hooks/admin-push'
       path: '/api/public/hooks/admin-push'
       fullPath: '/api/public/hooks/admin-push'
       preLoaderRoute: typeof ApiPublicHooksAdminPushRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/apply-scheduled-graduations': {
-      id: '/api/public/hooks/apply-scheduled-graduations'
-      path: '/api/public/hooks/apply-scheduled-graduations'
-      fullPath: '/api/public/hooks/apply-scheduled-graduations'
-      preLoaderRoute: typeof ApiPublicHooksApplyScheduledGraduationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/asaas': {
-      id: '/api/public/hooks/asaas'
-      path: '/api/public/hooks/asaas'
-      fullPath: '/api/public/hooks/asaas'
-      preLoaderRoute: typeof ApiPublicHooksAsaasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/auth-email': {
@@ -5968,20 +3538,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/competitions-ingest': {
-      id: '/api/public/hooks/competitions-ingest'
-      path: '/api/public/hooks/competitions-ingest'
-      fullPath: '/api/public/hooks/competitions-ingest'
-      preLoaderRoute: typeof ApiPublicHooksCompetitionsIngestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/dojo-wallet-reconcile': {
-      id: '/api/public/hooks/dojo-wallet-reconcile'
-      path: '/api/public/hooks/dojo-wallet-reconcile'
-      fullPath: '/api/public/hooks/dojo-wallet-reconcile'
-      preLoaderRoute: typeof ApiPublicHooksDojoWalletReconcileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/email-events': {
       id: '/api/public/hooks/email-events'
       path: '/api/public/hooks/email-events'
@@ -5994,13 +3550,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/enrich-pending-leads'
       fullPath: '/api/public/hooks/enrich-pending-leads'
       preLoaderRoute: typeof ApiPublicHooksEnrichPendingLeadsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/generate-dojo-invoices': {
-      id: '/api/public/hooks/generate-dojo-invoices'
-      path: '/api/public/hooks/generate-dojo-invoices'
-      fullPath: '/api/public/hooks/generate-dojo-invoices'
-      preLoaderRoute: typeof ApiPublicHooksGenerateDojoInvoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/ig-sync': {
@@ -6059,20 +3608,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksScaleWinnersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/send-class-reminders': {
-      id: '/api/public/hooks/send-class-reminders'
-      path: '/api/public/hooks/send-class-reminders'
-      fullPath: '/api/public/hooks/send-class-reminders'
-      preLoaderRoute: typeof ApiPublicHooksSendClassRemindersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/send-dojo-reminders': {
-      id: '/api/public/hooks/send-dojo-reminders'
-      path: '/api/public/hooks/send-dojo-reminders'
-      fullPath: '/api/public/hooks/send-dojo-reminders'
-      preLoaderRoute: typeof ApiPublicHooksSendDojoRemindersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/sync-ads-insights': {
       id: '/api/public/hooks/sync-ads-insights'
       path: '/api/public/hooks/sync-ads-insights'
@@ -6108,467 +3643,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSalesMessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/_student/competitions/$id': {
-      id: '/app/_student/competitions/$id'
-      path: '/$id'
-      fullPath: '/app/competitions/$id'
-      preLoaderRoute: typeof AppStudentCompetitionsIdRouteImport
-      parentRoute: typeof AppStudentCompetitionsRoute
-    }
-    '/app/_student/documents/': {
-      id: '/app/_student/documents/'
-      path: '/'
-      fullPath: '/app/documents/'
-      preLoaderRoute: typeof AppStudentDocumentsIndexRouteImport
-      parentRoute: typeof AppStudentDocumentsRoute
-    }
-    '/app/_student/documents/$id': {
-      id: '/app/_student/documents/$id'
-      path: '/$id'
-      fullPath: '/app/documents/$id'
-      preLoaderRoute: typeof AppStudentDocumentsIdRouteImport
-      parentRoute: typeof AppStudentDocumentsRoute
-    }
-    '/app/_student/invoice/$id': {
-      id: '/app/_student/invoice/$id'
-      path: '/invoice/$id'
-      fullPath: '/app/invoice/$id'
-      preLoaderRoute: typeof AppStudentInvoiceIdRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
-    '/dojo/app/competitions/': {
-      id: '/dojo/app/competitions/'
-      path: '/'
-      fullPath: '/dojo/app/competitions/'
-      preLoaderRoute: typeof DojoAppCompetitionsIndexRouteImport
-      parentRoute: typeof DojoAppCompetitionsRoute
-    }
-    '/dojo/app/competitions/$id': {
-      id: '/dojo/app/competitions/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/competitions/$id'
-      preLoaderRoute: typeof DojoAppCompetitionsIdRouteImport
-      parentRoute: typeof DojoAppCompetitionsRoute
-    }
-    '/dojo/app/contract-templates/': {
-      id: '/dojo/app/contract-templates/'
-      path: '/contract-templates'
-      fullPath: '/dojo/app/contract-templates/'
-      preLoaderRoute: typeof DojoAppContractTemplatesIndexRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/contract-templates/$id': {
-      id: '/dojo/app/contract-templates/$id'
-      path: '/contract-templates/$id'
-      fullPath: '/dojo/app/contract-templates/$id'
-      preLoaderRoute: typeof DojoAppContractTemplatesIdRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/contracts/': {
-      id: '/dojo/app/contracts/'
-      path: '/'
-      fullPath: '/dojo/app/contracts/'
-      preLoaderRoute: typeof DojoAppContractsIndexRouteImport
-      parentRoute: typeof DojoAppContractsRoute
-    }
-    '/dojo/app/contracts/issued': {
-      id: '/dojo/app/contracts/issued'
-      path: '/issued'
-      fullPath: '/dojo/app/contracts/issued'
-      preLoaderRoute: typeof DojoAppContractsIssuedRouteImport
-      parentRoute: typeof DojoAppContractsRoute
-    }
-    '/dojo/app/contracts/templates': {
-      id: '/dojo/app/contracts/templates'
-      path: '/templates'
-      fullPath: '/dojo/app/contracts/templates'
-      preLoaderRoute: typeof DojoAppContractsTemplatesRouteImport
-      parentRoute: typeof DojoAppContractsRoute
-    }
-    '/dojo/app/evaluations/': {
-      id: '/dojo/app/evaluations/'
-      path: '/'
-      fullPath: '/dojo/app/evaluations/'
-      preLoaderRoute: typeof DojoAppEvaluationsIndexRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/categories': {
-      id: '/dojo/app/evaluations/categories'
-      path: '/categories'
-      fullPath: '/dojo/app/evaluations/categories'
-      preLoaderRoute: typeof DojoAppEvaluationsCategoriesRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/history': {
-      id: '/dojo/app/evaluations/history'
-      path: '/history'
-      fullPath: '/dojo/app/evaluations/history'
-      preLoaderRoute: typeof DojoAppEvaluationsHistoryRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/library': {
-      id: '/dojo/app/evaluations/library'
-      path: '/library'
-      fullPath: '/dojo/app/evaluations/library'
-      preLoaderRoute: typeof DojoAppEvaluationsLibraryRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/sessions': {
-      id: '/dojo/app/evaluations/sessions'
-      path: '/sessions'
-      fullPath: '/dojo/app/evaluations/sessions'
-      preLoaderRoute: typeof DojoAppEvaluationsSessionsRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/settings': {
-      id: '/dojo/app/evaluations/settings'
-      path: '/settings'
-      fullPath: '/dojo/app/evaluations/settings'
-      preLoaderRoute: typeof DojoAppEvaluationsSettingsRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/techniques': {
-      id: '/dojo/app/evaluations/techniques'
-      path: '/techniques'
-      fullPath: '/dojo/app/evaluations/techniques'
-      preLoaderRoute: typeof DojoAppEvaluationsTechniquesRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/evaluations/templates': {
-      id: '/dojo/app/evaluations/templates'
-      path: '/templates'
-      fullPath: '/dojo/app/evaluations/templates'
-      preLoaderRoute: typeof DojoAppEvaluationsTemplatesRouteImport
-      parentRoute: typeof DojoAppEvaluationsRoute
-    }
-    '/dojo/app/lesson-plans/': {
-      id: '/dojo/app/lesson-plans/'
-      path: '/'
-      fullPath: '/dojo/app/lesson-plans/'
-      preLoaderRoute: typeof DojoAppLessonPlansIndexRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/lesson-plans/$id': {
-      id: '/dojo/app/lesson-plans/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/lesson-plans/$id'
-      preLoaderRoute: typeof DojoAppLessonPlansIdRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/lesson-plans/history': {
-      id: '/dojo/app/lesson-plans/history'
-      path: '/history'
-      fullPath: '/dojo/app/lesson-plans/history'
-      preLoaderRoute: typeof DojoAppLessonPlansHistoryRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/lesson-plans/library': {
-      id: '/dojo/app/lesson-plans/library'
-      path: '/library'
-      fullPath: '/dojo/app/lesson-plans/library'
-      preLoaderRoute: typeof DojoAppLessonPlansLibraryRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/lesson-plans/techniques': {
-      id: '/dojo/app/lesson-plans/techniques'
-      path: '/techniques'
-      fullPath: '/dojo/app/lesson-plans/techniques'
-      preLoaderRoute: typeof DojoAppLessonPlansTechniquesRouteImport
-      parentRoute: typeof DojoAppLessonPlansRoute
-    }
-    '/dojo/app/store/': {
-      id: '/dojo/app/store/'
-      path: '/'
-      fullPath: '/dojo/app/store/'
-      preLoaderRoute: typeof DojoAppStoreIndexRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/store/carrinho': {
-      id: '/dojo/app/store/carrinho'
-      path: '/carrinho'
-      fullPath: '/dojo/app/store/carrinho'
-      preLoaderRoute: typeof DojoAppStoreCarrinhoRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/store/pedidos': {
-      id: '/dojo/app/store/pedidos'
-      path: '/pedidos'
-      fullPath: '/dojo/app/store/pedidos'
-      preLoaderRoute: typeof DojoAppStorePedidosRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/students/': {
-      id: '/dojo/app/students/'
-      path: '/'
-      fullPath: '/dojo/app/students/'
-      preLoaderRoute: typeof DojoAppStudentsIndexRouteImport
-      parentRoute: typeof DojoAppStudentsRoute
-    }
-    '/dojo/app/students/$id': {
-      id: '/dojo/app/students/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/students/$id'
-      preLoaderRoute: typeof DojoAppStudentsIdRouteImport
-      parentRoute: typeof DojoAppStudentsRoute
-    }
-    '/dojo/app/team/': {
-      id: '/dojo/app/team/'
-      path: '/team'
-      fullPath: '/dojo/app/team/'
-      preLoaderRoute: typeof DojoAppTeamIndexRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/team/$id': {
-      id: '/dojo/app/team/$id'
-      path: '/team/$id'
-      fullPath: '/dojo/app/team/$id'
-      preLoaderRoute: typeof DojoAppTeamIdRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/team/payroll': {
-      id: '/dojo/app/team/payroll'
-      path: '/team/payroll'
-      fullPath: '/dojo/app/team/payroll'
-      preLoaderRoute: typeof DojoAppTeamPayrollRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/team/schedules': {
-      id: '/dojo/app/team/schedules'
-      path: '/team/schedules'
-      fullPath: '/dojo/app/team/schedules'
-      preLoaderRoute: typeof DojoAppTeamSchedulesRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/units/': {
-      id: '/dojo/app/units/'
-      path: '/units'
-      fullPath: '/dojo/app/units/'
-      preLoaderRoute: typeof DojoAppUnitsIndexRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/videos/': {
-      id: '/dojo/app/videos/'
-      path: '/'
-      fullPath: '/dojo/app/videos/'
-      preLoaderRoute: typeof DojoAppVideosIndexRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/videos/$id': {
-      id: '/dojo/app/videos/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/videos/$id'
-      preLoaderRoute: typeof DojoAppVideosIdRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/videos/categorias': {
-      id: '/dojo/app/videos/categorias'
-      path: '/categorias'
-      fullPath: '/dojo/app/videos/categorias'
-      preLoaderRoute: typeof DojoAppVideosCategoriasRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/videos/favoritos': {
-      id: '/dojo/app/videos/favoritos'
-      path: '/favoritos'
-      fullPath: '/dojo/app/videos/favoritos'
-      preLoaderRoute: typeof DojoAppVideosFavoritosRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/app/videos/novo': {
-      id: '/dojo/app/videos/novo'
-      path: '/novo'
-      fullPath: '/dojo/app/videos/novo'
-      preLoaderRoute: typeof DojoAppVideosNovoRouteImport
-      parentRoute: typeof DojoAppVideosRoute
-    }
-    '/dojo/staff/_portal/': {
-      id: '/dojo/staff/_portal/'
-      path: '/'
-      fullPath: '/dojo/staff/'
-      preLoaderRoute: typeof DojoStaffPortalIndexRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/announcements': {
-      id: '/dojo/staff/_portal/announcements'
-      path: '/announcements'
-      fullPath: '/dojo/staff/announcements'
-      preLoaderRoute: typeof DojoStaffPortalAnnouncementsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/belts': {
-      id: '/dojo/staff/_portal/belts'
-      path: '/belts'
-      fullPath: '/dojo/staff/belts'
-      preLoaderRoute: typeof DojoStaffPortalBeltsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/certificates': {
-      id: '/dojo/staff/_portal/certificates'
-      path: '/certificates'
-      fullPath: '/dojo/staff/certificates'
-      preLoaderRoute: typeof DojoStaffPortalCertificatesRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/checkin': {
-      id: '/dojo/staff/_portal/checkin'
-      path: '/checkin'
-      fullPath: '/dojo/staff/checkin'
-      preLoaderRoute: typeof DojoStaffPortalCheckinRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/competitions': {
-      id: '/dojo/staff/_portal/competitions'
-      path: '/competitions'
-      fullPath: '/dojo/staff/competitions'
-      preLoaderRoute: typeof DojoStaffPortalCompetitionsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/evaluations': {
-      id: '/dojo/staff/_portal/evaluations'
-      path: '/evaluations'
-      fullPath: '/dojo/staff/evaluations'
-      preLoaderRoute: typeof DojoStaffPortalEvaluationsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/graduations': {
-      id: '/dojo/staff/_portal/graduations'
-      path: '/graduations'
-      fullPath: '/dojo/staff/graduations'
-      preLoaderRoute: typeof DojoStaffPortalGraduationsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/profile': {
-      id: '/dojo/staff/_portal/profile'
-      path: '/profile'
-      fullPath: '/dojo/staff/profile'
-      preLoaderRoute: typeof DojoStaffPortalProfileRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/sales': {
-      id: '/dojo/staff/_portal/sales'
-      path: '/sales'
-      fullPath: '/dojo/staff/sales'
-      preLoaderRoute: typeof DojoStaffPortalSalesRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/schedule': {
-      id: '/dojo/staff/_portal/schedule'
-      path: '/schedule'
-      fullPath: '/dojo/staff/schedule'
-      preLoaderRoute: typeof DojoStaffPortalScheduleRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/store': {
-      id: '/dojo/staff/_portal/store'
-      path: '/store'
-      fullPath: '/dojo/staff/store'
-      preLoaderRoute: typeof DojoStaffPortalStoreRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
-    '/dojo/staff/_portal/students': {
-      id: '/dojo/staff/_portal/students'
-      path: '/students'
-      fullPath: '/dojo/staff/students'
-      preLoaderRoute: typeof DojoStaffPortalStudentsRouteImport
-      parentRoute: typeof DojoStaffPortalRoute
-    }
     '/_authenticated/admin/anuncios/campanhas/$id': {
       id: '/_authenticated/admin/anuncios/campanhas/$id'
       path: '/$id'
       fullPath: '/admin/anuncios/campanhas/$id'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosCampanhasIdRouteImport
       parentRoute: typeof AuthenticatedAdminAnunciosCampanhasRoute
-    }
-    '/api/public/app/$slug/download': {
-      id: '/api/public/app/$slug/download'
-      path: '/api/public/app/$slug/download'
-      fullPath: '/api/public/app/$slug/download'
-      preLoaderRoute: typeof ApiPublicAppSlugDownloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/dojo/partner-checkin/$provider': {
-      id: '/api/public/dojo/partner-checkin/$provider'
-      path: '/api/public/dojo/partner-checkin/$provider'
-      fullPath: '/api/public/dojo/partner-checkin/$provider'
-      preLoaderRoute: typeof ApiPublicDojoPartnerCheckinProviderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dojo/app/evaluations/sessions/': {
-      id: '/dojo/app/evaluations/sessions/'
-      path: '/'
-      fullPath: '/dojo/app/evaluations/sessions/'
-      preLoaderRoute: typeof DojoAppEvaluationsSessionsIndexRouteImport
-      parentRoute: typeof DojoAppEvaluationsSessionsRoute
-    }
-    '/dojo/app/evaluations/sessions/$id': {
-      id: '/dojo/app/evaluations/sessions/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/evaluations/sessions/$id'
-      preLoaderRoute: typeof DojoAppEvaluationsSessionsIdRouteImport
-      parentRoute: typeof DojoAppEvaluationsSessionsRoute
-    }
-    '/dojo/app/evaluations/templates/': {
-      id: '/dojo/app/evaluations/templates/'
-      path: '/'
-      fullPath: '/dojo/app/evaluations/templates/'
-      preLoaderRoute: typeof DojoAppEvaluationsTemplatesIndexRouteImport
-      parentRoute: typeof DojoAppEvaluationsTemplatesRoute
-    }
-    '/dojo/app/evaluations/templates/$id': {
-      id: '/dojo/app/evaluations/templates/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/evaluations/templates/$id'
-      preLoaderRoute: typeof DojoAppEvaluationsTemplatesIdRouteImport
-      parentRoute: typeof DojoAppEvaluationsTemplatesRoute
-    }
-    '/dojo/app/store/pedidos/$id': {
-      id: '/dojo/app/store/pedidos/$id'
-      path: '/$id'
-      fullPath: '/dojo/app/store/pedidos/$id'
-      preLoaderRoute: typeof DojoAppStorePedidosIdRouteImport
-      parentRoute: typeof DojoAppStorePedidosRoute
-    }
-    '/dojo/app/store/produtos/$slug': {
-      id: '/dojo/app/store/produtos/$slug'
-      path: '/produtos/$slug'
-      fullPath: '/dojo/app/store/produtos/$slug'
-      preLoaderRoute: typeof DojoAppStoreProdutosSlugRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/students/$id/analysis': {
-      id: '/dojo/app/students/$id/analysis'
-      path: '/analysis'
-      fullPath: '/dojo/app/students/$id/analysis'
-      preLoaderRoute: typeof DojoAppStudentsIdAnalysisRouteImport
-      parentRoute: typeof DojoAppStudentsIdRoute
-    }
-    '/dojo/app/units/affiliates/$id': {
-      id: '/dojo/app/units/affiliates/$id'
-      path: '/units/affiliates/$id'
-      fullPath: '/dojo/app/units/affiliates/$id'
-      preLoaderRoute: typeof DojoAppUnitsAffiliatesIdRouteImport
-      parentRoute: typeof DojoAppRoute
-    }
-    '/dojo/app/contracts/issued/$kind/$id': {
-      id: '/dojo/app/contracts/issued/$kind/$id'
-      path: '/$kind/$id'
-      fullPath: '/dojo/app/contracts/issued/$kind/$id'
-      preLoaderRoute: typeof DojoAppContractsIssuedKindIdRouteImport
-      parentRoute: typeof DojoAppContractsIssuedRoute
-    }
-    '/dojo/app/store/c/$categoria/': {
-      id: '/dojo/app/store/c/$categoria/'
-      path: '/c/$categoria'
-      fullPath: '/dojo/app/store/c/$categoria/'
-      preLoaderRoute: typeof DojoAppStoreCCategoriaIndexRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
-    '/dojo/app/store/c/$categoria/$subcategoria': {
-      id: '/dojo/app/store/c/$categoria/$subcategoria'
-      path: '/c/$categoria/$subcategoria'
-      fullPath: '/dojo/app/store/c/$categoria/$subcategoria'
-      preLoaderRoute: typeof DojoAppStoreCCategoriaSubcategoriaRouteImport
-      parentRoute: typeof DojoAppStoreRoute
     }
   }
 }
@@ -7031,470 +4111,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface AppStudentCompetitionsRouteChildren {
-  AppStudentCompetitionsIdRoute: typeof AppStudentCompetitionsIdRoute
-}
-
-const AppStudentCompetitionsRouteChildren: AppStudentCompetitionsRouteChildren =
-  {
-    AppStudentCompetitionsIdRoute: AppStudentCompetitionsIdRoute,
-  }
-
-const AppStudentCompetitionsRouteWithChildren =
-  AppStudentCompetitionsRoute._addFileChildren(
-    AppStudentCompetitionsRouteChildren,
-  )
-
-interface AppStudentDocumentsRouteChildren {
-  AppStudentDocumentsIdRoute: typeof AppStudentDocumentsIdRoute
-  AppStudentDocumentsIndexRoute: typeof AppStudentDocumentsIndexRoute
-}
-
-const AppStudentDocumentsRouteChildren: AppStudentDocumentsRouteChildren = {
-  AppStudentDocumentsIdRoute: AppStudentDocumentsIdRoute,
-  AppStudentDocumentsIndexRoute: AppStudentDocumentsIndexRoute,
-}
-
-const AppStudentDocumentsRouteWithChildren =
-  AppStudentDocumentsRoute._addFileChildren(AppStudentDocumentsRouteChildren)
-
-interface AppStudentRouteChildren {
-  AppStudentAgendaRoute: typeof AppStudentAgendaRoute
-  AppStudentAnnouncementsRoute: typeof AppStudentAnnouncementsRoute
-  AppStudentCardRoute: typeof AppStudentCardRoute
-  AppStudentCertificatesRoute: typeof AppStudentCertificatesRoute
-  AppStudentCheckinRoute: typeof AppStudentCheckinRoute
-  AppStudentCompetitionsRoute: typeof AppStudentCompetitionsRouteWithChildren
-  AppStudentDocumentsRoute: typeof AppStudentDocumentsRouteWithChildren
-  AppStudentEvaluationsRoute: typeof AppStudentEvaluationsRoute
-  AppStudentFinanceRoute: typeof AppStudentFinanceRoute
-  AppStudentGraduationsRoute: typeof AppStudentGraduationsRoute
-  AppStudentHomeRoute: typeof AppStudentHomeRoute
-  AppStudentNewsRoute: typeof AppStudentNewsRoute
-  AppStudentNotificationsRoute: typeof AppStudentNotificationsRoute
-  AppStudentOnboardingRoute: typeof AppStudentOnboardingRoute
-  AppStudentPerformanceRoute: typeof AppStudentPerformanceRoute
-  AppStudentProfileRoute: typeof AppStudentProfileRoute
-  AppStudentRankingRoute: typeof AppStudentRankingRoute
-  AppStudentScheduleRoute: typeof AppStudentScheduleRoute
-  AppStudentSettingsRoute: typeof AppStudentSettingsRoute
-  AppStudentVideosRoute: typeof AppStudentVideosRoute
-  AppStudentInvoiceIdRoute: typeof AppStudentInvoiceIdRoute
-}
-
-const AppStudentRouteChildren: AppStudentRouteChildren = {
-  AppStudentAgendaRoute: AppStudentAgendaRoute,
-  AppStudentAnnouncementsRoute: AppStudentAnnouncementsRoute,
-  AppStudentCardRoute: AppStudentCardRoute,
-  AppStudentCertificatesRoute: AppStudentCertificatesRoute,
-  AppStudentCheckinRoute: AppStudentCheckinRoute,
-  AppStudentCompetitionsRoute: AppStudentCompetitionsRouteWithChildren,
-  AppStudentDocumentsRoute: AppStudentDocumentsRouteWithChildren,
-  AppStudentEvaluationsRoute: AppStudentEvaluationsRoute,
-  AppStudentFinanceRoute: AppStudentFinanceRoute,
-  AppStudentGraduationsRoute: AppStudentGraduationsRoute,
-  AppStudentHomeRoute: AppStudentHomeRoute,
-  AppStudentNewsRoute: AppStudentNewsRoute,
-  AppStudentNotificationsRoute: AppStudentNotificationsRoute,
-  AppStudentOnboardingRoute: AppStudentOnboardingRoute,
-  AppStudentPerformanceRoute: AppStudentPerformanceRoute,
-  AppStudentProfileRoute: AppStudentProfileRoute,
-  AppStudentRankingRoute: AppStudentRankingRoute,
-  AppStudentScheduleRoute: AppStudentScheduleRoute,
-  AppStudentSettingsRoute: AppStudentSettingsRoute,
-  AppStudentVideosRoute: AppStudentVideosRoute,
-  AppStudentInvoiceIdRoute: AppStudentInvoiceIdRoute,
-}
-
-const AppStudentRouteWithChildren = AppStudentRoute._addFileChildren(
-  AppStudentRouteChildren,
-)
-
-interface AppInstallRouteChildren {
-  AppInstallSlugRoute: typeof AppInstallSlugRoute
-}
-
-const AppInstallRouteChildren: AppInstallRouteChildren = {
-  AppInstallSlugRoute: AppInstallSlugRoute,
-}
-
-const AppInstallRouteWithChildren = AppInstallRoute._addFileChildren(
-  AppInstallRouteChildren,
-)
-
-interface AppRouteChildren {
-  AppStudentRoute: typeof AppStudentRouteWithChildren
-  AppInstallRoute: typeof AppInstallRouteWithChildren
-  AppLoginRoute: typeof AppLoginRoute
-  AppResetPasswordRoute: typeof AppResetPasswordRoute
-  AppIndexRoute: typeof AppIndexRoute
-}
-
-const AppRouteChildren: AppRouteChildren = {
-  AppStudentRoute: AppStudentRouteWithChildren,
-  AppInstallRoute: AppInstallRouteWithChildren,
-  AppLoginRoute: AppLoginRoute,
-  AppResetPasswordRoute: AppResetPasswordRoute,
-  AppIndexRoute: AppIndexRoute,
-}
-
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
-
-interface DojoAppCompetitionsRouteChildren {
-  DojoAppCompetitionsIdRoute: typeof DojoAppCompetitionsIdRoute
-  DojoAppCompetitionsIndexRoute: typeof DojoAppCompetitionsIndexRoute
-}
-
-const DojoAppCompetitionsRouteChildren: DojoAppCompetitionsRouteChildren = {
-  DojoAppCompetitionsIdRoute: DojoAppCompetitionsIdRoute,
-  DojoAppCompetitionsIndexRoute: DojoAppCompetitionsIndexRoute,
-}
-
-const DojoAppCompetitionsRouteWithChildren =
-  DojoAppCompetitionsRoute._addFileChildren(DojoAppCompetitionsRouteChildren)
-
-interface DojoAppContractsIssuedRouteChildren {
-  DojoAppContractsIssuedKindIdRoute: typeof DojoAppContractsIssuedKindIdRoute
-}
-
-const DojoAppContractsIssuedRouteChildren: DojoAppContractsIssuedRouteChildren =
-  {
-    DojoAppContractsIssuedKindIdRoute: DojoAppContractsIssuedKindIdRoute,
-  }
-
-const DojoAppContractsIssuedRouteWithChildren =
-  DojoAppContractsIssuedRoute._addFileChildren(
-    DojoAppContractsIssuedRouteChildren,
-  )
-
-interface DojoAppContractsRouteChildren {
-  DojoAppContractsIssuedRoute: typeof DojoAppContractsIssuedRouteWithChildren
-  DojoAppContractsTemplatesRoute: typeof DojoAppContractsTemplatesRoute
-  DojoAppContractsIndexRoute: typeof DojoAppContractsIndexRoute
-}
-
-const DojoAppContractsRouteChildren: DojoAppContractsRouteChildren = {
-  DojoAppContractsIssuedRoute: DojoAppContractsIssuedRouteWithChildren,
-  DojoAppContractsTemplatesRoute: DojoAppContractsTemplatesRoute,
-  DojoAppContractsIndexRoute: DojoAppContractsIndexRoute,
-}
-
-const DojoAppContractsRouteWithChildren =
-  DojoAppContractsRoute._addFileChildren(DojoAppContractsRouteChildren)
-
-interface DojoAppEvaluationsSessionsRouteChildren {
-  DojoAppEvaluationsSessionsIdRoute: typeof DojoAppEvaluationsSessionsIdRoute
-  DojoAppEvaluationsSessionsIndexRoute: typeof DojoAppEvaluationsSessionsIndexRoute
-}
-
-const DojoAppEvaluationsSessionsRouteChildren: DojoAppEvaluationsSessionsRouteChildren =
-  {
-    DojoAppEvaluationsSessionsIdRoute: DojoAppEvaluationsSessionsIdRoute,
-    DojoAppEvaluationsSessionsIndexRoute: DojoAppEvaluationsSessionsIndexRoute,
-  }
-
-const DojoAppEvaluationsSessionsRouteWithChildren =
-  DojoAppEvaluationsSessionsRoute._addFileChildren(
-    DojoAppEvaluationsSessionsRouteChildren,
-  )
-
-interface DojoAppEvaluationsTemplatesRouteChildren {
-  DojoAppEvaluationsTemplatesIdRoute: typeof DojoAppEvaluationsTemplatesIdRoute
-  DojoAppEvaluationsTemplatesIndexRoute: typeof DojoAppEvaluationsTemplatesIndexRoute
-}
-
-const DojoAppEvaluationsTemplatesRouteChildren: DojoAppEvaluationsTemplatesRouteChildren =
-  {
-    DojoAppEvaluationsTemplatesIdRoute: DojoAppEvaluationsTemplatesIdRoute,
-    DojoAppEvaluationsTemplatesIndexRoute:
-      DojoAppEvaluationsTemplatesIndexRoute,
-  }
-
-const DojoAppEvaluationsTemplatesRouteWithChildren =
-  DojoAppEvaluationsTemplatesRoute._addFileChildren(
-    DojoAppEvaluationsTemplatesRouteChildren,
-  )
-
-interface DojoAppEvaluationsRouteChildren {
-  DojoAppEvaluationsCategoriesRoute: typeof DojoAppEvaluationsCategoriesRoute
-  DojoAppEvaluationsHistoryRoute: typeof DojoAppEvaluationsHistoryRoute
-  DojoAppEvaluationsLibraryRoute: typeof DojoAppEvaluationsLibraryRoute
-  DojoAppEvaluationsSessionsRoute: typeof DojoAppEvaluationsSessionsRouteWithChildren
-  DojoAppEvaluationsSettingsRoute: typeof DojoAppEvaluationsSettingsRoute
-  DojoAppEvaluationsTechniquesRoute: typeof DojoAppEvaluationsTechniquesRoute
-  DojoAppEvaluationsTemplatesRoute: typeof DojoAppEvaluationsTemplatesRouteWithChildren
-  DojoAppEvaluationsIndexRoute: typeof DojoAppEvaluationsIndexRoute
-}
-
-const DojoAppEvaluationsRouteChildren: DojoAppEvaluationsRouteChildren = {
-  DojoAppEvaluationsCategoriesRoute: DojoAppEvaluationsCategoriesRoute,
-  DojoAppEvaluationsHistoryRoute: DojoAppEvaluationsHistoryRoute,
-  DojoAppEvaluationsLibraryRoute: DojoAppEvaluationsLibraryRoute,
-  DojoAppEvaluationsSessionsRoute: DojoAppEvaluationsSessionsRouteWithChildren,
-  DojoAppEvaluationsSettingsRoute: DojoAppEvaluationsSettingsRoute,
-  DojoAppEvaluationsTechniquesRoute: DojoAppEvaluationsTechniquesRoute,
-  DojoAppEvaluationsTemplatesRoute:
-    DojoAppEvaluationsTemplatesRouteWithChildren,
-  DojoAppEvaluationsIndexRoute: DojoAppEvaluationsIndexRoute,
-}
-
-const DojoAppEvaluationsRouteWithChildren =
-  DojoAppEvaluationsRoute._addFileChildren(DojoAppEvaluationsRouteChildren)
-
-interface DojoAppLessonPlansRouteChildren {
-  DojoAppLessonPlansIdRoute: typeof DojoAppLessonPlansIdRoute
-  DojoAppLessonPlansHistoryRoute: typeof DojoAppLessonPlansHistoryRoute
-  DojoAppLessonPlansLibraryRoute: typeof DojoAppLessonPlansLibraryRoute
-  DojoAppLessonPlansTechniquesRoute: typeof DojoAppLessonPlansTechniquesRoute
-  DojoAppLessonPlansIndexRoute: typeof DojoAppLessonPlansIndexRoute
-}
-
-const DojoAppLessonPlansRouteChildren: DojoAppLessonPlansRouteChildren = {
-  DojoAppLessonPlansIdRoute: DojoAppLessonPlansIdRoute,
-  DojoAppLessonPlansHistoryRoute: DojoAppLessonPlansHistoryRoute,
-  DojoAppLessonPlansLibraryRoute: DojoAppLessonPlansLibraryRoute,
-  DojoAppLessonPlansTechniquesRoute: DojoAppLessonPlansTechniquesRoute,
-  DojoAppLessonPlansIndexRoute: DojoAppLessonPlansIndexRoute,
-}
-
-const DojoAppLessonPlansRouteWithChildren =
-  DojoAppLessonPlansRoute._addFileChildren(DojoAppLessonPlansRouteChildren)
-
-interface DojoAppStorePedidosRouteChildren {
-  DojoAppStorePedidosIdRoute: typeof DojoAppStorePedidosIdRoute
-}
-
-const DojoAppStorePedidosRouteChildren: DojoAppStorePedidosRouteChildren = {
-  DojoAppStorePedidosIdRoute: DojoAppStorePedidosIdRoute,
-}
-
-const DojoAppStorePedidosRouteWithChildren =
-  DojoAppStorePedidosRoute._addFileChildren(DojoAppStorePedidosRouteChildren)
-
-interface DojoAppStoreRouteChildren {
-  DojoAppStoreCarrinhoRoute: typeof DojoAppStoreCarrinhoRoute
-  DojoAppStorePedidosRoute: typeof DojoAppStorePedidosRouteWithChildren
-  DojoAppStoreIndexRoute: typeof DojoAppStoreIndexRoute
-  DojoAppStoreProdutosSlugRoute: typeof DojoAppStoreProdutosSlugRoute
-  DojoAppStoreCCategoriaSubcategoriaRoute: typeof DojoAppStoreCCategoriaSubcategoriaRoute
-  DojoAppStoreCCategoriaIndexRoute: typeof DojoAppStoreCCategoriaIndexRoute
-}
-
-const DojoAppStoreRouteChildren: DojoAppStoreRouteChildren = {
-  DojoAppStoreCarrinhoRoute: DojoAppStoreCarrinhoRoute,
-  DojoAppStorePedidosRoute: DojoAppStorePedidosRouteWithChildren,
-  DojoAppStoreIndexRoute: DojoAppStoreIndexRoute,
-  DojoAppStoreProdutosSlugRoute: DojoAppStoreProdutosSlugRoute,
-  DojoAppStoreCCategoriaSubcategoriaRoute:
-    DojoAppStoreCCategoriaSubcategoriaRoute,
-  DojoAppStoreCCategoriaIndexRoute: DojoAppStoreCCategoriaIndexRoute,
-}
-
-const DojoAppStoreRouteWithChildren = DojoAppStoreRoute._addFileChildren(
-  DojoAppStoreRouteChildren,
-)
-
-interface DojoAppStudentsIdRouteChildren {
-  DojoAppStudentsIdAnalysisRoute: typeof DojoAppStudentsIdAnalysisRoute
-}
-
-const DojoAppStudentsIdRouteChildren: DojoAppStudentsIdRouteChildren = {
-  DojoAppStudentsIdAnalysisRoute: DojoAppStudentsIdAnalysisRoute,
-}
-
-const DojoAppStudentsIdRouteWithChildren =
-  DojoAppStudentsIdRoute._addFileChildren(DojoAppStudentsIdRouteChildren)
-
-interface DojoAppStudentsRouteChildren {
-  DojoAppStudentsIdRoute: typeof DojoAppStudentsIdRouteWithChildren
-  DojoAppStudentsIndexRoute: typeof DojoAppStudentsIndexRoute
-}
-
-const DojoAppStudentsRouteChildren: DojoAppStudentsRouteChildren = {
-  DojoAppStudentsIdRoute: DojoAppStudentsIdRouteWithChildren,
-  DojoAppStudentsIndexRoute: DojoAppStudentsIndexRoute,
-}
-
-const DojoAppStudentsRouteWithChildren = DojoAppStudentsRoute._addFileChildren(
-  DojoAppStudentsRouteChildren,
-)
-
-interface DojoAppVideosRouteChildren {
-  DojoAppVideosIdRoute: typeof DojoAppVideosIdRoute
-  DojoAppVideosCategoriasRoute: typeof DojoAppVideosCategoriasRoute
-  DojoAppVideosFavoritosRoute: typeof DojoAppVideosFavoritosRoute
-  DojoAppVideosNovoRoute: typeof DojoAppVideosNovoRoute
-  DojoAppVideosIndexRoute: typeof DojoAppVideosIndexRoute
-}
-
-const DojoAppVideosRouteChildren: DojoAppVideosRouteChildren = {
-  DojoAppVideosIdRoute: DojoAppVideosIdRoute,
-  DojoAppVideosCategoriasRoute: DojoAppVideosCategoriasRoute,
-  DojoAppVideosFavoritosRoute: DojoAppVideosFavoritosRoute,
-  DojoAppVideosNovoRoute: DojoAppVideosNovoRoute,
-  DojoAppVideosIndexRoute: DojoAppVideosIndexRoute,
-}
-
-const DojoAppVideosRouteWithChildren = DojoAppVideosRoute._addFileChildren(
-  DojoAppVideosRouteChildren,
-)
-
-interface DojoAppRouteChildren {
-  DojoAppAccountRoute: typeof DojoAppAccountRoute
-  DojoAppAnnouncementsRoute: typeof DojoAppAnnouncementsRoute
-  DojoAppApkVersionsRoute: typeof DojoAppApkVersionsRoute
-  DojoAppBeltStudioRoute: typeof DojoAppBeltStudioRoute
-  DojoAppBeltsRoute: typeof DojoAppBeltsRoute
-  DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
-  DojoAppCheckinRoute: typeof DojoAppCheckinRoute
-  DojoAppClassesRoute: typeof DojoAppClassesRoute
-  DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRouteWithChildren
-  DojoAppContractsRoute: typeof DojoAppContractsRouteWithChildren
-  DojoAppCorporateBenefitsRoute: typeof DojoAppCorporateBenefitsRoute
-  DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRouteWithChildren
-  DojoAppFinanceRoute: typeof DojoAppFinanceRoute
-  DojoAppGraduationsRoute: typeof DojoAppGraduationsRoute
-  DojoAppInstallRoute: typeof DojoAppInstallRoute
-  DojoAppIntegrationsRoute: typeof DojoAppIntegrationsRoute
-  DojoAppLessonPlansRoute: typeof DojoAppLessonPlansRouteWithChildren
-  DojoAppNotificationsRoute: typeof DojoAppNotificationsRoute
-  DojoAppPlansRoute: typeof DojoAppPlansRoute
-  DojoAppRankingRoute: typeof DojoAppRankingRoute
-  DojoAppSalesRoute: typeof DojoAppSalesRoute
-  DojoAppScheduleRoute: typeof DojoAppScheduleRoute
-  DojoAppStoreRoute: typeof DojoAppStoreRouteWithChildren
-  DojoAppStudentAppQrRoute: typeof DojoAppStudentAppQrRoute
-  DojoAppStudentNotificationsConfigRoute: typeof DojoAppStudentNotificationsConfigRoute
-  DojoAppStudentsRoute: typeof DojoAppStudentsRouteWithChildren
-  DojoAppSubscriptionRoute: typeof DojoAppSubscriptionRoute
-  DojoAppSupportRoute: typeof DojoAppSupportRoute
-  DojoAppSystemUsersRoute: typeof DojoAppSystemUsersRoute
-  DojoAppTutorialRoute: typeof DojoAppTutorialRoute
-  DojoAppTutorialEditorRoute: typeof DojoAppTutorialEditorRoute
-  DojoAppVideosRoute: typeof DojoAppVideosRouteWithChildren
-  DojoAppIndexRoute: typeof DojoAppIndexRoute
-  DojoAppContractTemplatesIdRoute: typeof DojoAppContractTemplatesIdRoute
-  DojoAppTeamIdRoute: typeof DojoAppTeamIdRoute
-  DojoAppTeamPayrollRoute: typeof DojoAppTeamPayrollRoute
-  DojoAppTeamSchedulesRoute: typeof DojoAppTeamSchedulesRoute
-  DojoAppContractTemplatesIndexRoute: typeof DojoAppContractTemplatesIndexRoute
-  DojoAppTeamIndexRoute: typeof DojoAppTeamIndexRoute
-  DojoAppUnitsIndexRoute: typeof DojoAppUnitsIndexRoute
-  DojoAppUnitsAffiliatesIdRoute: typeof DojoAppUnitsAffiliatesIdRoute
-}
-
-const DojoAppRouteChildren: DojoAppRouteChildren = {
-  DojoAppAccountRoute: DojoAppAccountRoute,
-  DojoAppAnnouncementsRoute: DojoAppAnnouncementsRoute,
-  DojoAppApkVersionsRoute: DojoAppApkVersionsRoute,
-  DojoAppBeltStudioRoute: DojoAppBeltStudioRoute,
-  DojoAppBeltsRoute: DojoAppBeltsRoute,
-  DojoAppCertificatesRoute: DojoAppCertificatesRoute,
-  DojoAppCheckinRoute: DojoAppCheckinRoute,
-  DojoAppClassesRoute: DojoAppClassesRoute,
-  DojoAppCompetitionsRoute: DojoAppCompetitionsRouteWithChildren,
-  DojoAppContractsRoute: DojoAppContractsRouteWithChildren,
-  DojoAppCorporateBenefitsRoute: DojoAppCorporateBenefitsRoute,
-  DojoAppEvaluationsRoute: DojoAppEvaluationsRouteWithChildren,
-  DojoAppFinanceRoute: DojoAppFinanceRoute,
-  DojoAppGraduationsRoute: DojoAppGraduationsRoute,
-  DojoAppInstallRoute: DojoAppInstallRoute,
-  DojoAppIntegrationsRoute: DojoAppIntegrationsRoute,
-  DojoAppLessonPlansRoute: DojoAppLessonPlansRouteWithChildren,
-  DojoAppNotificationsRoute: DojoAppNotificationsRoute,
-  DojoAppPlansRoute: DojoAppPlansRoute,
-  DojoAppRankingRoute: DojoAppRankingRoute,
-  DojoAppSalesRoute: DojoAppSalesRoute,
-  DojoAppScheduleRoute: DojoAppScheduleRoute,
-  DojoAppStoreRoute: DojoAppStoreRouteWithChildren,
-  DojoAppStudentAppQrRoute: DojoAppStudentAppQrRoute,
-  DojoAppStudentNotificationsConfigRoute:
-    DojoAppStudentNotificationsConfigRoute,
-  DojoAppStudentsRoute: DojoAppStudentsRouteWithChildren,
-  DojoAppSubscriptionRoute: DojoAppSubscriptionRoute,
-  DojoAppSupportRoute: DojoAppSupportRoute,
-  DojoAppSystemUsersRoute: DojoAppSystemUsersRoute,
-  DojoAppTutorialRoute: DojoAppTutorialRoute,
-  DojoAppTutorialEditorRoute: DojoAppTutorialEditorRoute,
-  DojoAppVideosRoute: DojoAppVideosRouteWithChildren,
-  DojoAppIndexRoute: DojoAppIndexRoute,
-  DojoAppContractTemplatesIdRoute: DojoAppContractTemplatesIdRoute,
-  DojoAppTeamIdRoute: DojoAppTeamIdRoute,
-  DojoAppTeamPayrollRoute: DojoAppTeamPayrollRoute,
-  DojoAppTeamSchedulesRoute: DojoAppTeamSchedulesRoute,
-  DojoAppContractTemplatesIndexRoute: DojoAppContractTemplatesIndexRoute,
-  DojoAppTeamIndexRoute: DojoAppTeamIndexRoute,
-  DojoAppUnitsIndexRoute: DojoAppUnitsIndexRoute,
-  DojoAppUnitsAffiliatesIdRoute: DojoAppUnitsAffiliatesIdRoute,
-}
-
-const DojoAppRouteWithChildren =
-  DojoAppRoute._addFileChildren(DojoAppRouteChildren)
-
-interface DojoStaffPortalRouteChildren {
-  DojoStaffPortalAnnouncementsRoute: typeof DojoStaffPortalAnnouncementsRoute
-  DojoStaffPortalBeltsRoute: typeof DojoStaffPortalBeltsRoute
-  DojoStaffPortalCertificatesRoute: typeof DojoStaffPortalCertificatesRoute
-  DojoStaffPortalCheckinRoute: typeof DojoStaffPortalCheckinRoute
-  DojoStaffPortalCompetitionsRoute: typeof DojoStaffPortalCompetitionsRoute
-  DojoStaffPortalEvaluationsRoute: typeof DojoStaffPortalEvaluationsRoute
-  DojoStaffPortalGraduationsRoute: typeof DojoStaffPortalGraduationsRoute
-  DojoStaffPortalProfileRoute: typeof DojoStaffPortalProfileRoute
-  DojoStaffPortalSalesRoute: typeof DojoStaffPortalSalesRoute
-  DojoStaffPortalScheduleRoute: typeof DojoStaffPortalScheduleRoute
-  DojoStaffPortalStoreRoute: typeof DojoStaffPortalStoreRoute
-  DojoStaffPortalStudentsRoute: typeof DojoStaffPortalStudentsRoute
-  DojoStaffPortalIndexRoute: typeof DojoStaffPortalIndexRoute
-}
-
-const DojoStaffPortalRouteChildren: DojoStaffPortalRouteChildren = {
-  DojoStaffPortalAnnouncementsRoute: DojoStaffPortalAnnouncementsRoute,
-  DojoStaffPortalBeltsRoute: DojoStaffPortalBeltsRoute,
-  DojoStaffPortalCertificatesRoute: DojoStaffPortalCertificatesRoute,
-  DojoStaffPortalCheckinRoute: DojoStaffPortalCheckinRoute,
-  DojoStaffPortalCompetitionsRoute: DojoStaffPortalCompetitionsRoute,
-  DojoStaffPortalEvaluationsRoute: DojoStaffPortalEvaluationsRoute,
-  DojoStaffPortalGraduationsRoute: DojoStaffPortalGraduationsRoute,
-  DojoStaffPortalProfileRoute: DojoStaffPortalProfileRoute,
-  DojoStaffPortalSalesRoute: DojoStaffPortalSalesRoute,
-  DojoStaffPortalScheduleRoute: DojoStaffPortalScheduleRoute,
-  DojoStaffPortalStoreRoute: DojoStaffPortalStoreRoute,
-  DojoStaffPortalStudentsRoute: DojoStaffPortalStudentsRoute,
-  DojoStaffPortalIndexRoute: DojoStaffPortalIndexRoute,
-}
-
-const DojoStaffPortalRouteWithChildren = DojoStaffPortalRoute._addFileChildren(
-  DojoStaffPortalRouteChildren,
-)
-
-interface DojoRouteChildren {
-  DojoAppRoute: typeof DojoAppRouteWithChildren
-  DojoAuthRoute: typeof DojoAuthRoute
-  DojoCheckoutRoute: typeof DojoCheckoutRoute
-  DojoOnboardingRoute: typeof DojoOnboardingRoute
-  DojoIndexRoute: typeof DojoIndexRoute
-  DojoCertificateEditorIdRoute: typeof DojoCertificateEditorIdRoute
-  DojoMatriculaSlugRoute: typeof DojoMatriculaSlugRoute
-  DojoPayInvoiceIdRoute: typeof DojoPayInvoiceIdRoute
-  DojoStaffPortalRoute: typeof DojoStaffPortalRouteWithChildren
-  DojoStaffAuthRoute: typeof DojoStaffAuthRoute
-}
-
-const DojoRouteChildren: DojoRouteChildren = {
-  DojoAppRoute: DojoAppRouteWithChildren,
-  DojoAuthRoute: DojoAuthRoute,
-  DojoCheckoutRoute: DojoCheckoutRoute,
-  DojoOnboardingRoute: DojoOnboardingRoute,
-  DojoIndexRoute: DojoIndexRoute,
-  DojoCertificateEditorIdRoute: DojoCertificateEditorIdRoute,
-  DojoMatriculaSlugRoute: DojoMatriculaSlugRoute,
-  DojoPayInvoiceIdRoute: DojoPayInvoiceIdRoute,
-  DojoStaffPortalRoute: DojoStaffPortalRouteWithChildren,
-  DojoStaffAuthRoute: DojoStaffAuthRoute,
-}
-
-const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
-
 interface ApiDesktopProductsRouteChildren {
   ApiDesktopProductsIdRoute: typeof ApiDesktopProductsIdRoute
 }
@@ -7520,55 +4136,33 @@ const ApiDesktopQuotesRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AppRoute: AppRouteWithChildren,
   AtacadoLpRoute: AtacadoLpRoute,
   AuthRoute: AuthRoute,
   DataDeletionRoute: DataDeletionRoute,
-  DojoRoute: DojoRouteWithChildren,
-  PayDemoRoute: PayDemoRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
-  CertificateHashRoute: CertificateHashRoute,
-  FerramentasCalculadoraTicketMedioRoute:
-    FerramentasCalculadoraTicketMedioRoute,
   LojaAtacadoRoute: LojaAtacadoRoute,
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
   LojaEntrarRoute: LojaEntrarRoute,
   LojaGuiaKimonoRoute: LojaGuiaKimonoRoute,
-  MatriculaSlugRoute: MatriculaSlugRoute,
-  PayInvoiceIdRoute: PayInvoiceIdRoute,
   LojaIndexRoute: LojaIndexRoute,
   ApiDesktopProductsRoute: ApiDesktopProductsRouteWithChildren,
   ApiDesktopQuotesRoute: ApiDesktopQuotesRouteWithChildren,
-  ApiDojoApkUploadRoute: ApiDojoApkUploadRoute,
-  ApiPublicDojoManifestDotwebmanifestRoute:
-    ApiPublicDojoManifestDotwebmanifestRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
   LojaContaPedidosRoute: LojaContaPedidosRoute,
   LojaCustomShopSplatRoute: LojaCustomShopSplatRoute,
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LojaContaIndexRoute: LojaContaIndexRoute,
-  ApiPublicAppManifestDotwebmanifestRoute:
-    ApiPublicAppManifestDotwebmanifestRoute,
-  ApiPublicCertificateHashRoute: ApiPublicCertificateHashRoute,
   ApiPublicHooksAdminPushRoute: ApiPublicHooksAdminPushRoute,
-  ApiPublicHooksApplyScheduledGraduationsRoute:
-    ApiPublicHooksApplyScheduledGraduationsRoute,
-  ApiPublicHooksAsaasRoute: ApiPublicHooksAsaasRoute,
   ApiPublicHooksAuthEmailRoute: ApiPublicHooksAuthEmailRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
-  ApiPublicHooksCompetitionsIngestRoute: ApiPublicHooksCompetitionsIngestRoute,
-  ApiPublicHooksDojoWalletReconcileRoute:
-    ApiPublicHooksDojoWalletReconcileRoute,
   ApiPublicHooksEmailEventsRoute: ApiPublicHooksEmailEventsRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
-  ApiPublicHooksGenerateDojoInvoicesRoute:
-    ApiPublicHooksGenerateDojoInvoicesRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
   ApiPublicHooksIgWebhookRoute: ApiPublicHooksIgWebhookRoute,
   ApiPublicHooksMartialArtsDailySweepRoute:
@@ -7579,16 +4173,11 @@ const rootRouteChildren: RootRouteChildren = {
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicHooksRunAdsOptimizationRoute: ApiPublicHooksRunAdsOptimizationRoute,
   ApiPublicHooksScaleWinnersRoute: ApiPublicHooksScaleWinnersRoute,
-  ApiPublicHooksSendClassRemindersRoute: ApiPublicHooksSendClassRemindersRoute,
-  ApiPublicHooksSendDojoRemindersRoute: ApiPublicHooksSendDojoRemindersRoute,
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
   ApiPublicMetaWebhookRoute: ApiPublicMetaWebhookRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
   ApiPublicSalesMessagesRoute: ApiPublicSalesMessagesRoute,
-  ApiPublicAppSlugDownloadRoute: ApiPublicAppSlugDownloadRoute,
-  ApiPublicDojoPartnerCheckinProviderRoute:
-    ApiPublicDojoPartnerCheckinProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

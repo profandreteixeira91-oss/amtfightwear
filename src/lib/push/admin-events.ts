@@ -1,4 +1,4 @@
-/** Catálogo de notificações da Central da loja (client-safe). O Dojo Manager tem painel próprio. */
+/** Catálogo de notificações da Central da loja (client-safe). */
 export type AdminNotificationEvent =
   | "store_order.new"
   | "store_order.paid"

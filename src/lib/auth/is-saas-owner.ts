@@ -4,7 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 /**
  * Super admin da plataforma (dono do SaaS).
  * Autorizado a acessar painéis /admin (métricas, catálogo, growth), mas
- * NÃO herda acesso a dados de tenants (dojos) — RLS por owner_id segue valendo.
+ * não ganha acesso extra a dados de outros usuários — a RLS por owner_id segue valendo.
  */
 export const SAAS_OWNER_EMAIL = "profandreteixeira91@gmail.com";
 

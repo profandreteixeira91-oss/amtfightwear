@@ -116,11 +116,11 @@ export default function VideoAdGenerator() {
                   variant="default"
                   asChild
                 >
-                  <a 
-                    href="/src/assets/dojo-manager-square.mp4" 
-                    download="amt-fight-wear-atacado-ads.mp4"
+                  <a
+                    href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(result.script, null, 2))}`}
+                    download="roteiro-video-ads.json"
                   >
-                    <Download className="h-4 w-4" /> Baixar Vídeo Original (MP4)
+                    <Download className="h-4 w-4" /> Baixar roteiro (JSON)
                   </a>
                 </Button>
                 <div className="flex w-full gap-2">

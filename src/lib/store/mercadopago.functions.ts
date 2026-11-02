@@ -21,7 +21,7 @@ export function friendlyMpError(raw: string): string {
   return raw;
 }
 
-/** Token da conta MP da LOJA (independente da conta do AMT Pay/Dojo). */
+/** Token da conta Mercado Pago da loja. */
 function storeToken(): string {
   const key =
     process.env.STORE_MERCADOPAGO_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN;

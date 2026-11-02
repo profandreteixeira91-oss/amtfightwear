@@ -43,7 +43,7 @@ function AdminLayout() {
   return (
     <AdminShell
       title={isFiscal ? "Módulo Fiscal" : undefined}
-      deniedDescription="O painel administrativo da AMT Fight Wear é independente do Portal do Aluno e do Dojo Manager. Sua conta não tem permissão para acessar esta área."
+      deniedDescription="A Central da loja AMT Fight Wear é exclusiva da administração. Sua conta não tem permissão para acessar esta área."
     >
       <Outlet />
     </AdminShell>

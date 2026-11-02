@@ -44,8 +44,6 @@ function CartPage() {
   const items = useCart((s) => s.items);
   const remove = useCart((s) => s.remove);
   const setQuantity = useCart((s) => s.setQuantity);
-  const addCart = useCart((s) => s.add);
-  const clearCart = useCart((s) => s.clear);
   const [mounted, setMounted] = useState(false);
   const [shipping, setShipping] = useState<ShippingOption | null>(null);
   const [zip, setZip] = useState<string>("");
@@ -83,44 +81,6 @@ function CartPage() {
     if (selectedZip) setZip(selectedZip);
   };
 
-  // Handoff vindo do AMT Dojo Manager.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const payload = params.get("import");
-    if (payload) {
-      try {
-        const json = JSON.parse(decodeURIComponent(escape(atob(payload))));
-        if (Array.isArray(json?.items) && json.items.length > 0) {
-          clearCart();
-          for (const it of json.items) {
-            addCart({
-              product_id: it.product_id,
-              variant_id: it.variant_id ?? null,
-              name: it.name,
-              slug: it.slug,
-              image_url: it.image_url ?? null,
-              variant_label: it.variant_label ?? null,
-              unit_price: Number(it.unit_price),
-              quantity: Number(it.quantity),
-              personalization: it.personalization ?? null,
-            });
-          }
-        }
-        if (json?.shipping || json?.zip) {
-          if (json.zip) setZip(String(json.zip));
-          if (json.shipping) setShipping(json.shipping as ShippingOption);
-          try { sessionStorage.setItem(SHIPPING_KEY, JSON.stringify({ zip: json.zip, option: json.shipping })); } catch { /* ignore */ }
-        }
-      } catch { /* ignore */ }
-      const goCheckout = params.get("checkout") === "1";
-      const url = new URL(window.location.href);
-      url.searchParams.delete("import");
-      url.searchParams.delete("checkout");
-      window.history.replaceState({}, "", url.toString());
-      if (goCheckout) window.location.href = "/loja/checkout";
-    }
-  }, [addCart, clearCart]);
 
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
   const discount = couponApplied === "AMT10" ? subtotal * 0.1 : 0;

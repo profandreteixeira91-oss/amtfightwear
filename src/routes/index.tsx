@@ -30,9 +30,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "AMT Fight Wear | Equipamentos Premium para Artes Marciais" },
-      { name: "description", content: "Kimonos, faixas e equipamentos direto da fábrica. Conheça também o AMT Dojo Manager para sua academia." },
+      { name: "description", content: "Kimonos, faixas, rashguards e patches direto da fábrica AMT, com envio para todo o Brasil." },
       { property: "og:title", content: "AMT Fight Wear | Premium Fight Gear" },
-      { property: "og:description", content: "Equipamentos de alta performance e gestão completa para dojos." },
+      { property: "og:description", content: "Kimonos, faixas e rashguards direto da fábrica AMT." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://amtfightwear.com.br/" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -343,23 +343,6 @@ function StoreHomePage() {
         <RecentlyViewed title="Continue de onde parou" />
       </div>
 
-      {/* DOJO MANAGER */}
-      <section id="dojo-manager" className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-neutral-200 bg-neutral-50 p-8 sm:p-10 lg:flex-row lg:items-center">
-          <div className="max-w-2xl">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">Para academias</div>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Gerencie sua academia com o AMT Dojo Manager</h2>
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-              Alunos, graduações, check-in e financeiro em um só lugar.
-            </p>
-          </div>
-          <Button asChild size="lg" variant="outline" className="h-12 shrink-0 rounded-full bg-white px-7 text-sm font-semibold">
-            <a href="https://dojomanager.amtfightwear.com.br" target="_blank" rel="noreferrer">
-              Conhecer o sistema <ArrowRight className="h-4 w-4" />
-            </a>
-          </Button>
-        </div>
-      </section>
 
       {destaques.length === 0 && faixas.length === 0 && kimonos.length === 0 && (
         <div className="mx-auto max-w-7xl px-5 py-24 text-center sm:px-8">

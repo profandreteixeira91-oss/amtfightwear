@@ -12,18 +12,6 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// Superfície do Portal do Aluno (/app/*). Nela o cliente principal
-// (admin/dojo) NUNCA é usado, para que o link/token do aluno não seja
-// capturado por ele — e, principalmente, para que um login não derrube o outro.
-// Superfícies com sessão PRÓPRIA (storageKey dedicado). Nelas o cliente
-// principal (admin/dono do dojo) nunca é observado nem alterado, garantindo
-// que um login não derrube o outro.
-function hasOwnSession() {
-  if (typeof window === "undefined") return false;
-  const path = window.location.pathname;
-  return path.startsWith("/app") || path.startsWith("/dojo/staff");
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -32,11 +20,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // No Portal do Aluno não tocamos no cliente principal: sessões totalmente
     // independentes (storageKey próprio em `student-client.ts`).
-    if (hasOwnSession()) {
-      setLoading(false);
-      return;
-    }
-
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
       setUser(next?.user ?? null);

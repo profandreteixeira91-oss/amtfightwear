@@ -6,8 +6,7 @@
  * emissor reais a partir do BIN e devolve um token de uso único — nenhum dado
  * de cartão trafega pelo nosso servidor.
  *
- * Usado apenas pelo checkout da loja (varejo e atacado). Não afeta o AMT Pay
- * do Dojo Manager, que possui componente próprio.
+ * Usado pelo checkout da loja (varejo e atacado).
  */
 
 type MpInstance = {

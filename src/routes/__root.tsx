@@ -130,15 +130,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const DOJO_HOST = "dojomanager.amtfightwear.com.br";
-
-const DOMAIN_ROUTING_SCRIPT = `(function(){try{var h=location.hostname,p=location.pathname,s=location.search||"",x=location.hash||"";if(h!=="localhost"&&h!=="127.0.0.1"&&!h.endsWith(".workers.dev")){var isDojoArea=p.indexOf("/dojo")===0||p.indexOf("/app")===0||p.indexOf("/api/public/app")===0;if(h!=="${DOJO_HOST}"&&p.indexOf("/dojo")===0){location.replace("https://${DOJO_HOST}"+p+s+x);return;}if(h==="${DOJO_HOST}"&&!isDojoArea){location.replace("https://${DOJO_HOST}/dojo"+(p==="/"?"":p)+s+x);return;}}}catch(e){}try{window.__amtInstallPrompt=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__amtInstallPrompt=e;window.dispatchEvent(new Event("amt:install-ready"));});window.addEventListener("appinstalled",function(){window.__amtInstallPrompt=null;window.__amtInstalled=true;window.dispatchEvent(new Event("amt:install-ready"));});}catch(e){}})();`;
+// Captura o prompt de instalação do PWA cedo, antes da hidratação.
+const INSTALL_PROMPT_SCRIPT = `(function(){try{window.__amtInstallPrompt=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__amtInstallPrompt=e;window.dispatchEvent(new Event("amt:install-ready"));});window.addEventListener("appinstalled",function(){window.__amtInstallPrompt=null;window.__amtInstalled=true;window.dispatchEvent(new Event("amt:install-ready"));});}catch(e){}})();`;
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: DOMAIN_ROUTING_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: INSTALL_PROMPT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
@@ -156,31 +155,8 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 
-function useDojoDomainRouting() {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const { hostname, pathname, search, hash } = window.location;
-    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".workers.dev")) return;
-    const isDojoArea =
-      pathname.startsWith("/dojo") ||
-      pathname.startsWith("/app") ||
-      pathname.startsWith("/api/public/app");
-    // Off-domain access to /dojo/* → send to dedicated subdomain
-    if (hostname !== DOJO_HOST && pathname.startsWith("/dojo")) {
-      window.location.replace(`https://${DOJO_HOST}${pathname}${search}${hash}`);
-      return;
-    }
-    // On the dedicated subdomain, anything outside the dojo area goes to /dojo
-    if (hostname === DOJO_HOST && !isDojoArea) {
-      window.location.replace(`https://${DOJO_HOST}/dojo${pathname === "/" ? "" : pathname}${search}${hash}`);
-    }
-  }, []);
-}
-
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useDojoDomainRouting();
   useEffect(() => {
     if (typeof window === "undefined") return;
     void import("@/lib/pwa/register").then((m) => m.registerPwa());

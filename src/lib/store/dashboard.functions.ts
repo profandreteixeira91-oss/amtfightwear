@@ -83,16 +83,7 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
 
     /* ---------- Panorama: TODOS os pedidos (todos os setores, inclusive pendentes) ---------- */
     const allRange = ordersRange ?? [];
-    const dojoLinkedIds = new Set<string>();
-    if (allRange.length > 0) {
-      const { data: dojoLinks } = await supabaseAdmin
-        .from("dojo_store_orders")
-        .select("store_order_id")
-        .in("store_order_id", allRange.map((o) => o.id));
-      for (const l of dojoLinks ?? []) if (l.store_order_id) dojoLinkedIds.add(l.store_order_id);
-    }
     const sectorOf = (o: (typeof allRange)[number]) => {
-      if (dojoLinkedIds.has(o.id)) return "Dojo Manager";
       const meta = (o.metadata as { wholesale?: boolean } | null) ?? null;
       return meta?.wholesale ? "Atacado" : "Varejo";
     };

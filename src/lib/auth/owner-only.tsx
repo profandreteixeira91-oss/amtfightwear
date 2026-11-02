@@ -58,7 +58,7 @@ export function OwnerOnly({
           <h1 className="mb-2 text-xl font-bold text-neutral-900">Acesso restrito</h1>
           <p className="text-sm leading-relaxed text-neutral-600">
             {description ??
-              "O Growth Engine é uma área exclusiva da administração da AMT Fight Wear. Sua conta não possui permissão para acessar este módulo."}
+              "Esta área é exclusiva da administração da AMT Fight Wear. Sua conta não tem permissão para acessá-la."}
           </p>
 
           {email && (
@@ -67,10 +67,10 @@ export function OwnerOnly({
             </p>
           )}
           <Link
-            to="/dojo/app"
+            to="/"
             className="mt-6 inline-block rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700"
           >
-            Ir para o AMT Dojo Manager
+            Ir para a loja
           </Link>
         </div>
       </div>

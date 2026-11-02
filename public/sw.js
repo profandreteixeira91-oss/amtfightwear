@@ -1,4 +1,4 @@
-// Service Worker do App do Aluno AMT Dojo Manager
+// Service Worker da AMT Fight Wear (loja e Central da loja)
 // Push notifications (Web Push VAPID) + cache offline básico (NetworkFirst para navegações,
 // CacheFirst para assets hashados do app).
 // A registração acontece apenas em produção via src/lib/pwa/register.ts.
@@ -97,14 +97,14 @@ self.addEventListener("push", (event) => {
   try {
     payload = event.data ? event.data.json() : {};
   } catch {
-    payload = { title: "AMT Dojo", body: event.data ? event.data.text() : "" };
+    payload = { title: "AMT Fight Wear", body: event.data ? event.data.text() : "" };
   }
-  const title = payload.title || "AMT Dojo Manager";
+  const title = payload.title || "AMT Fight Wear";
   const options = {
     body: payload.body || " ",
     icon: payload.icon || "/icon-192.png",
     badge: payload.badge || "/notification-badge.png",
-    data: { url: payload.url || "/app", ...(payload.data || {}) },
+    data: { url: payload.url || "/admin", ...(payload.data || {}) },
     tag: payload.tag || "amt-default",
     renotify: true,
     // Vibração e interação: Android exige vibrate para exibir notificação
@@ -119,7 +119,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = (event.notification.data && event.notification.data.url) || "/app";
+  const targetUrl = (event.notification.data && event.notification.data.url) || "/admin";
   let targetScope = "/";
   try {
     const t = new URL(targetUrl, self.location.origin);

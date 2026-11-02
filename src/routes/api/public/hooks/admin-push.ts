@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { checkInternalHookAuth } from "@/lib/security/hook-auth";
+import { isAdminNotificationEvent } from "@/lib/push/admin-events";
 
 // Endpoint interno acionado pelos triggers do banco via pg_net.
 // Não retorna PII: recebe apenas título/corpo/url pré-formatados pelo trigger.
@@ -17,8 +18,10 @@ export const Route = createFileRoute("/api/public/hooks/admin-push")({
             url?: string;
           };
           if (!body?.title) return Response.json({ ok: false, reason: "missing title" }, { status: 400 });
-          // O admin da loja não recebe mais eventos do Dojo Manager (ele terá painel próprio).
-          if (body.event?.startsWith("dojo_")) return Response.json({ ok: true, skipped: "dojo event" });
+          // Triggers do banco também disparam eventos que não são da loja: esses são ignorados.
+          if (body.event && !isAdminNotificationEvent(body.event)) {
+            return Response.json({ ok: true, skipped: body.event });
+          }
           const { sendPushToAmtAdmins } = await import("@/lib/push/admin-push.server");
           const result = await sendPushToAmtAdmins(
             {
