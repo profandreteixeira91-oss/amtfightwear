@@ -1,35 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type CustomConfig = {
-  template_id: string;
-  template_kind: string;
-  template_name: string;
-  zones: Record<string, string>; // zone_key -> hex
-  patches: Array<{ slot_key: string; patch_id: string; patch_name: string; image_url: string; price: number }>;
-  embroidery?: { text: string; slot_key: string; color: string } | null;
-  embroideries?: Array<{
-    slot_key: string;
-    mode: "text" | "logo";
-    text: string | null;
-    font?: string | null;
-    lines?: 1 | 2 | null;
-    image: { data_url: string; filename: string } | null;
-    position?: { x: number; y: number } | null;
-    scale?: number | null;
-    rotation?: number | null;
-    color: string;
-  }> | null;
-  fabric?: { id: string; name: string; price_delta: number } | null;
-  coloring?: { name: string; price_delta: number } | null;
-  modality?: string | null;
-  logo_image?: { data_url: string; filename: string } | null;
-  label_image?: { data_url: string; filename: string; bg_color?: string } | null;
-  label_choice?: "padrao" | "custom" | null;
-  size?: string | null;
-  preview_image?: string | null; // PNG data URL snapshot of preview
-};
-
 export type CartItem = {
   product_id: string;
   variant_id?: string | null;
@@ -39,10 +10,13 @@ export type CartItem = {
   image_url?: string | null;
   unit_price: number;
   quantity: number;
-  type?: "product" | "custom";
-  custom_config?: CustomConfig | null;
-  production_days?: number | null;
+  /** Nome a ser bordado (produtos "Bordada Personalizada"). */
+  personalization?: string | null;
 };
+
+/** Mesmo produto/tamanho com nomes de bordado diferentes são itens distintos. */
+const itemKey = (i: Pick<CartItem, "product_id" | "variant_id" | "personalization">) =>
+  `${i.product_id}::${i.variant_id ?? ""}::${i.personalization ?? ""}`;
 
 
 type CartState = {
@@ -52,8 +26,13 @@ type CartState = {
   close: () => void;
   toggle: () => void;
   add: (item: CartItem) => void;
-  remove: (product_id: string, variant_id?: string | null) => void;
-  setQuantity: (product_id: string, variant_id: string | null | undefined, quantity: number) => void;
+  remove: (product_id: string, variant_id?: string | null, personalization?: string | null) => void;
+  setQuantity: (
+    product_id: string,
+    variant_id: string | null | undefined,
+    quantity: number,
+    personalization?: string | null,
+  ) => void;
   clear: () => void;
   count: () => number;
   subtotal: () => number;
@@ -69,27 +48,26 @@ export const useCart = create<CartState>()(
       toggle: () => set((s) => ({ isOpen: !s.isOpen })),
       add: (item) =>
         set((s) => {
-          const key = (i: CartItem) => `${i.product_id}::${i.variant_id ?? ""}`;
-          const existing = s.items.find((i) => key(i) === key(item));
+          const existing = s.items.find((i) => itemKey(i) === itemKey(item));
           if (existing) {
             return {
               isOpen: true,
               items: s.items.map((i) =>
-                key(i) === key(item) ? { ...i, quantity: i.quantity + item.quantity } : i,
+                itemKey(i) === itemKey(item) ? { ...i, quantity: i.quantity + item.quantity } : i,
               ),
             };
           }
           return { isOpen: true, items: [...s.items, item] };
         }),
-      remove: (product_id, variant_id) =>
+      remove: (product_id, variant_id, personalization) =>
         set((s) => ({
-          items: s.items.filter((i) => !(i.product_id === product_id && (i.variant_id ?? null) === (variant_id ?? null))),
+          items: s.items.filter((i) => itemKey(i) !== itemKey({ product_id, variant_id, personalization })),
         })),
-      setQuantity: (product_id, variant_id, quantity) =>
+      setQuantity: (product_id, variant_id, quantity, personalization) =>
         set((s) => ({
           items: s.items
             .map((i) =>
-              i.product_id === product_id && (i.variant_id ?? null) === (variant_id ?? null)
+              itemKey(i) === itemKey({ product_id, variant_id, personalization })
                 ? { ...i, quantity: Math.max(1, quantity) }
                 : i,
             )
@@ -101,6 +79,14 @@ export const useCart = create<CartState>()(
     }),
     {
       name: "amt-cart-v1",
+      version: 2,
+      // v1 podia conter itens do Custom Shop (removido): descarta-os ao reidratar.
+      migrate: (persisted) => {
+        const items = ((persisted as { items?: Array<CartItem & { type?: string }> })?.items ?? []).filter(
+          (i) => i.type !== "custom" && !!i.product_id,
+        );
+        return { items } as unknown as CartState;
+      },
       partialize: (s) => ({ items: s.items }) as unknown as CartState,
     },
   ),

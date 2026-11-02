@@ -4,6 +4,7 @@ import { StoreShell } from "@/components/store/StoreShell";
 import { ProductImage } from "@/components/store/ProductImage";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
+import { formatProductName } from "@/lib/store/product-name";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import { KimonoGuideCallout, isKimonoContext } from "@/components/store/KimonoGuideLink";
 import { CartUpsell } from "@/components/store/CartUpsell";
@@ -102,7 +103,7 @@ function CartPage() {
               variant_label: it.variant_label ?? null,
               unit_price: Number(it.unit_price),
               quantity: Number(it.quantity),
-              type: "product",
+              personalization: it.personalization ?? null,
             });
           }
         }
@@ -227,34 +228,24 @@ function CartPage() {
                     <li key={`${i.product_id}-${i.variant_id ?? ""}-${idx}`} className="flex gap-4 p-4 sm:gap-5 sm:p-6">
                       <ProductImage
                         src={i.image_url}
-                        alt={i.name}
+                        alt={formatProductName(i.name)}
                         aspect="square"
                         className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border bg-muted sm:h-28 sm:w-28"
                       />
                       <div className="flex min-w-0 flex-1 flex-col">
-                        {i.type === "custom" ? (
-                          <div className="line-clamp-2 text-sm font-bold leading-snug tracking-tight sm:text-base">{i.name}</div>
-                        ) : (
-                          <Link
-                            to="/loja/produto/$slug"
-                            params={{ slug: i.slug }}
-                            className="line-clamp-2 text-sm font-bold leading-snug tracking-tight hover:text-primary sm:text-base"
-                          >
-                            {i.name}
-                          </Link>
-                        )}
+                        <Link
+                          to="/loja/produto/$slug"
+                          params={{ slug: i.slug }}
+                          className="line-clamp-2 text-sm font-bold leading-snug tracking-tight hover:text-primary sm:text-base"
+                        >
+                          {formatProductName(i.name)}
+                        </Link>
                         {i.variant_label && (
                           <div className="mt-1 text-xs text-muted-foreground">{i.variant_label}</div>
                         )}
-                        {i.type === "custom" && (
-                          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px]">
-                            <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary">Custom Shop</span>
-                            {i.production_days && (
-                              <span className="text-muted-foreground">Produção em {i.production_days} dias</span>
-                            )}
-                            {i.custom_config?.fabric?.name && (
-                              <span className="text-muted-foreground">· {i.custom_config.fabric.name}</span>
-                            )}
+                        {i.personalization && (
+                          <div className="mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] text-primary">
+                            Bordado: <strong className="font-semibold">{i.personalization}</strong>
                           </div>
                         )}
                         <div className="mt-2 text-xs text-muted-foreground">
@@ -265,7 +256,7 @@ function CartPage() {
                           <div className="inline-flex items-center rounded-full border bg-background">
                             <button
                               type="button"
-                              onClick={() => setQuantity(i.product_id, i.variant_id, i.quantity - 1)}
+                              onClick={() => setQuantity(i.product_id, i.variant_id, i.quantity - 1, i.personalization)}
                               className="grid h-9 w-9 place-items-center rounded-l-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                               aria-label="Diminuir quantidade"
                             >
@@ -276,7 +267,7 @@ function CartPage() {
                             </div>
                             <button
                               type="button"
-                              onClick={() => setQuantity(i.product_id, i.variant_id, i.quantity + 1)}
+                              onClick={() => setQuantity(i.product_id, i.variant_id, i.quantity + 1, i.personalization)}
                               className="grid h-9 w-9 place-items-center rounded-r-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                               aria-label="Aumentar quantidade"
                             >
@@ -290,7 +281,7 @@ function CartPage() {
                             </div>
                             <button
                               type="button"
-                              onClick={() => remove(i.product_id, i.variant_id)}
+                              onClick={() => remove(i.product_id, i.variant_id, i.personalization)}
                               className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                               aria-label="Remover item"
                             >

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductImage } from "@/components/store/ProductImage";
 import { expandSearchTerms } from "@/lib/store/search-terms";
 import { trackStoreEvent } from "@/lib/store/analytics";
+import { formatProductName } from "@/lib/store/product-name";
 
 type Suggestion = {
   id: string;
@@ -150,14 +151,14 @@ export function SearchBar({ className }: { className?: string } = {}) {
   const selectedLabel = selectedCatId ? catById.get(selectedCatId)?.name ?? "Todas" : "Todas";
 
   return (
-    <div ref={wrapRef} className={className ?? "relative hidden md:flex flex-1"}>
-      <div className="flex flex-1 items-stretch rounded-md border bg-muted/40">
+    <div ref={wrapRef} className={className ?? "relative hidden max-w-2xl md:flex flex-1"}>
+      <div className="flex h-11 flex-1 items-stretch rounded-full bg-neutral-100 ring-1 ring-transparent transition focus-within:bg-white focus-within:ring-neutral-300">
         {/* Category selector */}
         <div className="relative">
           <button
             type="button"
             onClick={() => setCatOpen((v) => !v)}
-            className="flex h-full items-center gap-1 border-r px-3 text-xs font-semibold uppercase tracking-wider text-foreground hover:bg-accent"
+            className="flex h-full items-center gap-1 rounded-l-full border-r border-neutral-200 pl-4 pr-3 text-xs font-medium text-neutral-700 hover:text-foreground"
           >
             <span className="max-w-[140px] truncate">{selectedLabel}</span>
             <ChevronDown className="h-3 w-3 opacity-60" />
@@ -219,7 +220,7 @@ export function SearchBar({ className }: { className?: string } = {}) {
             }}
             onFocus={() => setOpen(true)}
             onKeyDown={onKey}
-            placeholder="Buscar por palavras: ex. 'pro bordada'..."
+            placeholder="Buscar faixas, kimonos, rashguards..."
             className="w-full bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
           />
           {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
@@ -247,10 +248,10 @@ export function SearchBar({ className }: { className?: string } = {}) {
                 }`}
               >
                 <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded border bg-muted">
-                  <ProductImage src={s.image_url} alt={s.name} aspect="square" />
+                  <ProductImage src={s.image_url} alt={formatProductName(s.name)} aspect="square" sizes="48px" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-foreground">{s.name}</div>
+                  <div className="truncate text-sm font-medium text-foreground">{formatProductName(s.name)}</div>
                   {s.category && (
                     <div className="truncate text-[11px] uppercase tracking-wider text-muted-foreground">
                       {s.category}

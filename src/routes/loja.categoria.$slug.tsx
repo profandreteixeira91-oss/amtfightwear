@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { SlidersHorizontal, X, ChevronDown, ArrowUpDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { SlidersHorizontal, X, ChevronDown, ChevronRight, ArrowUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { KimonoGuideCallout, isKimonoContext } from "@/components/store/KimonoGuideLink";
 import { getCategoryWithProducts, listStoreCategories } from "@/lib/store/store.functions";
+
+const PAGE_SIZE = 24;
 
 export const Route = createFileRoute("/loja/categoria/$slug")({
   loader: async ({ context, params }) => {
@@ -99,6 +102,18 @@ function CategoryPage() {
     return (childrenByParent.get(category.id) ?? []) as typeof categories;
   }, [category?.id, childrenByParent]);
 
+  // Trilha: raiz → … → categoria atual
+  const breadcrumb = useMemo(() => {
+    const byId = new Map(categories.map((c) => [c.id, c]));
+    const chain: typeof categories = [];
+    let cur = category?.id ? byId.get(category.id) : undefined;
+    while (cur) {
+      chain.unshift(cur);
+      cur = cur.parent_id ? byId.get(cur.parent_id) : undefined;
+    }
+    return chain;
+  }, [categories, category?.id]);
+
   // Sibling top-level categories (peer navigation)
   const topCategories = useMemo(
     () => categories.filter((c) => !c.parent_id),
@@ -125,15 +140,6 @@ function CategoryPage() {
     setMinPrice(priceBounds.min);
     setMaxPrice(priceBounds.max);
   }, [priceBounds.min, priceBounds.max]);
-
-  const toggleSub = (id: string) => {
-    setSelectedSubIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   const clearFilters = () => {
     setSelectedSubIds(new Set());
@@ -190,6 +196,13 @@ function CategoryPage() {
     return list;
   }, [products, selectedSubIds, descendantIds, minPrice, maxPrice, onlyPromo, sort]);
 
+  // Grade paginada: 24 por vez, reiniciando a cada mudança de filtro/ordem.
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [selectedSubIds, minPrice, maxPrice, onlyPromo, sort, category?.id]);
+  const shown = filtered.slice(0, visible);
+
   const showKimonoGuide = isKimonoContext(
     category?.name,
     category?.slug,
@@ -201,27 +214,6 @@ function CategoryPage() {
 
   const FiltersPanel = (
     <div className="space-y-6">
-      {/* Subcategorias */}
-      {subCategories.length > 0 && (
-        <FilterSection title="Subcategorias" defaultOpen>
-          <ul className="space-y-1.5">
-            {subCategories.map((s) => (
-              <li key={s.id}>
-                <label className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-accent">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-border accent-primary"
-                    checked={selectedSubIds.has(s.id!)}
-                    onChange={() => toggleSub(s.id!)}
-                  />
-                  <span className="flex-1">{s.name}</span>
-                </label>
-              </li>
-            ))}
-          </ul>
-        </FilterSection>
-      )}
-
       {/* Preço */}
       {priceBounds.max > priceBounds.min && (
         <FilterSection title="Faixa de preço" defaultOpen>
@@ -302,27 +294,70 @@ function CategoryPage() {
 
   return (
     <StoreShell categories={categories}>
-      {/* Hero da categoria */}
-      <section className="relative isolate overflow-hidden ink-surface">
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_100%_0%,rgba(220,38,38,0.22),transparent_60%)]" />
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-          <nav className="mb-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-white/60">
-            <Link to="/" className="transition-colors hover:text-white">Início</Link>
-            <span aria-hidden>/</span>
-            <span className="text-white/90">{category?.name ?? slug}</span>
+      {/* Cabeçalho da categoria */}
+      <section className="border-b border-neutral-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 pb-6 pt-8 sm:px-6 sm:pt-10 lg:px-8">
+          <nav aria-label="Trilha" className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+            <Link to="/" className="transition-colors hover:text-foreground">Início</Link>
+            {breadcrumb.map((c, i) => (
+              <span key={c.id} className="inline-flex items-center gap-1.5">
+                <ChevronRight className="h-3 w-3 opacity-60" aria-hidden />
+                {i === breadcrumb.length - 1 ? (
+                  <span className="text-foreground">{c.name}</span>
+                ) : (
+                  <Link to="/loja/categoria/$slug" params={{ slug: c.slug }} className="transition-colors hover:text-foreground">
+                    {c.name}
+                  </Link>
+                )}
+              </span>
+            ))}
           </nav>
-          <h1 className="font-display text-3xl font-bold leading-[1.05] text-white sm:text-4xl lg:text-5xl">
-            {category?.name ?? "Categoria"}
-          </h1>
-          {category?.description && (
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
-              {category.description}
-            </p>
-          )}
-          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-white/80 backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            {products.length} {products.length === 1 ? "produto" : "produtos"}
+          <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{category?.name ?? "Categoria"}</h1>
+            <span className="pb-1 text-sm text-muted-foreground">
+              {products.length} {products.length === 1 ? "produto" : "produtos"}
+            </span>
           </div>
+          {category?.description && (
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">{category.description}</p>
+          )}
+
+          {subCategories.length > 0 && (
+            <div className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+              <button
+                type="button"
+                onClick={() => setSelectedSubIds(new Set())}
+                className={cn(
+                  "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                  selectedSubIds.size === 0
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-neutral-200 bg-white hover:border-neutral-400",
+                )}
+              >
+                Todos
+              </button>
+              {subCategories.map((sc) => {
+                const on = selectedSubIds.has(sc.id!);
+                const count = (sc as { product_count?: number }).product_count;
+                return (
+                  <button
+                    key={sc.id}
+                    type="button"
+                    onClick={() => setSelectedSubIds(on ? new Set() : new Set([sc.id!]))}
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                      on ? "border-foreground bg-foreground text-background" : "border-neutral-200 bg-white hover:border-neutral-400",
+                    )}
+                  >
+                    {sc.name}
+                    {typeof count === "number" && (
+                      <span className={cn("text-xs", on ? "text-background/70" : "text-muted-foreground")}>{count}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -369,7 +404,7 @@ function CategoryPage() {
                 )}
               </button>
               <div className="hidden text-sm text-muted-foreground lg:block">
-                Mostrando <strong className="text-foreground">{filtered.length}</strong> de {products.length}
+                Mostrando <strong className="text-foreground">{shown.length}</strong> de {filtered.length}
               </div>
               <label className="ml-auto inline-flex items-center gap-2 text-sm">
                 <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
@@ -400,18 +435,37 @@ function CategoryPage() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((p) => (
-                  <ProductCard 
-                    key={p.id} 
-                    product={{
-                      ...p,
-                      store_product_variants: (p as any).store_product_variants,
-                      store_product_images: (p as any).store_product_images
-                    }} 
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-2 lg:grid-cols-3">
+                  {shown.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      product={{
+                        ...p,
+                        store_product_variants: (p as any).store_product_variants,
+                        store_product_images: (p as any).store_product_images,
+                      }}
+                    />
+                  ))}
+                </div>
+                {visible < filtered.length && (
+                  <div className="mt-10 flex flex-col items-center gap-3">
+                    <p className="text-xs text-muted-foreground">
+                      Você viu {shown.length} de {filtered.length} produtos
+                    </p>
+                    <div className="h-1 w-48 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full bg-primary" style={{ width: `${(shown.length / filtered.length) * 100}%` }} />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                      className="mt-1 inline-flex items-center rounded-full border-2 border-foreground px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] transition hover:bg-foreground hover:text-background"
+                    >
+                      Mostrar mais {Math.min(PAGE_SIZE, filtered.length - visible)}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </section>
         </div>

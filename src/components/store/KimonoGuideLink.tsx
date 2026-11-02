@@ -5,8 +5,8 @@ import { ArrowRight, Ruler, Sparkles } from "lucide-react";
  * Detecta se um produto/categoria pertence ao universo "kimono / gi",
  * onde o Guia do Kimono é relevante para o cliente.
  */
-const KIMONO_RE =
-  /(kimono|kimonos|\bgi\b|jiu[\s-]?jitsu|jiujitsu|bjj|jud[oô]|karat[eê]|dobok|taekwondo)/i;
+// Só kimonos (gi/dobok): faixas e rashguards de jiu-jitsu/judô não usam esta tabela.
+const KIMONO_RE = /(kimono|\bgi\b|dobok)/i;
 
 export function isKimonoContext(...values: (string | null | undefined)[]) {
   return values.some((v) => (v ? KIMONO_RE.test(v) : false));

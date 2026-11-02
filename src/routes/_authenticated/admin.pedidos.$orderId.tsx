@@ -260,7 +260,12 @@ function AdminOrderDetailPage() {
                           {p.length_cm ? ` · ${String(p.length_cm)}×${String(p.width_cm)}×${String(p.height_cm)}cm` : ""}
                         </div>
                       ) : null}
-                      {it.custom_config ? (
+                      {typeof (it.custom_config as { embroidery_name?: unknown } | null)?.embroidery_name === "string" ? (
+                        <div className="mt-1 inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2 py-1 text-xs text-primary">
+                          Nome a bordar:{" "}
+                          <b className="tracking-wide">{String((it.custom_config as { embroidery_name: string }).embroidery_name)}</b>
+                        </div>
+                      ) : it.custom_config ? (
                         <pre className="mt-1 max-h-32 overflow-auto rounded bg-muted p-2 text-[11px]">
                           {JSON.stringify(it.custom_config, null, 2)}
                         </pre>

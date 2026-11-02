@@ -137,6 +137,12 @@ export async function exportOrderPdf(order: OrderInfo, items: OrderItem[]) {
     y += 14;
 
     const cfg = it.custom_config;
+    if (cfg?.embroidery_name) {
+      doc.setFont("helvetica", "bold");
+      doc.text(`Nome a bordar: ${String(cfg.embroidery_name)}`, M, y);
+      doc.setFont("helvetica", "normal");
+      y += 14;
+    }
     const preview = cfg?.preview_image as string | undefined;
     // Preview image
     if (preview) {

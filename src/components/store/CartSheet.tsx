@@ -4,6 +4,7 @@ import { Trash2, ArrowRight, ShoppingBag, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ProductImage } from "@/components/store/ProductImage";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
+import { formatProductName } from "@/lib/store/product-name";
 
 export function CartSheet() {
   const isOpen = useCart((s) => s.isOpen);
@@ -58,29 +59,26 @@ export function CartSheet() {
             <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
               {items.map((i, idx) => (
                 <div key={`${i.product_id}-${i.variant_id ?? ""}-${idx}`} className="flex gap-3 rounded-lg border bg-card p-3">
-                  <ProductImage src={i.image_url} alt={i.name} aspect="square" className="h-20 w-20 shrink-0 rounded" />
+                  <ProductImage src={i.image_url} alt={formatProductName(i.name)} aspect="square" sizes="80px" className="h-20 w-20 shrink-0 rounded" />
                   <div className="flex flex-1 flex-col">
-                    <div className="text-sm font-semibold leading-tight">{i.name}</div>
+                    <div className="text-sm font-semibold leading-tight">{formatProductName(i.name)}</div>
                     {i.variant_label && <div className="text-[11px] text-muted-foreground">{i.variant_label}</div>}
-                    {i.type === "custom" && (
-                      <div className="mt-1 flex flex-wrap items-center gap-1 text-[10px]">
-                        <span className="rounded bg-primary/10 px-1.5 py-0.5 font-semibold text-primary">Custom</span>
-                        {i.production_days && (
-                          <span className="text-muted-foreground">Produção em {i.production_days}d</span>
-                        )}
+                    {i.personalization && (
+                      <div className="mt-1 text-[11px] text-primary">
+                        Bordado: <strong className="font-semibold">{i.personalization}</strong>
                       </div>
                     )}
                     <div className="mt-auto flex items-center justify-between pt-2">
                       <div className="flex items-center rounded-md border text-sm">
-                        <button onClick={() => setQuantity(i.product_id, i.variant_id, i.quantity - 1)} className="px-2 py-0.5">−</button>
+                        <button onClick={() => setQuantity(i.product_id, i.variant_id, i.quantity - 1, i.personalization)} className="px-2 py-0.5">−</button>
                         <div className="w-7 text-center">{i.quantity}</div>
-                        <button onClick={() => setQuantity(i.product_id, i.variant_id, i.quantity + 1)} className="px-2 py-0.5">+</button>
+                        <button onClick={() => setQuantity(i.product_id, i.variant_id, i.quantity + 1, i.personalization)} className="px-2 py-0.5">+</button>
                       </div>
                       <div className="text-sm font-bold">{formatBRL(i.unit_price * i.quantity)}</div>
                     </div>
                   </div>
                   <button
-                    onClick={() => remove(i.product_id, i.variant_id)}
+                    onClick={() => remove(i.product_id, i.variant_id, i.personalization)}
                     className="self-start text-muted-foreground hover:text-destructive"
                     aria-label="Remover"
                   >

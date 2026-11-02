@@ -3,9 +3,9 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { KimonoGuideCallout, KimonoSizeGuideLink, isKimonoContext } from "@/components/store/KimonoGuideLink";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { getProductBySlug, listStoreCategories } from "@/lib/store/store.functions";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
-import { ShoppingBag, Zap } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
@@ -18,6 +18,8 @@ import { pushRecentProduct } from "@/lib/store/recent";
 import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
 import { installmentValueFor, maxInstallmentsFor, pixPriceFor } from "@/lib/store/pricing";
 import { selectAvailableVariant } from "@/lib/store/variant-availability";
+import { formatProductName } from "@/lib/store/product-name";
+import { EMBROIDERY_MAX_LENGTH, normalizeEmbroideryName, requiresEmbroideryName } from "@/lib/store/personalization";
 
 export const Route = createFileRoute("/loja/produto/$slug")({
   loader: async ({ context, params }) => {
@@ -46,7 +48,7 @@ export const Route = createFileRoute("/loja/produto/$slug")({
         ],
       };
     }
-    const name = p.name ?? params.slug.replace(/-/g, " ");
+    const name = formatProductName(p.name) || params.slug.replace(/-/g, " ");
     const title = `${name} | AMT Fight Wear`;
     const desc = (p.short_description || p.description || `Compre ${name} na loja oficial AMT Fight Wear: fabricação própria, até 10x sem juros e envio para todo o Brasil.`)
       .replace(/<[^>]*>/g, "")
@@ -116,6 +118,9 @@ function ProductPage() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+  const [embroidery, setEmbroidery] = useState("");
+  const [embroideryError, setEmbroideryError] = useState(false);
+  const embroideryRef = useRef<HTMLInputElement>(null);
 
   // Inicializar seleção baseada em variantes disponíveis
   useEffect(() => {
@@ -224,9 +229,20 @@ function ProductPage() {
   const installmentValue = formatBRL(installmentValueFor(price));
   const pixPrice = formatBRL(pixPriceFor(price));
 
+  const needsEmbroidery = requiresEmbroideryName(product.name);
+  const displayName = formatProductName(product.name);
+
   const handleAddToCart = () => {
     if (!variant && data.variants.length > 0) {
       toast.error("Selecione um tamanho disponível");
+      return false;
+    }
+    const embroideryName = normalizeEmbroideryName(embroidery);
+    if (needsEmbroidery && !embroideryName) {
+      setEmbroideryError(true);
+      embroideryRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      embroideryRef.current?.focus({ preventScroll: true });
+      toast.error("Digite o nome a ser bordado na faixa");
       return false;
     }
     const availableStock = variant?.stock ?? Number(product.stock);
@@ -244,6 +260,7 @@ function ProductPage() {
       image_url: product.image_url,
       unit_price: price,
       quantity: qty,
+      personalization: needsEmbroidery ? embroideryName : null,
     });
     trackStoreEvent("add_to_cart", {
       value: price * qty,
@@ -282,16 +299,22 @@ function ProductPage() {
   return (
     <StoreShell categories={categories}>
       <div className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 sm:pb-12 sm:pt-8 lg:px-8">
-        <nav className="mb-6 flex flex-wrap items-center gap-x-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-          <Link to="/" className="hover:text-primary">Início</Link>
-          <span aria-hidden>/</span>
+        <nav aria-label="Trilha" className="mb-6 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+          <Link to="/" className="shrink-0 transition-colors hover:text-foreground">Início</Link>
           {data.category && (
             <>
-              <Link to="/loja/categoria/$slug" params={{ slug: data.category.slug }} className="hover:text-primary">{data.category.name}</Link>
-              <span aria-hidden>/</span>
+              <span aria-hidden className="opacity-50">›</span>
+              <Link
+                to="/loja/categoria/$slug"
+                params={{ slug: data.category.slug }}
+                className="min-w-0 truncate transition-colors hover:text-foreground"
+              >
+                {data.category.name}
+              </Link>
             </>
           )}
-          <span className="normal-case tracking-normal text-foreground">{product.name}</span>
+          <span aria-hidden className="opacity-50">›</span>
+          <span className="min-w-0 truncate text-foreground">{displayName}</span>
         </nav>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-12">
@@ -308,29 +331,24 @@ function ProductPage() {
           <div className="flex flex-col gap-5">
             <div>
               {data.category && (
-                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
-                  {data.category.name}
-                </div>
+                <div className="mb-2 text-xs font-medium text-muted-foreground">{data.category.name}</div>
               )}
-              <h1 className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-4xl">{product.name}</h1>
-              {product.sku && <div className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">SKU: {product.sku}</div>}
+              <h1 className="text-2xl font-bold leading-tight tracking-tight sm:text-[1.75rem]">{displayName}</h1>
+              {product.sku && <div className="mt-2 text-[11px] text-muted-foreground">Ref. {product.sku}</div>}
             </div>
 
-            <div className="card-elevated p-5">
+            <div className="border-y border-neutral-200 py-5">
               {compareAtNum && compareAtNum > price && (
                 <div className="text-sm text-muted-foreground line-through">{formatBRL(compareAtNum)}</div>
               )}
-              <div className="font-display text-4xl font-bold tracking-tight text-foreground">{formatBRL(price)}</div>
+              <div className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">{formatBRL(price)}</div>
               {maxInstallments > 1 ? (
                 <div className="mt-1 text-sm text-muted-foreground">
                   ou até <strong className="text-foreground">{maxInstallments}x</strong> de <strong className="text-foreground">{installmentValue}</strong> sem juros
                 </div>
-              ) : (
-                <div className="mt-1 text-sm text-muted-foreground">à vista</div>
-              )}
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                PIX {pixPrice} <span className="font-normal opacity-70">(5% off · varejo)</span>
+              ) : null}
+              <div className="mt-2 text-sm font-medium text-emerald-700">
+                {pixPrice} no PIX <span className="font-normal text-muted-foreground">(5% de desconto)</span>
               </div>
             </div>
 
@@ -342,9 +360,9 @@ function ProductPage() {
                   if (sizes.length === 0) return null;
                   return (
                     <div>
-                      <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                        <span>Tamanho</span>
-                        {showKimonoGuide ? <KimonoSizeGuideLink /> : <span className="text-primary normal-case tracking-normal font-medium cursor-pointer">Guia de medidas</span>}
+                      <div className="mb-2.5 flex items-center justify-between text-sm font-medium">
+                        <span>Tamanho{selectedSize ? <span className="font-normal text-muted-foreground"> · {selectedSize}</span> : null}</span>
+                        {showKimonoGuide && <KimonoSizeGuideLink />}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {sizes.map((s) => {
@@ -365,11 +383,11 @@ function ProductPage() {
                                 setSelectedColor(next.color);
                                 setQty(1);
                               }}
-                              className={`min-w-[3.25rem] rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
+                              className={`min-w-[3.25rem] rounded-full border px-4 py-2 text-sm font-medium transition ${
                                 selected
-                                  ? "border-primary bg-primary text-primary-foreground shadow-[var(--store-shadow-ruby)]"
-                                  : "border-input bg-background hover:border-primary/50"
-                              } ${outOfStock ? "opacity-40 line-through cursor-not-allowed" : ""}`}
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-neutral-300 bg-white hover:border-foreground"
+                              } ${outOfStock ? "cursor-not-allowed opacity-40 line-through" : ""}`}
                             >
                               {s}
                             </button>
@@ -386,8 +404,8 @@ function ProductPage() {
                   if (colors.length === 0) return null;
                   return (
                     <div>
-                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                        Cor
+                      <div className="mb-2.5 text-sm font-medium">
+                        Cor{selectedColor ? <span className="font-normal text-muted-foreground"> · {selectedColor}</span> : null}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {colors.map((c) => {
@@ -408,11 +426,11 @@ function ProductPage() {
                                 setSelectedColor(next.color === null ? c : next.color);
                                 setQty(1);
                               }}
-                              className={`min-w-[3.25rem] rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
+                              className={`min-w-[3.25rem] rounded-full border px-4 py-2 text-sm font-medium transition ${
                                 selected
-                                  ? "border-primary bg-primary text-primary-foreground shadow-[var(--store-shadow-ruby)]"
-                                  : "border-input bg-background hover:border-primary/50"
-                              } ${outOfStock ? "opacity-40 line-through cursor-not-allowed" : ""}`}
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-neutral-300 bg-white hover:border-foreground"
+                              } ${outOfStock ? "cursor-not-allowed opacity-40 line-through" : ""}`}
                             >
                               {c}
                             </button>
@@ -425,8 +443,50 @@ function ProductPage() {
               </div>
             )}
 
+            {needsEmbroidery && (
+              <div>
+                <label
+                  htmlFor="embroidery-name"
+                  className="mb-2.5 flex items-center justify-between text-sm font-medium"
+                >
+                  <span>Nome a ser bordado <span className="text-primary">*</span></span>
+                  <span className="text-xs font-normal tabular-nums text-muted-foreground">
+                    {embroidery.length}/{EMBROIDERY_MAX_LENGTH}
+                  </span>
+                </label>
+                <input
+                  id="embroidery-name"
+                  ref={embroideryRef}
+                  value={embroidery}
+                  maxLength={EMBROIDERY_MAX_LENGTH}
+                  onChange={(e) => {
+                    setEmbroidery(e.target.value);
+                    if (embroideryError && e.target.value.trim()) setEmbroideryError(false);
+                  }}
+                  placeholder="Ex.: João Silva"
+                  autoComplete="off"
+                  aria-invalid={embroideryError}
+                  aria-describedby="embroidery-help"
+                  className={`w-full rounded-xl border bg-white px-4 py-3 text-base font-medium outline-none transition focus:border-foreground focus:ring-4 focus:ring-neutral-900/5 ${
+                    embroideryError ? "border-destructive ring-4 ring-destructive/10" : "border-neutral-300"
+                  }`}
+                />
+                <p id="embroidery-help" className={`mt-1.5 text-xs ${embroideryError ? "text-destructive" : "text-muted-foreground"}`}>
+                  {embroideryError
+                    ? "Obrigatório: digite o nome exatamente como deve sair no bordado."
+                    : "Digite exatamente como deve sair no bordado (maiúsculas, acentos e espaços são respeitados)."}
+                </p>
+                {embroidery.trim() && (
+                  <div className="mt-3 flex items-center gap-3 rounded-xl border border-dashed bg-muted/40 px-4 py-3">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Prévia</span>
+                    <span className="truncate font-display text-lg font-bold tracking-wide">{normalizeEmbroideryName(embroidery)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="flex items-center gap-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Qtd</div>
+              <div className="text-sm font-medium">Quantidade</div>
               <div className="inline-flex items-center rounded-full border bg-background">
                 <button onClick={() => setQty(Math.max(1, qty - 1))} className="grid h-10 w-10 place-items-center rounded-l-full text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Diminuir">−</button>
                 <div className="w-10 select-none text-center text-sm font-bold tabular-nums">{qty}</div>
@@ -438,26 +498,28 @@ function ProductPage() {
             <div className="hidden gap-2 sm:flex">
               <button
                 onClick={handleBuyNow}
-                className="btn-ruby inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold uppercase tracking-widest"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
               >
-                <Zap className="h-4 w-4" /> Comprar agora
+                Comprar agora
               </button>
               <button
                 onClick={handleAddToCart}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-foreground bg-background px-6 py-3.5 text-sm font-bold uppercase tracking-widest text-foreground transition hover:bg-foreground hover:text-background"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-foreground bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-foreground hover:text-background"
               >
                 <ShoppingBag className="h-4 w-4" /> Adicionar
               </button>
               <FavoriteButton
                 product={{ id: product.id, name: product.name, slug: product.slug ?? product.id, image_url: product.image_url, price }}
-                className="h-auto self-stretch rounded-xl"
+                className="h-12 w-12 self-center rounded-full"
               />
             </div>
 
 
-            {product.short_description && (
-              <p className="text-sm leading-relaxed text-muted-foreground">{product.short_description}</p>
-            )}
+            {/* Resumo só quando acrescenta algo: muitos cadastros repetem o início da descrição completa. */}
+            {product.short_description &&
+              !(product.description ?? "").replace(/<[^>]*>/g, "").trim().startsWith(product.short_description.trim().slice(0, 60)) && (
+                <p className="text-sm leading-relaxed text-muted-foreground">{product.short_description}</p>
+              )}
 
             {showKimonoGuide && <KimonoGuideCallout variant="card" />}
 
@@ -466,12 +528,6 @@ function ProductPage() {
               onSelect={handleSelectShipping}
             />
 
-            {/* Trust strip */}
-            <div className="grid grid-cols-3 gap-2 rounded-xl border bg-muted/30 p-3 text-center text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              <div>Frete grátis<br /><span className="text-foreground">R$ 399+</span></div>
-              <div>Direto da<br /><span className="text-foreground">fábrica</span></div>
-              <div>Troca fácil<br /><span className="text-foreground">7 dias</span></div>
-            </div>
             <TrustBadges />
 
           </div>
@@ -524,15 +580,15 @@ function ProductPage() {
           <button
             onClick={handleAddToCart}
             aria-label="Adicionar ao carrinho"
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border-2 border-foreground text-foreground transition active:scale-95"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-foreground text-foreground transition active:scale-95"
           >
             <ShoppingBag className="h-5 w-5" />
           </button>
           <button
             onClick={handleBuyNow}
-            className="btn-ruby inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold uppercase tracking-widest"
+            className="inline-flex h-12 flex-1 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground active:scale-[0.98]"
           >
-            <Zap className="h-4 w-4" /> Comprar
+            Comprar
           </button>
         </div>
       </div>

@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { ProductImage } from "@/components/store/ProductImage";
 import { listStorefrontHome } from "@/lib/store/store.functions";
 import { useCart } from "@/lib/store/cart-store";
+import { requiresEmbroideryName } from "@/lib/store/personalization";
+import { formatProductName } from "@/lib/store/product-name";
 import { formatMoney, missingForFreeShipping } from "@/lib/store/pricing";
 import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
 
@@ -15,6 +17,8 @@ type Suggestion = {
   slug: string;
   price: number | string;
   image_url?: string | null;
+  /** Tem tamanho/cor a escolher: não dá para adicionar em 1 clique. */
+  hasVariants: boolean;
 };
 
 /**
@@ -40,9 +44,17 @@ export function CartUpsell({ subtotal }: { subtotal: number }) {
     const seen = new Set<string>();
     const unique: Suggestion[] = [];
     for (const p of pool) {
-      if (!p?.id || !p.slug || inCart.has(p.id) || seen.has(p.id)) continue;
+      // Bordado personalizado exige o nome na página do produto: não entra no "1 clique".
+      if (!p?.id || !p.slug || inCart.has(p.id) || seen.has(p.id) || requiresEmbroideryName(p.name)) continue;
       seen.add(p.id);
-      unique.push({ id: p.id, name: p.name, slug: p.slug, price: p.price, image_url: p.image_url });
+      unique.push({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        price: p.price,
+        image_url: p.image_url,
+        hasVariants: (p.store_product_variants?.length ?? 0) > 0,
+      });
     }
     // Se falta pouco para o frete grátis, prioriza produtos que fecham a conta.
     if (missing > 0) {
@@ -66,7 +78,6 @@ export function CartUpsell({ subtotal }: { subtotal: number }) {
       image_url: p.image_url ?? null,
       unit_price: Number(p.price),
       quantity: 1,
-      type: "product",
     });
     trackStoreEvent("add_to_cart", {
       value: Number(p.price),
@@ -99,23 +110,33 @@ export function CartUpsell({ subtotal }: { subtotal: number }) {
               <div className="overflow-hidden rounded-lg">
                 <ProductImage
                   src={p.image_url}
-                  alt={p.name}
+                  alt={formatProductName(p.name)}
                   aspect="square"
                   imgClassName="transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
-              <p className="mt-2 line-clamp-2 text-xs font-semibold leading-snug">{p.name}</p>
+              <p className="mt-2 line-clamp-2 text-xs font-semibold leading-snug">{formatProductName(p.name)}</p>
             </Link>
             <div className="mt-1.5 flex items-center justify-between gap-2">
               <span className="text-sm font-black text-primary">{formatMoney(Number(p.price))}</span>
-              <button
-                type="button"
-                onClick={() => handleAdd(p)}
-                aria-label={`Adicionar ${p.name} ao carrinho`}
-                className="grid h-9 w-9 min-h-9 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90 active:scale-95"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
+              {p.hasVariants ? (
+                <Link
+                  to="/loja/produto/$slug"
+                  params={{ slug: p.slug }}
+                  className="inline-flex h-9 items-center rounded-full border border-primary px-3 text-[11px] font-bold text-primary transition hover:bg-primary hover:text-primary-foreground"
+                >
+                  Escolher tamanho
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleAdd(p)}
+                  aria-label={`Adicionar ${formatProductName(p.name)} ao carrinho`}
+                  className="grid h-9 w-9 min-h-9 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90 active:scale-95"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         ))}

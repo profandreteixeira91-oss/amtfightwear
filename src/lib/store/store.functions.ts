@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { normalizeEmbroideryName, requiresEmbroideryName } from "@/lib/store/personalization";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -339,16 +340,16 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
 
   const [categoriesR, featuredR, newestR, bjjBeltsR, judoBeltsR, kimonosR] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12) as any,
-    sb.from("products").select(productSel).limit(200) as any,
-    sb.from("products").select(productSel).order("created_at", { ascending: false }).limit(12) as any,
+    sb.from("products").select(productSel).eq("status", "active").limit(200) as any,
+    sb.from("products").select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12) as any,
     bjjBeltIds.length
-      ? sb.from("products").select(productSel).in("category_id", bjjBeltIds).limit(60) as any
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60) as any
       : Promise.resolve({ data: [] as any[] }),
     judoBeltIds.length
-      ? sb.from("products").select(productSel).in("category_id", judoBeltIds).limit(60) as any
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60) as any
       : Promise.resolve({ data: [] as any[] }),
     kimonoIds.length
-      ? sb.from("products").select(productSel).in("category_id", kimonoIds).limit(24) as any
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24) as any
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
@@ -383,7 +384,7 @@ export const listStoreCategories = createServerFn({ method: "GET" }).handler(asy
   const sb = publicClient();
   const { data } = await sb.from("store_categories").select("id, slug, name, image_url, description, sort_order, parent_id").eq("active", true).order("sort_order");
   const cats = data ?? [];
-  if (cats.length === 0) return [] as Array<(typeof cats)[number] & { preview_image: string | null }>;
+  if (cats.length === 0) return [] as Array<(typeof cats)[number] & { preview_image: string | null; product_count: number }>;
 
   // Build descendants map so a top-level category can borrow an image from any child product.
   const childrenByParent = new Map<string, string[]>();
@@ -409,28 +410,34 @@ export const listStoreCategories = createServerFn({ method: "GET" }).handler(asy
   const { data: prods } = await sb
     .from("products")
     .select("category_id, image_url, featured, created_at")
-    // .eq("status", "active") // Ignorando status para teste de visibilidade
+    .eq("status", "active")
     .in("category_id", ids)
-    .not("image_url", "is", null)
     .order("featured", { ascending: false })
     .order("created_at", { ascending: false });
 
   const imageByCat = new Map<string, string>();
+  const countByCat = new Map<string, number>();
   for (const p of (prods as any[]) ?? []) {
-    if (!p.category_id || !p.image_url) continue;
-    if (!imageByCat.has(p.category_id)) imageByCat.set(p.category_id, p.image_url);
+    if (!p.category_id) continue;
+    countByCat.set(p.category_id, (countByCat.get(p.category_id) ?? 0) + 1);
+    if (p.image_url && !imageByCat.has(p.category_id)) imageByCat.set(p.category_id, p.image_url);
   }
 
-  return cats.map((c) => {
-    let preview: string | null = c.image_url ?? null;
-    if (!preview) {
-      for (const cid of collectIds(c.id)) {
-        const img = imageByCat.get(cid);
-        if (img) { preview = img; break; }
+  // Categorias sem nenhum produto ativo (nem nas subcategorias) não aparecem na vitrine.
+  return cats
+    .map((c) => {
+      const subtree = collectIds(c.id);
+      let preview: string | null = c.image_url ?? null;
+      if (!preview) {
+        for (const cid of subtree) {
+          const img = imageByCat.get(cid);
+          if (img) { preview = img; break; }
+        }
       }
-    }
-    return { ...c, preview_image: preview };
-  });
+      const product_count = subtree.reduce((n, cid) => n + (countByCat.get(cid) ?? 0), 0);
+      return { ...c, preview_image: preview, product_count };
+    })
+    .filter((c) => c.product_count > 0);
 });
 
 export const getCategoryWithProducts = createServerFn({ method: "GET" })
@@ -511,23 +518,14 @@ const AddressSchema = z.object({
   state: z.string().min(2).max(2),
 });
 
-const CheckoutItemSchema = z.union([
-  z.object({
-    type: z.literal("product").optional(),
-    product_id: z.string().uuid(),
-    variant_id: z.string().uuid().optional().nullable(),
-    quantity: z.number().int().min(1),
-  }),
-  z.object({
-    type: z.literal("custom"),
-    name: z.string(),
-    quantity: z.number().int().min(1),
-    unit_price: z.number(),
-    image_url: z.string().nullable().optional(),
-    production_days: z.number().int().nullable().optional(),
-    custom_config: z.record(z.string(), z.any()),
-  }),
-]);
+const CheckoutItemSchema = z.object({
+  type: z.literal("product").optional(),
+  product_id: z.string().uuid(),
+  variant_id: z.string().uuid().optional().nullable(),
+  quantity: z.number().int().min(1),
+  /** Nome a ser bordado (obrigatório em produtos "Bordada Personalizada"). */
+  personalization: z.string().max(200).optional().nullable(),
+});
 
 export const createStoreOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -551,21 +549,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
 
-    const productItems = data.items.filter((i) => !("type" in i) || i.type !== "custom") as Array<{
-      type?: "product";
-      product_id: string;
-      variant_id?: string | null;
-      quantity: number;
-    }>;
-    const customItems = data.items.filter((i) => "type" in i && i.type === "custom") as Array<{
-      type: "custom";
-      name: string;
-      quantity: number;
-      unit_price: number;
-      image_url?: string | null;
-      production_days?: number | null;
-      custom_config: Record<string, unknown>;
-    }>;
+    const productItems = data.items;
 
     const productIds = [...new Set(productItems.map((i) => i.product_id))];
     const { data: products } = productIds.length
@@ -583,6 +567,10 @@ export const createStoreOrder = createServerFn({ method: "POST" })
       const p =  (products as any[]).find((pp: any) => pp.id === it.product_id);
       if (!p) throw new Error(`Produto ${it.product_id} não encontrado`);
       const v = it.variant_id ?  (variants as any[]).find((vv: any) => vv.id === it.variant_id) : null;
+      const embroideryName = normalizeEmbroideryName(it.personalization);
+      if (requiresEmbroideryName(p.name) && !embroideryName) {
+        throw new Error(`Informe o nome a ser bordado em "${p.name}".`);
+      }
       const unit_price = Number(v?.price ?? p.price);
       const total_price = unit_price * it.quantity;
       subtotal += total_price;
@@ -596,24 +584,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
         quantity: it.quantity,
         unit_price,
         total_price,
-      });
-    }
-
-    for (const ci of customItems) {
-      const total_price = ci.unit_price * ci.quantity;
-      subtotal += total_price;
-      orderItems.push({
-        product_id: null,
-        variant_id: null,
-        product_name: ci.name,
-        variant_label: "Personalizado",
-        sku: null,
-        image_url: ci.image_url ?? null,
-        quantity: ci.quantity,
-        unit_price: ci.unit_price,
-        total_price,
-        custom_config: ci.custom_config,
-        production_days: ci.production_days ?? null,
+        ...(embroideryName ? { custom_config: { embroidery_name: embroideryName } } : {}),
       });
     }
 

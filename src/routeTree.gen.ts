@@ -195,8 +195,7 @@ import { Route as DojoStaffAuthRouteImport } from './routes/dojo.staff.auth'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
 import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
-import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
-import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
+import { Route as LojaCustomShopSplatRouteImport } from './routes/loja.custom-shop.$'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
 import { Route as AuthenticatedAdminAdsIndexRouteImport } from './routes/_authenticated/admin.ads.index'
@@ -1341,14 +1340,9 @@ const LojaContaPedidosRoute = LojaContaPedidosRouteImport.update({
   path: '/loja/conta/pedidos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
-  id: '/loja/custom-shop/',
-  path: '/loja/custom-shop/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaCustomShopKindRoute = LojaCustomShopKindRouteImport.update({
-  id: '/loja/custom-shop/$kind',
-  path: '/loja/custom-shop/$kind',
+const LojaCustomShopSplatRoute = LojaCustomShopSplatRouteImport.update({
+  id: '/loja/custom-shop/$',
+  path: '/loja/custom-shop/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaPedidoIdRoute = LojaPedidoIdRouteImport.update({
@@ -2410,7 +2404,7 @@ export interface FileRoutesByFullPath {
   '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
-  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
+  '/loja/custom-shop/$': typeof LojaCustomShopSplatRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -2419,7 +2413,6 @@ export interface FileRoutesByFullPath {
   '/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
-  '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
   '/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
@@ -2732,7 +2725,7 @@ export interface FileRoutesByTo {
   '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
-  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
+  '/loja/custom-shop/$': typeof LojaCustomShopSplatRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -2741,7 +2734,6 @@ export interface FileRoutesByTo {
   '/store': typeof AuthenticatedStoreIndexRoute
   '/dojo/app': typeof DojoAppIndexRoute
   '/loja/conta': typeof LojaContaIndexRoute
-  '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
   '/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
@@ -3075,7 +3067,7 @@ export interface FileRoutesById {
   '/dojo/staff/auth': typeof DojoStaffAuthRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
-  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
+  '/loja/custom-shop/$': typeof LojaCustomShopSplatRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -3084,7 +3076,6 @@ export interface FileRoutesById {
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
-  '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/admin/ads/anuncios': typeof AuthenticatedAdminAdsAnunciosRoute
   '/_authenticated/admin/ads/campanhas': typeof AuthenticatedAdminAdsCampanhasRoute
   '/_authenticated/admin/ads/conjuntos': typeof AuthenticatedAdminAdsConjuntosRoute
@@ -3419,7 +3410,7 @@ export interface FileRouteTypes {
     | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
-    | '/loja/custom-shop/$kind'
+    | '/loja/custom-shop/$'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/admin/'
@@ -3428,7 +3419,6 @@ export interface FileRouteTypes {
     | '/store/'
     | '/dojo/app/'
     | '/loja/conta/'
-    | '/loja/custom-shop/'
     | '/admin/ads/anuncios'
     | '/admin/ads/campanhas'
     | '/admin/ads/conjuntos'
@@ -3741,7 +3731,7 @@ export interface FileRouteTypes {
     | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
-    | '/loja/custom-shop/$kind'
+    | '/loja/custom-shop/$'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/admin'
@@ -3750,7 +3740,6 @@ export interface FileRouteTypes {
     | '/store'
     | '/dojo/app'
     | '/loja/conta'
-    | '/loja/custom-shop'
     | '/admin/ads/anuncios'
     | '/admin/ads/campanhas'
     | '/admin/ads/conjuntos'
@@ -4083,7 +4072,7 @@ export interface FileRouteTypes {
     | '/dojo/staff/auth'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
-    | '/loja/custom-shop/$kind'
+    | '/loja/custom-shop/$'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/_authenticated/admin/'
@@ -4092,7 +4081,6 @@ export interface FileRouteTypes {
     | '/_authenticated/store/'
     | '/dojo/app/'
     | '/loja/conta/'
-    | '/loja/custom-shop/'
     | '/_authenticated/admin/ads/anuncios'
     | '/_authenticated/admin/ads/campanhas'
     | '/_authenticated/admin/ads/conjuntos'
@@ -4277,11 +4265,10 @@ export interface RootRouteChildren {
   ApiPublicDojoManifestDotwebmanifestRoute: typeof ApiPublicDojoManifestDotwebmanifestRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
   LojaContaPedidosRoute: typeof LojaContaPedidosRoute
-  LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
+  LojaCustomShopSplatRoute: typeof LojaCustomShopSplatRoute
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LojaContaIndexRoute: typeof LojaContaIndexRoute
-  LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
   ApiPublicCertificateHashRoute: typeof ApiPublicCertificateHashRoute
   ApiPublicHooksAdminPushRoute: typeof ApiPublicHooksAdminPushRoute
@@ -5617,18 +5604,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaContaPedidosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/loja/custom-shop/': {
-      id: '/loja/custom-shop/'
-      path: '/loja/custom-shop'
-      fullPath: '/loja/custom-shop/'
-      preLoaderRoute: typeof LojaCustomShopIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/custom-shop/$kind': {
-      id: '/loja/custom-shop/$kind'
-      path: '/loja/custom-shop/$kind'
-      fullPath: '/loja/custom-shop/$kind'
-      preLoaderRoute: typeof LojaCustomShopKindRouteImport
+    '/loja/custom-shop/$': {
+      id: '/loja/custom-shop/$'
+      path: '/loja/custom-shop/$'
+      fullPath: '/loja/custom-shop/$'
+      preLoaderRoute: typeof LojaCustomShopSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/pedido/$id': {
@@ -7700,11 +7680,10 @@ const rootRouteChildren: RootRouteChildren = {
     ApiPublicDojoManifestDotwebmanifestRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
   LojaContaPedidosRoute: LojaContaPedidosRoute,
-  LojaCustomShopKindRoute: LojaCustomShopKindRoute,
+  LojaCustomShopSplatRoute: LojaCustomShopSplatRoute,
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LojaContaIndexRoute: LojaContaIndexRoute,
-  LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicAppManifestDotwebmanifestRoute:
     ApiPublicAppManifestDotwebmanifestRoute,
   ApiPublicCertificateHashRoute: ApiPublicCertificateHashRoute,

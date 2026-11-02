@@ -66,6 +66,9 @@ export default defineConfig(({ command, mode }) => {
     },
     optimizeDeps: {
       include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"],
+      // Mesmo comportamento do preset anterior: não descarta requisições durante a
+      // reotimização de dependências (evita duas cópias do React no dev).
+      ignoreOutdatedRequests: true,
     },
     server: { host: "::", port: 8080 },
   };

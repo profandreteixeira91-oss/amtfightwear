@@ -1,5 +1,6 @@
 import { MessageCircle, X, Send, User, Bot, Headset, Phone } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 
 type Msg = { id: string; role: "user" | "assistant" | "system"; text: string; source?: "human" | "bot"; created_at: string };
 
@@ -238,10 +239,17 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
     }
   }
 
+  // Na página de produto o celular tem a barra "Comprar" fixa no rodapé: o botão sobe para não cobri-la.
+  const onProductPage = useRouterState({ select: (st) => st.location.pathname.startsWith("/loja/produto/") });
+
   return (
     <>
       {!open && (
-        <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+        <div
+          className={`fixed right-5 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6 ${
+            onProductPage ? "bottom-24" : "bottom-5"
+          }`}
+        >
           {/* WhatsApp Button */}
           <a
             href="https://wa.me/5582920016732"

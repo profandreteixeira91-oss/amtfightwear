@@ -207,7 +207,7 @@ export function ProductGallery({
                   : "border-transparent hover:border-neutral-300",
               )}
             >
-              <ProductImage src={img.url} alt="" aspect="square" />
+              <ProductImage src={img.url} alt="" aspect="square" sizes="96px" />
               {img.video_url && (
                 <span className="absolute inset-0 grid place-items-center bg-black/35 text-white">
                   <Play className="h-4 w-4" />

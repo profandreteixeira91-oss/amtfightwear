@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ImageOff } from "lucide-react";
+import { storageImageSrcSet, storageImageUrl } from "@/lib/store/image-url";
 
 interface ProductImageProps {
   src?: string | null;
@@ -18,6 +19,7 @@ interface ProductImageProps {
  * - `decoding="async"` para não bloquear render.
  * - `fetchpriority="high"` na imagem LCP.
  * - Contêiner com `aspect-ratio` fixo — evita salto de layout.
+ * - Fotos do Supabase Storage saem redimensionadas (srcset) em vez do original.
  */
 export function ProductImage({
   src,
@@ -35,14 +37,14 @@ export function ProductImage({
     <div className={cn("relative overflow-hidden bg-muted", aspectClass, className)}>
       {src ? (
         <img
-          src={src}
+          src={storageImageUrl(src, 720) ?? undefined}
+          srcSet={storageImageSrcSet(src)}
           alt={alt}
-          sizes={sizes}
+          sizes={sizes ?? "(max-width: 640px) 50vw, 25vw"}
           style={imgStyle}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
-          // @ts-expect-error — fetchpriority is a valid attribute
-          fetchpriority={priority ? "high" : "auto"}
+          fetchPriority={priority ? "high" : "auto"}
           className={cn("h-full w-full object-contain p-2", imgClassName)}
         />
       ) : (

@@ -141,6 +141,12 @@ export function ProductionCard({
           </Badge>
         ) : null}
       </div>
+      {typeof job.custom_config?.embroidery_name === "string" && job.custom_config.embroidery_name ? (
+        <div className="mt-2 rounded-md border border-fuchsia-500/30 bg-fuchsia-500/5 px-2 py-1 text-xs">
+          <span className="text-muted-foreground">Bordar:</span>{" "}
+          <span className="font-bold tracking-wide">{job.custom_config.embroidery_name}</span>
+        </div>
+      ) : null}
 
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px]">
         <span className={`inline-flex items-center gap-1 ${TONE_CLS[dl.tone]}`}>

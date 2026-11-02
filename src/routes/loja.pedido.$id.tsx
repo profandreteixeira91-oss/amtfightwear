@@ -317,6 +317,11 @@ function OrderPage() {
                             {it.variant_label}
                           </span>
                         )}
+                        {cfg?.embroidery_name && (
+                          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                            Bordado: {String(cfg.embroidery_name)}
+                          </span>
+                        )}
                         {cfg?.template_name && (
                           <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                             Modelo: {cfg.template_name}

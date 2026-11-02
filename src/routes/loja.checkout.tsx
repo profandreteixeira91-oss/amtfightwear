@@ -6,6 +6,7 @@ import { createMercadopagoPayment, getStoreMpPublicKey } from "@/lib/store/merca
 import { tokenizeStoreCard } from "@/lib/store/mp-card-token";
 import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
+import { formatProductName } from "@/lib/store/product-name";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
@@ -203,6 +204,7 @@ function CheckoutPage() {
             product_id: i.product_id,
             variant_id: i.variant_id ?? undefined,
             quantity: i.quantity,
+            personalization: i.personalization ?? undefined,
           })),
         },
       });
@@ -445,8 +447,13 @@ function CheckoutPage() {
             <div className="space-y-2 text-sm">
 
               {items.map((i) => (
-                <div key={`${i.product_id}-${i.variant_id ?? ""}`} className="flex justify-between gap-2">
-                  <span className="line-clamp-2 flex-1">{i.name} <span className="text-muted-foreground">×{i.quantity}</span></span>
+                <div key={`${i.product_id}-${i.variant_id ?? ""}-${i.personalization ?? ""}`} className="flex justify-between gap-2">
+                  <span className="flex-1">
+                    <span className="line-clamp-2">{formatProductName(i.name)} <span className="text-muted-foreground">×{i.quantity}</span></span>
+                    {i.personalization && (
+                      <span className="block text-xs text-muted-foreground">Bordado: <strong className="text-foreground">{i.personalization}</strong></span>
+                    )}
+                  </span>
                   <span className="font-semibold">{formatBRL(i.unit_price * i.quantity)}</span>
                 </div>
               ))}

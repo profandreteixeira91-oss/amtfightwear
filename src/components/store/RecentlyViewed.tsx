@@ -3,6 +3,7 @@ import { Clock3 } from "lucide-react";
 import { ProductImage } from "@/components/store/ProductImage";
 import { useRecentProducts } from "@/lib/store/recent";
 import { formatMoney } from "@/lib/store/pricing";
+import { formatProductName } from "@/lib/store/product-name";
 
 /** Vitrine "Vistos recentemente" — aparece somente quando há histórico local. */
 export function RecentlyViewed({ excludeId, title = "Vistos recentemente" }: { excludeId?: string; title?: string }) {
@@ -28,12 +29,12 @@ export function RecentlyViewed({ excludeId, title = "Vistos recentemente" }: { e
             <div className="overflow-hidden rounded-xl border bg-background">
               <ProductImage
                 src={p.image_url}
-                alt={p.name}
+                alt={formatProductName(p.name)}
                 aspect="square"
                 imgClassName="transition-transform duration-300 group-hover:scale-105"
               />
             </div>
-            <p className="mt-2 line-clamp-2 text-xs font-semibold leading-snug">{p.name}</p>
+            <p className="mt-2 line-clamp-2 text-xs font-semibold leading-snug">{formatProductName(p.name)}</p>
             <p className="text-xs font-black text-primary">{formatMoney(p.price)}</p>
           </Link>
         ))}
