@@ -23,23 +23,13 @@ export function friendlyMpError(raw: string): string {
 
 /** Token da conta Mercado Pago da loja. */
 function storeToken(): string {
-  const key =
-    process.env.STORE_MERCADOPAGO_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN;
+  const key = process.env.STORE_MERCADOPAGO_ACCESS_TOKEN;
   if (!key) throw new Error("STORE_MERCADOPAGO_ACCESS_TOKEN não configurada");
   return key;
 }
 
-/** Token de fallback (conta global) usado só quando a conta da loja não tem Pix. */
-function fallbackToken(): string | null {
-  const store = process.env.STORE_MERCADOPAGO_ACCESS_TOKEN;
-  const global = process.env.MERCADOPAGO_ACCESS_TOKEN;
-  if (process.env.STORE_PIX_FALLBACK_GLOBAL === "false") return null;
-  if (!global || !store || global === store) return null;
-  return global;
-}
-
-async function mp<T = any>(path: string, init?: RequestInit, tokenOverride?: string): Promise<T> {
-  const key = tokenOverride || storeToken();
+async function mp<T = any>(path: string, init?: RequestInit): Promise<T> {
+  const key = storeToken();
   const res = await fetch(`${MP_BASE}${path}`, {
     ...init,
     headers: {
@@ -66,35 +56,20 @@ async function mp<T = any>(path: string, init?: RequestInit, tokenOverride?: str
   return body as T;
 }
 
-/** Cria um pagamento; se a conta da loja não tiver chave Pix, tenta a conta global. */
+/** Cria um pagamento na conta Mercado Pago da loja (o webhook relê com o mesmo token). */
 async function createPayment(
   payload: Record<string, any>,
   headers: Record<string, string>,
 ): Promise<any> {
-  const body = JSON.stringify(payload);
   try {
-    return await mp<any>(`/v1/payments`, { method: "POST", headers, body });
+    return await mp<any>(`/v1/payments`, { method: "POST", headers, body: JSON.stringify(payload) });
   } catch (e) {
-    const raw = (e as Error).message ?? "";
-    const isPixKeyIssue =
-      /without key enabled for qr|financial identity/i.test(raw) &&
-      payload.payment_method_id === "pix";
-    const fb = isPixKeyIssue ? fallbackToken() : null;
-    if (!fb) throw new Error(friendlyMpError(raw));
-    try {
-      return await mp<any>(
-        `/v1/payments`,
-        { method: "POST", headers: { ...headers, "X-Idempotency-Key": `${headers["X-Idempotency-Key"]}-fb` }, body },
-        fb,
-      );
-    } catch (e2) {
-      throw new Error(friendlyMpError((e2 as Error).message ?? raw));
-    }
+    throw new Error(friendlyMpError((e as Error).message ?? ""));
   }
 }
 
 function storePublicKey(): string {
-  const key = process.env.STORE_MERCADOPAGO_PUBLIC_KEY || process.env.MERCADOPAGO_PUBLIC_KEY;
+  const key = process.env.STORE_MERCADOPAGO_PUBLIC_KEY;
   if (!key) throw new Error("STORE_MERCADOPAGO_PUBLIC_KEY não configurada");
   return key;
 }
@@ -131,7 +106,7 @@ async function createCardToken(card: {
   document: string;
 }): Promise<string> {
   const publicKey =
-    process.env.STORE_MERCADOPAGO_PUBLIC_KEY || process.env.MERCADOPAGO_PUBLIC_KEY;
+    process.env.STORE_MERCADOPAGO_PUBLIC_KEY;
   if (!publicKey) throw new Error("STORE_MERCADOPAGO_PUBLIC_KEY não configurada");
   const res = await fetch(`${MP_BASE}/v1/card_tokens?public_key=${publicKey}`, {
     method: "POST",
