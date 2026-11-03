@@ -10,6 +10,9 @@ import {
 import type { OrderType, Stage, Urgency } from "@/lib/store/production-stages";
 
 import { requireStoreOwner } from "@/lib/auth/owner-middleware";
+import { BELT_COLORS } from "@/lib/store/belt";
+
+const BELT_COLOR_KEYS = Object.keys(BELT_COLORS) as [keyof typeof BELT_COLORS, ...(keyof typeof BELT_COLORS)[]];
 export type ProductionJob = {
   id: string;
   source: "order" | "quote" | "manual";
@@ -322,23 +325,40 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
         unit_price: z.number().min(0).max(10000000).nullable().optional(),
         rework: z.boolean().optional(),
         stageAssignee: z.string().trim().max(160).nullable().optional(),
+        /** Correção manual do desenho da faixa; null volta à leitura pelo nome. */
+        belt: z
+          .object({
+            color: z.enum(BELT_COLOR_KEYS).nullable().optional(),
+            stripe: z.enum(BELT_COLOR_KEYS).nullable().optional(),
+            tips: z.enum(BELT_COLOR_KEYS).nullable().optional(),
+            bar: z.enum([...BELT_COLOR_KEYS, "autismo"]).nullable().optional(),
+          })
+          .nullable()
+          .optional(),
       })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { id, rework, stageAssignee, ...patch } = data;
+    const { id, rework, stageAssignee, belt, ...patch } = data;
     const update: Record<string, unknown> = { ...patch };
     if (patch.deadline === "") update["deadline"] = null;
 
     const { data: current, error: curErr } = await context.supabase
       .from("store_production_jobs")
-      .select("stage, stage_assignees, rework_count, started_at, quantity, unit_price")
+      .select("stage, stage_assignees, rework_count, started_at, quantity, unit_price, custom_config")
       .eq("id", id)
       .maybeSingle();
     if (curErr) throw new Error(curErr.message);
     if (!current) throw new Error("Item não encontrado na fila.");
 
     if (rework) update["rework_count"] = Number(current.rework_count ?? 0) + 1;
+
+    if (belt !== undefined) {
+      const config = { ...((current.custom_config ?? {}) as Record<string, unknown>) };
+      for (const k of ["belt_color", "belt_stripe", "belt_tips", "belt_bar"]) if (belt === null) delete config[k];
+      if (belt) for (const [k, v] of Object.entries(belt)) if (v !== undefined) config[`belt_${k}`] = v;
+      update["custom_config"] = Object.keys(config).length ? config : null;
+    }
 
     if (stageAssignee !== undefined) {
       const map = { ...((current.stage_assignees ?? {}) as Record<string, string>) };

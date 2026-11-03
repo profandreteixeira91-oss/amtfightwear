@@ -19,6 +19,7 @@ import {
   Timer,
   Trash2,
   Users,
+  ListChecks,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,7 @@ import { ProductionKanban } from "@/components/store/production/ProductionKanban
 import { ProductionDetailSheet } from "@/components/store/production/ProductionDetailSheet";
 import { ProductionPerformance } from "@/components/store/production/ProductionPerformance";
 import { ProductionScanner } from "@/components/store/production/ProductionScanner";
-import { printProductionLabels, printProductionSheet } from "@/lib/store/production-print";
+import { printProductionLabels, printProductionSheet, printSeparationList } from "@/lib/store/production-print";
 
 export const Route = createFileRoute("/_authenticated/admin/producao")({
   component: ProductionQueuePage,
@@ -341,6 +342,21 @@ function ProductionQueuePage() {
       eyebrow="AMT Fight Wear"
       actions={
         <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            title="Soma as peças por faixa, cor e tamanho. Usa os itens selecionados ou, sem seleção, a fila filtrada (sem finalizados)."
+            onClick={() => {
+              const scope = selectedJobs.length ? selectedJobs : filtered.filter((j) => j.stage !== "finalizado");
+              if (!scope.length) {
+                toast.info("Nenhum item na fila para separar.");
+                return;
+              }
+              printSeparationList(scope);
+            }}
+          >
+            <ListChecks className="h-4 w-4" /> Lista de separação{selectedJobs.length ? ` (${selectedJobs.length})` : ""}
+          </Button>
           <Button variant="outline" className="gap-2" onClick={() => setScanning(true)}>
             <QrCode className="h-4 w-4" /> Escanear
           </Button>
@@ -709,7 +725,12 @@ function ProductionQueuePage() {
         </TabsContent>
       </Tabs>
 
-      <ProductionDetailSheet job={openJob} onClose={() => setOpenJob(null)} onChanged={invalidate} />
+      {/* Versão atualizada da fila: o painel reflete na hora o que foi salvo nele. */}
+      <ProductionDetailSheet
+        job={openJob ? (jobs.find((j) => j.id === openJob.id) ?? openJob) : null}
+        onClose={() => setOpenJob(null)}
+        onChanged={invalidate}
+      />
       <ProductionScanner open={scanning} onClose={() => setScanning(false)} onDecoded={handleScan} />
     </PageShell>
   );

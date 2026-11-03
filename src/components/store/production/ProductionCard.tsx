@@ -15,6 +15,8 @@ import {
 } from "@/lib/store/production-stages";
 import type { OrderType, Urgency } from "@/lib/store/production-stages";
 import type { ProductionJob } from "@/lib/store/production.functions";
+import { DISCIPLINE_LABEL, EMBROIDERY_LABEL, beltColorText, jobBelt } from "@/lib/store/belt";
+import { BeltSwatch } from "./BeltSwatch";
 
 export type CardMeta = {
   /** Itens do mesmo pedido, para o resumo "Total: X itens". */
@@ -63,6 +65,7 @@ export function ProductionCard({
   const stuckSeconds = (Date.now() - new Date(job.stage_started_at).getTime()) / 1000;
   const stuck = stuckSeconds > 8 * 3600 && job.stage !== "finalizado";
   const big = Number(job.quantity) >= 20;
+  const belt = jobBelt(job);
 
   return (
     <div
@@ -112,6 +115,21 @@ export function ProductionCard({
             ) : null}
           </p>
         </div>
+        {belt ? (
+          <div className="mt-2 space-y-1 pl-5">
+            <div className="flex items-center gap-2">
+              <BeltSwatch spec={belt} className="h-4" />
+              {belt.size ? (
+                <span className="shrink-0 rounded bg-foreground px-1.5 text-[11px] font-bold leading-5 text-background">{belt.size}</span>
+              ) : null}
+            </div>
+            <p className={`text-[11px] ${belt.color ? "text-muted-foreground" : "font-semibold text-amber-600"}`}>
+              {DISCIPLINE_LABEL[belt.discipline]} · {beltColorText(belt)}
+              {belt.kids ? " · infantil" : ""}
+              {belt.embroidery && belt.embroidery !== "nome" ? ` · ${EMBROIDERY_LABEL[belt.embroidery]}` : ""}
+            </p>
+          </div>
+        ) : null}
         {meta && meta.siblings > 1 ? (
           <p className="mt-1 pl-5 text-[11px] text-muted-foreground">
             Pedido com {meta.siblings} itens · {meta.totalPieces} peças

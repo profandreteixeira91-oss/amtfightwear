@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BELT_COLORS, BELT_COLOR_ORDER, DISCIPLINE_LABEL, beltColorText, jobBelt } from "@/lib/store/belt";
+import { BeltSwatch } from "./BeltSwatch";
+
+const NONE = "__none";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ArrowRight, MessageSquarePlus, Printer, RotateCcw, Tag } from "lucide-react";
@@ -92,6 +96,8 @@ export function ProductionDetailSheet({
   });
 
   if (!job) return null;
+  const belt = jobBelt(job);
+  const hasBeltOverride = Object.keys(job.custom_config ?? {}).some((k) => k.startsWith("belt_"));
   const events = data?.events ?? [];
   const comments = data?.comments ?? [];
 
@@ -136,6 +142,60 @@ export function ProductionDetailSheet({
             <Tag className="h-4 w-4" /> Etiqueta
           </Button>
         </div>
+
+        {belt ? (
+          <div className="mt-4 space-y-3 rounded-lg border p-3">
+            <div className="flex items-center gap-3">
+              <BeltSwatch spec={belt} className="h-6 max-w-[240px]" />
+              {belt.size ? (
+                <span className="rounded bg-foreground px-2 text-sm font-bold leading-6 text-background">{belt.size}</span>
+              ) : null}
+            </div>
+            <p className={`text-sm ${belt.color ? "" : "font-semibold text-amber-600"}`}>
+              {DISCIPLINE_LABEL[belt.discipline]} · {beltColorText(belt)}
+              {belt.kids ? " · infantil" : ""}
+              {belt.line ? ` · Linha ${belt.line}` : ""}
+            </p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {(
+                [
+                  ["color", "Cor", false],
+                  ["stripe", "Listra (com)", true],
+                  ["tips", "Pontas", true],
+                  ["bar", "Ponteira", true],
+                ] as const
+              ).map(([key, label, optional]) => (
+                <div key={key}>
+                  <Label className="text-xs">{label}</Label>
+                  <Select
+                    value={belt[key] ?? NONE}
+                    onValueChange={(v) => patch.mutate({ belt: { [key]: v === NONE ? null : v } })}
+                  >
+                    <SelectTrigger className="h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {optional || !belt.color ? <SelectItem value={NONE}>{optional ? "Sem" : "A definir"}</SelectItem> : null}
+                      {key === "bar" ? <SelectItem value="autismo">Autismo</SelectItem> : null}
+                      {BELT_COLOR_ORDER.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {BELT_COLORS[c].label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+            {hasBeltOverride ? (
+              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => patch.mutate({ belt: null })}>
+                Voltar à leitura pelo nome do produto
+              </Button>
+            ) : (
+              <p className="text-[11px] text-muted-foreground">Lido do nome do produto. Ajuste aqui se o desenho não bater.</p>
+            )}
+          </div>
+        ) : null}
 
         <Separator className="my-4" />
 
