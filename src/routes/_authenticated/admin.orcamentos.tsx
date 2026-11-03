@@ -32,6 +32,7 @@ import { PageShell } from "@/components/common/PageShell";
 import { StatCard } from "@/components/common/StatCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
+import { useConfirm } from "@/components/common/ConfirmDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
   // Permite abrir já filtrado (ex.: card "Orçamentos sem resposta" do Início).
@@ -123,6 +124,9 @@ function QuotesPage() {
   const [form, setForm] = useState(emptyForm());
   const [pickerOpen, setPickerOpen] = useState(false);
   const [sizeTarget, setSizeTarget] = useState<{ index: number; presetKey: string | null } | null>(null);
+  // Estado do formulário ao abrir o editor: fechar com alterações pede confirmação.
+  const [formSnapshot, setFormSnapshot] = useState("");
+  const [confirmDiscard, confirmDiscardDialog] = useConfirm();
 
   const quotes = useQuery({ queryKey: ["store", "quotes"], queryFn: () => listFn() });
   const products = useQuery({ queryKey: ["store", "products-min"], queryFn: () => productsFn() });
@@ -157,19 +161,21 @@ function QuotesPage() {
 
   const openNew = () => {
     const s: any = settings.data ?? {};
-    setForm({
+    const next = {
       ...emptyForm(),
       payment_terms: s.payment_terms || "",
       delivery_terms: s.delivery_terms || "",
       signer_name: s.signer_name || "",
       signer_role: s.signer_role || "",
       signature_image: s.signature_image || "",
-    });
+    };
+    setForm(next);
+    setFormSnapshot(JSON.stringify(next));
     setEditorOpen(true);
   };
 
   const openEdit = (r: any) => {
-    setForm({
+    const next = {
       id: r.id,
       quote_number: r.quote_number ?? "",
       status: r.status ?? "draft",
@@ -189,8 +195,23 @@ function QuotesPage() {
       signer_name: r.signer_name ?? "",
       signer_role: r.signer_role ?? "",
       signature_image: r.signature_image ?? "",
-    });
+    };
+    setForm(next);
+    setFormSnapshot(JSON.stringify(next));
     setEditorOpen(true);
+  };
+
+  const requestCloseEditor = async () => {
+    if (busy) return;
+    if (JSON.stringify(form) !== formSnapshot) {
+      const ok = await confirmDiscard({
+        title: "Descartar as alterações do orçamento?",
+        description: "Você fez alterações que ainda não foram salvas.",
+        confirmLabel: "Descartar",
+      });
+      if (!ok) return;
+    }
+    setEditorOpen(false);
   };
 
   const addProduct = (id: string) => {
@@ -450,8 +471,12 @@ function QuotesPage() {
       </PageShell>
 
       {/* Editor */}
-      <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-        <DialogContent className="max-h-[92vh] max-w-4xl overflow-y-auto">
+      <Dialog open={editorOpen} onOpenChange={(o) => { if (o) setEditorOpen(true); else void requestCloseEditor(); }}>
+        <DialogContent
+          className="max-h-[92vh] max-w-4xl overflow-y-auto"
+          // Clique fora (fundo escuro, avisos na tela) nunca fecha o orçamento.
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>{form.id ? `Editar ${form.quote_number}` : "Novo orçamento"}</DialogTitle>
             <DialogDescription>Preencha os dados do cliente, escolha os produtos e ajuste valores.</DialogDescription>
@@ -565,8 +590,7 @@ function QuotesPage() {
                       <div className="grid gap-2 sm:grid-cols-[1fr_90px_120px_110px_36px] sm:items-end">
                         <div>
                           <Label className="text-[10px] uppercase text-muted-foreground">Produto</Label>
-                          <Input className="h-9" value={it.name} onChange={(e) => updItem(i, { name: e.target.value })} placeholder="Nome do item"
-                            onBlur={() => { if (!it.product_id && detectPresetKey(it.name) && !/— Tam\. /.test(it.name)) openSizesFor(i); }} />
+                          <Input className="h-9" value={it.name} onChange={(e) => updItem(i, { name: e.target.value })} placeholder="Nome do item" />
                         </div>
                         <div>
                           <Label className="text-[10px] uppercase text-muted-foreground">Qtd</Label>
@@ -692,7 +716,7 @@ function QuotesPage() {
             </section>
 
             <div className="sticky bottom-0 flex flex-wrap justify-end gap-2 border-t bg-card pt-3">
-              <Button variant="ghost" onClick={() => setEditorOpen(false)} disabled={busy}>Cancelar</Button>
+              <Button variant="ghost" onClick={() => void requestCloseEditor()} disabled={busy}>Cancelar</Button>
               <Button variant="outline" onClick={save} disabled={busy}>
                 <Save className="mr-1.5 h-4 w-4" /> Salvar
               </Button>
@@ -701,26 +725,29 @@ function QuotesPage() {
               </Button>
             </div>
           </div>
+
+          {/* Diálogos filhos ficam DENTRO do editor: assim, clicar neles não conta como clique
+              fora do orçamento (o Radix fechava o orçamento ao fechar a grade de tamanhos). */}
+          <CatalogPicker
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            products={products.data ?? []}
+            categories={categories.data ?? []}
+            selectedIds={form.items.map((i) => i.product_id).filter(Boolean) as string[]}
+            onAdd={addProduct}
+          />
+
+          <QuoteSizeGridDialog
+            open={sizeTarget !== null}
+            onOpenChange={(v) => { if (!v) setSizeTarget(null); }}
+            productName={sizeTarget ? form.items[sizeTarget.index]?.name ?? "" : ""}
+            defaultPrice={sizeTarget ? form.items[sizeTarget.index]?.unit_price ?? 0 : 0}
+            initialPresetKey={sizeTarget?.presetKey ?? null}
+            onConfirm={(lines) => { if (sizeTarget) applySizes(sizeTarget.index, lines); }}
+          />
+          {confirmDiscardDialog}
         </DialogContent>
       </Dialog>
-
-      <CatalogPicker
-        open={pickerOpen}
-        onOpenChange={setPickerOpen}
-        products={products.data ?? []}
-        categories={categories.data ?? []}
-        selectedIds={form.items.map((i) => i.product_id).filter(Boolean) as string[]}
-        onAdd={addProduct}
-      />
-
-      <QuoteSizeGridDialog
-        open={sizeTarget !== null}
-        onOpenChange={(v) => { if (!v) setSizeTarget(null); }}
-        productName={sizeTarget ? form.items[sizeTarget.index]?.name ?? "" : ""}
-        defaultPrice={sizeTarget ? form.items[sizeTarget.index]?.unit_price ?? 0 : 0}
-        initialPresetKey={sizeTarget?.presetKey ?? null}
-        onConfirm={(lines) => { if (sizeTarget) applySizes(sizeTarget.index, lines); }}
-      />
 
 
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
@@ -42,11 +42,19 @@ export function QuoteSizeGridDialog({ open, onOpenChange, productName, defaultPr
   const list: SizePreset[] = presets.data ?? [];
   const preset = useMemo(() => list.find((p) => p.category_key === presetKey) ?? null, [list, presetKey]);
 
+  // Inicializa uma única vez por abertura, quando os tamanhos chegam. Antes, a lista vazia
+  // (nova a cada render) reiniciava a grade sem parar e apagava as quantidades digitadas.
+  const initialized = useRef(false);
   useEffect(() => {
-    if (!open) return;
-    setPresetKey(initialPresetKey ?? list[0]?.category_key ?? "");
+    if (!open) {
+      initialized.current = false;
+      return;
+    }
+    if (initialized.current || !presets.data) return;
+    initialized.current = true;
+    setPresetKey(initialPresetKey ?? presets.data[0]?.category_key ?? "");
     setRows({});
-  }, [open, initialPresetKey, list]);
+  }, [open, initialPresetKey, presets.data]);
 
   const rowOf = (size: string): Row => rows[size] ?? { quantity: "", price: defaultPrice };
   const setRow = (size: string, patch: Partial<Row>) =>

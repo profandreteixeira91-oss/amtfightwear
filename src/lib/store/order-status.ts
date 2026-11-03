@@ -8,7 +8,7 @@ export const orderStatusLabel: Record<string, string> = {
   cancelled: "Cancelado",
   canceled: "Cancelado",
   refunded: "Reembolsado",
-  completed: "Concluído",
+  completed: "Finalizado",
   pending: "Pendente",
 };
 
@@ -30,9 +30,10 @@ export const orderStatusBadgeClass = (status: string | null | undefined) => {
   const s = String(status || "").toLowerCase();
   switch (s) {
     case "paid":
-    case "completed":
     case "delivered":
       return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300";
+    case "completed":
+      return "bg-slate-200 text-slate-800 dark:bg-slate-500/20 dark:text-slate-200";
     case "preparing":
     case "processing":
       return "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300";
@@ -78,6 +79,7 @@ export const orderStatusOptions: { value: string; label: string }[] = [
   { value: "processing", label: "Em produção" },
   { value: "shipped", label: "Enviado" },
   { value: "delivered", label: "Entregue" },
+  { value: "completed", label: "Finalizado" },
   { value: "cancelled", label: "Cancelado" },
 ];
 

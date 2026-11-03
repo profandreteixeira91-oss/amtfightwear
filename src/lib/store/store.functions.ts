@@ -692,8 +692,13 @@ const OrderListFilterSchema = z
   .object({
     q: z.string().trim().max(120).optional(),
     statuses: z.array(z.string().max(40)).max(10).optional(),
+    /** true = só arquivados; padrão = fila sem os arquivados. */
+    archived: z.boolean().optional(),
   })
   .default({});
+
+/** A coluna archived_at ainda não existe (migration 20261103120000 não aplicada). */
+const missingArchivedColumn = (error: { message?: string } | null) => !!error?.message?.includes("archived_at");
 
 /**
  * Busca textual em pedidos via filtro `or` do PostgREST. Remove os caracteres
@@ -715,17 +720,22 @@ export const adminListOrders = createServerFn({ method: "GET" })
   .handler(async ({ context, data: filter }) => {
     // Só as colunas da listagem: payment_raw, melhor_envio_data e o QR Pix em base64
     // pesavam centenas de KB a cada atualização automática da tela.
-    let query = context.supabase
-      .from("store_orders")
-      .select(
-        "id, order_number, customer_name, customer_email, customer_phone, total, payment_status, payment_method, status, created_at, melhor_envio_service_name, melhor_envio_status, melhor_envio_cart_id, melhor_envio_order_id, melhor_envio_label_url, shipping_tracking",
-      )
-      .order("created_at", { ascending: false })
-      .limit(200);
-    const search = orderSearchFilter(filter.q);
-    if (search) query = query.or(search);
-    if (filter.statuses?.length) query = query.in("status", filter.statuses);
-    const { data } = await query;
+    const COLUMNS =
+      "id, order_number, customer_name, customer_email, customer_phone, total, payment_status, payment_method, status, created_at, melhor_envio_service_name, melhor_envio_status, melhor_envio_cart_id, melhor_envio_order_id, melhor_envio_label_url, shipping_tracking" as const;
+    const run = (withArchive: boolean) => {
+      let query = context.supabase
+        .from("store_orders")
+        .select((withArchive ? `${COLUMNS}, archived_at` : COLUMNS) as typeof COLUMNS)
+        .order("created_at", { ascending: false })
+        .limit(200);
+      const search = orderSearchFilter(filter.q);
+      if (search) query = query.or(search);
+      if (filter.statuses?.length) query = query.in("status", filter.statuses);
+      if (withArchive) query = filter.archived ? query.not("archived_at", "is", null) : query.is("archived_at", null);
+      return query;
+    };
+    const { data, error } = await run(true);
+    if (missingArchivedColumn(error)) return filter.archived ? [] : ((await run(false)).data ?? []);
     return data ?? [];
   });
 
@@ -734,14 +744,54 @@ export const adminCountOrdersByStatus = createServerFn({ method: "GET" })
   .middleware([requireStoreOwner])
   .validator((i: unknown) => OrderListFilterSchema.parse(i ?? {}))
   .handler(async ({ context, data: filter }) => {
-    let query = context.supabase.from("store_orders").select("status").limit(20000);
-    const search = orderSearchFilter(filter.q);
-    if (search) query = query.or(search);
-    const { data, error } = await query;
+    const run = (columns: string) => {
+      let query = context.supabase.from("store_orders").select(columns).limit(20000);
+      const search = orderSearchFilter(filter.q);
+      if (search) query = query.or(search);
+      return query;
+    };
+    let { data, error } = await run("status, archived_at");
+    if (missingArchivedColumn(error)) ({ data, error } = await run("status"));
     if (error) throw new Error(error.message);
-    const counts: Record<string, number> = {};
-    for (const row of data ?? []) counts[row.status] = (counts[row.status] ?? 0) + 1;
-    return counts;
+    // Arquivados não entram nas abas da fila; ficam só no total `archived`.
+    const statuses: Record<string, number> = {};
+    let archived = 0;
+    for (const row of (data ?? []) as unknown as Array<{ status: string; archived_at?: string | null }>) {
+      if (row.archived_at) archived++;
+      else statuses[row.status] = (statuses[row.status] ?? 0) + 1;
+    }
+    return { statuses, archived };
+  });
+
+/**
+ * Arquiva pedidos finalizados (saem da fila, nada é apagado) ou os devolve à fila.
+ * `all_completed` arquiva de uma vez todos os finalizados ainda não arquivados.
+ */
+export const adminArchiveOrders = createServerFn({ method: "POST" })
+  .middleware([requireStoreOwner])
+  .validator((i: unknown) =>
+    z
+      .object({
+        archive: z.boolean(),
+        ids: z.array(z.string().uuid()).max(500).optional(),
+        all_completed: z.boolean().optional(),
+      })
+      .refine((v) => v.all_completed || (v.ids?.length ?? 0) > 0, "Selecione os pedidos.")
+      .parse(i),
+  )
+  .handler(async ({ context, data }) => {
+    if (!data.archive && !data.ids?.length) throw new Error("Selecione os pedidos.");
+    let query = context.supabase
+      .from("store_orders")
+      .update({ archived_at: data.archive ? new Date().toISOString() : null });
+    if (data.archive) query = query.eq("status", "completed").is("archived_at", null);
+    if (data.ids?.length) query = query.in("id", data.ids);
+    const { data: rows, error } = await query.select("id");
+    if (missingArchivedColumn(error)) {
+      throw new Error("Arquivamento ainda não ativado: rode a migration 20261103120000_pedidos_arquivados.sql no Supabase.");
+    }
+    if (error) throw new Error(error.message);
+    return { count: rows?.length ?? 0 };
   });
 
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
@@ -757,6 +807,10 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
       .select("id, order_number, status, payment_status, total, customer_name")
       .single();
     if (error) throw new Error(error.message);
+    // Arquivado que deixou de ser Finalizado volta para a fila (erro ignorado se a coluna ainda não existir).
+    if (data.status !== "completed") {
+      await context.supabase.from("store_orders").update({ archived_at: null }).eq("id", data.id).not("archived_at", "is", null);
+    }
 
     try {
       const { logOrderEvent } = await import("@/lib/store/order-events.server");

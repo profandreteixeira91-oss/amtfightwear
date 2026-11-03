@@ -12886,6 +12886,7 @@ export type Database = {
       }
       store_orders: {
         Row: {
+          archived_at: string | null
           asaas_boleto_url: string | null
           asaas_customer_id: string | null
           asaas_invoice_url: string | null
@@ -12940,6 +12941,7 @@ export type Database = {
           whatsapp_notified: Json
         }
         Insert: {
+          archived_at?: string | null
           asaas_boleto_url?: string | null
           asaas_customer_id?: string | null
           asaas_invoice_url?: string | null
@@ -12994,6 +12996,7 @@ export type Database = {
           whatsapp_notified?: Json
         }
         Update: {
+          archived_at?: string | null
           asaas_boleto_url?: string | null
           asaas_customer_id?: string | null
           asaas_invoice_url?: string | null

@@ -3,6 +3,7 @@ import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-quer
 import {
   adminListOrders,
   adminCountOrdersByStatus,
+  adminArchiveOrders,
   adminUpdateOrderStatus,
   adminDeleteStoreOrder,
 } from "@/lib/store/store.functions";
@@ -72,6 +73,8 @@ import {
   MessageCircle,
   ShoppingCart,
   X,
+  Archive,
+  ArchiveRestore,
 } from "lucide-react";
 import { MelhorEnvioBalanceDialog } from "@/components/store/MelhorEnvioBalanceDialog";
 import { TrackingWhatsAppDialog } from "@/components/store/TrackingWhatsAppDialog";
@@ -99,8 +102,11 @@ const TABS = [
   { key: "enviar", label: "A preparar/enviar", statuses: ["paid", "preparing"] },
   { key: "producao", label: "Em produção", statuses: ["processing"] },
   { key: "enviados", label: "Enviados", statuses: ["shipped"] },
-  { key: "concluidos", label: "Concluídos", statuses: ["delivered", "completed"] },
+  { key: "entregues", label: "Entregues", statuses: ["delivered"] },
+  { key: "finalizados", label: "Finalizados", statuses: ["completed"] },
   { key: "cancelados", label: "Cancelados", statuses: ["cancelled", "canceled", "refunded"] },
+  // Pedidos finalizados arquivados: fora da fila, sem apagar nada.
+  { key: "arquivados", label: "Arquivados", statuses: null },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -153,6 +159,7 @@ type Order = {
   melhor_envio_order_id?: string | null;
   melhor_envio_label_url?: string | null;
   shipping_tracking?: string | null;
+  archived_at?: string | null;
 };
 
 function AdminOrdersPage() {
@@ -166,6 +173,8 @@ function AdminOrdersPage() {
   const countFn = useServerFn(adminCountOrdersByStatus);
   const update = useServerFn(adminUpdateOrderStatus);
   const del = useServerFn(adminDeleteStoreOrder);
+  const archiveFn = useServerFn(adminArchiveOrders);
+  const isArchivedTab = tab === "arquivados";
   const balanceFn = useServerFn(adminMelhorEnvioBalance);
 
   const setSearch = (next: OrdersSearch) =>
@@ -187,7 +196,11 @@ function AdminOrdersPage() {
     queryKey: ["admin", "store", "orders", "list", { q, tab }],
     queryFn: async () =>
       (await list({
-        data: { q: q || undefined, statuses: tabStatuses ? [...tabStatuses] : undefined },
+        data: {
+          q: q || undefined,
+          statuses: tabStatuses ? [...tabStatuses] : undefined,
+          archived: isArchivedTab || undefined,
+        },
       })) as Order[],
     placeholderData: keepPreviousData,
     refetchInterval: ADMIN_REFRESH.queue,
@@ -209,7 +222,7 @@ function AdminOrdersPage() {
   const visible = useMemo(() => data ?? [], [data]);
 
   const counts = useMemo(() => {
-    const byStatus = statusCounts.data ?? {};
+    const byStatus = statusCounts.data?.statuses ?? {};
     const out = {} as Record<TabKey, number>;
     for (const t of TABS) {
       const statuses = t.statuses as readonly string[] | null;
@@ -217,6 +230,7 @@ function AdminOrdersPage() {
         .filter(([s]) => !statuses || statuses.includes(s))
         .reduce((a, [, n]) => a + n, 0);
     }
+    out.arquivados = statusCounts.data?.archived ?? 0;
     return out;
   }, [statusCounts.data]);
   const countsLoading = statusCounts.isLoading;
@@ -230,6 +244,24 @@ function AdminOrdersPage() {
       refreshOrders();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro");
+    }
+  };
+
+  const [archiveBusy, setArchiveBusy] = useState(false);
+  const archive = async (input: { archive: boolean; ids?: string[]; all_completed?: boolean }) => {
+    setArchiveBusy(true);
+    try {
+      const { count } = await archiveFn({ data: input });
+      toast.success(
+        input.archive
+          ? `${count} pedido${count === 1 ? "" : "s"} arquivado${count === 1 ? "" : "s"}`
+          : "Pedido devolvido à fila",
+      );
+      refreshOrders();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro");
+    } finally {
+      setArchiveBusy(false);
     }
   };
 
@@ -379,14 +411,47 @@ function AdminOrdersPage() {
               </button>
             ) : null}
           </div>
-          {!isLoading ? (
-            <div className="text-sm text-muted-foreground">
-              {visible.length} pedido(s) ·{" "}
-              <span className="font-semibold text-foreground">{formatBRL(visibleTotal)}</span>
-            </div>
-          ) : null}
+          <div className="flex flex-wrap items-center gap-3">
+            {!isLoading ? (
+              <div className="text-sm text-muted-foreground">
+                {visible.length} pedido(s) ·{" "}
+                <span className="font-semibold text-foreground">{formatBRL(visibleTotal)}</span>
+              </div>
+            ) : null}
+            {tab === "finalizados" && counts.finalizados > 0 ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="outline" className="gap-2" disabled={archiveBusy}>
+                    <Archive className="h-4 w-4" />
+                    {archiveBusy ? "Arquivando…" : `Arquivar todos os finalizados (${counts.finalizados})`}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Arquivar {counts.finalizados} pedido(s) finalizado(s)?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Eles saem da fila e ficam na aba Arquivados. Nada é apagado e dá para devolver
+                      qualquer pedido à fila depois.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => archive({ archive: true, all_completed: true })}>
+                      Arquivar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : null}
+          </div>
         </div>
       </div>
+
+      {isArchivedTab ? (
+        <p className="text-sm text-muted-foreground">
+          Pedidos finalizados que saíram da fila. Para mudar o status, devolva o pedido à fila.
+        </p>
+      ) : null}
 
       {error ? (
         <ErrorState
@@ -470,7 +535,7 @@ function AdminOrdersPage() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Select value={o.status} onValueChange={(v) => change(o.id, v)}>
+                        <Select value={o.status} onValueChange={(v) => change(o.id, v)} disabled={isArchivedTab}>
                           <SelectTrigger
                             className="h-8 w-44"
                             aria-label={`Status do pedido ${o.order_number}`}
@@ -522,6 +587,30 @@ function AdminOrdersPage() {
                               Ver
                             </Link>
                           </Button>
+                          {isArchivedTab ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 gap-1 px-2 text-xs"
+                              disabled={archiveBusy}
+                              onClick={() => archive({ archive: false, ids: [o.id] })}
+                            >
+                              <ArchiveRestore className="h-3.5 w-3.5" />
+                              Devolver à fila
+                            </Button>
+                          ) : o.status === "completed" ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0 text-muted-foreground"
+                              disabled={archiveBusy}
+                              onClick={() => archive({ archive: true, ids: [o.id] })}
+                              aria-label={`Arquivar pedido ${o.order_number}`}
+                              title="Arquivar"
+                            >
+                              <Archive className="h-4 w-4" />
+                            </Button>
+                          ) : null}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button
