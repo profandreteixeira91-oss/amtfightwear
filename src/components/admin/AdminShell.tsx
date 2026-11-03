@@ -131,6 +131,8 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
   /** Subpáginas exibidas como abas no topo do conteúdo. */
   tabs?: Tab[];
+  /** Tecla de atalho (F2…F6) que abre a página de qualquer tela do admin. */
+  shortcut?: string;
 };
 type NavGroup = { label: string; items: NavItem[] };
 
@@ -140,16 +142,16 @@ const NAV: NavGroup[] = [
     items: [
       { title: "Início", url: "/admin", icon: LayoutDashboard },
       { title: "Analytics", url: "/admin/dashboard", icon: TrendingUp },
-      { title: "Gestão da loja", url: "/admin/loja", icon: Store },
+      { title: "Gestão da loja", url: "/admin/loja", icon: Store, shortcut: "F6" },
     ],
   },
   {
     label: "Vendas",
     items: [
-      { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
-      { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
-      { title: "Produção", url: "/admin/producao", icon: Factory },
-      { title: "Atendimento", url: "/admin/atendimento", icon: MessageCircle },
+      { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart, shortcut: "F2" },
+      { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText, shortcut: "F3" },
+      { title: "Produção", url: "/admin/producao", icon: Factory, shortcut: "F4" },
+      { title: "Atendimento", url: "/admin/atendimento", icon: MessageCircle, shortcut: "F5" },
       { title: "Clientes", url: "/admin/clientes", icon: UserSquare2 },
       { title: "Atacado", url: "/admin/atacado", icon: Boxes },
       { title: "Envios", url: "/admin/envio", icon: Truck },
@@ -272,6 +274,33 @@ const NAV: NavGroup[] = [
 
 const ALL_ITEMS = NAV.flatMap((g) => g.items.map((item) => ({ ...item, group: g.label })));
 
+/** F2 Pedidos · F3 Orçamentos · F4 Produção · F5 Atendimento · F6 Gestão da loja. */
+const SHORTCUTS = new Map(ALL_ITEMS.flatMap((i) => (i.shortcut ? [[i.shortcut, i] as const] : [])));
+
+/**
+ * Atalhos de teclado do admin. Substituem o padrão do navegador nessas teclas
+ * (F5 não recarrega a página no admin). Com uma janela aberta (orçamento, pedido…)
+ * não troca de tela, para não perder o que está sendo preenchido.
+ */
+function useAdminShortcuts() {
+  const navigate = useNavigate();
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const item = SHORTCUTS.get(e.key);
+      if (!item || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+      e.preventDefault();
+      if (e.repeat) return;
+      if (document.querySelector('[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]')) {
+        toast.info("Feche a janela aberta antes de trocar de tela.");
+        return;
+      }
+      void navigate({ to: item.url });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navigate]);
+}
+
 const matches = (pathname: string, url: string) =>
   url === "/admin" ? pathname === "/admin" || pathname === "/admin/" : pathname === url || pathname.startsWith(`${url}/`);
 
@@ -384,7 +413,7 @@ function AdminSidebar() {
                       <SidebarMenuButton
                         asChild
                         isActive={active}
-                        tooltip={count ? `${item.title} · ${count} pendente(s)` : item.title}
+                        tooltip={`${item.title}${count ? ` · ${count} pendente(s)` : ""}${item.shortcut ? ` (${item.shortcut})` : ""}`}
                         className={cn(
                           "h-10 rounded-xl px-2.5 text-[13.5px] font-medium text-white/85 transition-colors",
                           "hover:bg-white/10 hover:text-white",
@@ -399,14 +428,28 @@ function AdminSidebar() {
                             )}
                           </span>
                           <span className="truncate">{item.title}</span>
-                          {count > 0 && !collapsed && (
-                            <span
-                              className={cn(
-                                "ml-auto rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
-                                active ? "bg-primary text-white" : "bg-white/20 text-white",
+                          {!collapsed && (count > 0 || item.shortcut) && (
+                            <span className="ml-auto flex items-center gap-1.5">
+                              {count > 0 && (
+                                <span
+                                  className={cn(
+                                    "rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                                    active ? "bg-primary text-white" : "bg-white/20 text-white",
+                                  )}
+                                >
+                                  {count > 99 ? "99+" : count}
+                                </span>
                               )}
-                            >
-                              {count > 99 ? "99+" : count}
+                              {item.shortcut && (
+                                <kbd
+                                  className={cn(
+                                    "rounded border px-1 font-sans text-[10px] font-semibold leading-4",
+                                    active ? "border-primary/30 text-primary/80" : "border-white/25 text-white/60",
+                                  )}
+                                >
+                                  {item.shortcut}
+                                </kbd>
+                              )}
                             </span>
                           )}
                         </Link>
@@ -491,6 +534,7 @@ function SectionTabs() {
 
 function AdminTopbar({ title }: { title?: string }) {
   const [open, setOpen] = React.useState(false);
+  useAdminShortcuts();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const active = findActive(pathname);
 

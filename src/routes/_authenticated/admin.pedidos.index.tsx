@@ -23,6 +23,8 @@ import {
 } from "@/components/store/ShippingPreparationDialog";
 import { PAID_SHIPPING_STATUSES } from "@/lib/store/shipping-flow";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useConfirm } from "@/components/common/ConfirmDialog";
 import {
   Select,
   SelectContent,
@@ -56,6 +58,7 @@ import {
   paymentStatusLabel,
   paymentStatusBadgeClass,
   orderStatusOptions,
+  orderStatusLabel,
 } from "@/lib/store/order-status";
 import { formatBRDateTime } from "@/lib/dates";
 import { whatsappLink } from "@/features/prospect/utils";
@@ -265,6 +268,84 @@ function AdminOrdersPage() {
     }
   };
 
+  // Seleção para ações em massa: vale só para os pedidos visíveis na aba/busca atual.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  useEffect(() => setSelected(new Set()), [tab, q]);
+  const selectedIds = visible.filter((o) => selected.has(o.id)).map((o) => o.id);
+  const allSelected = visible.length > 0 && selectedIds.length === visible.length;
+  const toggleOne = (id: string, on: boolean) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  const toggleAll = (on: boolean) => setSelected(on ? new Set(visible.map((o) => o.id)) : new Set());
+
+  const [confirmBulk, confirmBulkDialog] = useConfirm();
+  const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
+  const bulkStatus = async (status: string) => {
+    const ids = selectedIds;
+    if (!ids.length) return;
+    const label = orderStatusLabel[status] ?? status;
+    const ok = await confirmBulk({
+      title: `Mudar ${ids.length} pedido(s) para "${label}"?`,
+      description:
+        "O cliente de cada pedido recebe o aviso dessa mudança no WhatsApp e nas notificações (pago, produção, enviado, entregue).",
+      confirmLabel: "Mudar status",
+    });
+    if (!ok) return;
+    let done = 0;
+    const failed: string[] = [];
+    setBulkProgress({ done: 0, total: ids.length });
+    // Um de cada vez: cada mudança registra o histórico e envia os avisos do pedido.
+    for (const id of ids) {
+      try {
+        await update({ data: { id, status } });
+      } catch (e) {
+        failed.push(`${visible.find((o) => o.id === id)?.order_number ?? id}: ${e instanceof Error ? e.message : "erro"}`);
+      }
+      done += 1;
+      setBulkProgress({ done, total: ids.length });
+    }
+    setBulkProgress(null);
+    setSelected(new Set());
+    refreshOrders();
+    const okCount = ids.length - failed.length;
+    if (okCount) toast.success(`${okCount} pedido(s) agora estão "${label}"`);
+    if (failed.length) toast.error(`Não atualizados: ${failed.slice(0, 3).join(" · ")}${failed.length > 3 ? "…" : ""}`);
+  };
+
+  const bulkArchive = async (toArchive: boolean) => {
+    const ids = selectedIds;
+    if (!ids.length) return;
+    const finished = visible.filter((o) => selected.has(o.id) && o.status === "completed").length;
+    if (toArchive && finished === 0) {
+      toast.info("Só pedidos Finalizados podem ser arquivados.");
+      return;
+    }
+    const others = ids.length - finished;
+    const ok = await confirmBulk({
+      title: toArchive ? `Arquivar ${finished} pedido(s) finalizado(s)?` : `Devolver ${ids.length} pedido(s) à fila?`,
+      description: toArchive
+        ? `Saem da fila e ficam na aba Arquivados. Nada é apagado.${others > 0 ? ` ${others} selecionado(s) não estão Finalizados e continuam na fila.` : ""}`
+        : "Eles voltam para as abas de acordo com o status.",
+      confirmLabel: toArchive ? "Arquivar" : "Devolver à fila",
+    });
+    if (!ok) return;
+    setArchiveBusy(true);
+    try {
+      const { count } = await archiveFn({ data: { archive: toArchive, ids } });
+      toast.success(toArchive ? `${count} pedido(s) arquivado(s)` : `${count} pedido(s) devolvido(s) à fila`);
+      setSelected(new Set());
+      refreshOrders();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro");
+    } finally {
+      setArchiveBusy(false);
+    }
+  };
+
   const remove = async (id: string) => {
     try {
       await del({ data: { id } });
@@ -447,6 +528,61 @@ function AdminOrdersPage() {
         </div>
       </div>
 
+      {confirmBulkDialog}
+      {selectedIds.length > 0 ? (
+        <div className="sticky top-16 z-20 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
+          <span className="font-semibold">
+            {bulkProgress
+              ? `Atualizando ${bulkProgress.done}/${bulkProgress.total}…`
+              : `${selectedIds.length} selecionado(s)`}
+          </span>
+          {!isArchivedTab ? (
+            <Select value="" onValueChange={bulkStatus} disabled={!!bulkProgress || archiveBusy}>
+              <SelectTrigger className="h-8 w-52 bg-background" aria-label="Mudar status dos selecionados">
+                <SelectValue placeholder="Mudar status para…" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUSES.map((st) => (
+                  <SelectItem key={st.value} value={st.value}>
+                    {st.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
+          {isArchivedTab ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 gap-1.5 bg-background"
+              disabled={!!bulkProgress || archiveBusy}
+              onClick={() => bulkArchive(false)}
+            >
+              <ArchiveRestore className="h-4 w-4" /> Devolver à fila
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 gap-1.5 bg-background"
+              disabled={!!bulkProgress || archiveBusy}
+              onClick={() => bulkArchive(true)}
+            >
+              <Archive className="h-4 w-4" /> Arquivar
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="ml-auto h-8"
+            disabled={!!bulkProgress}
+            onClick={() => setSelected(new Set())}
+          >
+            Limpar seleção
+          </Button>
+        </div>
+      ) : null}
+
       {isArchivedTab ? (
         <p className="text-sm text-muted-foreground">
           Pedidos finalizados que saíram da fila. Para mudar o status, devolva o pedido à fila.
@@ -491,6 +627,14 @@ function AdminOrdersPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50 hover:bg-muted/50">
+                    <TableHead className="w-10">
+                      <Checkbox
+                        checked={allSelected ? true : selectedIds.length > 0 ? "indeterminate" : false}
+                        onCheckedChange={(v) => toggleAll(v === true)}
+                        disabled={!!bulkProgress}
+                        aria-label="Selecionar todos os pedidos da lista"
+                      />
+                    </TableHead>
                     <TableHead>Pedido</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead className="text-right">Total</TableHead>
@@ -502,7 +646,15 @@ function AdminOrdersPage() {
                 </TableHeader>
                 <TableBody>
                   {visible.map((o) => (
-                    <TableRow key={o.id}>
+                    <TableRow key={o.id} data-state={selected.has(o.id) ? "selected" : undefined}>
+                      <TableCell className="w-10">
+                        <Checkbox
+                          checked={selected.has(o.id)}
+                          onCheckedChange={(v) => toggleOne(o.id, v === true)}
+                          disabled={!!bulkProgress}
+                          aria-label={`Selecionar pedido ${o.order_number}`}
+                        />
+                      </TableCell>
                       <TableCell>
                         <Link
                           to="/admin/pedidos/$orderId"
