@@ -3,6 +3,9 @@ import * as React from "react";
 import {
   LayoutDashboard,
   Store,
+  Briefcase,
+  KanbanSquare,
+  MessagesSquare,
   Package,
   ShoppingCart,
   UserSquare2,
@@ -148,6 +151,9 @@ const NAV: NavGroup[] = [
   {
     label: "Vendas",
     items: [
+      { title: "Central Comercial", url: "/admin/comercial", icon: Briefcase },
+      { title: "WhatsApp", url: "/admin/whatsapp", icon: MessagesSquare },
+      { title: "Pipeline", url: "/admin/crm", icon: KanbanSquare },
       { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart, shortcut: "F2" },
       { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText, shortcut: "F3" },
       { title: "Produção", url: "/admin/producao", icon: Factory, shortcut: "F4" },
@@ -216,7 +222,6 @@ const NAV: NavGroup[] = [
           { title: "Mercado", url: "/admin/marketing/mercado" },
           { title: "Preços", url: "/admin/marketing/precos" },
           { title: "Conteúdo IA", url: "/admin/marketing/conteudo" },
-          { title: "CRM e e-mail", url: "/admin/marketing/crm-email" },
           { title: "Catálogo", url: "/admin/marketing/catalogo" },
         ],
       },
@@ -245,7 +250,6 @@ const NAV: NavGroup[] = [
           { title: "Radar", url: "/admin/leads/busca" },
           { title: "Qualificados", url: "/admin/leads/qualificados" },
           { title: "Segmentos", url: "/admin/leads/macro" },
-          { title: "CRM", url: "/admin/crm" },
           { title: "Logs", url: "/admin/leads/logs" },
           { title: "Configurações", url: "/admin/leads/configuracoes" },
         ],
@@ -332,6 +336,7 @@ function useNavBadges(): Record<string, number> {
     "/admin/orcamentos": data.quotes.sent,
     "/admin/producao": data.production.late,
     "/admin/atendimento": data.chats.human,
+    "/admin/whatsapp": data.chats.whatsappUnread,
   };
 }
 

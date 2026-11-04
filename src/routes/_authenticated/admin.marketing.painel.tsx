@@ -27,7 +27,7 @@ async function fetchOverview() {
     ]);
   const pipeline = (dealRows ?? []).reduce((sum, d: { value: number | null }) => sum + Number(d.value ?? 0), 0);
   const closed = (dealRows ?? [])
-    .filter((d: { stage: string }) => /fechad|conver/i.test(d.stage))
+    .filter((d: { stage: string }) => d.stage === "ganho" || /fechad|conver/i.test(d.stage))
     .reduce((s, d: { value: number | null }) => s + Number(d.value ?? 0), 0);
   return { leads: leads ?? 0, deals: deals ?? 0, products: products ?? 0, pipeline, closed };
 }

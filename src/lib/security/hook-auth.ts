@@ -5,7 +5,7 @@
  * `apikey` do projeto. Este guard apenas rejeita chamadas anônimas vindas da
  * internet — o comportamento das automações permanece exatamente o mesmo.
  *
- * Webhooks de terceiros (Asaas, Mercado Pago, Instagram, Melhor Envio) NÃO usam
+ * Webhooks de terceiros (Asaas, Mercado Pago, Instagram, Melhor Envio, WhatsApp) NÃO usam
  * este guard: eles têm verificação própria de assinatura/token.
  */
 export function checkInternalHookAuth(request: Request): Response | null {

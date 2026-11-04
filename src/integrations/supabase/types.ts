@@ -1863,40 +1863,70 @@ export type Database = {
       }
       crm_deals: {
         Row: {
+          closed_at: string | null
           created_at: string
           customer_id: string | null
           expected_close_at: string | null
           id: string
+          lost_reason: string | null
+          next_action: string | null
+          next_action_at: string | null
           notes: string | null
+          order_id: string | null
+          origin: string | null
           owner_id: string | null
           probability: number
+          product_interest: string | null
+          quantity: number | null
+          quote_id: string | null
           stage: string
+          stage_changed_at: string
           title: string
           updated_at: string
           value: number
         }
         Insert: {
+          closed_at?: string | null
           created_at?: string
           customer_id?: string | null
           expected_close_at?: string | null
           id?: string
+          lost_reason?: string | null
+          next_action?: string | null
+          next_action_at?: string | null
           notes?: string | null
+          order_id?: string | null
+          origin?: string | null
           owner_id?: string | null
           probability?: number
+          product_interest?: string | null
+          quantity?: number | null
+          quote_id?: string | null
           stage?: string
+          stage_changed_at?: string
           title: string
           updated_at?: string
           value?: number
         }
         Update: {
+          closed_at?: string | null
           created_at?: string
           customer_id?: string | null
           expected_close_at?: string | null
           id?: string
+          lost_reason?: string | null
+          next_action?: string | null
+          next_action_at?: string | null
           notes?: string | null
+          order_id?: string | null
+          origin?: string | null
           owner_id?: string | null
           probability?: number
+          product_interest?: string | null
+          quantity?: number | null
+          quote_id?: string | null
           stage?: string
+          stage_changed_at?: string
           title?: string
           updated_at?: string
           value?: number
@@ -2183,43 +2213,82 @@ export type Database = {
       customers: {
         Row: {
           city: string | null
+          company: string | null
           created_at: string
+          document: string | null
           email: string | null
+          email_normalized: string | null
+          first_order_at: string | null
           full_name: string
           id: string
+          last_contact_at: string | null
           last_order_at: string | null
+          name_normalized: string | null
+          needs_review: boolean
+          notes: string | null
           orders_count: number
+          origin: string | null
           phone: string | null
+          phone_normalized: string | null
+          potential: string | null
+          quotes_count: number
           segment: string
           state: string | null
+          tags: string[]
           total_spent: number
           updated_at: string
         }
         Insert: {
           city?: string | null
+          company?: string | null
           created_at?: string
+          document?: string | null
           email?: string | null
+          email_normalized?: string | null
+          first_order_at?: string | null
           full_name: string
           id?: string
+          last_contact_at?: string | null
           last_order_at?: string | null
+          name_normalized?: string | null
+          needs_review?: boolean
+          notes?: string | null
           orders_count?: number
+          origin?: string | null
           phone?: string | null
+          phone_normalized?: string | null
+          potential?: string | null
+          quotes_count?: number
           segment?: string
           state?: string | null
+          tags?: string[]
           total_spent?: number
           updated_at?: string
         }
         Update: {
           city?: string | null
+          company?: string | null
           created_at?: string
+          document?: string | null
           email?: string | null
+          email_normalized?: string | null
+          first_order_at?: string | null
           full_name?: string
           id?: string
+          last_contact_at?: string | null
           last_order_at?: string | null
+          name_normalized?: string | null
+          needs_review?: boolean
+          notes?: string | null
           orders_count?: number
+          origin?: string | null
           phone?: string | null
+          phone_normalized?: string | null
+          potential?: string | null
+          quotes_count?: number
           segment?: string
           state?: string | null
+          tags?: string[]
           total_spent?: number
           updated_at?: string
         }
@@ -12295,6 +12364,7 @@ export type Database = {
           channel: string
           created_at: string
           customer_email: string | null
+          customer_id: string | null
           customer_name: string | null
           customer_phone: string | null
           external_id: string
@@ -12307,6 +12377,7 @@ export type Database = {
           channel: string
           created_at?: string
           customer_email?: string | null
+          customer_id?: string | null
           customer_name?: string | null
           customer_phone?: string | null
           external_id: string
@@ -12319,6 +12390,7 @@ export type Database = {
           channel?: string
           created_at?: string
           customer_email?: string | null
+          customer_id?: string | null
           customer_name?: string | null
           customer_phone?: string | null
           external_id?: string
@@ -12900,6 +12972,7 @@ export type Database = {
           currency: string
           customer_document: string | null
           customer_email: string
+          customer_id: string | null
           customer_name: string
           customer_phone: string | null
           discount: number
@@ -12955,6 +13028,7 @@ export type Database = {
           currency?: string
           customer_document?: string | null
           customer_email: string
+          customer_id?: string | null
           customer_name: string
           customer_phone?: string | null
           discount?: number
@@ -13010,6 +13084,7 @@ export type Database = {
           currency?: string
           customer_document?: string | null
           customer_email?: string
+          customer_id?: string | null
           customer_name?: string
           customer_phone?: string | null
           discount?: number
@@ -13343,6 +13418,7 @@ export type Database = {
           customer_company: string | null
           customer_document: string | null
           customer_email: string | null
+          customer_id: string | null
           customer_name: string
           customer_phone: string | null
           delivery_terms: string | null
@@ -13369,6 +13445,7 @@ export type Database = {
           customer_company?: string | null
           customer_document?: string | null
           customer_email?: string | null
+          customer_id?: string | null
           customer_name?: string
           customer_phone?: string | null
           delivery_terms?: string | null
@@ -13395,6 +13472,7 @@ export type Database = {
           customer_company?: string | null
           customer_document?: string | null
           customer_email?: string | null
+          customer_id?: string | null
           customer_name?: string
           customer_phone?: string | null
           delivery_terms?: string | null
@@ -13610,6 +13688,121 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      whatsapp_chats: {
+        Row: {
+          archived: boolean
+          created_at: string
+          customer_id: string | null
+          follow_up_at: string | null
+          follow_up_note: string | null
+          id: string
+          last_message_at: string | null
+          last_message_from_me: boolean | null
+          last_message_preview: string | null
+          name: string | null
+          phone_normalized: string | null
+          remote_jid: string
+          tags: string[]
+          unread_count: number
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          customer_id?: string | null
+          follow_up_at?: string | null
+          follow_up_note?: string | null
+          id?: string
+          last_message_at?: string | null
+          last_message_from_me?: boolean | null
+          last_message_preview?: string | null
+          name?: string | null
+          phone_normalized?: string | null
+          remote_jid: string
+          tags?: string[]
+          unread_count?: number
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          customer_id?: string | null
+          follow_up_at?: string | null
+          follow_up_note?: string | null
+          id?: string
+          last_message_at?: string | null
+          last_message_from_me?: boolean | null
+          last_message_preview?: string | null
+          name?: string | null
+          phone_normalized?: string | null
+          remote_jid?: string
+          tags?: string[]
+          unread_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_chats_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_messages: {
+        Row: {
+          body: string | null
+          chat_id: string
+          created_at: string
+          from_me: boolean
+          id: string
+          media_mime: string | null
+          media_name: string | null
+          message_id: string
+          quoted_body: string | null
+          sent_at: string
+          status: string | null
+          type: string
+        }
+        Insert: {
+          body?: string | null
+          chat_id: string
+          created_at?: string
+          from_me: boolean
+          id?: string
+          media_mime?: string | null
+          media_name?: string | null
+          message_id: string
+          quoted_body?: string | null
+          sent_at: string
+          status?: string | null
+          type?: string
+        }
+        Update: {
+          body?: string | null
+          chat_id?: string
+          created_at?: string
+          from_me?: boolean
+          id?: string
+          media_mime?: string | null
+          media_name?: string | null
+          message_id?: string
+          quoted_body?: string | null
+          sent_at?: string
+          status?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_chats"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

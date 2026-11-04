@@ -12,7 +12,8 @@
  */
 
 export type EvolutionConfig = { url: string; apiKey: string; instance: string };
-export type SendResult = { ok: true; id: string | null } | { ok: false; error: string };
+/** `jid`: identificador do contato devolvido pelo WhatsApp (muitas vezes um @lid, sem telefone). */
+export type SendResult = { ok: true; id: string | null; jid: string | null } | { ok: false; error: string };
 export type EvolutionState = "open" | "connecting" | "close";
 export type EvolutionQr = { base64: string | null; pairingCode: string | null };
 
@@ -87,25 +88,136 @@ export function normalizeWhatsAppNumber(raw: string | null | undefined): string 
 
 /* --------------------------------- Envio --------------------------------- */
 
+/** Destino aceito pela Evolution: telefone (só dígitos) ou identificador do WhatsApp (…@lid). */
+function recipient(to: string): string | null {
+  return to.includes("@") ? to.trim() : normalizeWhatsAppNumber(to);
+}
+
+/** Registra o envio na caixa de entrada do admin (nunca derruba o envio). */
+async function recordSent(to: string, json: any, fallback: { type: string; body: string | null; mime?: string; name?: string }) {
+  try {
+    const { recordOutgoingMessage } = await import("@/lib/whatsapp/inbox.server");
+    await recordOutgoingMessage(to, json, fallback);
+  } catch (err) {
+    console.error("[whatsapp] não registrou o envio na caixa de entrada", err);
+  }
+}
+
 /**
  * Envia texto. `delay` (ms) faz a Evolution mostrar "digitando…" antes de enviar,
  * o que deixa o ritmo mais natural e reduz o risco de bloqueio do número.
+ * `to`: telefone ou identificador da conversa (…@lid).
  */
 export async function sendWhatsAppText(to: string, text: string, delay = 1200): Promise<SendResult> {
   const cfg = evolutionConfig();
   if (!cfg) return { ok: false, error: "WhatsApp não configurado" };
-  const number = normalizeWhatsAppNumber(to);
+  const number = recipient(to);
   if (!number) return { ok: false, error: "Número inválido" };
   try {
-    const json = await evo<{ key?: { id?: string } }>("POST", `/message/sendText/${enc(cfg.instance)}`, {
+    const json = await evo<{ key?: { id?: string; remoteJid?: string } }>("POST", `/message/sendText/${enc(cfg.instance)}`, {
       number,
       text,
       delay,
     });
-    return { ok: true, id: json?.key?.id ?? null };
+    await recordSent(number, json, { type: "text", body: text });
+    return { ok: true, id: json?.key?.id ?? null, jid: json?.key?.remoteJid ?? null };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
+}
+
+/** Envia foto, vídeo ou documento (base64 sem o prefixo data:). */
+export async function sendWhatsAppMedia(
+  to: string,
+  media: { mediatype: "image" | "video" | "document"; mimetype: string; fileName: string; base64: string; caption?: string },
+): Promise<SendResult> {
+  const cfg = evolutionConfig();
+  if (!cfg) return { ok: false, error: "WhatsApp não configurado" };
+  const number = recipient(to);
+  if (!number) return { ok: false, error: "Número inválido" };
+  try {
+    const json = await evo<{ key?: { id?: string; remoteJid?: string } }>("POST", `/message/sendMedia/${enc(cfg.instance)}`, {
+      number,
+      mediatype: media.mediatype,
+      mimetype: media.mimetype,
+      fileName: media.fileName,
+      caption: media.caption ?? "",
+      media: media.base64,
+      delay: 800,
+    });
+    await recordSent(number, json, {
+      type: media.mediatype,
+      body: media.caption || null,
+      mime: media.mimetype,
+      name: media.fileName,
+    });
+    return { ok: true, id: json?.key?.id ?? null, jid: json?.key?.remoteJid ?? null };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/* ------------------------- Caixa de entrada (leitura) ------------------------- */
+
+/** Webhook que a Evolution chama a cada mensagem (ver /api/public/hooks/whatsapp). */
+export async function evolutionSetWebhook(url: string, headers: Record<string, string>): Promise<void> {
+  const { instance } = requireConfig();
+  await evo("POST", `/webhook/set/${enc(instance)}`, {
+    webhook: {
+      enabled: true,
+      url,
+      headers,
+      byEvents: false,
+      base64: false,
+      events: ["MESSAGES_UPSERT", "MESSAGES_UPDATE", "SEND_MESSAGE"],
+    },
+  });
+}
+
+export async function evolutionFindWebhook(): Promise<{ enabled: boolean; url: string | null; events: string[] } | null> {
+  const { instance } = requireConfig();
+  const res = await evo<any>("GET", `/webhook/find/${enc(instance)}`);
+  if (!res) return null;
+  return { enabled: !!res.enabled, url: res.url ?? null, events: Array.isArray(res.events) ? res.events : [] };
+}
+
+export type EvolutionChat = { remoteJid: string; pushName?: string | null; unreadCount?: number; updatedAt?: string | null };
+
+export async function evolutionFindChats(): Promise<EvolutionChat[]> {
+  const { instance } = requireConfig();
+  const res = await evo<any>("POST", `/chat/findChats/${enc(instance)}`, {});
+  return Array.isArray(res) ? res : [];
+}
+
+/** Mensagens de uma conversa, da mais nova para a mais antiga. */
+export async function evolutionFindMessages(remoteJid: string, limit = 50): Promise<any[]> {
+  const { instance } = requireConfig();
+  const res = await evo<any>("POST", `/chat/findMessages/${enc(instance)}`, {
+    where: { key: { remoteJid } },
+    page: 1,
+    offset: limit,
+  });
+  return res?.messages?.records ?? [];
+}
+
+/** Conteúdo de uma foto/áudio/documento recebido, em base64. */
+export async function evolutionMediaBase64(messageId: string): Promise<{ base64: string; mimetype: string | null; fileName: string | null }> {
+  const { instance } = requireConfig();
+  const res = await evo<any>("POST", `/chat/getBase64FromMediaMessage/${enc(instance)}`, {
+    message: { key: { id: messageId } },
+    convertToMp4: false,
+  });
+  if (!res?.base64) throw new EvolutionError("Mídia indisponível no WhatsApp.", 404);
+  return { base64: res.base64, mimetype: res.mimetype ?? null, fileName: res.fileName ?? null };
+}
+
+/** Marca como lidas (o cliente vê os dois tiques azuis). */
+export async function evolutionMarkRead(remoteJid: string, ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  const { instance } = requireConfig();
+  await evo("POST", `/chat/markMessageAsRead/${enc(instance)}`, {
+    readMessages: ids.map((id) => ({ id, fromMe: false, remoteJid })),
+  });
 }
 
 /* ------------------------------- Instância -------------------------------- */

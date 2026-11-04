@@ -16,7 +16,7 @@ export type OpsInbox = {
   orders: { pendingPayment: number; toShip: number; inProduction: number };
   quotes: { sent: number; approved: number };
   production: { open: number; late: number; dueToday: number };
-  chats: { human: number };
+  chats: { human: number; whatsappUnread: number };
 };
 
 /** Pedidos aguardando pagamento só contam se recentes — os antigos são abandono, não pendência. */
@@ -76,10 +76,17 @@ export const adminGetOpsInbox = createServerFn({ method: "GET" })
       ),
     ]);
 
+    // Conversas do WhatsApp não lidas (0 se a caixa de entrada ainda não foi criada no banco).
+    const { count: waUnread } = await supabaseAdmin
+      .from("whatsapp_chats")
+      .select("id", { count: "exact", head: true })
+      .gt("unread_count", 0)
+      .eq("archived", false);
+
     return {
       orders: { pendingPayment, toShip, inProduction },
       quotes: { sent: quotesSent, approved: quotesApproved },
       production: { open: prodOpen, late: prodLate, dueToday: prodToday },
-      chats: { human: chatsHuman },
+      chats: { human: chatsHuman, whatsappUnread: waUnread ?? 0 },
     };
   });

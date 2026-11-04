@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -33,12 +33,20 @@ import { StatCard } from "@/components/common/StatCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { useConfirm } from "@/components/common/ConfirmDialog";
+import { QUOTE_STATUS_META } from "@/lib/store/quote-status";
+import { adminCrmCustomerProfile, adminCrmSaveDeal } from "@/lib/store/crm.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
-  // Permite abrir já filtrado (ex.: card "Orçamentos sem resposta" do Início).
-  validateSearch: (search: Record<string, unknown>): { status?: string } => ({
-    status: typeof search.status === "string" && search.status in STATUS ? search.status : undefined,
-  }),
+  // Permite abrir já filtrado (ex.: card "Orçamentos sem resposta" do Início) ou já com um
+  // novo orçamento do cliente do CRM (cliente) e vinculado à oportunidade (oportunidade).
+  validateSearch: (search: Record<string, unknown>): { status?: string; cliente?: string; oportunidade?: string } => {
+    const uuid = (v: unknown) => (typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v) ? v : undefined);
+    return {
+      status: typeof search.status === "string" && search.status in STATUS ? search.status : undefined,
+      cliente: uuid(search.cliente),
+      oportunidade: uuid(search.oportunidade),
+    };
+  },
   head: () => ({
     meta: [
       { title: "Orçamentos — AMT Fight Wear" },
@@ -61,15 +69,7 @@ const brDate = (v?: string | null) => {
   return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("pt-BR");
 };
 
-const STATUS: Record<string, { label: string; cls: string }> = {
-  draft: { label: "Rascunho", cls: "bg-muted text-muted-foreground" },
-  sent: { label: "Enviado", cls: "bg-blue-100 text-blue-700" },
-  approved: { label: "Aprovado", cls: "bg-emerald-100 text-emerald-700" },
-  paid_50: { label: "Pago (50%)", cls: "bg-teal-100 text-teal-700" },
-  paid_100: { label: "Pago (100%)", cls: "bg-green-600 text-white" },
-  rejected: { label: "Recusado", cls: "bg-primary/10 text-primary" },
-  expired: { label: "Expirado", cls: "bg-amber-100 text-amber-700" },
-};
+const STATUS = QUOTE_STATUS_META;
 
 type Item = {
   product_id: string | null;
@@ -119,7 +119,9 @@ function QuotesPage() {
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState<{ url: string; filename: string } | null>(null);
   const [q, setQ] = useState("");
-  const initialStatus = Route.useSearch().status;
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const initialStatus = search.status;
   const [statusFilter, setStatusFilter] = useState(initialStatus ?? "all");
   const [form, setForm] = useState(emptyForm());
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -159,10 +161,11 @@ function QuotesPage() {
   const subtotal = form.items.reduce((a, it) => a + it.quantity * it.unit_price, 0);
   const total = Math.max(0, subtotal - Number(form.discount || 0) + Number(form.shipping_cost || 0));
 
-  const openNew = () => {
+  const openNew = (customer?: Partial<ReturnType<typeof emptyForm>>) => {
     const s: any = settings.data ?? {};
     const next = {
       ...emptyForm(),
+      ...customer,
       payment_terms: s.payment_terms || "",
       delivery_terms: s.delivery_terms || "",
       signer_name: s.signer_name || "",
@@ -173,6 +176,31 @@ function QuotesPage() {
     setFormSnapshot(JSON.stringify(next));
     setEditorOpen(true);
   };
+
+  // Vindo do CRM (?cliente=…&oportunidade=…): abre um orçamento novo com os dados do cliente.
+  // Ao salvar, o orçamento fica vinculado à oportunidade.
+  const profileFn = useServerFn(adminCrmCustomerProfile);
+  const saveDealFn = useServerFn(adminCrmSaveDeal);
+  const linkDeal = useRef<string | null>(null);
+  useEffect(() => {
+    if (!search.cliente || settings.isLoading) return;
+    const id = search.cliente;
+    linkDeal.current = search.oportunidade ?? null;
+    void navigate({ search: { status: search.status }, replace: true });
+    profileFn({ data: { id } })
+      .then(({ customer: c }) =>
+        openNew({
+          customer_name: c.full_name ?? "",
+          customer_company: c.company ?? "",
+          customer_email: c.email ?? "",
+          customer_phone: c.phone ?? "",
+          customer_document: c.document ?? "",
+          customer_address: { ...emptyForm().customer_address, city: c.city ?? "", state: c.state ?? "" },
+        }),
+      )
+      .catch((e: Error) => toast.error(e.message));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.cliente, settings.isLoading]);
 
   const openEdit = (r: any) => {
     const next = {
@@ -271,6 +299,15 @@ function QuotesPage() {
     try {
       const saved: any = await saveFn({ data: { ...form, valid_until: form.valid_until || null } as any });
       toast.success("Orçamento salvo");
+      if (linkDeal.current && saved?.id) {
+        const dealId = linkDeal.current;
+        linkDeal.current = null;
+        await saveDealFn({
+          data: { id: dealId, quote_id: saved.id, stage: saved.status === "sent" ? "orcamento_enviado" : "orcamento_preparacao" },
+        })
+          .then(() => toast.success("Orçamento vinculado à oportunidade"))
+          .catch((e: Error) => toast.error(e.message));
+      }
       qc.invalidateQueries({ queryKey: ["store", "quotes"] });
       setEditorOpen(false);
       return saved;
@@ -369,7 +406,7 @@ function QuotesPage() {
             <Button variant="outline" onClick={() => setSettingsOpen(true)}>
               <Settings2 className="mr-1.5 h-4 w-4" /> Dados do emissor
             </Button>
-            <Button onClick={openNew}>
+            <Button onClick={() => openNew()}>
               <Plus className="mr-1.5 h-4 w-4" /> Novo orçamento
             </Button>
           </>
@@ -416,7 +453,7 @@ function QuotesPage() {
             }
             action={
               (quotes.data ?? []).length === 0 ? (
-                <Button onClick={openNew}>
+                <Button onClick={() => openNew()}>
                   <Plus className="mr-1.5 h-4 w-4" /> Novo orçamento
                 </Button>
               ) : (

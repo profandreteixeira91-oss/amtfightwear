@@ -42,7 +42,7 @@ import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAdminAnunciosRouteImport } from './routes/_authenticated/admin.anuncios'
 import { Route as AuthenticatedAdminAtacadoRouteImport } from './routes/_authenticated/admin.atacado'
 import { Route as AuthenticatedAdminAtendimentoRouteImport } from './routes/_authenticated/admin.atendimento'
-import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
+import { Route as AuthenticatedAdminComercialRouteImport } from './routes/_authenticated/admin.comercial'
 import { Route as AuthenticatedAdminConexoesRouteImport } from './routes/_authenticated/admin.conexoes'
 import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin.crm'
@@ -58,6 +58,7 @@ import { Route as AuthenticatedAdminPerfilRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminProducaoRouteImport } from './routes/_authenticated/admin.producao'
 import { Route as AuthenticatedAdminProspectRouteImport } from './routes/_authenticated/admin.prospect'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedAdminWhatsappRouteImport } from './routes/_authenticated/admin.whatsapp'
 import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authenticated/ads.alerts'
 import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
 import { Route as AuthenticatedAdsConnectionsRouteImport } from './routes/_authenticated/ads.connections'
@@ -136,6 +137,8 @@ import { Route as AuthenticatedAdminAnunciosCriativosRouteImport } from './route
 import { Route as AuthenticatedAdminAnunciosEscalaRouteImport } from './routes/_authenticated/admin.anuncios.escala'
 import { Route as AuthenticatedAdminAnunciosNovaRouteImport } from './routes/_authenticated/admin.anuncios.nova'
 import { Route as AuthenticatedAdminAnunciosOtimizacaoRouteImport } from './routes/_authenticated/admin.anuncios.otimizacao'
+import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
+import { Route as AuthenticatedAdminClientesCustomerIdRouteImport } from './routes/_authenticated/admin.clientes.$customerId'
 import { Route as AuthenticatedAdminFiscalIndexRouteImport } from './routes/_authenticated/admin.fiscal.index'
 import { Route as AuthenticatedAdminFiscalPedidosRouteImport } from './routes/_authenticated/admin.fiscal.pedidos'
 import { Route as AuthenticatedAdminInstagramIndexRouteImport } from './routes/_authenticated/admin.instagram.index'
@@ -187,6 +190,7 @@ import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './route
 import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
 import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
+import { Route as ApiPublicHooksWhatsappRouteImport } from './routes/api/public/hooks/whatsapp'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
@@ -360,10 +364,10 @@ const AuthenticatedAdminAtendimentoRoute =
     path: '/atendimento',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminClientesRoute =
-  AuthenticatedAdminClientesRouteImport.update({
-    id: '/clientes',
-    path: '/clientes',
+const AuthenticatedAdminComercialRoute =
+  AuthenticatedAdminComercialRouteImport.update({
+    id: '/comercial',
+    path: '/comercial',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminConexoesRoute =
@@ -450,6 +454,12 @@ const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/usuarios',
     path: '/usuarios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWhatsappRoute =
+  AuthenticatedAdminWhatsappRouteImport.update({
+    id: '/whatsapp',
+    path: '/whatsapp',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdsAlertsRoute = AuthenticatedAdsAlertsRouteImport.update({
@@ -901,6 +911,18 @@ const AuthenticatedAdminAnunciosOtimizacaoRoute =
     path: '/otimizacao',
     getParentRoute: () => AuthenticatedAdminAnunciosRoute,
   } as any)
+const AuthenticatedAdminClientesIndexRoute =
+  AuthenticatedAdminClientesIndexRouteImport.update({
+    id: '/clientes/',
+    path: '/clientes/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientesCustomerIdRoute =
+  AuthenticatedAdminClientesCustomerIdRouteImport.update({
+    id: '/clientes/$customerId',
+    path: '/clientes/$customerId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminFiscalIndexRoute =
   AuthenticatedAdminFiscalIndexRouteImport.update({
     id: '/fiscal/',
@@ -1201,6 +1223,11 @@ const ApiPublicHooksSyncAdsInsightsRoute =
     path: '/api/public/hooks/sync-ads-insights',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksWhatsappRoute = ApiPublicHooksWhatsappRouteImport.update({
+  id: '/api/public/hooks/whatsapp',
+  path: '/api/public/hooks/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
   id: '/api/public/meta/callback',
   path: '/api/public/meta/callback',
@@ -1260,7 +1287,7 @@ export interface FileRoutesByFullPath {
   '/admin/anuncios': typeof AuthenticatedAdminAnunciosRouteWithChildren
   '/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
-  '/admin/clientes': typeof AuthenticatedAdminClientesRoute
+  '/admin/comercial': typeof AuthenticatedAdminComercialRoute
   '/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/crm': typeof AuthenticatedAdminCrmRoute
@@ -1276,6 +1303,7 @@ export interface FileRoutesByFullPath {
   '/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/admin/whatsapp': typeof AuthenticatedAdminWhatsappRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -1353,6 +1381,7 @@ export interface FileRoutesByFullPath {
   '/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
+  '/admin/clientes/$customerId': typeof AuthenticatedAdminClientesCustomerIdRoute
   '/admin/fiscal/pedidos': typeof AuthenticatedAdminFiscalPedidosRoute
   '/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
@@ -1398,12 +1427,14 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
+  '/api/public/hooks/whatsapp': typeof ApiPublicHooksWhatsappRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/fiscal/': typeof AuthenticatedAdminFiscalIndexRoute
   '/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
@@ -1438,7 +1469,7 @@ export interface FileRoutesByTo {
   '/loja': typeof LojaIndexRoute
   '/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
-  '/admin/clientes': typeof AuthenticatedAdminClientesRoute
+  '/admin/comercial': typeof AuthenticatedAdminComercialRoute
   '/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/crm': typeof AuthenticatedAdminCrmRoute
@@ -1452,6 +1483,7 @@ export interface FileRoutesByTo {
   '/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/admin/whatsapp': typeof AuthenticatedAdminWhatsappRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -1529,6 +1561,7 @@ export interface FileRoutesByTo {
   '/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
+  '/admin/clientes/$customerId': typeof AuthenticatedAdminClientesCustomerIdRoute
   '/admin/fiscal/pedidos': typeof AuthenticatedAdminFiscalPedidosRoute
   '/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
@@ -1574,12 +1607,14 @@ export interface FileRoutesByTo {
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
+  '/api/public/hooks/whatsapp': typeof ApiPublicHooksWhatsappRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/admin/ads': typeof AuthenticatedAdminAdsIndexRoute
   '/admin/anuncios': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/fiscal': typeof AuthenticatedAdminFiscalIndexRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramIndexRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
@@ -1622,7 +1657,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/anuncios': typeof AuthenticatedAdminAnunciosRouteWithChildren
   '/_authenticated/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/_authenticated/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
-  '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
+  '/_authenticated/admin/comercial': typeof AuthenticatedAdminComercialRoute
   '/_authenticated/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/_authenticated/admin/crm': typeof AuthenticatedAdminCrmRoute
@@ -1638,6 +1673,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/_authenticated/admin/prospect': typeof AuthenticatedAdminProspectRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/admin/whatsapp': typeof AuthenticatedAdminWhatsappRoute
   '/_authenticated/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/_authenticated/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -1715,6 +1751,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/_authenticated/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/_authenticated/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
+  '/_authenticated/admin/clientes/$customerId': typeof AuthenticatedAdminClientesCustomerIdRoute
   '/_authenticated/admin/fiscal/pedidos': typeof AuthenticatedAdminFiscalPedidosRoute
   '/_authenticated/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/_authenticated/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
@@ -1760,12 +1797,14 @@ export interface FileRoutesById {
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
+  '/api/public/hooks/whatsapp': typeof ApiPublicHooksWhatsappRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/_authenticated/admin/ads/': typeof AuthenticatedAdminAdsIndexRoute
   '/_authenticated/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/_authenticated/admin/fiscal/': typeof AuthenticatedAdminFiscalIndexRoute
   '/_authenticated/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
@@ -1808,7 +1847,7 @@ export interface FileRouteTypes {
     | '/admin/anuncios'
     | '/admin/atacado'
     | '/admin/atendimento'
-    | '/admin/clientes'
+    | '/admin/comercial'
     | '/admin/conexoes'
     | '/admin/configuracoes'
     | '/admin/crm'
@@ -1824,6 +1863,7 @@ export interface FileRouteTypes {
     | '/admin/producao'
     | '/admin/prospect'
     | '/admin/usuarios'
+    | '/admin/whatsapp'
     | '/ads/alerts'
     | '/ads/campaigns'
     | '/ads/connections'
@@ -1901,6 +1941,7 @@ export interface FileRouteTypes {
     | '/admin/anuncios/escala'
     | '/admin/anuncios/nova'
     | '/admin/anuncios/otimizacao'
+    | '/admin/clientes/$customerId'
     | '/admin/fiscal/pedidos'
     | '/admin/instagram/admin'
     | '/admin/instagram/automacoes'
@@ -1946,12 +1987,14 @@ export interface FileRouteTypes {
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
+    | '/api/public/hooks/whatsapp'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/admin/ads/'
     | '/admin/anuncios/'
+    | '/admin/clientes/'
     | '/admin/fiscal/'
     | '/admin/instagram/'
     | '/admin/leads/'
@@ -1986,7 +2029,7 @@ export interface FileRouteTypes {
     | '/loja'
     | '/admin/atacado'
     | '/admin/atendimento'
-    | '/admin/clientes'
+    | '/admin/comercial'
     | '/admin/conexoes'
     | '/admin/configuracoes'
     | '/admin/crm'
@@ -2000,6 +2043,7 @@ export interface FileRouteTypes {
     | '/admin/producao'
     | '/admin/prospect'
     | '/admin/usuarios'
+    | '/admin/whatsapp'
     | '/ads/alerts'
     | '/ads/campaigns'
     | '/ads/connections'
@@ -2077,6 +2121,7 @@ export interface FileRouteTypes {
     | '/admin/anuncios/escala'
     | '/admin/anuncios/nova'
     | '/admin/anuncios/otimizacao'
+    | '/admin/clientes/$customerId'
     | '/admin/fiscal/pedidos'
     | '/admin/instagram/admin'
     | '/admin/instagram/automacoes'
@@ -2122,12 +2167,14 @@ export interface FileRouteTypes {
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
+    | '/api/public/hooks/whatsapp'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/admin/ads'
     | '/admin/anuncios'
+    | '/admin/clientes'
     | '/admin/fiscal'
     | '/admin/instagram'
     | '/admin/leads'
@@ -2169,7 +2216,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/anuncios'
     | '/_authenticated/admin/atacado'
     | '/_authenticated/admin/atendimento'
-    | '/_authenticated/admin/clientes'
+    | '/_authenticated/admin/comercial'
     | '/_authenticated/admin/conexoes'
     | '/_authenticated/admin/configuracoes'
     | '/_authenticated/admin/crm'
@@ -2185,6 +2232,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/producao'
     | '/_authenticated/admin/prospect'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/admin/whatsapp'
     | '/_authenticated/ads/alerts'
     | '/_authenticated/ads/campaigns'
     | '/_authenticated/ads/connections'
@@ -2262,6 +2310,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/anuncios/escala'
     | '/_authenticated/admin/anuncios/nova'
     | '/_authenticated/admin/anuncios/otimizacao'
+    | '/_authenticated/admin/clientes/$customerId'
     | '/_authenticated/admin/fiscal/pedidos'
     | '/_authenticated/admin/instagram/admin'
     | '/_authenticated/admin/instagram/automacoes'
@@ -2307,12 +2356,14 @@ export interface FileRouteTypes {
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
+    | '/api/public/hooks/whatsapp'
     | '/api/public/meta/callback'
     | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/_authenticated/admin/ads/'
     | '/_authenticated/admin/anuncios/'
+    | '/_authenticated/admin/clientes/'
     | '/_authenticated/admin/fiscal/'
     | '/_authenticated/admin/instagram/'
     | '/_authenticated/admin/leads/'
@@ -2361,6 +2412,7 @@ export interface RootRouteChildren {
   ApiPublicHooksRunAdsOptimizationRoute: typeof ApiPublicHooksRunAdsOptimizationRoute
   ApiPublicHooksScaleWinnersRoute: typeof ApiPublicHooksScaleWinnersRoute
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
+  ApiPublicHooksWhatsappRoute: typeof ApiPublicHooksWhatsappRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicMetaWebhookRoute: typeof ApiPublicMetaWebhookRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -2600,11 +2652,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAtendimentoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/clientes': {
-      id: '/_authenticated/admin/clientes'
-      path: '/clientes'
-      fullPath: '/admin/clientes'
-      preLoaderRoute: typeof AuthenticatedAdminClientesRouteImport
+    '/_authenticated/admin/comercial': {
+      id: '/_authenticated/admin/comercial'
+      path: '/comercial'
+      fullPath: '/admin/comercial'
+      preLoaderRoute: typeof AuthenticatedAdminComercialRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/conexoes': {
@@ -2710,6 +2762,13 @@ declare module '@tanstack/react-router' {
       path: '/usuarios'
       fullPath: '/admin/usuarios'
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/whatsapp': {
+      id: '/_authenticated/admin/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/admin/whatsapp'
+      preLoaderRoute: typeof AuthenticatedAdminWhatsappRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/ads/alerts': {
@@ -3258,6 +3317,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAnunciosOtimizacaoRouteImport
       parentRoute: typeof AuthenticatedAdminAnunciosRoute
     }
+    '/_authenticated/admin/clientes/': {
+      id: '/_authenticated/admin/clientes/'
+      path: '/clientes'
+      fullPath: '/admin/clientes/'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clientes/$customerId': {
+      id: '/_authenticated/admin/clientes/$customerId'
+      path: '/clientes/$customerId'
+      fullPath: '/admin/clientes/$customerId'
+      preLoaderRoute: typeof AuthenticatedAdminClientesCustomerIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/fiscal/': {
       id: '/_authenticated/admin/fiscal/'
       path: '/fiscal'
@@ -3615,6 +3688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSyncAdsInsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/whatsapp': {
+      id: '/api/public/hooks/whatsapp'
+      path: '/api/public/hooks/whatsapp'
+      fullPath: '/api/public/hooks/whatsapp'
+      preLoaderRoute: typeof ApiPublicHooksWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/meta/callback': {
       id: '/api/public/meta/callback'
       path: '/api/public/meta/callback'
@@ -3813,7 +3893,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAnunciosRoute: typeof AuthenticatedAdminAnunciosRouteWithChildren
   AuthenticatedAdminAtacadoRoute: typeof AuthenticatedAdminAtacadoRoute
   AuthenticatedAdminAtendimentoRoute: typeof AuthenticatedAdminAtendimentoRoute
-  AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
+  AuthenticatedAdminComercialRoute: typeof AuthenticatedAdminComercialRoute
   AuthenticatedAdminConexoesRoute: typeof AuthenticatedAdminConexoesRoute
   AuthenticatedAdminConfiguracoesRoute: typeof AuthenticatedAdminConfiguracoesRoute
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
@@ -3829,7 +3909,9 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminProducaoRoute: typeof AuthenticatedAdminProducaoRoute
   AuthenticatedAdminProspectRoute: typeof AuthenticatedAdminProspectRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedAdminWhatsappRoute: typeof AuthenticatedAdminWhatsappRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminClientesCustomerIdRoute: typeof AuthenticatedAdminClientesCustomerIdRoute
   AuthenticatedAdminFiscalPedidosRoute: typeof AuthenticatedAdminFiscalPedidosRoute
   AuthenticatedAdminLeadsIdRoute: typeof AuthenticatedAdminLeadsIdRoute
   AuthenticatedAdminLeadsBuscaRoute: typeof AuthenticatedAdminLeadsBuscaRoute
@@ -3844,6 +3926,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminProdutosImportarRoute: typeof AuthenticatedAdminProdutosImportarRoute
   AuthenticatedAdminProdutosPacotesRoute: typeof AuthenticatedAdminProdutosPacotesRoute
   AuthenticatedAdminProdutosTamanhosRoute: typeof AuthenticatedAdminProdutosTamanhosRoute
+  AuthenticatedAdminClientesIndexRoute: typeof AuthenticatedAdminClientesIndexRoute
   AuthenticatedAdminFiscalIndexRoute: typeof AuthenticatedAdminFiscalIndexRoute
   AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
   AuthenticatedAdminPedidosIndexRoute: typeof AuthenticatedAdminPedidosIndexRoute
@@ -3855,7 +3938,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAnunciosRoute: AuthenticatedAdminAnunciosRouteWithChildren,
   AuthenticatedAdminAtacadoRoute: AuthenticatedAdminAtacadoRoute,
   AuthenticatedAdminAtendimentoRoute: AuthenticatedAdminAtendimentoRoute,
-  AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
+  AuthenticatedAdminComercialRoute: AuthenticatedAdminComercialRoute,
   AuthenticatedAdminConexoesRoute: AuthenticatedAdminConexoesRoute,
   AuthenticatedAdminConfiguracoesRoute: AuthenticatedAdminConfiguracoesRoute,
   AuthenticatedAdminCrmRoute: AuthenticatedAdminCrmRoute,
@@ -3873,7 +3956,10 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminProducaoRoute: AuthenticatedAdminProducaoRoute,
   AuthenticatedAdminProspectRoute: AuthenticatedAdminProspectRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedAdminWhatsappRoute: AuthenticatedAdminWhatsappRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminClientesCustomerIdRoute:
+    AuthenticatedAdminClientesCustomerIdRoute,
   AuthenticatedAdminFiscalPedidosRoute: AuthenticatedAdminFiscalPedidosRoute,
   AuthenticatedAdminLeadsIdRoute: AuthenticatedAdminLeadsIdRoute,
   AuthenticatedAdminLeadsBuscaRoute: AuthenticatedAdminLeadsBuscaRoute,
@@ -3895,6 +3981,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminProdutosPacotesRoute,
   AuthenticatedAdminProdutosTamanhosRoute:
     AuthenticatedAdminProdutosTamanhosRoute,
+  AuthenticatedAdminClientesIndexRoute: AuthenticatedAdminClientesIndexRoute,
   AuthenticatedAdminFiscalIndexRoute: AuthenticatedAdminFiscalIndexRoute,
   AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,
   AuthenticatedAdminPedidosIndexRoute: AuthenticatedAdminPedidosIndexRoute,
@@ -4174,6 +4261,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksRunAdsOptimizationRoute: ApiPublicHooksRunAdsOptimizationRoute,
   ApiPublicHooksScaleWinnersRoute: ApiPublicHooksScaleWinnersRoute,
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
+  ApiPublicHooksWhatsappRoute: ApiPublicHooksWhatsappRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
   ApiPublicMetaWebhookRoute: ApiPublicMetaWebhookRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
