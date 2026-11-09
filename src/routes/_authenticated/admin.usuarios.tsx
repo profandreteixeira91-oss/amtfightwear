@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { listPlatformUsers } from "@/lib/auth/platform-users.functions";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/common/PageHeader";
-import { profileService } from "@/services/profileService";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/_authenticated/admin/usuarios")({
@@ -34,9 +35,10 @@ function initialsOf(name?: string | null, email?: string | null) {
 
 function UsersPage() {
   const { user } = useAuth();
+  const listPlatformUsersFn = useServerFn(listPlatformUsers);
   const { data, isLoading } = useQuery({
     queryKey: ["users"],
-    queryFn: () => profileService.listAll(),
+    queryFn: () => listPlatformUsersFn(),
   });
 
   return (
@@ -44,7 +46,7 @@ function UsersPage() {
       <PageHeader
         eyebrow="Equipe"
         title="Usuários"
-        description="Todos os perfis com acesso ao AMT Growth Engine."
+        description="Contas com acesso ao painel da AMT (dono e administradores). Clientes da loja, donos de academia e alunos não aparecem aqui."
       />
 
       <Card>

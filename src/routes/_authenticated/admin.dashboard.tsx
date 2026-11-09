@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { Activity, BarChart3, MessageCircle, Users } from "lucide-react";
 
@@ -8,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/common/PageHeader";
 import { logsService } from "@/services/logsService";
-import { profileService } from "@/services/profileService";
+import { listPlatformUsers } from "@/lib/auth/platform-users.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin/dashboard")({
@@ -29,9 +30,11 @@ function DashboardPage() {
     queryFn: () => logsService.list(6),
   });
 
+  // Time da AMT com acesso ao painel (não conta clientes, donos de academia e alunos).
+  const listPlatformUsersFn = useServerFn(listPlatformUsers);
   const usersQuery = useQuery({
     queryKey: ["dashboard", "user-count"],
-    queryFn: () => profileService.listAll(),
+    queryFn: () => listPlatformUsersFn(),
   });
 
   const kpisQuery = useQuery({
