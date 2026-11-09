@@ -353,7 +353,7 @@ function GuiaKimonoPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
             Fabricação própria, tecido reforçado e bordado personalizado da sua academia. Frete para todo o
-            Brasil e até 10x sem juros.
+            Brasil e parcelamento sem juros.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg">

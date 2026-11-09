@@ -246,9 +246,10 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
         brand = detectBrandFallback(src);
       }
 
-      // Regras de parcelamento sem juros: 3x ≥ R$200, 5x ≥ R$600, 10x ≥ R$1000.
+      // Regras de parcelamento sem juros (as mesmas exibidas na loja).
       const requested = data.installments ?? 1;
-      const maxAllowed = total >= 1000 ? 10 : total >= 600 ? 5 : total >= 200 ? 3 : 1;
+      const { maxInstallmentsFor } = await import("@/lib/store/pricing");
+      const maxAllowed = maxInstallmentsFor(total);
       const installments = Math.min(Math.max(1, requested), maxAllowed);
       paymentPayload = {
         ...basePayload,

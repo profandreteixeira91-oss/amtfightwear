@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { calculateShipping, type ShippingOption } from "@/lib/store/shipping.functions";
 import { formatBRL } from "@/lib/store/cart-store";
+import { FREE_SHIPPING_CAP, FREE_SHIPPING_THRESHOLD, freeShippingDiscountFor } from "@/lib/store/pricing";
 import { Truck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,9 +22,12 @@ type Props = {
   onSelect?: (option: ShippingOption, zip: string) => void;
   selectedId?: number | null;
   compact?: boolean;
+  /** Subtotal dos produtos: quando informado, mostra o preço de cada opção já com o frete grátis. */
+  freeShippingSubtotal?: number;
 };
 
-export function ShippingCalculator({ items, initialZip, onSelect, selectedId, compact }: Props) {
+export function ShippingCalculator({ items, initialZip, onSelect, selectedId, compact, freeShippingSubtotal }: Props) {
+  const freeEligible = freeShippingSubtotal != null && freeShippingSubtotal >= FREE_SHIPPING_THRESHOLD;
   const [zip, setZip] = useState(initialZip ?? "");
   const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState<ShippingOption[] | null>(null);
@@ -100,9 +104,15 @@ export function ShippingCalculator({ items, initialZip, onSelect, selectedId, co
 
       {options && options.length > 0 && (
         <div className="space-y-2">
+          {freeEligible && (
+            <div className="text-xs text-emerald-700 dark:text-emerald-400">
+              Frete grátis na opção mais econômica, até {formatBRL(FREE_SHIPPING_CAP)}. Nas outras, você paga só a diferença.
+            </div>
+          )}
           {options.map((o) => {
             const disabled = !!o.error;
             const selected = selectedId === o.id;
+            const off = freeEligible ? freeShippingDiscountFor(freeShippingSubtotal!, o.price, o.cheapest_price) : 0;
             return (
               <button
                 type="button"
@@ -134,7 +144,14 @@ export function ShippingCalculator({ items, initialZip, onSelect, selectedId, co
                       : `${o.delivery_time ?? "?"} dias úteis`}
                   </div>
                 </div>
-                {!o.error && <div className="font-black">{formatBRL(o.price)}</div>}
+                {!o.error && (
+                  <div className="text-right">
+                    {off > 0 && <div className="text-[11px] text-muted-foreground line-through">{formatBRL(o.price)}</div>}
+                    <div className={`font-black ${off >= o.price ? "text-emerald-600 dark:text-emerald-400" : ""}`}>
+                      {off >= o.price ? "Grátis" : formatBRL(o.price - off)}
+                    </div>
+                  </div>
+                )}
               </button>
             );
           })}

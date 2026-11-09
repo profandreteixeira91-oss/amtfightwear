@@ -35,7 +35,7 @@ export const Route = createFileRoute("/loja/categoria/$slug")({
     }
     const name = cat.name ?? params.slug.replace(/-/g, " ");
     const title = `${name} | AMT Fight Wear`;
-    const desc = (cat.description || `${name} da AMT Fight Wear: fabricação própria, alta durabilidade, até 10x sem juros e envio para todo o Brasil.`)
+    const desc = (cat.description || `${name} da AMT Fight Wear: fabricação própria, alta durabilidade, parcelamento sem juros e envio para todo o Brasil.`)
       .replace(/<[^>]*>/g, "")
       .slice(0, 155);
     return {

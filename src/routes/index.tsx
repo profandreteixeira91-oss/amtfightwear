@@ -4,12 +4,13 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Shirt, Palette, PackageCheck } from "lucide-react";
+import { ArrowRight, Sparkles, Shirt, Palette, PackageCheck, Truck, CreditCard, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { KimonoGuideCallout } from "@/components/store/KimonoGuideLink";
 import { ProductImage } from "@/components/store/ProductImage";
 import { RecentlyViewed } from "@/components/store/RecentlyViewed";
 import heroBanner from "@/assets/loja-hero-banner.jpg";
+import { FREE_SHIPPING_CAP, FREE_SHIPPING_THRESHOLD, INSTALLMENT_TIERS, PIX_DISCOUNT_RATE, formatMoney, formatMoneyShort } from "@/lib/store/pricing";
 
 const homeQuery = queryOptions({
   queryKey: ["store", "home"],
@@ -109,6 +110,83 @@ function lineKey(name: string): (typeof LINE_ORDER)[number] | null {
   if (/\bpro\b/.test(n)) return "pro";
   if (n.includes("training")) return "training";
   return null;
+}
+
+/** Condições de frete e pagamento, lidas das mesmas constantes usadas no checkout. */
+function FreteEPagamento() {
+  const cards = [
+    {
+      icon: Truck,
+      title: `Frete grátis a partir de ${formatMoneyShort(FREE_SHIPPING_THRESHOLD)}`,
+      body: (
+        <ul className="space-y-2">
+          <li>
+            Em compras a partir de {formatMoneyShort(FREE_SHIPPING_THRESHOLD)} em produtos, a loja paga o frete da opção de
+            envio mais econômica para o seu CEP, até {formatMoneyShort(FREE_SHIPPING_CAP)}.
+          </li>
+          <li>
+            Se esse frete passar de {formatMoneyShort(FREE_SHIPPING_CAP)} ou se você escolher uma entrega mais rápida, você paga
+            só a diferença.
+          </li>
+          <li>Abaixo desse valor, o frete é calculado pelo CEP na página do produto ou no carrinho, antes de pagar.</li>
+        </ul>
+      ),
+    },
+    {
+      icon: CreditCard,
+      title: "Parcelamento sem juros no cartão",
+      body: (
+        <>
+          <table className="w-full text-left">
+            <tbody className="divide-y divide-neutral-200">
+              <tr>
+                <td className="py-1.5">Até {formatMoney(INSTALLMENT_TIERS[0].min - 0.01)}</td>
+                <td className="py-1.5 text-right font-semibold text-foreground">à vista</td>
+              </tr>
+              {INSTALLMENT_TIERS.map((t) => (
+                <tr key={t.min}>
+                  <td className="py-1.5">A partir de {formatMoneyShort(t.min)}</td>
+                  <td className="py-1.5 text-right font-semibold text-foreground">até {t.installments}x sem juros</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="mt-2">Vale o valor total da compra, com o frete.</p>
+        </>
+      ),
+    },
+    {
+      icon: QrCode,
+      title: `${Math.round(PIX_DISCOUNT_RATE * 100)}% de desconto no Pix`,
+      body: (
+        <ul className="space-y-2">
+          <li>O desconto vale sobre os produtos; o frete é cobrado sem desconto.</li>
+          <li>No boleto, o pagamento é à vista, sem desconto.</li>
+          <li>Pagamentos processados pelo Mercado Pago.</li>
+        </ul>
+      ),
+    },
+  ];
+  return (
+    <section id="frete-e-pagamento" className="mx-auto max-w-7xl scroll-mt-24 px-5 pt-16 sm:px-8 sm:pt-20">
+      <SectionHeader
+        eyebrow="Sem letras miúdas"
+        title="Frete e pagamento"
+        description="Estas são as regras aplicadas no carrinho e no checkout. Você vê o valor final antes de pagar."
+      />
+      <div className="grid gap-4 md:grid-cols-3">
+        {cards.map(({ icon: Icon, title, body }) => (
+          <div key={title} className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-neutral-100 text-foreground">
+              <Icon className="h-[18px] w-[18px]" />
+            </span>
+            <h3 className="mt-4 font-semibold tracking-tight">{title}</h3>
+            <div className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function StoreHomePage() {
@@ -342,6 +420,9 @@ function StoreHomePage() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <RecentlyViewed title="Continue de onde parou" />
       </div>
+
+      {/* FRETE E PAGAMENTO — as regras exatas aplicadas no carrinho e no checkout */}
+      <FreteEPagamento />
 
 
       {destaques.length === 0 && faixas.length === 0 && kimonos.length === 0 && (

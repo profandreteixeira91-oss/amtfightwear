@@ -50,7 +50,7 @@ export const Route = createFileRoute("/loja/produto/$slug")({
     }
     const name = formatProductName(p.name) || params.slug.replace(/-/g, " ");
     const title = `${name} | AMT Fight Wear`;
-    const desc = (p.short_description || p.description || `Compre ${name} na loja oficial AMT Fight Wear: fabricação própria, até 10x sem juros e envio para todo o Brasil.`)
+    const desc = (p.short_description || p.description || `Compre ${name} na loja oficial AMT Fight Wear: fabricação própria, parcelamento sem juros e envio para todo o Brasil.`)
       .replace(/<[^>]*>/g, "")
       .slice(0, 155);
     const img = p.image_url && /^https?:\/\//.test(p.image_url) ? p.image_url : null;

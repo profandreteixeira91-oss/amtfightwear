@@ -4,6 +4,7 @@ import { Trash2, ArrowRight, ShoppingBag, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ProductImage } from "@/components/store/ProductImage";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
+import { maxInstallmentsFor } from "@/lib/store/pricing";
 import { formatProductName } from "@/lib/store/product-name";
 
 export function CartSheet() {
@@ -98,7 +99,10 @@ export function CartSheet() {
                 <span>{formatBRL(subtotal)}</span>
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                ou 10x de <strong>{formatBRL(subtotal / 10)}</strong> sem juros · frete no checkout
+                {maxInstallmentsFor(subtotal) > 1 ? (
+                  <>ou até {maxInstallmentsFor(subtotal)}x de <strong>{formatBRL(subtotal / maxInstallmentsFor(subtotal))}</strong> sem juros · </>
+                ) : null}
+                frete no checkout
               </div>
               <Link
                 to="/loja/checkout"

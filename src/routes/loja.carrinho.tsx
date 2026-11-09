@@ -12,6 +12,7 @@ import { RecentlyViewed } from "@/components/store/RecentlyViewed";
 import { TrustBadges } from "@/components/store/TrustBadges";
 import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
+import { FREE_SHIPPING_THRESHOLD, freeShippingDiscountFor, maxInstallmentsFor } from "@/lib/store/pricing";
 import { supabase } from "@/integrations/supabase/client";
 import { Trash2, ArrowRight, Minus, Plus, ShieldCheck, Lock, Tag, Truck, ShoppingBag, Mail, User as UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -26,7 +27,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 const SHIPPING_KEY = "amt-checkout-shipping";
 const GUEST_EMAIL_KEY = "amt-guest-email";
-const FREE_SHIPPING_THRESHOLD = 399;
 
 export const Route = createFileRoute("/loja/carrinho")({
   loader: async ({ context }) => {
@@ -86,10 +86,12 @@ function CartPage() {
   const discount = couponApplied === "AMT10" ? subtotal * 0.1 : 0;
   const subtotalAfterDiscount = subtotal - discount;
   const shippingCost = shipping?.price ?? 0;
-  const freeShipping = subtotalAfterDiscount >= FREE_SHIPPING_THRESHOLD && !!shipping;
-  const total = subtotalAfterDiscount + (freeShipping ? 0 : shippingCost);
-  const progressPct = Math.min(100, (subtotalAfterDiscount / FREE_SHIPPING_THRESHOLD) * 100);
-  const missingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotalAfterDiscount);
+  // Mesma conta do checkout e do servidor: a loja paga a opção mais barata, até o teto.
+  const shippingDiscount = shipping ? freeShippingDiscountFor(subtotal, shippingCost, shipping.cheapest_price) : 0;
+  const freeShipping = !!shipping && shippingDiscount >= shippingCost;
+  const total = subtotalAfterDiscount + shippingCost - shippingDiscount;
+  const progressPct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+  const missingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
 
   const applyCoupon = () => {
     const code = coupon.trim().toUpperCase();
@@ -279,6 +281,7 @@ function CartPage() {
                     initialZip={zip}
                     selectedId={shipping?.id ?? null}
                     onSelect={handleShippingSelect}
+                    freeShippingSubtotal={subtotal}
                     compact
                   />
                   <p className="mt-2 text-[11px] text-muted-foreground">Você poderá alterar o CEP no checkout.</p>
@@ -296,7 +299,7 @@ function CartPage() {
                     <div className="flex items-center justify-between text-xs">
                       <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
                         <Truck className="h-3.5 w-3.5 text-primary" />
-                        {freeShipping || subtotalAfterDiscount >= FREE_SHIPPING_THRESHOLD ? (
+                        {subtotal >= FREE_SHIPPING_THRESHOLD ? (
                           <span className="text-emerald-600">Frete grátis desbloqueado</span>
                         ) : (
                           <span>Falta <strong>{formatBRL(missingForFreeShipping)}</strong> para frete grátis</span>
@@ -367,7 +370,9 @@ function CartPage() {
                         {shipping
                           ? freeShipping
                             ? <><span className="mr-1 line-through opacity-60">{formatBRL(shippingCost)}</span><span className="text-emerald-600">Grátis</span></>
-                            : formatBRL(shippingCost)
+                            : shippingDiscount > 0
+                              ? <><span className="mr-1 line-through opacity-60">{formatBRL(shippingCost)}</span>{formatBRL(shippingCost - shippingDiscount)}</>
+                              : formatBRL(shippingCost)
                           : "A calcular"}
                       </span>
                     </div>
@@ -379,9 +384,11 @@ function CartPage() {
                     <span className="text-sm font-semibold">Total</span>
                     <div className="text-right">
                       <div className="text-2xl font-black tracking-tight tabular-nums">{formatBRL(total)}</div>
-                      <div className="text-[11px] text-muted-foreground">
-                        ou 10x de <strong className="text-foreground">{formatBRL(total / 10)}</strong> sem juros
-                      </div>
+                      {maxInstallmentsFor(total) > 1 && (
+                        <div className="text-[11px] text-muted-foreground">
+                          ou até {maxInstallmentsFor(total)}x de <strong className="text-foreground">{formatBRL(total / maxInstallmentsFor(total))}</strong> sem juros
+                        </div>
+                      )}
                     </div>
                   </div>
 

@@ -8,7 +8,7 @@ import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 import { CartSheet } from "@/components/store/CartSheet";
 import { FavoriteButton } from "@/components/store/FavoriteButton";
-import { pixPriceFor, installmentLabel, maxInstallmentsFor, formatMoney, FREE_SHIPPING_THRESHOLD } from "@/lib/store/pricing";
+import { pixPriceFor, installmentLabel, maxInstallmentsFor, formatMoney, formatMoneyShort, FREE_SHIPPING_CAP, FREE_SHIPPING_THRESHOLD } from "@/lib/store/pricing";
 import { formatProductName } from "@/lib/store/product-name";
 import { requiresEmbroideryName } from "@/lib/store/personalization";
 import { SearchBar } from "@/components/store/SearchBar";
@@ -105,14 +105,19 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
       {/* Top bar */}
       <div className="bg-neutral-950 text-[11px] text-white/80">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-6 px-4 py-2">
-          <span className="inline-flex items-center gap-1.5">
+          <Link to="/" hash="frete-e-pagamento" className="inline-flex items-center gap-1.5 hover:text-white">
             <Truck className="h-3.5 w-3.5 text-white/60" />
-            <span>Frete grátis acima de <strong className="font-semibold text-white">R$ 399</strong></span>
-          </span>
-          <span className="hidden items-center gap-1.5 sm:inline-flex">
-            <CreditCard className="h-3.5 w-3.5 text-white/60" /> Até <strong className="font-semibold text-white">10x sem juros</strong>
-          </span>
-          <span className="hidden items-center gap-1.5 md:inline-flex">
+            <span>
+              Frete grátis acima de <strong className="font-semibold text-white">{formatMoneyShort(FREE_SHIPPING_THRESHOLD)}</strong>
+              <span className="hidden sm:inline"> no envio econômico, até {formatMoneyShort(FREE_SHIPPING_CAP)}</span>
+              <span className="underline underline-offset-2 sm:hidden"> · condições</span>
+            </span>
+          </Link>
+          <Link to="/" hash="frete-e-pagamento" className="hidden items-center gap-1.5 hover:text-white md:inline-flex">
+            <CreditCard className="h-3.5 w-3.5 text-white/60" />
+            <span>Até <strong className="font-semibold text-white">10x sem juros</strong> a partir de R$ 1.000</span>
+          </Link>
+          <span className="hidden items-center gap-1.5 lg:inline-flex">
             <ShieldCheck className="h-3.5 w-3.5 text-white/60" /> Fabricação própria
           </span>
         </div>
@@ -380,9 +385,9 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
       <section className="border-t border-neutral-200 bg-neutral-50">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-4">
           {[
-            { icon: Truck, title: "Frete para todo o Brasil", desc: "Grátis acima de R$ 399" },
-            { icon: CreditCard, title: "Até 10x sem juros", desc: "Ou 5% off no PIX" },
-            { icon: ShieldCheck, title: "Compra segura", desc: "Pagamento via Mercado Pago" },
+            { icon: Truck, title: `Frete grátis acima de ${formatMoneyShort(FREE_SHIPPING_THRESHOLD)}`, desc: `No envio econômico, até ${formatMoneyShort(FREE_SHIPPING_CAP)}` },
+            { icon: CreditCard, title: "Parcele sem juros", desc: "3x a partir de R$ 200 · 10x a partir de R$ 1.000" },
+            { icon: ShieldCheck, title: "Compra segura", desc: "Mercado Pago · 5% off no Pix" },
             { icon: Package, title: "Fabricação própria", desc: "Direto da fábrica AMT" },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="flex items-center gap-3">
@@ -694,8 +699,11 @@ export function ProductCard({
               </span>
             )}
             {freeShipping && (
-              <span className="rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 shadow-sm">
-                Frete grátis
+              <span
+                title={`No envio econômico, até ${formatMoneyShort(FREE_SHIPPING_CAP)}`}
+                className="rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 shadow-sm"
+              >
+                Frete grátis*
               </span>
             )}
           </div>

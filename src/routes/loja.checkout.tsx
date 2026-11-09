@@ -14,7 +14,7 @@ import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
-import { FREE_SHIPPING_THRESHOLD, PIX_DISCOUNT_RATE } from "@/lib/store/pricing";
+import { FREE_SHIPPING_CAP, FREE_SHIPPING_THRESHOLD, PIX_DISCOUNT_RATE, freeShippingDiscountFor, maxInstallmentsFor } from "@/lib/store/pricing";
 import { TrustBadges } from "@/components/store/TrustBadges";
 
 /** Rascunho local dos dados de entrega (evita retrabalho do cliente). */
@@ -130,7 +130,8 @@ function CheckoutPage() {
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
   const shippingCost = shipping?.price ?? 0;
   const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
-  const shippingDiscount = freeShipping ? shippingCost : 0;
+  // Mesma conta do servidor: a loja paga a opção mais barata, até o teto.
+  const shippingDiscount = shipping ? freeShippingDiscountFor(subtotal, shippingCost, shipping.cheapest_price) : 0;
   // Varejo: 5% de desconto à vista no PIX, sobre os produtos (não sobre o frete).
   const pixDiscount =
     paymentMethod === "PIX" ? Math.round(subtotal * PIX_DISCOUNT_RATE * 100) / 100 : 0;
@@ -348,6 +349,7 @@ function CheckoutPage() {
                 initialZip={form.zip}
                 selectedId={shipping?.id ?? null}
                 onSelect={setShipping}
+                freeShippingSubtotal={subtotal}
                 compact
               />
             </section>
@@ -409,8 +411,7 @@ function CheckoutPage() {
                       className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                     >
                       {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
-                        const enabled = n === 1 || (n <= 3 && total >= 200) || (n <= 5 && total >= 600) || (n <= 10 && total >= 1000);
-                        if (!enabled) return null;
+                        if (n > maxInstallmentsFor(total)) return null;
                         return (
                           <option key={n} value={n}>
                             {n}x de {formatBRL(total / n)}{n === 1 ? " à vista" : " sem juros"}
@@ -465,10 +466,15 @@ function CheckoutPage() {
                 <span className="text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
                 <span>{shipping ? formatBRL(shippingCost) : "—"}</span>
               </div>
-              {freeShipping && shipping && (
+              {shippingDiscount > 0 && (
                 <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
-                  <span>Frete grátis (acima de {formatBRL(FREE_SHIPPING_THRESHOLD)})</span>
+                  <span>{shippingDiscount >= shippingCost ? `Frete grátis (acima de ${formatBRL(FREE_SHIPPING_THRESHOLD)})` : "Desconto no frete"}</span>
                   <span>−{formatBRL(shippingDiscount)}</span>
+                </div>
+              )}
+              {freeShipping && shipping && shippingDiscount < shippingCost && (
+                <div className="text-xs text-muted-foreground">
+                  O frete grátis cobre a opção mais econômica, até {formatBRL(FREE_SHIPPING_CAP)}. Você paga só a diferença.
                 </div>
               )}
               {pixDiscount > 0 && (

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { normalizeEmbroideryName, requiresEmbroideryName } from "@/lib/store/personalization";
+import { formatMoney, freeShippingDiscountFor, PIX_DISCOUNT_RATE } from "@/lib/store/pricing";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -592,10 +593,27 @@ export const createStoreOrder = createServerFn({ method: "POST" })
 
     if (orderItems.length === 0) throw new Error("Nenhum item válido");
 
-    const shipping_cost = data.shipping_cost ?? 0;
-    const FREE_SHIPPING_THRESHOLD = 399;
-    const PIX_DISCOUNT_RATE = 0.05;
-    const shipping_discount = subtotal >= FREE_SHIPPING_THRESHOLD ? shipping_cost : 0;
+    // O frete é cotado de novo aqui: o preço que vem do navegador não vale.
+    if (!data.shipping_service_id) throw new Error("Escolha o frete novamente para concluir o pedido.");
+    const { quoteShipping } = await import("@/lib/store/shipping-quote.server");
+    const quote = await quoteShipping({
+      to_zip: data.shipping_address.zip,
+      items: orderItems.map((oi) => ({
+        product_id: String(oi.product_id),
+        variant_id: (oi.variant_id as string | null) ?? null,
+        quantity: Number(oi.quantity),
+        unit_price: Number(oi.unit_price),
+      })),
+    });
+    const option = quote.find((o) => o.id === data.shipping_service_id && !o.error && o.price > 0);
+    if (!option) throw new Error("A opção de frete escolhida não está mais disponível. Calcule o frete novamente.");
+    // Frete subiu desde a cotação do cliente: não cobra mais do que ele viu sem avisar.
+    if (data.shipping_cost != null && option.price > data.shipping_cost + 1) {
+      throw new Error(`O frete foi atualizado para ${formatMoney(option.price)}. Calcule o frete novamente.`);
+    }
+    const shipping_cost = option.price;
+    const shipping_method = `${option.company} ${option.name}`.trim();
+    const shipping_discount = freeShippingDiscountFor(subtotal, option.price, option.cheapest_price);
     // Varejo: 5% de desconto à vista no PIX, aplicado sobre os produtos (não sobre o frete).
     const pix_discount =
       data.payment_method === "PIX" ? Math.round(subtotal * PIX_DISCOUNT_RATE * 100) / 100 : 0;
@@ -611,9 +629,9 @@ export const createStoreOrder = createServerFn({ method: "POST" })
         customer_phone: data.customer_phone,
         customer_document: data.customer_document,
         shipping_address: data.shipping_address,
-        shipping_method: data.shipping_method ?? null,
-        melhor_envio_service_id: data.shipping_service_id ?? null,
-        melhor_envio_service_name: data.shipping_method ?? null,
+        shipping_method,
+        melhor_envio_service_id: option.id,
+        melhor_envio_service_name: shipping_method,
         subtotal,
         shipping_cost,
         discount: shipping_discount + pix_discount,
