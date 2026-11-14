@@ -2,7 +2,7 @@
 
 A connected digital ecosystem designed for the martial arts market, combining **e-commerce, custom product management, academy management, payments, and operational workflows**.
 
-This project was built with **AI-assisted development using Lovable**, with product requirements, business logic, workflows, system architecture, testing, and continuous improvements driven by real-world business needs.
+This project was built with **AI-assisted development**, with product requirements, business logic, workflows, system architecture, testing, and continuous improvements driven by real-world business needs.
 
 ## Live Applications
 
@@ -120,7 +120,7 @@ Development was accelerated through **AI-assisted software development**, while 
 * Payment integrations
 * AI-assisted development
 * GitHub
-* Lovable
+* Cloudflare Workers
 
 ---
 
@@ -151,9 +151,7 @@ The ecosystem is designed around a modern web application architecture:
 
 # Development
 
-This project was built with [Lovable](https://lovable.dev).
-
-The repository is synchronized with the Lovable development environment, allowing the application to be developed collaboratively through AI-assisted coding and Git-based version control.
+The code lives on GitHub (`main`), the database, auth and storage on Supabase, and the app is built for Cloudflare Workers (TanStack Start + nitro `cloudflare-module`).
 
 ### Run Locally
 
