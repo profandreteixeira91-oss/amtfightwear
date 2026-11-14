@@ -892,7 +892,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("products")
-      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop, cest, origem")
+      .select("id, name, slug, sku, price, compare_at_price, cost, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent, ncm, cfop, cest, origem")
       .order("updated_at", { ascending: false })
       .limit(1000) as any;
     
@@ -920,9 +920,11 @@ export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
       origem: z.string().optional().nullable(),
       cfop: z.string().optional().nullable(),
       unidade: z.string().optional().nullable(),
+      parent_id: z.string().uuid().optional().nullable(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
+    if (data.id && data.parent_id === data.id) throw new Error("Uma categoria não pode ser mãe dela mesma");
     if (data.id) {
       const { error } = await context.supabase.from("store_categories").update(data).eq("id", data.id);
       if (error) throw new Error(error.message);
@@ -1010,6 +1012,17 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
+    // Preço antigo antes do update: define quais variações acompanhavam o produto.
+    let oldPrice: number | null = null;
+    if (typeof data.patch.price === "number") {
+      const { data: prev, error: prevErr } = await context.supabase
+        .from("products")
+        .select("price")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (prevErr) throw new Error(prevErr.message);
+      oldPrice = prev ? Number(prev.price) : null;
+    }
     const { error } = await context.supabase.from("products").update(data.patch as any).eq("id", data.id);
     if (error) throw new Error(error.message);
     // Sincroniza estoque entre todas as variantes ativas quando alterado em massa
@@ -1020,16 +1033,39 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
         .eq("product_id", data.id);
       if (vErr) throw new Error(vErr.message);
     }
-    // Sincroniza preço de todas as variantes quando o preço do produto é alterado.
-    // Diferenças por variante devem ser editadas individualmente após esta alteração.
-    if (typeof data.patch.price === "number") {
-      const { error: pErr } = await context.supabase
-        .from("store_product_variants")
-        .update({ price: data.patch.price })
-        .eq("product_id", data.id);
-      if (pErr) throw new Error(pErr.message);
+    // Preço: só as variações que acompanhavam o preço antigo mudam; preços por tamanho ficam.
+    let ownPricedVariants = 0;
+    if (typeof data.patch.price === "number" && oldPrice !== null) {
+      const { syncFollowingVariantPrices } = await import("@/lib/store/product-price.server");
+      const sync = await syncFollowingVariantPrices(context.supabase, data.id, oldPrice, data.patch.price);
+      ownPricedVariants = sync.ownPriced;
     }
-    return { ok: true };
+    return { ok: true, ownPricedVariants };
+  });
+
+/** Reajuste percentual em massa: produto e variações com preço próprio sobem/descem juntos. */
+export const adminAdjustProductPrices = createServerFn({ method: "POST" })
+  .middleware([requireStoreOwner])
+  .validator((i: unknown) =>
+    z.object({
+      ids: z.array(z.string().uuid()).min(1).max(1000),
+      percent: z.number().min(-90).max(500),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { scaleProductPrice } = await import("@/lib/store/product-price.server");
+    const factor = 1 + data.percent / 100;
+    let ok = 0;
+    const failed: string[] = [];
+    for (const id of data.ids) {
+      try {
+        await scaleProductPrice(context.supabase, id, factor);
+        ok++;
+      } catch {
+        failed.push(id);
+      }
+    }
+    return { ok, failed };
   });
 
 export const adminGetStoreProduct = createServerFn({ method: "GET" })

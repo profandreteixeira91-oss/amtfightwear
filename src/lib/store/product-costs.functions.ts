@@ -23,6 +23,7 @@ export type CostWorkspaceProduct = {
   name: string;
   sku: string | null;
   category: string | null;
+  category_id: string | null;
   image_url: string | null;
   status: string;
   price: number;
@@ -45,7 +46,10 @@ export type CostWorkspaceProduct = {
     waste_percent: number;
     unit_of_measure: string | null;
   }[];
-  /** Variações ativas com preço próprio (não mudam ao aplicar o preço do produto). */
+  /**
+   * Preços das variações ativas diferentes do preço do produto (preço por tamanho). Essas não
+   * mudam ao aplicar um preço novo; as que acompanham o produto mudam junto.
+   */
   variant_prices: number[];
   /** Peças pagas nos últimos 90 dias. */
   units_sold: number;
@@ -53,6 +57,7 @@ export type CostWorkspaceProduct = {
 
 export type CostWorkspace = {
   products: CostWorkspaceProduct[];
+  categories: { id: string; name: string; parent_id: string | null }[];
   defaults: {
     taxes: number;
     gateway: number;
@@ -83,41 +88,43 @@ export const adminGetCostWorkspace = createServerFn({ method: "GET" })
     const sb = await admin();
     const since = new Date(Date.now() - SALES_WINDOW_DAYS * 86_400_000).toISOString();
 
-    const [productsRes, compsRes, cfgRes, fixedRes, variantsRes, ordersRes] = await Promise.all([
-      sb
-        .from("products")
-        .select(
-          "id, name, sku, category, image_url, status, price, cost, wholesale_enabled, wholesale_discount_percent, pricing_taxes_percent, pricing_gateway_percent, pricing_commission_percent, pricing_marketing_percent, pricing_reserve_percent, pricing_profit_percent",
-        )
-        .order("name", { ascending: true })
-        .limit(2000),
-      sb
-        .from("product_cost_compositions")
-        .select(
-          "product_id, name, type, quantity, unit_cost, waste_percent, unit_of_measure, is_active, created_at",
-        )
-        .order("created_at", { ascending: true })
-        .limit(20000),
-      sb
-        .from("app_pricing_configs")
-        .select("*")
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      sb.from("fixed_expenses").select("id, name, value").order("name", { ascending: true }),
-      sb
-        .from("store_product_variants")
-        .select("product_id, price, active")
-        .not("price", "is", null)
-        .limit(20000),
-      sb
-        .from("store_orders")
-        .select("id")
-        .in("payment_status", PAID_STATUSES)
-        .gte("created_at", since)
-        .limit(5000),
-    ]);
-    for (const r of [productsRes, compsRes, cfgRes, fixedRes, variantsRes, ordersRes]) {
+    const [productsRes, compsRes, cfgRes, fixedRes, variantsRes, ordersRes, catsRes] =
+      await Promise.all([
+        sb
+          .from("products")
+          .select(
+            "id, name, sku, category, category_id, image_url, status, price, cost, wholesale_enabled, wholesale_discount_percent, pricing_taxes_percent, pricing_gateway_percent, pricing_commission_percent, pricing_marketing_percent, pricing_reserve_percent, pricing_profit_percent",
+          )
+          .order("name", { ascending: true })
+          .limit(2000),
+        sb
+          .from("product_cost_compositions")
+          .select(
+            "product_id, name, type, quantity, unit_cost, waste_percent, unit_of_measure, is_active, created_at",
+          )
+          .order("created_at", { ascending: true })
+          .limit(20000),
+        sb
+          .from("app_pricing_configs")
+          .select("*")
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        sb.from("fixed_expenses").select("id, name, value").order("name", { ascending: true }),
+        sb
+          .from("store_product_variants")
+          .select("product_id, price, active")
+          .not("price", "is", null)
+          .limit(20000),
+        sb
+          .from("store_orders")
+          .select("id")
+          .in("payment_status", PAID_STATUSES)
+          .gte("created_at", since)
+          .limit(5000),
+        sb.from("store_categories").select("id, name, parent_id, sort_order").order("sort_order"),
+      ]);
+    for (const r of [productsRes, compsRes, cfgRes, fixedRes, variantsRes, ordersRes, catsRes]) {
       if (r.error) throw new Error(r.error.message);
     }
 
@@ -156,9 +163,11 @@ export const adminGetCostWorkspace = createServerFn({ method: "GET" })
       itemsByProduct.set(c.product_id, list);
     }
 
+    const productPrice = new Map((productsRes.data ?? []).map((p) => [p.id, num(p.price)]));
     const variantPrices = new Map<string, number[]>();
     for (const v of variantsRes.data ?? []) {
       if (v.active === false || v.price === null) continue;
+      if (Math.abs(num(v.price) - (productPrice.get(v.product_id) ?? NaN)) < 0.005) continue;
       const list = variantPrices.get(v.product_id) ?? [];
       list.push(num(v.price));
       variantPrices.set(v.product_id, list);
@@ -166,11 +175,17 @@ export const adminGetCostWorkspace = createServerFn({ method: "GET" })
 
     const cfg = cfgRes.data as Record<string, unknown> | null;
     return {
+      categories: (catsRes.data ?? []).map((c) => ({
+        id: c.id,
+        name: c.name,
+        parent_id: c.parent_id,
+      })),
       products: (productsRes.data ?? []).map((p) => ({
         id: p.id,
         name: p.name,
         sku: p.sku,
         category: p.category,
+        category_id: p.category_id,
         image_url: p.image_url,
         status: p.status,
         price: num(p.price),
@@ -210,80 +225,129 @@ export const adminGetCostWorkspace = createServerFn({ method: "GET" })
 const pct = z.number().min(0).max(100);
 const pctOrNull = pct.nullable();
 
+const itemsSchema = z
+  .array(
+    z.object({
+      name: z.string().trim().min(1).max(120),
+      type: z.string().trim().min(1).max(30),
+      quantity: z.number().min(0).max(100_000),
+      unit_cost: z.number().min(0).max(1_000_000),
+      waste_percent: pct,
+      unit_of_measure: z.string().trim().max(20).nullable(),
+    }),
+  )
+  .max(100);
+
+const percentsSchema = z.object({
+  taxes: pctOrNull,
+  gateway: pctOrNull,
+  commission: pctOrNull,
+  marketing: pctOrNull,
+  reserve: pctOrNull,
+  profit: pctOrNull,
+});
+
+type SheetItems = z.infer<typeof itemsSchema>;
+type SheetPercents = z.infer<typeof percentsSchema>;
+
+/**
+ * Troca a ficha de custo de um ou mais produtos pela mesma lista de itens e grava o custo
+ * total em products.cost. `percents` undefined mantém os percentuais de cada produto.
+ * A ficha nova é gravada antes de apagar a antiga: uma falha no meio não deixa produto sem custo.
+ */
+async function replaceCostSheets(
+  productIds: string[],
+  items: SheetItems,
+  percents: SheetPercents | undefined,
+  userId: string,
+) {
+  const sb = await admin();
+  const { data: existing, error: exErr } = await sb
+    .from("product_cost_compositions")
+    .select("id")
+    .in("product_id", productIds);
+  if (exErr) throw new Error(exErr.message);
+
+  if (items.length > 0) {
+    const now = new Date().toISOString();
+    const rows = productIds.flatMap((product_id) =>
+      items.map((it) => ({
+        ...it,
+        product_id,
+        tenant_id: userId,
+        is_active: true,
+        updated_at: now,
+      })),
+    );
+    for (let i = 0; i < rows.length; i += 500) {
+      const { error } = await sb.from("product_cost_compositions").insert(rows.slice(i, i + 500));
+      if (error) throw new Error(error.message);
+    }
+  }
+  const oldIds = (existing ?? []).map((r) => r.id);
+  for (let i = 0; i < oldIds.length; i += 200) {
+    const { error } = await sb
+      .from("product_cost_compositions")
+      .delete()
+      .in("id", oldIds.slice(i, i + 200));
+    if (error) throw new Error(error.message);
+  }
+
+  const cost = round2(productionCost(items));
+  const patch = {
+    cost,
+    ...(percents
+      ? {
+          pricing_taxes_percent: percents.taxes,
+          pricing_gateway_percent: percents.gateway,
+          pricing_commission_percent: percents.commission,
+          pricing_marketing_percent: percents.marketing,
+          pricing_reserve_percent: percents.reserve,
+          pricing_profit_percent: percents.profit,
+        }
+      : {}),
+  };
+  for (let i = 0; i < productIds.length; i += 200) {
+    const { error } = await sb
+      .from("products")
+      .update(patch)
+      .in("id", productIds.slice(i, i + 200));
+    if (error) throw new Error(error.message);
+  }
+  return { cost };
+}
+
 export const adminSaveProductCosts = createServerFn({ method: "POST" })
   .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
+      .object({ product_id: z.string().uuid(), items: itemsSchema, percents: percentsSchema })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) =>
+    replaceCostSheets([data.product_id], data.items, data.percents, context.userId),
+  );
+
+/** Aplica a mesma ficha de custo (e, se enviados, os percentuais) a vários produtos de uma vez. */
+export const adminApplyCategoryCosts = createServerFn({ method: "POST" })
+  .middleware([requireStoreOwner])
+  .validator((i: unknown) =>
+    z
       .object({
-        product_id: z.string().uuid(),
-        items: z
-          .array(
-            z.object({
-              name: z.string().trim().min(1).max(120),
-              type: z.string().trim().min(1).max(30),
-              quantity: z.number().min(0).max(100_000),
-              unit_cost: z.number().min(0).max(1_000_000),
-              waste_percent: pct,
-              unit_of_measure: z.string().trim().max(20).nullable(),
-            }),
-          )
-          .max(100),
-        percents: z.object({
-          taxes: pctOrNull,
-          gateway: pctOrNull,
-          commission: pctOrNull,
-          marketing: pctOrNull,
-          reserve: pctOrNull,
-          profit: pctOrNull,
-        }),
+        product_ids: z.array(z.string().uuid()).min(1).max(1000),
+        items: itemsSchema.min(1),
+        percents: percentsSchema.optional(),
       })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const sb = await admin();
-
-    const { data: existing, error: exErr } = await sb
-      .from("product_cost_compositions")
-      .select("id")
-      .eq("product_id", data.product_id);
-    if (exErr) throw new Error(exErr.message);
-
-    // Grava a ficha nova antes de apagar a antiga: uma falha no meio não deixa o produto sem custo.
-    if (data.items.length > 0) {
-      const now = new Date().toISOString();
-      const { error } = await sb.from("product_cost_compositions").insert(
-        data.items.map((it) => ({
-          ...it,
-          product_id: data.product_id,
-          tenant_id: context.userId,
-          is_active: true,
-          updated_at: now,
-        })),
-      );
-      if (error) throw new Error(error.message);
-    }
-    const oldIds = (existing ?? []).map((r) => r.id);
-    if (oldIds.length > 0) {
-      const { error } = await sb.from("product_cost_compositions").delete().in("id", oldIds);
-      if (error) throw new Error(error.message);
-    }
-
-    const cost = round2(productionCost(data.items));
-    const { error: upErr } = await sb
-      .from("products")
-      .update({
-        cost,
-        pricing_taxes_percent: data.percents.taxes,
-        pricing_gateway_percent: data.percents.gateway,
-        pricing_commission_percent: data.percents.commission,
-        pricing_marketing_percent: data.percents.marketing,
-        pricing_reserve_percent: data.percents.reserve,
-        pricing_profit_percent: data.percents.profit,
-      })
-      .eq("id", data.product_id);
-    if (upErr) throw new Error(upErr.message);
-
-    return { cost };
+    const res = await replaceCostSheets(
+      data.product_ids,
+      data.items,
+      data.percents,
+      context.userId,
+    );
+    return { ...res, count: data.product_ids.length };
   });
 
 export const adminSavePricingDefaults = createServerFn({ method: "POST" })
@@ -359,18 +423,33 @@ export const adminSaveFixedExpenses = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Troca o preço de venda do produto na loja (as variações com preço próprio não mudam). */
-export const adminApplyProductPrice = createServerFn({ method: "POST" })
+/**
+ * Troca o preço de venda de um ou mais produtos na loja. As variações que acompanhavam o preço
+ * do produto mudam junto (é o preço que o cliente paga); as de preço por tamanho ficam.
+ */
+export const adminApplyProductPrices = createServerFn({ method: "POST" })
   .middleware([requireStoreOwner])
   .validator((i: unknown) =>
     z
-      .object({ product_id: z.string().uuid(), price: z.number().min(0.01).max(1_000_000) })
+      .object({
+        items: z
+          .array(
+            z.object({ product_id: z.string().uuid(), price: z.number().min(0.01).max(1_000_000) }),
+          )
+          .min(1)
+          .max(1000),
+      })
       .parse(i),
   )
   .handler(async ({ data }) => {
     const sb = await admin();
-    const price = round2(data.price);
-    const { error } = await sb.from("products").update({ price }).eq("id", data.product_id);
-    if (error) throw new Error(error.message);
-    return { price };
+    const { setProductPrice } = await import("@/lib/store/product-price.server");
+    let updated = 0;
+    let ownPriced = 0;
+    for (const it of data.items) {
+      const r = await setProductPrice(sb, it.product_id, it.price);
+      updated++;
+      ownPriced += r.ownPriced;
+    }
+    return { updated, ownPriced };
   });
