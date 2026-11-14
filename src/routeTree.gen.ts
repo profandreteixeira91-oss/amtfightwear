@@ -168,6 +168,7 @@ import { Route as AuthenticatedAdminMarketingPrecosRouteImport } from './routes/
 import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated/admin.pedidos.index'
 import { Route as AuthenticatedAdminPedidosOrderIdRouteImport } from './routes/_authenticated/admin.pedidos.$orderId'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated/admin.produtos.index'
+import { Route as AuthenticatedAdminProdutosCustosRouteImport } from './routes/_authenticated/admin.produtos.custos'
 import { Route as AuthenticatedAdminProdutosFaixaCalcRouteImport } from './routes/_authenticated/admin.produtos.faixa-calc'
 import { Route as AuthenticatedAdminProdutosImagensRouteImport } from './routes/_authenticated/admin.produtos.imagens'
 import { Route as AuthenticatedAdminProdutosImportarRouteImport } from './routes/_authenticated/admin.produtos.importar'
@@ -1097,6 +1098,12 @@ const AuthenticatedAdminProdutosIndexRoute =
     path: '/produtos/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminProdutosCustosRoute =
+  AuthenticatedAdminProdutosCustosRouteImport.update({
+    id: '/produtos/custos',
+    path: '/produtos/custos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminProdutosFaixaCalcRoute =
   AuthenticatedAdminProdutosFaixaCalcRouteImport.update({
     id: '/produtos/faixa-calc',
@@ -1405,6 +1412,7 @@ export interface FileRoutesByFullPath {
   '/admin/marketing/painel': typeof AuthenticatedAdminMarketingPainelRoute
   '/admin/marketing/precos': typeof AuthenticatedAdminMarketingPrecosRoute
   '/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
+  '/admin/produtos/custos': typeof AuthenticatedAdminProdutosCustosRoute
   '/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
@@ -1585,6 +1593,7 @@ export interface FileRoutesByTo {
   '/admin/marketing/painel': typeof AuthenticatedAdminMarketingPainelRoute
   '/admin/marketing/precos': typeof AuthenticatedAdminMarketingPrecosRoute
   '/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
+  '/admin/produtos/custos': typeof AuthenticatedAdminProdutosCustosRoute
   '/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
@@ -1775,6 +1784,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/marketing/painel': typeof AuthenticatedAdminMarketingPainelRoute
   '/_authenticated/admin/marketing/precos': typeof AuthenticatedAdminMarketingPrecosRoute
   '/_authenticated/admin/pedidos/$orderId': typeof AuthenticatedAdminPedidosOrderIdRoute
+  '/_authenticated/admin/produtos/custos': typeof AuthenticatedAdminProdutosCustosRoute
   '/_authenticated/admin/produtos/faixa-calc': typeof AuthenticatedAdminProdutosFaixaCalcRoute
   '/_authenticated/admin/produtos/imagens': typeof AuthenticatedAdminProdutosImagensRoute
   '/_authenticated/admin/produtos/importar': typeof AuthenticatedAdminProdutosImportarRoute
@@ -1965,6 +1975,7 @@ export interface FileRouteTypes {
     | '/admin/marketing/painel'
     | '/admin/marketing/precos'
     | '/admin/pedidos/$orderId'
+    | '/admin/produtos/custos'
     | '/admin/produtos/faixa-calc'
     | '/admin/produtos/imagens'
     | '/admin/produtos/importar'
@@ -2145,6 +2156,7 @@ export interface FileRouteTypes {
     | '/admin/marketing/painel'
     | '/admin/marketing/precos'
     | '/admin/pedidos/$orderId'
+    | '/admin/produtos/custos'
     | '/admin/produtos/faixa-calc'
     | '/admin/produtos/imagens'
     | '/admin/produtos/importar'
@@ -2334,6 +2346,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/marketing/painel'
     | '/_authenticated/admin/marketing/precos'
     | '/_authenticated/admin/pedidos/$orderId'
+    | '/_authenticated/admin/produtos/custos'
     | '/_authenticated/admin/produtos/faixa-calc'
     | '/_authenticated/admin/produtos/imagens'
     | '/_authenticated/admin/produtos/importar'
@@ -3534,6 +3547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProdutosIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/produtos/custos': {
+      id: '/_authenticated/admin/produtos/custos'
+      path: '/produtos/custos'
+      fullPath: '/admin/produtos/custos'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosCustosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/produtos/faixa-calc': {
       id: '/_authenticated/admin/produtos/faixa-calc'
       path: '/produtos/faixa-calc'
@@ -3921,6 +3941,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminLeadsPipelineRoute: typeof AuthenticatedAdminLeadsPipelineRoute
   AuthenticatedAdminLeadsQualificadosRoute: typeof AuthenticatedAdminLeadsQualificadosRoute
   AuthenticatedAdminPedidosOrderIdRoute: typeof AuthenticatedAdminPedidosOrderIdRoute
+  AuthenticatedAdminProdutosCustosRoute: typeof AuthenticatedAdminProdutosCustosRoute
   AuthenticatedAdminProdutosFaixaCalcRoute: typeof AuthenticatedAdminProdutosFaixaCalcRoute
   AuthenticatedAdminProdutosImagensRoute: typeof AuthenticatedAdminProdutosImagensRoute
   AuthenticatedAdminProdutosImportarRoute: typeof AuthenticatedAdminProdutosImportarRoute
@@ -3971,6 +3992,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminLeadsQualificadosRoute:
     AuthenticatedAdminLeadsQualificadosRoute,
   AuthenticatedAdminPedidosOrderIdRoute: AuthenticatedAdminPedidosOrderIdRoute,
+  AuthenticatedAdminProdutosCustosRoute: AuthenticatedAdminProdutosCustosRoute,
   AuthenticatedAdminProdutosFaixaCalcRoute:
     AuthenticatedAdminProdutosFaixaCalcRoute,
   AuthenticatedAdminProdutosImagensRoute:

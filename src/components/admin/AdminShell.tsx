@@ -176,6 +176,7 @@ const NAV: NavGroup[] = [
           { title: "Importar", url: "/admin/produtos/importar" },
           { title: "Tabela de tamanhos", url: "/admin/produtos/tamanhos" },
           { title: "Pacotes", url: "/admin/produtos/pacotes" },
+          { title: "Custos e preço", url: "/admin/produtos/custos" },
           { title: "Calculadora de faixas", url: "/admin/produtos/faixa-calc" },
         ],
       },
