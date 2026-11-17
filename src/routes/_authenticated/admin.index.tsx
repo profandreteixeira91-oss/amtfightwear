@@ -233,6 +233,58 @@ function AdminHome() {
             />
           </section>
 
+          {/* Faturamento e lucro (custos das fichas) */}
+          <SectionCard
+            title="Faturamento e lucro"
+            description="Vendas pagas do período menos o custo de produção das peças, impostos, taxas e as despesas fixas proporcionais."
+          >
+            {d ? (
+              d.profit.units === 0 ? (
+                <p className="text-sm text-muted-foreground">Sem vendas pagas neste período.</p>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    {[
+                      ["Faturamento", brl(d.profit.revenue), ""],
+                      ["Custo de produção", `− ${brl(d.profit.production_cost)}`, ""],
+                      ["Impostos, taxas e marketing", `− ${brl(d.profit.variable_expenses)}`, ""],
+                      ["Despesas fixas (proporcional)", `− ${brl(d.profit.fixed_expenses)}`, ""],
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-xl border border-neutral-200 p-3">
+                        <div className="text-xs text-muted-foreground">{label}</div>
+                        <div className="mt-1 text-lg font-semibold tabular-nums">{value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    className={cn(
+                      "flex flex-wrap items-baseline justify-between gap-2 rounded-xl p-4",
+                      d.profit.net_profit < 0 ? "bg-red-50 text-red-800" : "bg-emerald-50 text-emerald-900",
+                    )}
+                  >
+                    <div>
+                      <div className="text-xs font-medium uppercase tracking-wide opacity-70">Lucro do período</div>
+                      <div className="text-3xl font-semibold tracking-tight tabular-nums">{brl(d.profit.net_profit)}</div>
+                    </div>
+                    <div className="text-sm tabular-nums">
+                      Margem {d.profit.margin.toFixed(1).replace(".", ",")}% · lucro antes das fixas {brl(d.profit.gross_profit)}
+                    </div>
+                  </div>
+                  {d.profit.units_without_cost > 0 ? (
+                    <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+                      {d.profit.products_without_cost} {d.profit.products_without_cost === 1 ? "produto vendido está" : "produtos vendidos estão"} sem custo ({d.profit.units_without_cost} peça(s)), então o lucro está maior que o real.{" "}
+                      <Link to="/admin/produtos/custos" className="font-semibold underline">
+                        Preencher custos
+                      </Link>
+                    </p>
+                  ) : null}
+                </div>
+              )
+            ) : (
+              <Skeleton className="h-32 w-full" />
+            )}
+          </SectionCard>
+
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
             {/* Faturamento por dia */}
             <SectionCard

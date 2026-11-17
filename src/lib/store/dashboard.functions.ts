@@ -197,6 +197,82 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
       }
     }
 
+    // Lucro estimado do período: custo das fichas (products.cost) + percentuais sobre a venda.
+    let profit = {
+      revenue: 0,
+      production_cost: 0,
+      variable_expenses: 0,
+      gross_profit: 0,
+      fixed_expenses: 0,
+      net_profit: 0,
+      margin: 0,
+      units: 0,
+      units_without_cost: 0,
+      products_without_cost: 0,
+    };
+    {
+      const paidIds = paidRange.map((o) => o.id);
+      const days = Math.max(1, (new Date(rangeEnd).getTime() - new Date(rangeStart).getTime()) / 86_400_000);
+      const [cfgRes, fixedRes] = await Promise.all([
+        supabaseAdmin.from("app_pricing_configs").select("*").order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+        supabaseAdmin.from("fixed_expenses").select("value"),
+      ]);
+      const cfg = cfgRes.data as Record<string, unknown> | null;
+      const num0 = (v: unknown, d = 0) => (Number.isFinite(Number(v)) && v !== null && v !== "" ? Number(v) : d);
+      const defs = {
+        taxes: num0(cfg?.default_tax_rate, 8),
+        gateway: num0(cfg?.default_gateway_fee, 4),
+        marketing: num0(cfg?.default_marketing_percent, 10),
+      };
+      const monthlyFixed = (fixedRes.data ?? []).reduce((a, f) => a + num0((f as { value: unknown }).value), 0);
+      const rows: { product_id: string | null; quantity: number | null; total_price: number | null }[] = [];
+      for (let i = 0; i < paidIds.length; i += 200) {
+        const { data: part } = await supabaseAdmin
+          .from("store_order_items")
+          .select("product_id, quantity, total_price")
+          .in("order_id", paidIds.slice(i, i + 200));
+        rows.push(...(part ?? []));
+      }
+      const pids = Array.from(new Set(rows.map((r) => r.product_id).filter((x): x is string => !!x)));
+      const prodMap = new Map<string, Record<string, unknown>>();
+      for (let i = 0; i < pids.length; i += 200) {
+        const { data: ps } = await supabaseAdmin
+          .from("products")
+          .select("id, cost, pricing_taxes_percent, pricing_gateway_percent, pricing_commission_percent, pricing_marketing_percent, pricing_reserve_percent")
+          .in("id", pids.slice(i, i + 200));
+        for (const p of ps ?? []) prodMap.set(p.id as string, p as Record<string, unknown>);
+      }
+      const noCost = new Set<string>();
+      for (const r of rows) {
+        const qty = Number(r.quantity || 0);
+        const rev = Number(r.total_price || 0);
+        const p = r.product_id ? prodMap.get(r.product_id) : undefined;
+        const unitCost = num0(p?.cost);
+        const varPct =
+          num0(p?.pricing_taxes_percent, defs.taxes) +
+          num0(p?.pricing_gateway_percent, defs.gateway) +
+          num0(p?.pricing_commission_percent, 0) +
+          num0(p?.pricing_marketing_percent, defs.marketing) +
+          num0(p?.pricing_reserve_percent, 0);
+        profit.revenue += rev;
+        profit.units += qty;
+        profit.production_cost += unitCost * qty;
+        profit.variable_expenses += (rev * varPct) / 100;
+        if (!(unitCost > 0)) {
+          profit.units_without_cost += qty;
+          if (r.product_id) noCost.add(r.product_id);
+        }
+      }
+      profit.products_without_cost = noCost.size;
+      profit.gross_profit = profit.revenue - profit.production_cost - profit.variable_expenses;
+      profit.fixed_expenses = (monthlyFixed * days) / 30;
+      profit.net_profit = profit.gross_profit - profit.fixed_expenses;
+      profit.margin = profit.revenue > 0 ? (profit.net_profit / profit.revenue) * 100 : 0;
+      for (const k of Object.keys(profit) as (keyof typeof profit)[]) {
+        if (!["units", "units_without_cost", "products_without_cost"].includes(k)) profit[k] = Math.round(profit[k] * 100) / 100;
+      }
+    }
+
     // Receita de produção finalizada (fila de produção -> financeiro)
     const { data: financeEntries } = await supabaseAdmin
       .from("store_finance_entries")
@@ -351,6 +427,7 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
         product_views: productViewsNow,
         category_views: categoryViewsNow,
       },
+      profit,
       finance: {
         gross_revenue: grossRevenue,
         net_revenue: netRevenue,

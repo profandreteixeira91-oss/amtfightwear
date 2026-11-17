@@ -350,6 +350,52 @@ export const adminApplyCategoryCosts = createServerFn({ method: "POST" })
     return { ...res, count: data.product_ids.length };
   });
 
+/**
+ * Preenchimento rápido: um custo total por peça para cada produto (uma linha "Custo de produção").
+ * Produtos que já têm ficha detalhada (mais de um item) são pulados para não apagar o detalhamento.
+ */
+export const adminQuickSaveCosts = createServerFn({ method: "POST" })
+  .middleware([requireStoreOwner])
+  .validator((i: unknown) =>
+    z
+      .object({
+        rows: z
+          .array(z.object({ product_id: z.string().uuid(), cost: z.number().min(0).max(1_000_000) }))
+          .min(1)
+          .max(500),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const sb = await admin();
+    const ids = data.rows.map((r) => r.product_id);
+    const { data: existing, error } = await sb
+      .from("product_cost_compositions")
+      .select("product_id")
+      .in("product_id", ids);
+    if (error) throw new Error(error.message);
+    const count = new Map<string, number>();
+    for (const e of existing ?? []) {
+      if (!e.product_id) continue;
+      count.set(e.product_id, (count.get(e.product_id) ?? 0) + 1);
+    }
+    let saved = 0;
+    const skipped: string[] = [];
+    for (const r of data.rows) {
+      if ((count.get(r.product_id) ?? 0) > 1) {
+        skipped.push(r.product_id);
+        continue;
+      }
+      const items: SheetItems =
+        r.cost > 0
+          ? [{ name: "Custo de produção", type: "other", quantity: 1, unit_cost: r.cost, waste_percent: 0, unit_of_measure: null }]
+          : [];
+      await replaceCostSheets([r.product_id], items, undefined, context.userId);
+      saved++;
+    }
+    return { saved, skipped };
+  });
+
 export const adminSavePricingDefaults = createServerFn({ method: "POST" })
   .middleware([requireStoreOwner])
   .validator((i: unknown) =>

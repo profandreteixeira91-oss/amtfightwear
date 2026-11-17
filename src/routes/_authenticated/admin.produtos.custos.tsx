@@ -41,6 +41,7 @@ import {
 } from "@/components/admin/costs/cost-shared";
 import { ProductCostEditor } from "@/components/admin/costs/ProductCostEditor";
 import { CategoryCostEditor } from "@/components/admin/costs/CategoryCostEditor";
+import { QuickCostGrid } from "@/components/admin/costs/QuickCostGrid";
 import { SettingsSheet } from "@/components/admin/costs/SettingsSheet";
 
 type CostsSearch = { produto?: string; categoria?: string };
@@ -104,6 +105,7 @@ function CostsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(search.produto ?? null);
   const [selectedCat, setSelectedCat] = useState<string | null>(search.categoria ?? null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [quick, setQuick] = useState(false);
   const dirtyRef = useRef(false);
   const setDirty = useCallback((d: boolean) => {
     dirtyRef.current = d;
@@ -228,6 +230,16 @@ function CostsPage() {
       description="Preencha quanto custa produzir cada peça, por produto ou por categoria, e veja o preço ideal, o lucro por venda e a projeção do mês."
       actions={
         <div className="flex gap-2">
+          <Button
+            variant={quick ? "default" : "outline"}
+            disabled={!ws}
+            onClick={async () => {
+              if (!(await guardDirty())) return;
+              setQuick((v) => !v);
+            }}
+          >
+            <Calculator className="mr-2 h-4 w-4" /> {quick ? "Voltar às fichas" : "Preenchimento rápido"}
+          </Button>
           <Button variant="outline" onClick={() => setSettingsOpen(true)} disabled={!ws}>
             <Settings2 className="mr-2 h-4 w-4" /> Parâmetros
           </Button>
@@ -282,6 +294,10 @@ function CostsPage() {
           description={(q.error as Error)?.message}
           action={<Button onClick={refresh}>Tentar de novo</Button>}
         />
+      ) : quick && ws ? (
+        <div className="mt-4">
+          <QuickCostGrid workspace={ws} fixedPct={fixedPct} onDirtyChange={setDirty} />
+        </div>
       ) : (
         <div className="mt-4 grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
           {/* Lista */}
