@@ -125,7 +125,7 @@ function StoreChatAdmin() {
 
   return (
     <PageShell
-      title="Chat da loja"
+      title="Atendimento"
       description="Atenda conversas, configure o agente de IA e mantenha a base de conhecimento."
       actions={
         <div className="-mx-1 flex w-full items-center gap-1 overflow-x-auto rounded-lg border bg-card p-1 text-sm sm:w-auto">

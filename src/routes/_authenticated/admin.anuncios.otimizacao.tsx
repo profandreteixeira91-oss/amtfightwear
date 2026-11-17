@@ -76,7 +76,7 @@ function OptimizationPage() {
     <>
       <PageHeader
         eyebrow="Tráfego Pago IA"
-        title="Otimização Contínua"
+        title="Otimização contínua"
         description="A IA analisa suas campanhas a cada 6 horas e sugere ações de escala, pausa e ajuste de orçamento."
         actions={
           <Button onClick={() => runMut.mutate()} disabled={runMut.isPending}>

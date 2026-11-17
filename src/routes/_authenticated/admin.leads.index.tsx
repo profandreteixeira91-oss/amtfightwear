@@ -473,8 +473,8 @@ function LeadsPage() {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
+                      <TableCell className="whitespace-nowrap">
+                        <div className="flex gap-1">
                           {email && <Badge variant="secondary" className="gap-1 px-1.5"><Mail className="h-3 w-3" /></Badge>}
                           {wa && <Badge variant="secondary" className="gap-1 px-1.5"><MessageCircle className="h-3 w-3" /></Badge>}
                           {ig && <Badge variant="secondary" className="gap-1 px-1.5"><Instagram className="h-3 w-3" /></Badge>}
@@ -482,7 +482,7 @@ function LeadsPage() {
                           {!email && !wa && !ig && !r.website && <span className="text-xs text-muted-foreground">—</span>}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="whitespace-nowrap text-right">
                         <div className="inline-flex items-center gap-1">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star key={i} className={`h-3 w-3 ${i < stars ? "fill-amber-400 text-amber-400" : "text-muted"}`} />
@@ -490,7 +490,7 @@ function LeadsPage() {
                           <span className="ml-1 text-xs font-semibold text-muted-foreground">{Number(r.score) || 0}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden text-xs text-muted-foreground lg:table-cell">
+                      <TableCell className="hidden whitespace-nowrap text-xs text-muted-foreground lg:table-cell">
                         {fmtDate(String(r.created_at))}
                       </TableCell>
                       <TableCell className="text-right">

@@ -37,7 +37,7 @@ function SearchPage() {
   return (
     <PageShell
       eyebrow="Prospect Engine"
-      title="Nova Busca"
+      title="Radar de leads"
       description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
       actions={<PurgeAllButton />}
     >

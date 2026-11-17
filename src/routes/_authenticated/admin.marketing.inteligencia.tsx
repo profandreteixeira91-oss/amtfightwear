@@ -52,7 +52,7 @@ function IntelligencePage() {
     <>
       <PageHeader
         eyebrow="Growth Intelligence"
-        title="Inteligência Comercial"
+        title="Inteligência comercial"
         description="Panorama consolidado da operação AMT Fight Wear em tempo real."
         actions={
           <Badge variant="secondary" className="gap-1">

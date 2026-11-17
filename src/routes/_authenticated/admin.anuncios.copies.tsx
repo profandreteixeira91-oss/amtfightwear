@@ -40,7 +40,7 @@ function CopiesPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Tráfego Pago IA" title="Biblioteca de Copies" description="Todas as copies geradas pela IA. Favorite as melhores." />
+      <PageHeader eyebrow="Tráfego Pago IA" title="Copies" description="Todas as copies geradas pela IA. Favorite as melhores." />
       {isLoading ? (
         <Skeleton className="h-64" />
       ) : !data || data.length === 0 ? (

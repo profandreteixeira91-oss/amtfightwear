@@ -58,7 +58,7 @@ function StoreDashboard() {
   return (
     <PageShell
       eyebrow="AMT Fight Wear"
-      title="Gestão da Loja"
+      title="Gestão da loja"
       description={
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="capitalize">
@@ -219,7 +219,7 @@ function StoreDashboard() {
             ) : (
               <>
                 <div className="flex flex-col gap-1 border-l-2 border-primary pl-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <div className="text-xs font-medium text-muted-foreground">
                     Receita Líquida (A)
                   </div>
                   <div className="text-2xl font-bold tracking-tight text-foreground">
@@ -228,7 +228,7 @@ function StoreDashboard() {
                 </div>
 
                 <div className="flex flex-col gap-1 border-l-2 border-primary/50 pl-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <div className="text-xs font-medium text-muted-foreground">
                     Custo de Produção (B)
                   </div>
                   <div className="text-xl font-bold tracking-tight text-primary">
@@ -240,7 +240,7 @@ function StoreDashboard() {
                 </div>
 
                 <div className="rounded-xl bg-foreground p-4 text-white shadow-inner">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+                  <div className="text-xs font-medium text-muted-foreground">
                     Lucro Bruto (A − B)
                   </div>
                   <div className="mt-1 text-3xl font-black tracking-tight text-emerald-400">
@@ -664,16 +664,16 @@ function KpiCard({
   live?: boolean;
 }) {
   const toneClass = {
-    revenue: { icon: "bg-primary/5 text-primary ring-1 ring-primary/30", accent: "bg-primary/90" },
-    orders: { icon: "bg-blue-50 text-blue-600 ring-1 ring-blue-100", accent: "bg-blue-500" },
-    live: { icon: "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100", accent: "bg-emerald-500" },
-    cart: { icon: "bg-amber-50 text-amber-600 ring-1 ring-amber-100", accent: "bg-amber-500" },
+    revenue: { icon: "bg-neutral-100 text-foreground", accent: "bg-primary/90" },
+    orders: { icon: "bg-neutral-100 text-foreground", accent: "bg-primary/90" },
+    live: { icon: "bg-neutral-100 text-foreground", accent: "bg-primary/90" },
+    cart: { icon: "bg-neutral-100 text-foreground", accent: "bg-primary/90" },
   }[tone];
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border/80 bg-card p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] sm:p-5">
+    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-4 transition-colors hover:border-neutral-300 sm:p-5">
       <div className="flex items-center justify-between gap-2">
-        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${toneClass.icon}`}>
+        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${toneClass.icon}`}>
           <Icon className="h-4 w-4" />
         </div>
         {live && (
@@ -683,13 +683,13 @@ function KpiCard({
           </span>
         )}
       </div>
-      <div className="mt-3 truncate text-[11px] font-medium uppercase tracking-wider text-muted-foreground sm:text-xs">
+      <div className="mt-3 truncate text-[13px] font-medium text-muted-foreground">
         {label}
       </div>
       {loading ? (
         <Skeleton className="mt-1.5 h-8 w-24" />
       ) : (
-        <div className="mt-1 truncate text-2xl font-bold tracking-tight text-foreground sm:text-[28px] sm:leading-tight">
+        <div className="mt-1 truncate text-2xl font-semibold tracking-tight tabular-nums text-foreground">
           {value ?? "—"}
         </div>
       )}
@@ -728,8 +728,8 @@ function FinanceRow({ label, value, loading, highlight, negative }: { label: str
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border bg-muted/30 p-3">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="mt-1 text-xl font-black">{value}</div>
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="mt-1 text-xl font-semibold tabular-nums">{value}</div>
     </div>
   );
 }

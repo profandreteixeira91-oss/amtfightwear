@@ -38,7 +38,7 @@ function ProspectDashboardPage() {
   return (
     <PageShell
         eyebrow="Prospect Engine"
-        title="Central de Prospecção"
+        title="Central de prospecção"
         description="Motor de busca, enriquecimento e pipeline de leads B2B com IA."
         actions={
           <>

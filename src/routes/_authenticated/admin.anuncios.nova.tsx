@@ -202,7 +202,7 @@ function NewAdCampaignWizard() {
     <>
       <PageHeader
         eyebrow="Tráfego Pago IA"
-        title="Nova Campanha com IA"
+        title="Nova campanha com IA"
         description="Consultor de mídia paga guiado por IA — em 6 passos você tem estratégia, copies e criativos prontos."
         actions={<Badge variant="secondary" className="gap-1"><Sparkles className="h-3 w-3" /> Passo {Math.min(step, 6)} de 6</Badge>}
       />

@@ -45,7 +45,7 @@ function UsersPage() {
     <>
       <PageHeader
         eyebrow="Equipe"
-        title="Usuários"
+        title="Equipe"
         description="Contas com acesso ao painel da AMT (dono e administradores). Clientes da loja, donos de academia e alunos não aparecem aqui."
       />
 

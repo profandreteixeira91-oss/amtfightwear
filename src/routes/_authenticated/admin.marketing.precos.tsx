@@ -173,7 +173,7 @@ function PricingPage() {
   return (
     <PageShell
         eyebrow="MarketEngine"
-        title="Pesquisa de Mercado & Preços"
+        title="Pesquisa de preços"
         description="A IA pesquisa preços de concorrentes no Google (sites próprios e marketplaces), compara descrições e sugere um preço competitivo para cada produto da AMT."
       >
 

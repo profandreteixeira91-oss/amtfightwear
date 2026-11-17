@@ -44,7 +44,7 @@ function AdsDashboard() {
     <>
       <PageHeader
         eyebrow="Tráfego Pago IA"
-        title="Dashboard de Campanhas"
+        title="Painel de anúncios"
         description={
           isReal
             ? "Dados em tempo real da conta Meta Ads conectada."

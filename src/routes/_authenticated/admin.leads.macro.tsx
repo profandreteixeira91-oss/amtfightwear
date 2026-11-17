@@ -528,7 +528,7 @@ function MacroPage() {
   return (
     <PageShell
       eyebrow="Prospect Engine"
-      title="Macro DM Instagram"
+      title="Segmentos e Macro DM"
       description="Assistente guiado passo a passo: uma mensagem por vez, com cooldown obrigatório e limites diários. Foco em cadência humana, sem disparo em massa."
       actions={
         <>

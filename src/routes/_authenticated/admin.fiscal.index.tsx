@@ -247,7 +247,7 @@ function FiscalDashboard() {
   return (
     <PageShell
       eyebrow="AMT Fiscal & Legal"
-      title="Gestão Fiscal"
+      title="Fiscal e certificado"
       description="Emissão de NF-e e NFS-e integrada aos pedidos e orçamentos do ecossistema AMT."
       actions={
         <>
@@ -1218,27 +1218,18 @@ function KpiCard({
     neutral: "bg-neutral-500/10 text-muted-foreground",
   };
 
+  // Mesmo visual do StatCard comum: rótulo em cima, ícone neutro, número e explicação embaixo.
+  const iconTone = tone === "amber" ? "bg-amber-50 text-amber-700" : tone === "red" ? "bg-primary/10 text-primary" : "bg-neutral-100 text-foreground";
   return (
-    <div className={cn(
-      "relative group flex flex-col gap-4 rounded-[2rem] border border-border/60 bg-card p-7 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
-    )}>
-      <div className="flex items-center justify-between">
-        <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-110 group-hover:rotate-3", iconTones[tone])}>
-          <Icon className="h-6 w-6" />
+    <div className="min-w-0 rounded-2xl border border-neutral-200 bg-white p-4 transition-colors hover:border-neutral-300 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 text-[13px] font-medium leading-snug text-muted-foreground">{hint}</div>
+        <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", iconTone)}>
+          <Icon className="h-4 w-4" />
         </div>
-        <Badge variant="outline" className="rounded-full border-border/60 bg-muted/40 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
-          {hint}
-        </Badge>
       </div>
-      
-      <div className="space-y-1">
-        <div className="text-3xl font-black tracking-tight text-foreground md:text-4xl">
-          {value}
-        </div>
-        <p className="text-xs font-medium leading-relaxed text-muted-foreground">
-          {label}
-        </p>
-      </div>
+      <div className="mt-2 truncate text-2xl font-semibold tracking-tight tabular-nums">{value}</div>
+      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }

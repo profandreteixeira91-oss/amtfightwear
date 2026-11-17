@@ -42,7 +42,7 @@ function OverviewPage() {
   return (
     <PageShell
         eyebrow="MarketEngine"
-        title="Painel Geral"
+        title="Painel de marketing"
         description="Visão consolidada do motor de vendas AMT Fight Wear com dados reais."
         actions={<Badge variant="secondary" className="gap-1"><Rocket className="h-3 w-3" /> Ao vivo</Badge>}
       >

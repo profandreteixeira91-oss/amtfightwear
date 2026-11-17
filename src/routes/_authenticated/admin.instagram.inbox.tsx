@@ -126,7 +126,7 @@ function IgInbox() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <PageHeader
-          title="Inbox Instagram"
+          title="Inbox do Instagram"
           description="Central de conversas. Responder dentro da janela de 7 dias da Meta é obrigatório."
         />
         <Button size="sm" variant="outline" onClick={() => mSync.mutate()} disabled={mSync.isPending}>

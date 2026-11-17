@@ -7,6 +7,7 @@ import { Activity, BarChart3, MessageCircle, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { StatCard } from "@/components/common/StatCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { logsService } from "@/services/logsService";
 import { listPlatformUsers } from "@/lib/auth/platform-users.functions";
@@ -67,39 +68,21 @@ function DashboardPage() {
     <>
       <PageHeader
         eyebrow="Visão geral"
-        title="Dashboard"
+        title="Analytics"
         description="Panorama operacional da AMT Fight Wear em tempo real."
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {kpis.map((kpi, i) => (
-          <motion.div
+          <StatCard
             key={kpi.label}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, delay: i * 0.05 }}
-          >
-            <Card className="overflow-hidden">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                    {kpi.label}
-                  </div>
-                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary">
-                    <kpi.icon className="h-4 w-4" />
-                  </div>
-                </div>
-                {kpisQuery.isLoading ? (
-                  <Skeleton className="mt-3 h-8 w-24" />
-                ) : (
-                  <div className="mt-3 text-2xl font-bold tracking-tight">
-                    {kpi.value.toLocaleString("pt-BR")}
-                  </div>
-                )}
-                <div className="mt-1 text-xs text-muted-foreground">{kpi.hint}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
+            index={i}
+            icon={kpi.icon}
+            label={kpi.label}
+            value={kpi.value.toLocaleString("pt-BR")}
+            hint={kpi.hint}
+            loading={kpisQuery.isLoading}
+          />
         ))}
       </div>
 

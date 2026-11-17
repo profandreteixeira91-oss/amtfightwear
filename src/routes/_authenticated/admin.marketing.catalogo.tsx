@@ -38,7 +38,7 @@ function CatalogPage() {
   return (
     <PageShell
         eyebrow="MarketEngine"
-        title="Analytics Catálogo"
+        title="Catálogo"
         description="Métricas reais do catálogo AMT Fight Wear sincronizado com amtfightwear.com.br."
       >
 

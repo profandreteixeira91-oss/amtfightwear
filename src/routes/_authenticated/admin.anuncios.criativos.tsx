@@ -32,7 +32,7 @@ function CreativesPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Tráfego Pago IA" title="Banco de Criativos" description="Imagens e artes geradas pela IA para reutilizar em novas campanhas." />
+      <PageHeader eyebrow="Tráfego Pago IA" title="Criativos" description="Imagens e artes geradas pela IA para reutilizar em novas campanhas." />
       {isLoading ? (
         <Skeleton className="h-64" />
       ) : !data || data.length === 0 ? (

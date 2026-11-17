@@ -10,13 +10,13 @@ export const GRAPH = "https://graph.facebook.com/v21.0";
 
 export function adsToken() {
   const token = process.env["META_ADS_ACCESS_TOKEN"];
-  if (!token) throw new Error("META_ADS_ACCESS_TOKEN não configurado");
+  if (!token) throw new Error("A integração com a Meta ainda não foi configurada (falta o token de acesso). Veja em Anúncios › Conexão Meta.");
   return token;
 }
 
 export function defaultAccountId() {
   const id = process.env["META_AD_ACCOUNT_ID"];
-  if (!id) throw new Error("META_AD_ACCOUNT_ID não configurado");
+  if (!id) throw new Error("Nenhuma conta de anúncios da Meta foi configurada. Veja em Anúncios › Conexão Meta.");
   return id.startsWith("act_") ? id : `act_${id}`;
 }
 

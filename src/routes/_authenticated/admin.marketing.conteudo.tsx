@@ -217,7 +217,7 @@ function ContentPage() {
   return (
     <PageShell
         eyebrow="MarketEngine"
-        title="IA Content Hub"
+        title="Conteúdo com IA"
         description="Gere copies com IA e agende posts no calendário estilo Meta Business."
       >
 

@@ -31,7 +31,7 @@ function LogsPage() {
   return (
     <PageShell
         eyebrow="Prospect Engine"
-        title="Logs de Automação"
+        title="Logs da prospecção"
         description="Auditoria completa das ações do motor de prospecção. Atualiza a cada 15 segundos."
       >
 

@@ -5,7 +5,7 @@ import { getProductImageStats, migrateProductImagesBatch } from "@/lib/store/pro
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ImageIcon, Play, RefreshCw, Loader2 } from "lucide-react";
+import { Play, RefreshCw, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -85,11 +85,7 @@ function ProductImagesPage() {
   return (
     <PageShell
       narrow
-      title={
-        <span className="inline-flex items-center gap-2">
-          <ImageIcon className="h-6 w-6 text-primary" /> Imagens dos produtos
-        </span>
-      }
+      title="Imagens dos produtos"
       description="Migra as imagens hospedadas externamente para o armazenamento próprio da loja, acelerando o carregamento e removendo dependências."
     >
 

@@ -6,7 +6,8 @@ import {
   ChevronRight,
   Clock,
   CheckCircle2,
-  Receipt
+  Receipt,
+  ShieldCheck,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { format } from "date-fns";
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { PageShell } from "@/components/common/PageShell";
+import { StatCard } from "@/components/common/StatCard";
 
 export const Route = createFileRoute("/_authenticated/admin/fiscal/pedidos")({
   component: FiscalOrdersPage,
@@ -62,7 +64,7 @@ function FiscalOrdersPage() {
   return (
     <PageShell
       eyebrow="Fiscal"
-      title="Central de Faturamento"
+      title="Central de faturamento"
       description="Pedidos da loja e orçamentos aguardando emissão de NF-e."
       actions={
         <Button variant="outline" asChild>
@@ -73,11 +75,11 @@ function FiscalOrdersPage() {
         </Button>
       }
     >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Aguardando" value={stats.pending} icon={Clock} color="amber" />
-          <StatCard title="Prontos" value={stats.ready} icon={CheckCircle2} color="blue" />
-          <StatCard title="Emitindo" value={stats.emitting} icon={Receipt} color="purple" />
-          <StatCard title="Autorizados" value={stats.authorized} icon={ShieldCheck} color="emerald" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatCard label="Aguardando" value={stats.pending} icon={Clock} />
+          <StatCard label="Prontos" value={stats.ready} icon={CheckCircle2} />
+          <StatCard label="Emitindo" value={stats.emitting} icon={Receipt} />
+          <StatCard label="Autorizados" value={stats.authorized} icon={ShieldCheck} />
         </div>
 
         <Card className="border-border/60 shadow-sm overflow-hidden bg-card">
@@ -202,31 +204,6 @@ function FiscalOrdersPage() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: 'amber' | 'blue' | 'purple' | 'emerald' }) {
-  const colors = {
-    amber: "bg-amber-50 text-amber-600 border-amber-100/50",
-    blue: "bg-blue-50 text-blue-600 border-blue-100/50",
-    purple: "bg-purple-50 text-purple-600 border-purple-100/50",
-    emerald: "bg-emerald-50 text-emerald-600 border-emerald-100/50",
-  };
-
-  return (
-    <Card className="border-border/60 shadow-sm overflow-hidden bg-card transition-all hover:shadow-md group">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{title}</p>
-            <h3 className="text-3xl font-black mt-2 text-foreground tabular-nums tracking-tight">{value}</h3>
-          </div>
-          <div className={cn("p-3.5 rounded-2xl border transition-transform group-hover:scale-110 duration-300", colors[color])}>
-            <Icon className="h-6 w-6" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function StatusBadge({ status }: { status: string }) {
   const configs: Record<string, { label: string, className: string }> = {
     pending: { label: "Aguardando", className: "bg-muted text-muted-foreground border-border" },
@@ -246,22 +223,3 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function ShieldCheck(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  )
-}

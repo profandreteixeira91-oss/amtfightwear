@@ -83,7 +83,7 @@ function PipelinePage() {
   return (
     <PageShell
         eyebrow="Prospect Engine"
-        title="Pipeline Comercial"
+        title="Funil de prospecção"
         description="Arraste os cards entre estágios para atualizar o funil. Sincronização em tempo real."
       >
 

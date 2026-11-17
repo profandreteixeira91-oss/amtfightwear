@@ -7,11 +7,15 @@ type PageHeaderProps = {
   eyebrow?: ReactNode;
 };
 
-export function PageHeader({ title, description, actions, eyebrow }: PageHeaderProps) {
+/**
+ * Cabeçalho padrão das telas do admin. O `eyebrow` (sobretítulo) não é mais exibido: a trilha de
+ * navegação e as abas da seção já dizem onde a pessoa está, e os sobretítulos antigos misturavam
+ * nomes internos em inglês ("Prospect Engine", "MarketEngine"…). A prop fica por compatibilidade.
+ */
+export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
     <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
       <div className="min-w-0">
-        {eyebrow && <div className="mb-1 text-xs font-semibold text-primary">{eyebrow}</div>}
         <h1 className="break-words text-2xl font-semibold tracking-tight text-foreground sm:truncate sm:text-[1.75rem]">
           {title}
         </h1>

@@ -27,7 +27,7 @@ function IgAdmin() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <PageHeader title="Administração do Instagram Hub" description="Conexões, logs e configuração do webhook oficial." />
+      <PageHeader title="Webhook e logs" description="Conexões, logs e configuração do webhook oficial." />
 
       <SectionCard title="Webhook oficial Meta">
         <div className="space-y-2 text-sm">

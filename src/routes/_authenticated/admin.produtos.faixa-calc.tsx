@@ -904,14 +904,14 @@ function MetricCard({
   description?: string;
 }) {
   return (
-    <Card className="overflow-hidden border-none shadow-md bg-card/50 backdrop-blur-sm">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{label}</span>
-          <div className="p-2 bg-muted/50 rounded-lg">{icon}</div>
+    <Card className="min-w-0 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-none">
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <span className="text-[13px] font-medium leading-snug text-muted-foreground">{label}</span>
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-neutral-100 text-foreground [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-foreground">{icon}</div>
         </div>
-        <div className="text-2xl font-black text-foreground tracking-tight">{value}</div>
-        {description && <p className="text-[10px] mt-1 text-muted-foreground italic">{description}</p>}
+        <div className="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-foreground">{value}</div>
+        {description && <p className="mt-1 text-xs text-muted-foreground">{description}</p>}
       </CardContent>
     </Card>
   );

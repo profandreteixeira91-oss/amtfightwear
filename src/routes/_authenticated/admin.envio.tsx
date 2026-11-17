@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Truck, Save, Package } from "lucide-react";
+import { Save, Package } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -80,11 +80,7 @@ function ShippingSettingsPage() {
   return (
     <PageShell
       narrow
-      title={
-        <span className="inline-flex items-center gap-2">
-          <Truck className="h-6 w-6 text-primary" /> Envio — Melhor Envio
-        </span>
-      }
+      title="Envios"
       description="Configure origem, dimensões padrão e ambiente da integração com o Melhor Envio."
     >
 
@@ -112,14 +108,18 @@ function ShippingSettingsPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label>Ambiente</Label>
-              <select
+              <Select
                 value={form.env}
-                onChange={(e) => setForm((f) => ({ ...f, env: e.target.value as "sandbox" | "production" }))}
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                onValueChange={(v) => setForm((f) => ({ ...f, env: v as "sandbox" | "production" }))}
               >
-                <option value="production">Produção</option>
-                <option value="sandbox">Sandbox (testes)</option>
-              </select>
+                <SelectTrigger className="mt-1 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="production">Produção</SelectItem>
+                  <SelectItem value="sandbox">Sandbox (testes)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>CEP de origem</Label>

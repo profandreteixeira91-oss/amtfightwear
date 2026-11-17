@@ -113,7 +113,7 @@ function SettingsPage() {
   return (
     <PageShell
         eyebrow="Prospect Engine"
-        title="Configurações"
+        title="Configurações da prospecção"
         description="Ajuste pesos do Lead Score, templates, regiões prioritárias e autopilot."
         actions={
           <Button onClick={() => saveMut.mutate(state)} disabled={saveMut.isPending}>

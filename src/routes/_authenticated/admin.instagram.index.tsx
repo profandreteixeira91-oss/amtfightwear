@@ -18,7 +18,7 @@ function InstagramDashboard() {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <PageHeader
-        title="Instagram Hub"
+        title="Instagram"
         description="Central de relacionamento e prospecção via Instagram — conversas, leads e conversões em tempo real."
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

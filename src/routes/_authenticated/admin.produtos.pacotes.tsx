@@ -246,11 +246,7 @@ function PackagesPage() {
           <ChevronLeft className="h-3.5 w-3.5" /> Produtos
         </Link>
       }
-      title={
-        <span className="flex items-center gap-2">
-          <Box className="h-6 w-6 text-primary" /> Pacotes
-        </span>
-      }
+      title="Pacotes"
       description="Dimensões de embalagem (peso, comprimento, largura e altura) usadas como base para o cálculo de frete."
       actions={
         <div className="flex items-center gap-2">

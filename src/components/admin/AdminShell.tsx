@@ -95,6 +95,11 @@ export function AdminShell({
   deniedDescription?: string;
 }) {
   useForceLightTheme();
+  // Tipografia Inter em todo o admin, inclusive diálogos e menus (que renderizam fora do shell).
+  React.useEffect(() => {
+    document.documentElement.classList.add("admin-font");
+    return () => document.documentElement.classList.remove("admin-font");
+  }, []);
   useRedSidebarTheme();
   useRecordRecent();
 
@@ -246,11 +251,11 @@ const NAV: NavGroup[] = [
         icon: Target,
         tabs: [
           { title: "Leads", url: "/admin/leads" },
-          { title: "Pipeline", url: "/admin/leads/pipeline" },
+          { title: "Funil", url: "/admin/leads/pipeline" },
           { title: "Central de prospecção", url: "/admin/prospect" },
           { title: "Radar", url: "/admin/leads/busca" },
           { title: "Qualificados", url: "/admin/leads/qualificados" },
-          { title: "Segmentos", url: "/admin/leads/macro" },
+          { title: "Segmentos e Macro DM", url: "/admin/leads/macro" },
           { title: "Logs", url: "/admin/leads/logs" },
           { title: "Configurações", url: "/admin/leads/configuracoes" },
         ],
@@ -557,7 +562,8 @@ function AdminTopbar({ title }: { title?: string }) {
 
   const crumbs: Array<{ label: string; href?: string }> = [{ label: "Central", href: "/admin" }];
   if (active && active.item.url !== "/admin") {
-    crumbs.push({ label: active.item.group });
+    // Evita "Marketing › Marketing" quando o grupo e o item têm o mesmo nome.
+    if (active.item.group !== active.item.title) crumbs.push({ label: active.item.group });
     crumbs.push({ label: active.item.title, href: active.item.url });
     if (active.tab && active.tab.url !== active.item.url) crumbs.push({ label: active.tab.title });
   }
