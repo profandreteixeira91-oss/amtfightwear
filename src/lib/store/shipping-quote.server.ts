@@ -5,6 +5,13 @@ const ME_SANDBOX = "https://sandbox.melhorenvio.com.br/api/v2";
 
 const onlyDigits = (s: string) => (s ?? "").replace(/\D/g, "");
 
+/** Transportadoras que a loja não oferece: saem da vitrine, do pedido e do cálculo do frete grátis. */
+const EXCLUDED_CARRIERS = ["loggi", "jadlog"];
+const isExcludedCarrier = (company: string) => {
+  const name = company.trim().toLowerCase();
+  return EXCLUDED_CARRIERS.some((carrier) => name.includes(carrier));
+};
+
 export type ShippingQuoteItem = {
   product_id: string;
   variant_id?: string | null;
@@ -106,18 +113,20 @@ export async function quoteShipping(input: { to_zip: string; items: ShippingQuot
     error?: string;
   }>;
 
-  const options: ShippingOption[] = raw.map((r) => ({
-    id: r.id,
-    name: r.name,
-    company: r.company?.name ?? "",
-    company_picture: r.company?.picture ?? null,
-    price: r.error ? 0 : Number(r.custom_price ?? r.price ?? 0),
-    delivery_time: r.delivery_time ?? null,
-    delivery_range: r.delivery_range
-      ? { min: r.delivery_range.min ?? null, max: r.delivery_range.max ?? null }
-      : null,
-    error: r.error ?? null,
-  }));
+  const options: ShippingOption[] = raw
+    .filter((r) => !isExcludedCarrier(r.company?.name ?? ""))
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      company: r.company?.name ?? "",
+      company_picture: r.company?.picture ?? null,
+      price: r.error ? 0 : Number(r.custom_price ?? r.price ?? 0),
+      delivery_time: r.delivery_time ?? null,
+      delivery_range: r.delivery_range
+        ? { min: r.delivery_range.min ?? null, max: r.delivery_range.max ?? null }
+        : null,
+      error: r.error ?? null,
+    }));
 
   const prices = options.filter((o) => !o.error && o.price > 0).map((o) => o.price);
   const cheapest = prices.length ? Math.min(...prices) : null;
