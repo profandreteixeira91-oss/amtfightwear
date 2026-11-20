@@ -35,16 +35,28 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { useConfirm } from "@/components/common/ConfirmDialog";
 import { QUOTE_STATUS_META } from "@/lib/store/quote-status";
 import { adminCrmCustomerProfile, adminCrmSaveDeal } from "@/lib/store/crm.functions";
+import { adminQuoteFromWhatsApp, type QuoteDraftFromMessage } from "@/lib/store/quote-from-message.functions";
+import { QuoteMessageDialog, QuoteMessageReview } from "@/components/store/QuoteFromMessage";
+import { lineToItem } from "@/lib/store/quote-from-message";
+import { MessageSquareText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
   // Permite abrir já filtrado (ex.: card "Orçamentos sem resposta" do Início) ou já com um
   // novo orçamento do cliente do CRM (cliente) e vinculado à oportunidade (oportunidade).
-  validateSearch: (search: Record<string, unknown>): { status?: string; cliente?: string; oportunidade?: string } => {
+  // wa (+ msgs): abre um orçamento novo lido das mensagens de uma conversa do WhatsApp da loja.
+  validateSearch: (search: Record<string, unknown>): {
+    status?: string; cliente?: string; oportunidade?: string; wa?: string; msgs?: string;
+  } => {
     const uuid = (v: unknown) => (typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v) ? v : undefined);
+    const ids = typeof search.msgs === "string"
+      ? search.msgs.split(",").filter((x) => /^[0-9a-f-]{36}$/i.test(x)).slice(0, 30).join(",")
+      : "";
     return {
       status: typeof search.status === "string" && search.status in STATUS ? search.status : undefined,
       cliente: uuid(search.cliente),
       oportunidade: uuid(search.oportunidade),
+      wa: uuid(search.wa),
+      msgs: ids || undefined,
     };
   },
   head: () => ({
@@ -79,6 +91,8 @@ type Item = {
   image_url?: string | null;
   quantity: number;
   unit_price: number;
+  /** Item vindo da mensagem do cliente (liga ao painel de revisão; não é salvo). */
+  _ref?: string;
 };
 
 const emptyForm = () => ({
@@ -174,8 +188,50 @@ function QuotesPage() {
     };
     setForm(next);
     setFormSnapshot(JSON.stringify(next));
+    setMsgDraft(null);
     setEditorOpen(true);
   };
+
+  // Orçamento lido de uma mensagem (WhatsApp da loja ou texto colado): abre o editor já com os itens e o painel
+  // de revisão (o que foi entendido, avisos e troca de modelo).
+  const [msgDraft, setMsgDraft] = useState<QuoteDraftFromMessage | null>(null);
+  const [msgDialogOpen, setMsgDialogOpen] = useState(false);
+  const fromWhatsAppFn = useServerFn(adminQuoteFromWhatsApp);
+  const openFromDraft = (draft: QuoteDraftFromMessage) => {
+    const c = draft.customer;
+    openNew({
+      ...(c
+        ? {
+            customer_name: c.name,
+            customer_company: c.company,
+            customer_email: c.email,
+            customer_phone: c.phone,
+            customer_document: c.document,
+            customer_address: { ...emptyForm().customer_address, city: c.city, state: c.state },
+          }
+        : {}),
+      items: draft.lines.map(lineToItem),
+    });
+    setMsgDraft(draft);
+  };
+  useEffect(() => {
+    if (!search.wa || settings.isLoading) return;
+    const chatId = search.wa;
+    const messageIds = search.msgs ? search.msgs.split(",") : undefined;
+    void navigate({ search: { status: search.status }, replace: true });
+    const t = toast.loading("Lendo as mensagens do cliente…");
+    fromWhatsAppFn({ data: { chatId, messageIds } })
+      .then((draft) => {
+        toast.dismiss(t);
+        if (!draft.lines.length) toast.info("Não encontrei produtos nas mensagens: complete o orçamento à mão.");
+        openFromDraft(draft);
+      })
+      .catch((e: Error) => {
+        toast.dismiss(t);
+        toast.error(e.message);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.wa, settings.isLoading]);
 
   // Vindo do CRM (?cliente=…&oportunidade=…): abre um orçamento novo com os dados do cliente.
   // Ao salvar, o orçamento fica vinculado à oportunidade.
@@ -226,6 +282,7 @@ function QuotesPage() {
     };
     setForm(next);
     setFormSnapshot(JSON.stringify(next));
+    setMsgDraft(null);
     setEditorOpen(true);
   };
 
@@ -406,6 +463,9 @@ function QuotesPage() {
             <Button variant="outline" onClick={() => setSettingsOpen(true)}>
               <Settings2 className="mr-1.5 h-4 w-4" /> Dados do emissor
             </Button>
+            <Button variant="outline" onClick={() => setMsgDialogOpen(true)} title="Cole o pedido do cliente e o orçamento sai pronto para revisar">
+              <MessageSquareText className="mr-1.5 h-4 w-4" /> Da mensagem
+            </Button>
             <Button onClick={() => openNew()}>
               <Plus className="mr-1.5 h-4 w-4" /> Novo orçamento
             </Button>
@@ -507,6 +567,8 @@ function QuotesPage() {
         )}
       </PageShell>
 
+      <QuoteMessageDialog open={msgDialogOpen} onOpenChange={setMsgDialogOpen} onDraft={openFromDraft} />
+
       {/* Editor */}
       <Dialog open={editorOpen} onOpenChange={(o) => { if (o) setEditorOpen(true); else void requestCloseEditor(); }}>
         <DialogContent
@@ -599,6 +661,17 @@ function QuotesPage() {
                 <Field label="UF" value={form.customer_address.state} onChange={(v) => setForm({ ...form, customer_address: { ...form.customer_address, state: v } })} />
               </div>
             </section>
+
+            {msgDraft ? (
+              <QuoteMessageReview
+                draft={msgDraft}
+                items={form.items}
+                onReplace={(ref, item) =>
+                  setForm((f) => ({ ...f, items: f.items.map((it) => (it._ref === ref ? { ...it, ...item } : it)) }))
+                }
+                onClose={() => setMsgDraft(null)}
+              />
+            ) : null}
 
             {/* Itens */}
             <section className="space-y-3">

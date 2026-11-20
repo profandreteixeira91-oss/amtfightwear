@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -51,7 +51,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatBRL } from "@/lib/store/cart-store";
 import { formatBR, todayISO } from "@/lib/dates";
 import { ADMIN_REFRESH } from "@/lib/admin-refresh";
@@ -320,6 +321,7 @@ function Conversation({ chatId, draft, onBack }: { chatId: string; draft?: strin
   // Mensagem sugerida (Central Comercial) entra no campo para você revisar antes de enviar.
   const [text, setText] = useState(draft ?? "");
   const [sending, setSending] = useState(false);
+  const [quoteOpen, setQuoteOpen] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const chat = data?.chat;
@@ -414,6 +416,15 @@ function Conversation({ chatId, draft, onBack }: { chatId: string; draft?: strin
               {chat.phone_normalized ? `+${chat.phone_normalized}` : "Telefone oculto pelo WhatsApp"}
             </div>
           </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1.5 text-xs"
+            title="Ler o pedido do cliente e montar o orçamento (modalidade, modelo, tamanho e quantidade)"
+            onClick={() => setQuoteOpen(true)}
+          >
+            <FileText className="h-3.5 w-3.5" /> Orçamento
+          </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button size="sm" variant="outline" className="h-8 text-xs">
@@ -526,7 +537,75 @@ function Conversation({ chatId, draft, onBack }: { chatId: string; draft?: strin
       </section>
 
       <CustomerPanel chat={chat} onChanged={refresh} />
+      {quoteOpen ? <QuoteFromChatDialog chatId={chatId} messages={messages} onClose={() => setQuoteOpen(false)} /> : null}
     </>
+  );
+}
+
+/**
+ * Escolher as mensagens do cliente que viram orçamento. Já vêm marcadas as que ele mandou depois da última resposta
+ * da loja; o editor de orçamentos abre com os itens lidos (modalidade, modelo, tamanho e quantidade) para revisar.
+ */
+function QuoteFromChatDialog({ chatId, messages, onClose }: { chatId: string; messages: WaMessage[]; onClose: () => void }) {
+  const navigate = useNavigate();
+  const doCliente = useMemo(
+    () => messages.filter((m) => !m.from_me && (m.body ?? "").trim()).slice(-25),
+    [messages],
+  );
+  const [sel, setSel] = useState<Set<string>>(() => {
+    const ultimaResposta = [...messages].reverse().find((m) => m.from_me)?.sent_at ?? "";
+    const novas = doCliente.filter((m) => m.sent_at > ultimaResposta);
+    return new Set((novas.length ? novas : doCliente.slice(-3)).map((m) => m.id));
+  });
+  const toggle = (id: string) =>
+    setSel((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  const gerar = () => {
+    const ids = doCliente.filter((m) => sel.has(m.id)).map((m) => m.id);
+    onClose();
+    void navigate({ to: "/admin/orcamentos", search: { wa: chatId, msgs: ids.join(",") } });
+  };
+  return (
+    <Dialog open onOpenChange={(o) => (!o ? onClose() : undefined)}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Gerar orçamento da conversa</DialogTitle>
+          <DialogDescription>
+            Marque as mensagens com o pedido. O orçamento abre com os produtos, tamanhos e quantidades lidos — você
+            revisa e edita antes de salvar.
+          </DialogDescription>
+        </DialogHeader>
+        {doCliente.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">O cliente ainda não mandou mensagem de texto.</p>
+        ) : (
+          <ul className="space-y-1.5">
+            {doCliente.map((m) => (
+              <li key={m.id}>
+                <label className="flex cursor-pointer items-start gap-2 rounded-lg border p-2 text-sm hover:bg-muted/50">
+                  <Checkbox className="mt-0.5" checked={sel.has(m.id)} onCheckedChange={() => toggle(m.id)} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block whitespace-pre-wrap break-words">{m.body}</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {formatBR(m.sent_at)} {new Date(m.sent_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button disabled={!sel.size} onClick={gerar}>
+            <FileText className="mr-1.5 h-4 w-4" /> Gerar orçamento ({sel.size})
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
