@@ -108,7 +108,12 @@ async function recordSent(to: string, json: any, fallback: { type: string; body:
  * o que deixa o ritmo mais natural e reduz o risco de bloqueio do número.
  * `to`: telefone ou identificador da conversa (…@lid).
  */
-export async function sendWhatsAppText(to: string, text: string, delay = 1200): Promise<SendResult> {
+export async function sendWhatsAppText(
+  to: string,
+  text: string,
+  delay = 1200,
+  opts: { record?: boolean } = {},
+): Promise<SendResult> {
   const cfg = evolutionConfig();
   if (!cfg) return { ok: false, error: "WhatsApp não configurado" };
   const number = recipient(to);
@@ -119,11 +124,20 @@ export async function sendWhatsAppText(to: string, text: string, delay = 1200): 
       text,
       delay,
     });
-    await recordSent(number, json, { type: "text", body: text });
+    // record: false → quem chamou grava a mensagem (ex.: chat do site, que marca a origem).
+    if (opts.record !== false) await recordSent(number, json, { type: "text", body: text });
     return { ok: true, id: json?.key?.id ?? null, jid: json?.key?.remoteJid ?? null };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
+}
+
+/** Confere se o telefone tem WhatsApp. Devolve o identificador da conversa (jid) ou null. */
+export async function evolutionCheckNumber(phone: string): Promise<string | null> {
+  const cfg = requireConfig();
+  const res = await evo<any>("POST", `/chat/whatsappNumbers/${enc(cfg.instance)}`, { numbers: [phone] });
+  const found = (Array.isArray(res) ? res : []).find((r: any) => r?.exists);
+  return found ? String(found.jid || `${phone}@s.whatsapp.net`) : null;
 }
 
 /** Envia foto, vídeo ou documento (base64 sem o prefixo data:). */

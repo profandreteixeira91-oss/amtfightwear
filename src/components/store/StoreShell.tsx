@@ -13,7 +13,8 @@ import { formatProductName } from "@/lib/store/product-name";
 import { requiresEmbroideryName } from "@/lib/store/personalization";
 import { SearchBar } from "@/components/store/SearchBar";
 import { recordStoreVisit } from "@/lib/store/visits.functions";
-import { ChatWidget } from "@/components/store/ChatWidget";
+import { SiteChat } from "@/components/store/SiteChat";
+import { openSiteChat, STORE_WHATSAPP_URL } from "@/components/store/site-chat-config";
 import { NotificationsBell } from "@/components/store/NotificationsBell";
 
 
@@ -403,8 +404,8 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
         </div>
       </section>
 
-      {/* Floating store chat */}
-      <ChatWidget autoRequestInfo={true} />
+      {/* Chat do site ("Fale conosco"), ligado ao WhatsApp da loja */}
+      <SiteChat />
 
       {/* Rodapé */}
       <footer className="bg-neutral-950 text-white">
@@ -449,7 +450,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
               <li><Link to="/loja/conta/pedidos" className="transition-colors hover:text-white">Meus pedidos</Link></li>
               <li><Link to="/terms" className="transition-colors hover:text-white">Trocas e devoluções</Link></li>
               <li>
-                <a href="https://wa.me/5582920016732" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 transition-colors hover:text-white">
+                <a href={STORE_WHATSAPP_URL} target="_blank" rel="noreferrer" onClick={openSiteChat} className="inline-flex items-center gap-1.5 transition-colors hover:text-white">
                   <MessageCircle className="h-3.5 w-3.5" /> Fale conosco
                 </a>
               </li>

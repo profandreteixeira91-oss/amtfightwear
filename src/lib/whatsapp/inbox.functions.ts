@@ -161,6 +161,7 @@ export const adminWaGetChat = createServerFn({ method: "GET" })
       .from("whatsapp_messages")
       .select("id, message_id, from_me, type, body, media_mime, media_name, quoted_body, status, sent_at")
       .eq("chat_id", data.id)
+      .eq("hidden", false) // cópias internas do chat do site
       .order("sent_at", { ascending: false })
       .limit(150);
     if (error) throw new Error(error.message);
@@ -181,6 +182,7 @@ export const adminWaMarkRead = createServerFn({ method: "POST" })
       .select("message_id")
       .eq("chat_id", chat.id)
       .eq("from_me", false)
+      .eq("source", "whatsapp") // mensagens digitadas no chat do site não existem no WhatsApp
       .order("sent_at", { ascending: false })
       .limit(Math.min(chat.unread_count, 20));
     try {

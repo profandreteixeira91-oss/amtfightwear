@@ -146,6 +146,9 @@ export const adminQuoteFromWhatsApp = createServerFn({ method: "POST" })
         .from("whatsapp_messages")
         .select("id, body, sent_at, from_me")
         .eq("chat_id", chat.id)
+        // Confirmação automática e cópias do chat do site não são respostas da loja.
+        .or("from_me.eq.false,source.eq.whatsapp")
+        .eq("hidden", false)
         .order("sent_at", { ascending: false })
         .limit(40);
       if (e) throw new Error(e.message);
