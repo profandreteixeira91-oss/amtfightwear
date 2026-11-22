@@ -324,8 +324,29 @@ function QuotesPage() {
     });
   };
 
-  const addBlank = () =>
+  // Item livre novo: a janela rola até ele e o cursor já vai para o nome (sem voltar ao topo para adicionar outro).
+  const itemNameRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const [focusItem, setFocusItem] = useState<number | null>(null);
+  useEffect(() => {
+    if (focusItem === null) return;
+    const el = itemNameRefs.current[focusItem];
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.focus({ preventScroll: true });
+    setFocusItem(null);
+  }, [focusItem, form.items.length]);
+
+  const addBlank = () => {
+    setFocusItem(form.items.length);
     setForm((f) => ({ ...f, items: [...f.items, { product_id: null, name: "", quantity: 1, unit_price: 0, description: "" }] }));
+  };
+
+  /** Enter em qualquer campo do último item adiciona o próximo item livre. */
+  const enterAddsItem = (i: number) => (e: { key: string; shiftKey: boolean; preventDefault: () => void }) => {
+    if (e.key !== "Enter" || e.shiftKey || i !== form.items.length - 1) return;
+    e.preventDefault();
+    addBlank();
+  };
 
   const updItem = (i: number, patch: Partial<Item>) =>
     setForm((f) => ({ ...f, items: f.items.map((it, ix) => (ix === i ? { ...it, ...patch } : it)) }));
@@ -675,8 +696,11 @@ function QuotesPage() {
 
             {/* Itens */}
             <section className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Produtos</h3>
+              {/* Fica fixa no topo da janela enquanto a lista de produtos rola. */}
+              <div className="sticky -top-6 z-10 -mx-6 flex flex-wrap items-center justify-between gap-2 border-b border-border bg-card px-6 py-2 shadow-sm">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Produtos{form.items.length ? ` · ${form.items.length} ${form.items.length === 1 ? "item" : "itens"}` : ""}
+                </h3>
                 <div className="flex gap-2">
                   <Button type="button" size="sm" className="h-9" onClick={() => setPickerOpen(true)}>
                     <Package className="mr-1 h-3.5 w-3.5" /> Adicionar do catálogo
@@ -692,6 +716,14 @@ function QuotesPage() {
                 <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
                   <Package className="mx-auto mb-2 h-6 w-6 text-muted-foreground/50" />
                   Nenhum produto adicionado
+                  <div className="mt-3 flex flex-wrap justify-center gap-2">
+                    <Button type="button" size="sm" className="h-8" onClick={() => setPickerOpen(true)}>
+                      <Package className="mr-1 h-3.5 w-3.5" /> Do catálogo
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" className="h-8" onClick={addBlank}>
+                      <Plus className="mr-1 h-3.5 w-3.5" /> Item livre
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -700,11 +732,18 @@ function QuotesPage() {
                       <div className="grid gap-2 sm:grid-cols-[1fr_90px_120px_110px_36px] sm:items-end">
                         <div>
                           <Label className="text-[10px] uppercase text-muted-foreground">Produto</Label>
-                          <Input className="h-9" value={it.name} onChange={(e) => updItem(i, { name: e.target.value })} placeholder="Nome do item" />
+                          <Input
+                            ref={(el) => { itemNameRefs.current[i] = el; }}
+                            className="h-9"
+                            value={it.name}
+                            onChange={(e) => updItem(i, { name: e.target.value })}
+                            onKeyDown={enterAddsItem(i)}
+                            placeholder="Nome do item"
+                          />
                         </div>
                         <div>
                           <Label className="text-[10px] uppercase text-muted-foreground">Qtd</Label>
-                          <Input className="h-9" type="number" min={1} value={it.quantity}
+                          <Input className="h-9" type="number" min={1} value={it.quantity} onKeyDown={enterAddsItem(i)}
                             onChange={(e) => updItem(i, { quantity: Math.max(0.01, Number(e.target.value) || 0) })} />
                         </div>
                         <div>
@@ -716,6 +755,7 @@ function QuotesPage() {
                               type="text"
                               inputMode="decimal"
                               value={it.unit_price ? Number(it.unit_price).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""}
+                              onKeyDown={enterAddsItem(i)}
                               onChange={(e) => {
                                 const val = e.target.value.replace(/\D/g, "");
                                 const num = val ? Number(val) / 100 : 0;
@@ -740,9 +780,19 @@ function QuotesPage() {
                         </Button>
                       )}
                       <Input className="mt-2 h-8 text-xs" placeholder="Detalhes / personalização (opcional)"
-                        value={it.description ?? ""} onChange={(e) => updItem(i, { description: e.target.value })} />
+                        value={it.description ?? ""} onKeyDown={enterAddsItem(i)} onChange={(e) => updItem(i, { description: e.target.value })} />
                     </div>
                   ))}
+                  {/* Adicionar logo abaixo do último item, sem precisar voltar ao topo. */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <Button type="button" variant="outline" size="sm" className="h-9 border-dashed" onClick={addBlank}>
+                      <Plus className="mr-1 h-3.5 w-3.5" /> Item livre
+                    </Button>
+                    <Button type="button" variant="ghost" size="sm" className="h-9" onClick={() => setPickerOpen(true)}>
+                      <Package className="mr-1 h-3.5 w-3.5" /> Adicionar do catálogo
+                    </Button>
+                    <span className="text-[11px] text-muted-foreground">Dica: Enter em um campo do último item adiciona outro.</span>
+                  </div>
                 </div>
               )}
 
