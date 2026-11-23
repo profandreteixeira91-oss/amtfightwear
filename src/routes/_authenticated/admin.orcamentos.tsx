@@ -38,7 +38,8 @@ import { adminCrmCustomerProfile, adminCrmSaveDeal } from "@/lib/store/crm.funct
 import { adminQuoteFromWhatsApp, type QuoteDraftFromMessage } from "@/lib/store/quote-from-message.functions";
 import { QuoteMessageDialog, QuoteMessageReview } from "@/components/store/QuoteFromMessage";
 import { lineToItem } from "@/lib/store/quote-from-message";
-import { MessageSquareText } from "lucide-react";
+import { MessageSquareText, Send } from "lucide-react";
+import { QuoteWhatsAppDialog } from "@/components/store/QuoteWhatsAppDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
   // Permite abrir já filtrado (ex.: card "Orçamentos sem resposta" do Início) ou já com um
@@ -131,7 +132,8 @@ function QuotesPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [toDelete, setToDelete] = useState<any>(null);
   const [busy, setBusy] = useState(false);
-  const [preview, setPreview] = useState<{ url: string; filename: string } | null>(null);
+  const [preview, setPreview] = useState<{ url: string; filename: string; row?: any } | null>(null);
+  const [waQuote, setWaQuote] = useState<any | null>(null);
   const [q, setQ] = useState("");
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -396,10 +398,10 @@ function QuotesPage() {
     }
   };
 
-  const generatePdf = async (r: any) => {
+  /** PDF do orçamento (mesmo arquivo da pré-visualização e do envio pelo WhatsApp). */
+  const makePdf = async (r: any) => {
     const s: any = settings.data ?? {};
-    try {
-      const { url, filename } = await buildQuotePdf({
+    return buildQuotePdf({
         quote_number: r.quote_number,
         created_at: r.created_at,
         valid_until: r.valid_until,
@@ -425,9 +427,14 @@ function QuotesPage() {
         signature_image: r.signature_image || s.signature_image,
         company: s,
       });
+  };
+
+  const generatePdf = async (r: any) => {
+    try {
+      const { url, filename } = await makePdf(r);
       setPreview((prev) => {
         if (prev?.url) URL.revokeObjectURL(prev.url);
-        return { url, filename };
+        return { url, filename, row: r };
       });
     } catch (e: any) {
       toast.error(e?.message ?? "Erro ao gerar PDF");
@@ -574,10 +581,25 @@ function QuotesPage() {
                     <Button size="sm" className="h-8 rounded-full bg-foreground hover:bg-foreground/90" onClick={() => generatePdf(r)}>
                       <Download className="mr-1 h-3.5 w-3.5" /> PDF
                     </Button>
-                    <Button size="sm" variant="outline" className="h-8 rounded-full" onClick={() => openEdit(r)}>
-                      <Pencil className="mr-1 h-3.5 w-3.5" /> Editar
+                    <Button
+                      size="sm"
+                      className="h-8 rounded-full bg-[#25D366] text-white hover:bg-[#1ebe5a]"
+                      onClick={() => setWaQuote(r)}
+                      aria-label={`Enviar ${r.quote_number} pelo WhatsApp`}
+                    >
+                      <Send className="mr-1 h-3.5 w-3.5" /> WhatsApp
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-8 w-8 rounded-full p-0 text-primary hover:text-primary" onClick={() => setToDelete(r)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 w-8 rounded-full p-0"
+                      onClick={() => openEdit(r)}
+                      title="Editar"
+                      aria-label={`Editar ${r.quote_number}`}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="ml-auto h-8 w-8 rounded-full p-0 text-primary hover:text-primary" onClick={() => setToDelete(r)} title="Remover" aria-label={`Remover ${r.quote_number}`}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -953,12 +975,27 @@ function QuotesPage() {
           </div>
           <div className="flex justify-end gap-2 border-t px-5 py-3">
             <Button variant="ghost" onClick={closePreview}>Fechar</Button>
+            {preview?.row?.id ? (
+              <Button
+                className="bg-[#25D366] text-white hover:bg-[#1ebe5a]"
+                onClick={() => { const row = preview.row; closePreview(); setWaQuote(row); }}
+              >
+                <Send className="mr-1.5 h-4 w-4" /> Enviar pelo WhatsApp
+              </Button>
+            ) : null}
             <Button className="bg-primary hover:bg-primary/90" onClick={downloadPreview}>
               <Download className="mr-1.5 h-4 w-4" /> Baixar PDF
             </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      <QuoteWhatsAppDialog
+        quote={waQuote}
+        onOpenChange={(o) => { if (!o) setWaQuote(null); }}
+        makePdf={makePdf}
+        onSent={() => qc.invalidateQueries({ queryKey: ["store", "quotes"] })}
+      />
     </>
   );
 }

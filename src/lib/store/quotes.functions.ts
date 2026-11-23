@@ -209,3 +209,93 @@ export const adminSaveQuoteSettings = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* ----------------------- Envio pelo WhatsApp da loja ----------------------- */
+
+/** WhatsApp da loja (Evolution) pronto para enviar? */
+export const adminQuoteWhatsAppStatus = createServerFn({ method: "GET" })
+  .middleware([requireStoreOwner])
+  .handler(async () => {
+    const { evolutionConfig, evolutionConnectionState } =
+      await import("@/lib/whatsapp/evolution.server");
+    if (!evolutionConfig()) return { configured: false, connected: false };
+    const state = await evolutionConnectionState().catch(() => null);
+    return { configured: true, connected: state === "open" };
+  });
+
+/**
+ * Envia o PDF do orçamento direto para o WhatsApp do cliente, com a mensagem
+ * como legenda. Grava o telefone no orçamento (se faltava) e, se pedido,
+ * marca o rascunho como "Enviado" (o CRM acompanha).
+ */
+export const adminSendQuoteWhatsApp = createServerFn({ method: "POST" })
+  .middleware([requireStoreOwner])
+  .validator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        phone: z.string().trim().min(8, "Informe o WhatsApp do cliente").max(40),
+        message: z.string().trim().max(1000).default(""),
+        pdf_base64: z.string().min(100).max(15_000_000),
+        file_name: z.string().trim().min(1).max(160),
+        mark_sent: z.boolean().default(true),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: quote, error } = await context.supabase
+      .from("store_quotes")
+      .select("id, status, customer_phone")
+      .eq("id", data.id)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!quote) throw new Error("Orçamento não encontrado");
+
+    const { normalizeWhatsAppNumber, sendWhatsAppMedia, evolutionConfig } =
+      await import("@/lib/whatsapp/evolution.server");
+    if (!evolutionConfig()) throw new Error("O WhatsApp da loja não está configurado.");
+    const number = normalizeWhatsAppNumber(data.phone);
+    if (!number) throw new Error("Número de WhatsApp inválido. Use DDD + número.");
+
+    const base64 = data.pdf_base64.replace(/^data:[^,]*,/, "");
+    const fileName = /\.pdf$/i.test(data.file_name) ? data.file_name : `${data.file_name}.pdf`;
+    const sent = await sendWhatsAppMedia(number, {
+      mediatype: "document",
+      mimetype: "application/pdf",
+      fileName,
+      base64,
+      caption: data.message,
+    });
+    if (!sent.ok) throw new Error(`O WhatsApp não enviou: ${sent.error}`);
+
+    const patch: { customer_phone?: string; status?: "sent" } = {};
+    if (!String((quote as { customer_phone: string | null }).customer_phone ?? "").trim())
+      patch.customer_phone = `+${number}`;
+    const markSent = data.mark_sent && (quote as { status: string }).status === "draft";
+    if (markSent) patch.status = "sent";
+    if (Object.keys(patch).length) {
+      const { data: row } = await context.supabase
+        .from("store_quotes")
+        .update(patch)
+        .eq("id", data.id)
+        .eq("owner_id", context.userId)
+        .select("*")
+        .maybeSingle();
+      if (row && markSent) {
+        await (
+          await import("./quote-sync.server")
+        ).syncQuoteEverywhere(context.supabase, row as never);
+        // Oportunidade do CRM ligada a este orçamento avança para "orçamento enviado".
+        await context.supabase
+          .from("crm_deals")
+          .update({
+            stage: "orcamento_enviado",
+            stage_changed_at: new Date().toISOString(),
+          } as never)
+          .eq("quote_id", data.id)
+          .eq("stage", "orcamento_preparacao");
+      }
+    }
+    return { ok: true, to: `+${number}`, markedSent: markSent };
+  });
