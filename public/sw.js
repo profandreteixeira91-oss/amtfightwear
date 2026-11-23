@@ -3,7 +3,7 @@
 // CacheFirst para assets hashados do app).
 // A registração acontece apenas em produção via src/lib/pwa/register.ts.
 
-const CACHE_NAV = "amt-nav-v1";
+const CACHE_NAV = "amt-nav-v2";
 const CACHE_ASSETS = "amt-assets-v1";
 
 self.addEventListener("install", () => {
@@ -16,7 +16,10 @@ self.addEventListener("activate", (event) => {
       const names = await caches.keys();
       await Promise.all(
         names
-          .filter((n) => n.startsWith("amt-") && n !== CACHE_NAV && n !== CACHE_ASSETS)
+          .filter(
+            (n) =>
+              n.startsWith("amt-") && n !== CACHE_NAV && n !== CACHE_ASSETS && n !== "amt-push-meta",
+          )
           .map((n) => caches.delete(n)),
       );
       await self.clients.claim();
@@ -36,6 +39,25 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/~oauth")
   )
     return;
+
+  // Central da loja (/admin): sempre a versão publicada. A página guardada só
+  // aparece sem internet — antes, rede lenta (>2,5 s) mostrava a versão antiga.
+  if (req.mode === "navigate" && url.pathname.startsWith("/admin")) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE_NAV);
+        try {
+          const res = await fetch(req);
+          if (res && res.ok) cache.put(req, res.clone()).catch(() => {});
+          return res;
+        } catch {
+          const cached = await cache.match(req);
+          return cached ?? new Response("Offline", { status: 503, statusText: "Offline" });
+        }
+      })(),
+    );
+    return;
+  }
 
   if (req.mode === "navigate") {
     // NetworkFirst com timeout de 2.5s. Se o servidor demorar ou falhar,

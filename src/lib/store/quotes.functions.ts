@@ -234,7 +234,7 @@ export const adminSendQuoteWhatsApp = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        phone: z.string().trim().min(8, "Informe o WhatsApp do cliente").max(40),
+        chat_id: z.string().uuid("Escolha a conversa do cliente"),
         message: z.string().trim().max(1000).default(""),
         pdf_base64: z.string().min(100).max(15_000_000),
         file_name: z.string().trim().min(1).max(160),
@@ -252,15 +252,21 @@ export const adminSendQuoteWhatsApp = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!quote) throw new Error("Orçamento não encontrado");
 
-    const { normalizeWhatsAppNumber, sendWhatsAppMedia, evolutionConfig } =
-      await import("@/lib/whatsapp/evolution.server");
+    const { sendWhatsAppMedia, evolutionConfig } = await import("@/lib/whatsapp/evolution.server");
     if (!evolutionConfig()) throw new Error("O WhatsApp da loja não está configurado.");
-    const number = normalizeWhatsAppNumber(data.phone);
-    if (!number) throw new Error("Número de WhatsApp inválido. Use DDD + número.");
+    // Só para quem já conversou com a loja: o destino é a conversa da caixa de entrada.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: chat } = await supabaseAdmin
+      .from("whatsapp_chats")
+      .select("id, remote_jid, phone_normalized")
+      .eq("id", data.chat_id)
+      .maybeSingle();
+    if (!chat) throw new Error("Conversa não encontrada.");
+    const number = (chat as { phone_normalized: string | null }).phone_normalized;
 
     const base64 = data.pdf_base64.replace(/^data:[^,]*,/, "");
     const fileName = /\.pdf$/i.test(data.file_name) ? data.file_name : `${data.file_name}.pdf`;
-    const sent = await sendWhatsAppMedia(number, {
+    const sent = await sendWhatsAppMedia((chat as { remote_jid: string }).remote_jid, {
       mediatype: "document",
       mimetype: "application/pdf",
       fileName,
@@ -270,7 +276,7 @@ export const adminSendQuoteWhatsApp = createServerFn({ method: "POST" })
     if (!sent.ok) throw new Error(`O WhatsApp não enviou: ${sent.error}`);
 
     const patch: { customer_phone?: string; status?: "sent" } = {};
-    if (!String((quote as { customer_phone: string | null }).customer_phone ?? "").trim())
+    if (number && !String((quote as { customer_phone: string | null }).customer_phone ?? "").trim())
       patch.customer_phone = `+${number}`;
     const markSent = data.mark_sent && (quote as { status: string }).status === "draft";
     if (markSent) patch.status = "sent";
@@ -297,5 +303,5 @@ export const adminSendQuoteWhatsApp = createServerFn({ method: "POST" })
           .eq("stage", "orcamento_preparacao");
       }
     }
-    return { ok: true, to: `+${number}`, markedSent: markSent };
+    return { ok: true, to: number ? `+${number}` : null, markedSent: markSent };
   });

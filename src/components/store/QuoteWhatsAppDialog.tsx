@@ -2,7 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, ExternalLink, FileText, Loader2, Send, TriangleAlert } from "lucide-react";
+import {
+  Check,
+  CheckCircle2,
+  ExternalLink,
+  FileText,
+  Loader2,
+  Search,
+  Send,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +26,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { adminQuoteWhatsAppStatus, adminSendQuoteWhatsApp } from "@/lib/store/quotes.functions";
+import { adminWaListChats, type WaChat } from "@/lib/whatsapp/inbox.functions";
+import { cn } from "@/lib/utils";
 
 type QuoteLike = {
   id: string;
@@ -33,18 +45,59 @@ const BRL = (v: number) =>
 const brDate = (iso?: string | null) =>
   iso ? iso.slice(0, 10).split("-").reverse().join("/") : "";
 
-/** Só dígitos com DDI 55 — o mesmo critério do servidor. */
-function waNumber(raw: string): string | null {
-  const d = raw.replace(/\D/g, "");
-  if (!d) return null;
-  if (d.startsWith("55") && d.length >= 12 && d.length <= 13) return d;
-  if (d.length === 10 || d.length === 11) return `55${d}`;
-  return d.length >= 12 ? d : null;
-}
+const digits = (v: string | null | undefined) => (v ?? "").replace(/\D/g, "");
+const fold = (v: string | null | undefined) =>
+  (v ?? "")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim();
+const STOP = new Set(["the", "dos", "das", "de", "da", "do", "e"]);
 
 function prettyPhone(digits: string): string {
   const m = /^55(\d{2})(\d{4,5})(\d{4})$/.exec(digits);
   return m ? `+55 (${m[1]}) ${m[2]}-${m[3]}` : `+${digits}`;
+}
+
+function chatTitle(c: WaChat): string {
+  return (
+    c.customer?.full_name ||
+    c.name ||
+    (c.phone_normalized ? prettyPhone(c.phone_normalized) : "Contato")
+  );
+}
+
+function chatSubtitle(c: WaChat): string {
+  return [c.customer?.company, c.phone_normalized ? prettyPhone(c.phone_normalized) : null]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function ago(iso: string | null): string {
+  if (!iso) return "";
+  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  if (d <= 0) return "hoje";
+  if (d === 1) return "ontem";
+  if (d < 30) return `há ${d} dias`;
+  return new Date(iso).toLocaleDateString("pt-BR");
+}
+
+/** Conversa que parece ser deste cliente: mesmo telefone ou nome/empresa parecidos. */
+function matchScore(c: WaChat, q: QuoteLike): number {
+  const phone = digits(q.customer_phone);
+  if (phone.length >= 8 && digits(c.phone_normalized).endsWith(phone.slice(-8))) return 100;
+  const hay = fold([c.name, c.customer?.full_name, c.customer?.company].filter(Boolean).join(" "));
+  if (!hay) return 0;
+  let best = 0;
+  for (const who of [q.customer_company, q.customer_name]) {
+    const words = fold(who)
+      .split(/\s+/)
+      .filter((w) => w.length >= 3 && !STOP.has(w));
+    if (!words.length) continue;
+    const hits = words.filter((w) => hay.includes(w)).length;
+    best = Math.max(best, Math.round((hits / words.length) * 80));
+  }
+  return best;
 }
 
 function defaultQuoteMessage(q: QuoteLike): string {
@@ -101,25 +154,64 @@ export function QuoteWhatsAppDialog({
     staleTime: 60_000,
   });
 
-  const [phone, setPhone] = useState("");
+  const chatsFn = useServerFn(adminWaListChats);
+  const chats = useQuery({
+    queryKey: ["store", "wa-chats-for-quote"],
+    queryFn: () => chatsFn({ data: { filter: "todas" } }),
+    enabled: open,
+    staleTime: 30_000,
+  });
+  const [search, setSearch] = useState("");
+  const [chatId, setChatId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [markSent, setMarkSent] = useState(true);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!quote) return;
-    setPhone(quote.customer_phone ?? "");
+    setSearch("");
+    setChatId(null);
     setMessage(defaultQuoteMessage(quote));
     setMarkSent(quote.status === "draft");
   }, [quote]);
 
-  const number = useMemo(() => waNumber(phone), [phone]);
+  // Sugestões (mesmo telefone ou nome do cliente) primeiro; depois as conversas mais recentes.
+  const ranked = useMemo(() => {
+    if (!quote) return [] as Array<{ chat: WaChat; score: number }>;
+    const strong = (n: number) => (n >= 50 ? n : 0);
+    return (chats.data ?? [])
+      .map((chat) => ({ chat, score: matchScore(chat, quote) }))
+      .sort((a, b) => strong(b.score) - strong(a.score));
+  }, [chats.data, quote]);
+  const visible = useMemo(() => {
+    const q = fold(search);
+    const qd = digits(search);
+    const list = !q
+      ? ranked
+      : ranked.filter(({ chat }) => {
+          const hay = fold(
+            [chat.name, chat.customer?.full_name, chat.customer?.company].filter(Boolean).join(" "),
+          );
+          return hay.includes(q) || (qd.length >= 3 && digits(chat.phone_normalized).includes(qd));
+        });
+    return list.slice(0, 40);
+  }, [ranked, search]);
+
+  // Uma única sugestão forte já vem escolhida.
+  useEffect(() => {
+    if (chatId || !ranked.length) return;
+    const strong = ranked.filter((r) => r.score >= 80);
+    if (strong.length === 1) setChatId(strong[0].chat.id);
+  }, [ranked, chatId]);
+
+  const selected = (chats.data ?? []).find((c) => c.id === chatId) ?? null;
+  const number = selected?.phone_normalized ?? null;
   const ready = wa.data?.configured && wa.data?.connected;
 
   const send = async () => {
     if (!quote) return;
-    if (!number) {
-      toast.error("Informe o WhatsApp do cliente com DDD");
+    if (!selected) {
+      toast.error("Escolha a conversa do cliente");
       return;
     }
     setBusy(true);
@@ -129,14 +221,14 @@ export function QuoteWhatsAppDialog({
       const r = await sendFn({
         data: {
           id: quote.id,
-          phone: number,
+          chat_id: selected.id,
           message,
           pdf_base64,
           file_name: whatsappFileName(quote),
           mark_sent: markSent,
         },
       });
-      toast.success(`Orçamento enviado para ${prettyPhone(r.to.replace(/^\+/, ""))}`, {
+      toast.success(`Orçamento enviado para ${chatTitle(selected)}`, {
         description: r.markedSent ? "Situação alterada para Enviado." : undefined,
       });
       onSent?.();
@@ -151,7 +243,7 @@ export function QuoteWhatsAppDialog({
   /** Sem a conexão da loja: baixa o PDF e abre a conversa para anexar à mão. */
   const openManual = async () => {
     if (!quote || !number) {
-      toast.error("Informe o WhatsApp do cliente com DDD");
+      toast.error("Escolha uma conversa com número de telefone");
       return;
     }
     try {
@@ -182,7 +274,7 @@ export function QuoteWhatsAppDialog({
         if (!busy) onOpenChange(o);
       }}
     >
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[92vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-[#25D366] text-white">
@@ -210,26 +302,96 @@ export function QuoteWhatsAppDialog({
           </div>
 
           <div>
-            <Label htmlFor="qw-phone" className="text-[10px] uppercase text-muted-foreground">
-              WhatsApp do cliente
+            <Label htmlFor="qw-search" className="text-[10px] uppercase text-muted-foreground">
+              Conversa do cliente no WhatsApp
             </Label>
-            <Input
-              id="qw-phone"
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="(82) 99999-9999"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="h-10"
-            />
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="qw-search"
+                placeholder="Buscar por nome, empresa ou número…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-10 pl-9"
+                autoComplete="off"
+              />
+            </div>
+            <div
+              role="listbox"
+              aria-label="Conversas do WhatsApp"
+              className="mt-2 max-h-56 overflow-y-auto rounded-xl border"
+            >
+              {chats.isLoading ? (
+                <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Carregando conversas…
+                </div>
+              ) : chats.error ? (
+                <div className="p-3 text-xs text-destructive">
+                  Não foi possível carregar as conversas.
+                </div>
+              ) : visible.length === 0 ? (
+                <div className="p-3 text-xs text-muted-foreground">
+                  {search
+                    ? "Nenhuma conversa encontrada. O cliente precisa ter falado com a loja no WhatsApp."
+                    : "Nenhuma conversa no WhatsApp da loja ainda."}
+                </div>
+              ) : (
+                visible.map(({ chat, score }) => {
+                  const active = chat.id === chatId;
+                  return (
+                    <button
+                      key={chat.id}
+                      type="button"
+                      role="option"
+                      aria-selected={active}
+                      onClick={() => setChatId(active ? null : chat.id)}
+                      className={cn(
+                        "flex w-full items-center gap-3 border-b px-3 py-2 text-left transition-colors last:border-0",
+                        active ? "bg-[#25D366]/10" : "hover:bg-muted/60",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-semibold",
+                          active ? "bg-[#25D366] text-white" : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {active ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          chatTitle(chat).slice(0, 1).toUpperCase()
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="truncate text-sm font-medium">{chatTitle(chat)}</span>
+                          {score >= 50 && (
+                            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                              <Sparkles className="h-2.5 w-2.5" /> Sugerido
+                            </span>
+                          )}
+                        </span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {chatSubtitle(chat) || chat.last_message_preview || "—"}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-[10px] text-muted-foreground">
+                        {ago(chat.last_message_at)}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {number ? (
+              {selected ? (
                 <>
-                  Vai para <strong>{prettyPhone(number)}</strong>
-                  {quote?.customer_phone ? "" : " · fica salvo no orçamento"}
+                  Vai para <strong>{chatTitle(selected)}</strong>
+                  {number ? ` (${prettyPhone(number)})` : ""}
+                  {!quote?.customer_phone && number ? " · o número fica salvo no orçamento" : ""}
                 </>
               ) : (
-                "DDD + número. Outro país: inclua o código (ex.: +351…)."
+                "Escolha a conversa de quem já falou com a loja."
               )}
             </p>
           </div>
@@ -240,7 +402,7 @@ export function QuoteWhatsAppDialog({
             </Label>
             <Textarea
               id="qw-msg"
-              rows={7}
+              rows={6}
               maxLength={1000}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -289,7 +451,7 @@ export function QuoteWhatsAppDialog({
           <Button
             className="bg-[#25D366] text-white hover:bg-[#1ebe5a]"
             onClick={send}
-            disabled={busy || !number || !ready}
+            disabled={busy || !selected || !ready}
           >
             {busy ? (
               <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
