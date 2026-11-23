@@ -20,6 +20,7 @@ import {
   Trash2,
   Users,
   ListChecks,
+  Sheet,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ import { ProductionKanban } from "@/components/store/production/ProductionKanban
 import { ProductionDetailSheet } from "@/components/store/production/ProductionDetailSheet";
 import { ProductionPerformance } from "@/components/store/production/ProductionPerformance";
 import { ProductionScanner } from "@/components/store/production/ProductionScanner";
+import { ProductionSpreadsheet } from "@/components/store/production/ProductionSpreadsheet";
 import { printProductionLabels, printProductionSheet, printSeparationList } from "@/lib/store/production-print";
 
 export const Route = createFileRoute("/_authenticated/admin/producao")({
@@ -81,6 +83,9 @@ export const Route = createFileRoute("/_authenticated/admin/producao")({
 });
 
 const ALL = "__all__";
+const VIEW_KEY = "amt-producao-visao";
+const VIEWS = ["planilha", "kanban", "grupos", "desempenho"] as const;
+type View = (typeof VIEWS)[number];
 
 function priorityScore(j: ProductionJob) {
   const today = todayISO();
@@ -126,6 +131,25 @@ function ProductionQueuePage() {
   const [groupBy, setGroupBy] = useState<"product" | "customer" | "stage" | "deadline" | "assignee">(
     "product",
   );
+  // Visão da fila: planilha por padrão; a última escolhida fica salva neste navegador.
+  const [view, setViewState] = useState<View>("planilha");
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(VIEW_KEY);
+      if (v && (VIEWS as readonly string[]).includes(v)) setViewState(v as View);
+    } catch {
+      /* sem armazenamento: fica na planilha */
+    }
+  }, []);
+  const setView = (v: string) => {
+    if (!(VIEWS as readonly string[]).includes(v)) return;
+    setViewState(v as View);
+    try {
+      localStorage.setItem(VIEW_KEY, v);
+    } catch {
+      /* preferência só desta sessão */
+    }
+  };
   const [bulkStage, setBulkStage] = useState<string>(ALL);
   const [bulkAssignee, setBulkAssignee] = useState("");
   const [bulkDeadline, setBulkDeadline] = useState("");
@@ -323,6 +347,17 @@ function ProductionQueuePage() {
 
   function toggle(id: string) {
     setSelected((s) => ({ ...s, [id]: !s[id] }));
+  }
+
+  function selectMany(ids: string[], on: boolean) {
+    setSelected((s) => {
+      const next = { ...s };
+      for (const id of ids) {
+        if (on) next[id] = true;
+        else delete next[id];
+      }
+      return next;
+    });
   }
 
   function handleScan(raw: string) {
@@ -629,8 +664,11 @@ function ProductionQueuePage() {
         </Card>
       ) : null}
 
-      <Tabs defaultValue="kanban">
+      <Tabs value={view} onValueChange={setView}>
         <TabsList>
+          <TabsTrigger value="planilha" className="gap-2">
+            <Sheet className="h-4 w-4" /> Planilha
+          </TabsTrigger>
           <TabsTrigger value="kanban" className="gap-2">
             <Factory className="h-4 w-4" /> Kanban
           </TabsTrigger>
@@ -641,6 +679,19 @@ function ProductionQueuePage() {
             <Gauge className="h-4 w-4" /> Desempenho
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="planilha" className="mt-4">
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Carregando fila…</p>
+          ) : (
+            <ProductionSpreadsheet
+              jobs={filtered}
+              selected={selected}
+              onSelect={selectMany}
+              onOpen={setOpenJob}
+            />
+          )}
+        </TabsContent>
 
         <TabsContent value="kanban" className="mt-4">
           {isLoading ? (
